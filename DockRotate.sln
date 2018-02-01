@@ -1,0 +1,34 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DockRotate", "DockRotate\DockRotate.csproj", "{1872C48C-4CD3-4002-9022-9098AE939D3C}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{1872C48C-4CD3-4002-9022-9098AE939D3C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1872C48C-4CD3-4002-9022-9098AE939D3C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1872C48C-4CD3-4002-9022-9098AE939D3C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1872C48C-4CD3-4002-9022-9098AE939D3C}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(MonoDevelopProperties) = preSolution
+		Policies = $0
+		$0.TextStylePolicy = $1
+		$1.FileWidth = 120
+		$1.inheritsSet = Mono
+		$1.inheritsScope = text/plain
+		$1.scope = text/plain
+		$0.TextStylePolicy = $2
+		$2.inheritsSet = null
+		$2.scope = text/x-csharp
+		$0.CSharpFormattingPolicy = $3
+		$3.AfterDelegateDeclarationParameterComma = True
+		$3.inheritsSet = Mono
+		$3.inheritsScope = text/x-csharp
+		$3.scope = text/x-csharp
+		StartupItem = DockRotate\DockRotate.csproj
+	EndGlobalSection
+EndGlobal
