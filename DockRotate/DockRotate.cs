@@ -456,18 +456,6 @@ namespace DockRotate
 			if (reverseRotation)
 				angle = -angle;
 			lprint(descPart(part) + ": enqueueRotation(" + angle + ", " + speed + ")");
-			// ConfigurableJoint joint = part.attachJoint.Joint;
-			// joint.angularXMotion = ConfigurableJointMotion.Free;
-
-			/*
-			JointDrive prevjd = joint.angularXDrive;
-			JointDrive jd = new JointDrive();
-			jd.maximumForce = prevjd.maximumForce;
-			jd.positionSpring = prevjd.positionSpring;
-			jd.positionDamper = prevjd.positionDamper;
-			joint.angularXDrive = jd;
-			lprint("JointDrive " + descDrv(prevjd) + " -> " + descDrv(jd));
-			*/
 
 			// disableAutoStruts();
 
@@ -485,9 +473,6 @@ namespace DockRotate
 			lprint("axis length " + axis.magnitude);
 			Quaternion rot = Quaternion.AngleAxis(angle, axis);
 			lprint("staticize " + rot.eulerAngles);
-			// part.attachJoint.SecAxis = rot * part.attachJoint.SecAxis;
-			// lprint("secAxis " + part.attachJoint.Joint.secondaryAxis);
-			// lprint("startSecAxis " + rotCur.startSecondaryAxis);
 			PartJoint joint = part.attachJoint;
 			for (int i = 0; i < joint.joints.Count; i++) {
 				joint.joints[i].secondaryAxis = rot * part.attachJoint.Joint.secondaryAxis;
