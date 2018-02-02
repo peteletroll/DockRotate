@@ -642,9 +642,18 @@ namespace DockRotate
 			lprint("--- DUMP " + descPart(part) + " -----------------------");
 			lprint("mass: " + part.mass);
 			lprint("parent: " + descPart(part.parent));
+
+			ModuleDockingNode thisNode = part.FindModuleImplementing<ModuleDockingNode>();
+			if (thisNode) {
+				ModuleDockingNode otherNode = thisNode.FindOtherNode ();
+				if (otherNode)
+					lprint ("other: " + descPart(otherNode.part));
+			}
+
 			ModuleDockingNode parentNode = part.parent.FindModuleImplementing<ModuleDockingNode>();
 			if (parentNode)
 				lprint("IDs: " + part.flightID + " " + parentNode.dockedPartUId);
+
 			lprint("orgPos: " + part.orgPos);
 			lprint("orgRot: " + part.orgRot);
 			lprint("rotationAxis(): " + rotationAxis());
