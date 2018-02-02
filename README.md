@@ -1,10 +1,10 @@
 # DockRotate
 
-Tired of misaligned solar panel trusses on your space stations?
-
 Needing foldable arms for antennas on your satellites?
 
 Wanting to try VTOL vehicles with moving engines?
+
+Tired of misaligned solar panel trusses on your space stations?
 
 This plugin can help you.
 
@@ -14,4 +14,4 @@ And if you want to uninstall the module, you won't lose any ship, because there'
 
 Rotation will malfunction if parts on opposite sides of the rotating joint are connected by struts or autostruts. Autostrut display can be toggled via right-click menu for help.
 
-( * ) Clamp-O-Tron Sr. is more complex, I'm currently fighting with their triple ConfigurableJoint. Shielded and inline ports are in the TODO list.
+( * ) Clamp-O-Tron Sr. are more complex, I'm currently fighting with their triple ConfigurableJoint. Shielded and inline ports are in the TODO list.
