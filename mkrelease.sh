@@ -13,3 +13,8 @@ fi
 
 echo version $version
 
+tmp=`mktemp -d`
+trap "rm -rf $tmp" EXIT
+
+echo tmpdir $tmp
+
