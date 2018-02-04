@@ -32,10 +32,10 @@ do
 	fi
 done
 
-rm -f Resources/ModuleManager.*.dll
-cp ~/KSP/KSP_linux/GameData/ModuleManager.*.dll Resources || exit 1
-
 echo generating package in $tmp
+
+rm -f Resources/ModuleManager.*.dll
+cp ~/KSP/KSP_linux/GameData/ModuleManager.*.dll $dir/.. || exit 1
 
 cp $dll README.md LICENSE.md Resources/* $dir || exit 1
 
