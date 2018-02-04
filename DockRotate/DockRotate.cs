@@ -405,6 +405,11 @@ namespace DockRotate
 			GameEvents.onVesselGoOffRails.Add(OnVesselGoOffRails);
 		}
 
+		public override void OnActive()
+		{
+			lprint("OnActive()");
+		}
+
 		public void OnDestroy()
 		{
 			lprint("OnDestroy()");
