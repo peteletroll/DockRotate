@@ -280,11 +280,14 @@ namespace DockRotate
 		private ModuleDockingNode thisDockingNode;
 		private ModuleDockRotate activeRotationModule; // the active module of the couple is the farthest one from the root part
 
-		private void setup()
+		private void setup(bool active)
 		{
 			vesselPartCount = 0;
 			thisDockingNode = null;
 			activeRotationModule = null;
+
+			if (!active)
+				return;
 
 			if (part)
 				thisDockingNode = part.FindModuleImplementing<ModuleDockingNode>();
@@ -312,6 +315,11 @@ namespace DockRotate
 				status = "proxy to " + descPart(activeRotationModule.part);
 			}
 			lprint("setup(" + descPart(part) + "): " + status);
+		}
+
+		private bool needSetup()
+		{
+			return !part || !part.vessel || part.vessel.parts.Count != vesselPartCount;
 		}
 
 		private bool canRotate() // must be used only in setup()
@@ -445,17 +453,18 @@ namespace DockRotate
 		{
 			if (v != vessel)
 				return;
-			lprint("OnVesselGoOnRails()");
+			// lprint("OnVesselGoOnRails()");
 			onRails = true;
+			setup(false);
 		}
 
 		public void OnVesselGoOffRails (Vessel v)
 		{
 			if (v != vessel)
 				return;
-			lprint("OnVesselGoOffRails()");
+			// lprint("OnVesselGoOffRails()");
 			onRails = false;
-			setup();
+			setup(true);
 		}
 
 		public override void OnStart(StartState state)
@@ -470,6 +479,8 @@ namespace DockRotate
 
 		public override void OnUpdate()
 		{
+			if (needSetup())
+				setup(true);
 			checkGuiActive();
 			dockingAngle = rotationAngle();
 		}
@@ -545,8 +556,12 @@ namespace DockRotate
 
 		private void advanceRotation(float deltat)
 		{
+			if (needSetup())
+				setup(true);
+
 			if (rotCur == null)
 				return;
+
 			if (!part.attachJoint || !part.attachJoint.Joint) {
 				lprint("detached, aborting rotation");
 				rotCur = null;
