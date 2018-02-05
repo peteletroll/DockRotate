@@ -207,8 +207,7 @@ namespace DockRotate
 		[KSPAction(guiName = "Rotate Clockwise", requireFullControl = true)]
 		public void RotateClockwise(KSPActionParam param)
 		{
-			if (rotationEnabled)
-				RotateClockwise();
+			RotateClockwise();
 		}
 
 		[KSPEvent(
@@ -218,16 +217,14 @@ namespace DockRotate
 		)]
 		public void RotateClockwise()
 		{
-			ModuleDockRotate m = findRotationModule();
-			if (m != null)
-				m.enqueueRotation(rotationStep, rotationSpeed);
+			if (canStartRotation())
+				activeRotationModule.enqueueRotation(rotationStep, rotationSpeed);
 		}
 
 		[KSPAction(guiName = "Rotate Counterclockwise", requireFullControl = true)]
 		public void RotateCounterclockwise(KSPActionParam param)
 		{
-			if (rotationEnabled)
-				RotateCounterclockwise();
+			RotateCounterclockwise();
 		}
 
 		[KSPEvent(
@@ -237,9 +234,8 @@ namespace DockRotate
 		)]
 		public void RotateCounterclockwise()
 		{
-			ModuleDockRotate m = findRotationModule();
-			if (m != null)
-				m.enqueueRotation(-rotationStep, rotationSpeed);
+			if (canStartRotation())
+				activeRotationModule.enqueueRotation(-rotationStep, rotationSpeed);
 		}
 
 		[KSPEvent(
@@ -249,13 +245,13 @@ namespace DockRotate
 		)]
 		public void RotateToSnap()
 		{
-			if (rotCur != null)
+			if (rotCur != null || !canStartRotation ())
 				return;
 			float a = rotationAngle();
 			float f = rotationStep * Mathf.Floor(a / rotationStep);
 			if (a - f > rotationStep / 2)
 				f += rotationStep;
-			findRotationModule().enqueueRotation(f - a, rotationSpeed);
+			activeRotationModule.enqueueRotation(f - a, rotationSpeed);
 		}
 
 		[KSPEvent(
@@ -278,40 +274,63 @@ namespace DockRotate
 			dumpPart();
 		}
 
-		private RotationAnimation rotCur = null;
+		/* things to be initialized by initialize() */
 
-		private bool onRails;
+		private ModuleDockingNode thisDockingNode;
+		private ModuleDockRotate activeRotationModule; // the active module of the couple is the farthest one from the root part
 
-		private bool canEnqueueRotation()
+		private void initialize()
+		{
+			thisDockingNode = null;
+			activeRotationModule = null;
+
+			if (part)
+				thisDockingNode = part.FindModuleImplementing<ModuleDockingNode>();
+
+			if (canRotate()) {
+				activeRotationModule = this;
+			} else {
+				for (int i = 0; i < part.children.Count; i++) {
+					Part p = part.children[i];
+					ModuleDockRotate dr = p.FindModuleImplementing<ModuleDockRotate>();
+					if (dr && dr.canRotate()) {
+						activeRotationModule = dr;
+						break;
+					}
+				}
+			}
+
+			string status = "inactive";
+			if (activeRotationModule == this) {
+				status = "active";
+			} else if (activeRotationModule) {
+				status = "proxy to " + descPart(activeRotationModule.part);
+			}
+			lprint("initialize(" + descPart(part) + "): " + status);
+		}
+
+		private bool canRotate() // must be used only in initialize()
 		{
 			if (!part || !part.parent)
 				return false;
-
-			if (!part.vessel || part.vessel.CurrentControlLevel != Vessel.ControlLevel.FULL)
-				return false;
-
 			ModuleDockingNode parentNode = part.parent.FindModuleImplementing<ModuleDockingNode>();
 			ModuleDockRotate parentRotate = part.parent.FindModuleImplementing<ModuleDockRotate>();
-			return !onRails
-				&& part.parent.name.Equals(part.name)
+			return part.parent.name.Equals(part.name)
 				&& parentRotate
 				&& parentNode && parentNode.state != null;
 		}
 
-		private ModuleDockRotate findRotationModule()
+		private RotationAnimation rotCur = null;
+
+		private bool onRails;
+
+		private bool canStartRotation()
 		{
-			// the active module of the couple is the farthest one from the root part
-			if (!rotationEnabled)
-				return null;
-			if (canEnqueueRotation())
-				return this;
-			for (int i = 0; i < part.children.Count; i++) {
-				Part p = part.children[i];
-				ModuleDockRotate dr = p.FindModuleImplementing<ModuleDockRotate>();
-				if (dr != null && dr.canEnqueueRotation())
-					return dr;
-			}
-			return null;
+			return !onRails
+				&& rotationEnabled
+				&& activeRotationModule
+				&& part.vessel
+				&& part.vessel.CurrentControlLevel == Vessel.ControlLevel.FULL;
 		}
 
 		private Vector3 rotationAxis()
@@ -321,7 +340,7 @@ namespace DockRotate
 
 		private float rotationAngle()
 		{
-			ModuleDockRotate module = findRotationModule();
+			ModuleDockRotate module = activeRotationModule;
 			if (!module)
 				return float.NaN;
 			Vector3 v1 = module.part.orgRot * Vector3.forward;
@@ -354,7 +373,7 @@ namespace DockRotate
 		{
 			int i;
 
-			bool newGuiActive = rotationEnabled && findRotationModule() != null;
+			bool newGuiActive = rotationEnabled && canStartRotation();
 
 			for (i = 0; i < guiList.Length; i++) {
 				string[] spec = guiList[i].Split(guiListSep);
@@ -431,6 +450,7 @@ namespace DockRotate
 				return;
 			lprint("OnVesselGoOffRails()");
 			onRails = false;
+			initialize();
 		}
 
 		public override void OnStart(StartState state)
@@ -505,7 +525,7 @@ namespace DockRotate
 		PartSet rotatingPartSet()
 		{
 			PartSet ret = new PartSet();
-			ModuleDockRotate m = findRotationModule();
+			ModuleDockRotate m = activeRotationModule;
 			if (m)
 				_collect(ret, m.part);
 			return ret;
@@ -648,9 +668,9 @@ namespace DockRotate
 			lprint("mass: " + part.mass);
 			lprint("parent: " + descPart(part.parent));
 
-			ModuleDockingNode thisNode = part.FindModuleImplementing<ModuleDockingNode>();
-			if (thisNode) {
-				ModuleDockingNode otherNode = thisNode.FindOtherNode ();
+			if (thisDockingNode) {
+				lprint("size: " + thisDockingNode.nodeType); 
+				ModuleDockingNode otherNode = thisDockingNode.FindOtherNode ();
 				if (otherNode)
 					lprint ("other: " + descPart(otherNode.part));
 			}
