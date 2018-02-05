@@ -1,0 +1,12 @@
+* localization
+
+* add call to initialize() when vessel structure changes (Vessel.parts.Count changes)
+
+* move staticizeRotation() to RotationAnimation
+
+* handle vessel structure change during rotation properly
+
+* finish docking port sr. support
+
+* add inline docking port support
+
