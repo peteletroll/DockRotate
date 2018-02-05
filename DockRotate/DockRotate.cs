@@ -276,16 +276,21 @@ namespace DockRotate
 
 		/* things to be setup by setup() */
 
+		private int vesselPartCount;
 		private ModuleDockingNode thisDockingNode;
 		private ModuleDockRotate activeRotationModule; // the active module of the couple is the farthest one from the root part
 
 		private void setup()
 		{
+			vesselPartCount = 0;
 			thisDockingNode = null;
 			activeRotationModule = null;
 
 			if (part)
 				thisDockingNode = part.FindModuleImplementing<ModuleDockingNode>();
+
+			if (part && part.vessel)
+				vesselPartCount = part.vessel.parts.Count;
 
 			if (canRotate()) {
 				activeRotationModule = this;
