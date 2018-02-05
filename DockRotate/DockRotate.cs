@@ -274,12 +274,12 @@ namespace DockRotate
 			dumpPart();
 		}
 
-		/* things to be initialized by initialize() */
+		/* things to be setup by setup() */
 
 		private ModuleDockingNode thisDockingNode;
 		private ModuleDockRotate activeRotationModule; // the active module of the couple is the farthest one from the root part
 
-		private void initialize()
+		private void setup()
 		{
 			thisDockingNode = null;
 			activeRotationModule = null;
@@ -306,10 +306,10 @@ namespace DockRotate
 			} else if (activeRotationModule) {
 				status = "proxy to " + descPart(activeRotationModule.part);
 			}
-			lprint("initialize(" + descPart(part) + "): " + status);
+			lprint("setup(" + descPart(part) + "): " + status);
 		}
 
-		private bool canRotate() // must be used only in initialize()
+		private bool canRotate() // must be used only in setup()
 		{
 			if (!part || !part.parent)
 				return false;
@@ -450,7 +450,7 @@ namespace DockRotate
 				return;
 			lprint("OnVesselGoOffRails()");
 			onRails = false;
-			initialize();
+			setup();
 		}
 
 		public override void OnStart(StartState state)
