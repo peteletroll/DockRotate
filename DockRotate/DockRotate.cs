@@ -218,7 +218,7 @@ namespace DockRotate
 		public void RotateClockwise()
 		{
 			if (canStartRotation())
-				activeRotationModule.enqueueRotation(rotationStep, rotationSpeed);
+				activeRotationModule.enqueueRotation(rotationStep, rotationSpeed, false);
 		}
 
 		[KSPAction(guiName = "Rotate Counterclockwise", requireFullControl = true)]
@@ -235,7 +235,7 @@ namespace DockRotate
 		public void RotateCounterclockwise()
 		{
 			if (canStartRotation())
-				activeRotationModule.enqueueRotation(-rotationStep, rotationSpeed);
+				activeRotationModule.enqueueRotation(-rotationStep, rotationSpeed, false);
 		}
 
 		[KSPEvent(
@@ -251,7 +251,8 @@ namespace DockRotate
 			float f = rotationStep * Mathf.Floor(a / rotationStep);
 			if (a - f > rotationStep / 2)
 				f += rotationStep;
-			activeRotationModule.enqueueRotation(f - a, rotationSpeed);
+			lprint("snap " + a + " to " + f + " (" + (f - a) + ")");
+			activeRotationModule.enqueueRotation(f - a, rotationSpeed, true);
 		}
 
 		[KSPEvent(
@@ -492,9 +493,9 @@ namespace DockRotate
 			advanceRotation(Time.fixedDeltaTime);
 		}
 
-		void enqueueRotation(float angle, float speed)
+		void enqueueRotation(float angle, float speed, bool ignoreReverse)
 		{
-			if (reverseRotation)
+			if (!ignoreReverse && reverseRotation)
 				angle = -angle;
 			lprint(descPart(part) + ": enqueueRotation(" + angle + ", " + speed + ")");
 
