@@ -4,7 +4,7 @@
 
 * handle vessel structure change during rotation properly
 	* store initial orgRot and orgPos
-	* update part orgRot ant orgPos during motion 
+	* update part orgRot ant orgPos during motion
 	* if rotation aborts, part orgRot and orgPos are always updated
 
 * finish docking port sr. support
