@@ -245,7 +245,7 @@ namespace DockRotate
 		)]
 		public void RotateToSnap()
 		{
-			if (rotCur != null || !canStartRotation ())
+			if (rotCur != null || !canStartRotation())
 				return;
 			float a = rotationAngle();
 			float f = rotationStep * Mathf.Floor(a / rotationStep);
@@ -275,34 +275,32 @@ namespace DockRotate
 			dumpPart();
 		}
 
-		/* things to be setup by setup() */
+		// things to be set up by setup()
+		// the active module of the couple is the farthest one from the root part
 
 		private int vesselPartCount;
-		private ModuleDockingNode thisDockingNode;
-		private ModuleDockRotate activeRotationModule; // the active module of the couple is the farthest one from the root part
+		private ModuleDockRotate activeRotationModule;
 
-		private void setup(bool active)
+		private void reset()
 		{
 			vesselPartCount = 0;
-			thisDockingNode = null;
 			activeRotationModule = null;
+		}
 
-			if (!active)
-				return;
-
-			if (part)
-				thisDockingNode = part.FindModuleImplementing<ModuleDockingNode>();
+		private void setup()
+		{
+			reset();
 
 			if (part && part.vessel)
 				vesselPartCount = part.vessel.parts.Count;
 
-			if (canRotate()) {
+			if (isActive()) {
 				activeRotationModule = this;
 			} else {
 				for (int i = 0; i < part.children.Count; i++) {
 					Part p = part.children[i];
 					ModuleDockRotate dr = p.FindModuleImplementing<ModuleDockRotate>();
-					if (dr && dr.canRotate()) {
+					if (dr && dr.isActive()) {
 						activeRotationModule = dr;
 						break;
 					}
@@ -318,12 +316,7 @@ namespace DockRotate
 			lprint("setup(" + descPart(part) + "): " + status);
 		}
 
-		private bool needSetup()
-		{
-			return !part || !part.vessel || part.vessel.parts.Count != vesselPartCount;
-		}
-
-		private bool canRotate() // must be used only in setup()
+		private bool isActive() // must be used only in setup()
 		{
 			if (!part || !part.parent)
 				return false;
@@ -332,6 +325,11 @@ namespace DockRotate
 			return part.parent.name.Equals(part.name)
 				&& parentRotate
 				&& parentNode && parentNode.state != null;
+		}
+
+		private bool needSetup()
+		{
+			return !part || !part.vessel || part.vessel.parts.Count != vesselPartCount;
 		}
 
 		private RotationAnimation rotCur = null;
@@ -349,15 +347,12 @@ namespace DockRotate
 
 		private Vector3 rotationAxis()
 		{
-			return (part.orgPos - part.parent.orgPos).normalized;
+			Part activePart = activeRotationModule.part;
+			return (activePart.orgPos - activePart.parent.orgPos).normalized;
 		}
 
 		private float rotationAngle()
 		{
-			// BUG IS HERE!
-			// this returns the right angle on active part,
-			// and the wrong (negative) angle on the passive part
-
 			ModuleDockRotate module = activeRotationModule;
 			if (!module)
 				return float.NaN;
@@ -391,7 +386,7 @@ namespace DockRotate
 		{
 			int i;
 
-			bool newGuiActive = rotationEnabled && canStartRotation();
+			bool newGuiActive = canStartRotation();
 
 			for (i = 0; i < guiList.Length; i++) {
 				string[] spec = guiList[i].Split(guiListSep);
@@ -460,16 +455,16 @@ namespace DockRotate
 				return;
 			// lprint("OnVesselGoOnRails()");
 			onRails = true;
-			setup(false);
+			reset();
 		}
 
-		public void OnVesselGoOffRails (Vessel v)
+		public void OnVesselGoOffRails(Vessel v)
 		{
 			if (v != vessel)
 				return;
 			// lprint("OnVesselGoOffRails()");
 			onRails = false;
-			setup(true);
+			setup();
 		}
 
 		public override void OnStart(StartState state)
@@ -485,7 +480,7 @@ namespace DockRotate
 		public override void OnUpdate()
 		{
 			if (needSetup())
-				setup(true);
+				setup();
 			checkGuiActive();
 			dockingAngle = rotationAngle();
 		}
@@ -499,6 +494,11 @@ namespace DockRotate
 
 		void enqueueRotation(float angle, float speed, bool ignoreReverse)
 		{
+			if (activeRotationModule != this) {
+				lprint("activeRotationModule() called on wrong module, ignoring");
+				return;
+			}
+
 			if (!ignoreReverse && reverseRotation)
 				angle = -angle;
 			lprint(descPart(part) + ": enqueueRotation(" + angle + ", " + speed + ")");
@@ -561,8 +561,13 @@ namespace DockRotate
 
 		private void advanceRotation(float deltat)
 		{
+			if (activeRotationModule != this) {
+				lprint("advanceRotation() called on wrong module, ignoring");
+				return;
+			}
+
 			if (needSetup())
-				setup(true);
+				setup();
 
 			if (rotCur == null)
 				return;
@@ -693,11 +698,12 @@ namespace DockRotate
 			lprint("mass: " + part.mass);
 			lprint("parent: " + descPart(part.parent));
 
-			if (thisDockingNode) {
-				lprint("size: " + thisDockingNode.nodeType); 
-				ModuleDockingNode otherNode = thisDockingNode.FindOtherNode ();
+			ModuleDockingNode thisNode = part.parent.FindModuleImplementing<ModuleDockingNode>();
+			if (thisNode) {
+				lprint("size: " + thisNode.nodeType); 
+				ModuleDockingNode otherNode = thisNode.FindOtherNode();
 				if (otherNode)
-					lprint ("other: " + descPart(otherNode.part));
+					lprint("other: " + descPart(otherNode.part));
 			}
 
 			ModuleDockingNode parentNode = part.parent.FindModuleImplementing<ModuleDockingNode>();
