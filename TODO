@@ -11,3 +11,4 @@
 
 * add inline docking port support
 
+* refactor checkGuiActive() to remove the guiList[] logic
