@@ -340,11 +340,11 @@ namespace DockRotate
 
 		private float rotationAngle()
 		{
-			ModuleDockRotate module = activeRotationModule;
-			if (!module)
+			if (!activeRotationModule)
 				return float.NaN;
-			Vector3 v1 = module.part.orgRot * Vector3.forward;
-			Vector3 v2 = module.part.parent.orgRot * Vector3.forward;
+			Part p = activeRotationModule.part;
+			Vector3 v1 = p.orgRot * Vector3.forward;
+			Vector3 v2 = p.parent.orgRot * Vector3.forward;
 			Vector3 a = rotationAxis();
 			float angle = Vector3.Angle(v1, v2);
 			float axisAngle = Vector3.Angle(a, Vector3.Cross(v2, v1));
