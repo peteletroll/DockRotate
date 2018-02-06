@@ -267,7 +267,7 @@ namespace DockRotate
 
 		private void reset()
 		{
-			vesselPartCount = 0;
+			vesselPartCount = -1;
 			activeRotationModule = null;
 		}
 
@@ -311,9 +311,12 @@ namespace DockRotate
 				&& parentNode && parentNode.state != null;
 		}
 
-		private bool needSetup()
+		private bool setupIfNeeded()
 		{
-			return !part || !part.vessel || part.vessel.parts.Count != vesselPartCount;
+			bool needed = !part || !part.vessel || part.vessel.parts.Count != vesselPartCount;
+			if (needed)
+				setup();
+			return needed;
 		}
 
 		private RotationAnimation rotCur = null;
@@ -463,8 +466,7 @@ namespace DockRotate
 
 		public override void OnUpdate()
 		{
-			if (needSetup())
-				setup();
+			setupIfNeeded();
 			checkGuiActive();
 			dockingAngle = rotationAngle();
 		}
@@ -473,6 +475,7 @@ namespace DockRotate
 		{
 			if (HighLogic.LoadedScene != GameScenes.FLIGHT)
 				return;
+			setupIfNeeded();
 			advanceRotation(Time.fixedDeltaTime);
 		}
 
@@ -484,8 +487,6 @@ namespace DockRotate
 			}
 
 			lprint(descPart(part) + ": enqueueRotation(" + angle + ", " + speed + ")");
-
-			// disableAutoStruts();
 
 			if (rotCur != null) {
 				rotCur.tgt += angle;				
@@ -531,9 +532,6 @@ namespace DockRotate
 				lprint("advanceRotation() called on wrong module, ignoring");
 				return;
 			}
-
-			if (needSetup())
-				setup();
 
 			if (rotCur == null)
 				return;
