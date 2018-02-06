@@ -17,18 +17,28 @@ Global
 	GlobalSection(MonoDevelopProperties) = preSolution
 		Policies = $0
 		$0.TextStylePolicy = $1
-		$1.FileWidth = 120
-		$1.inheritsSet = Mono
-		$1.inheritsScope = text/plain
 		$1.scope = text/plain
+		$1.TabWidth = 8
+		$1.IndentWidth = 8
 		$0.TextStylePolicy = $2
-		$2.inheritsSet = null
 		$2.scope = text/x-csharp
+		$2.EolMarker = Unix
 		$0.CSharpFormattingPolicy = $3
 		$3.AfterDelegateDeclarationParameterComma = True
-		$3.inheritsSet = Mono
-		$3.inheritsScope = text/x-csharp
 		$3.scope = text/x-csharp
+		$3.NewLinesForBracesInProperties = False
+		$3.NewLinesForBracesInAccessors = False
+		$3.NewLinesForBracesInAnonymousMethods = False
+		$3.NewLinesForBracesInControlBlocks = False
+		$3.NewLinesForBracesInAnonymousTypes = False
+		$3.NewLinesForBracesInObjectCollectionArrayInitializers = False
+		$3.NewLinesForBracesInLambdaExpressionBody = False
+		$3.NewLineForElse = False
+		$3.NewLineForCatch = False
+		$3.NewLineForFinally = False
+		$3.NewLineForMembersInObjectInit = False
+		$3.NewLineForMembersInAnonymousTypes = False
+		$3.NewLineForClausesInQuery = False
 		StartupItem = DockRotate\DockRotate.csproj
 	EndGlobalSection
 EndGlobal
