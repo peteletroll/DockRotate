@@ -16,6 +16,11 @@ namespace DockRotate
 		const float accelTime = 2.0f;
 		const float stopMargin = 1.5f;
 
+		static public void lprint(string msg)
+		{
+			ModuleDockRotate.lprint(msg);
+		}
+
 		public RotationAnimation(float pos, float tgt, float maxvel, PartJoint joint)
 		{
 			this.pos = pos;
@@ -32,32 +37,10 @@ namespace DockRotate
 			if (finished)
 				return;
 			if (!started) {
-				// ModuleDockRotate.lprint("activating rotation");
-				startRotation = new Quaternion[joint.joints.Count];
-				startPosition = new Vector3[joint.joints.Count];
-				for (int i = 0; i < joint.joints.Count; i++) {
-					ConfigurableJoint j = joint.joints[i];
-					startRotation[i] = j.targetRotation;
-					startPosition[i] = j.targetPosition;
-					ConfigurableJointMotion f = ConfigurableJointMotion.Free;
-					j.angularXMotion = f;
-					j.xMotion = f;
-					// j.yMotion = f;
-					j.zMotion = f;
-					if (i != 0) {
-						JointDrive d = j.xDrive;
-						d.positionSpring = 0;
-						j.xDrive = d;
-						j.yDrive = d;
-						j.zDrive = d;
-					}
-				}
+				onStart();
 				started = true;
-				ModuleDockRotate.lprint("rotation activated (" + pos + ", " + tgt + ")");
-				// ModuleDockRotate.lprint("started");
+				lprint("rotation started (" + pos + ", " + tgt + ")");
 			}
-
-			// ModuleDockRotate.lprint("advancing");
 
 			bool goingRightWay = (tgt - pos) * vel >= 0;
 			float brakingTime = Mathf.Abs(vel) / maxacc + 2 * stopMargin * deltat;
@@ -77,6 +60,39 @@ namespace DockRotate
 			vel = newvel;
 			pos += deltat * vel;
 
+			onStep();
+
+			if (!finished && done(deltat)) {
+				onStop();
+				lprint("rotation stopped");
+			}
+		}
+
+		private void onStart()
+		{
+			startRotation = new Quaternion [joint.joints.Count];
+			startPosition = new Vector3 [joint.joints.Count];
+			for (int i = 0; i < joint.joints.Count; i++) {
+				ConfigurableJoint j = joint.joints [i];
+				startRotation [i] = j.targetRotation;
+				startPosition [i] = j.targetPosition;
+				ConfigurableJointMotion f = ConfigurableJointMotion.Free;
+				j.angularXMotion = f;
+				j.xMotion = f;
+				// j.yMotion = f;
+				j.zMotion = f;
+				if (i != 0) {
+					JointDrive d = j.xDrive;
+					d.positionSpring = 0;
+					j.xDrive = d;
+					j.yDrive = d;
+					j.zDrive = d;
+				}
+			}
+		}
+
+		private void onStep()
+		{
 			for (int i = 0; i < joint.joints.Count; i++) {
 				ConfigurableJoint j = joint.joints[i];
 				Quaternion rot = currentRotation(i);
@@ -86,28 +102,21 @@ namespace DockRotate
 				// joint.joints[i].anchor = rot * joint.joints[i].anchor;
 				// joint.joints[i].connectedAnchor = rot * joint.joints[i].connectedAnchor;
 			}
-			// ModuleDockRotate.lprint("advanced");
-
-			if (!finished && done(deltat)) {
-				// ModuleDockRotate.lprint("finishing");
-				pos = tgt;
-				/*
-				rotatingJoint.angularXMotion = savedXMotion;
-				for (int i = 0; i < joint.joints.Count; i++)
-					ModuleDockRotate.lprint("restored XMotion " + joint.joints[i].angularXMotion);
-				*/
-				ModuleDockRotate.lprint("finished");
-			}
 		}
 
-		public float currentAngle()
+		private void onStop()
 		{
-			return pos;
+			pos = tgt;
+			/*
+			rotatingJoint.angularXMotion = savedXMotion;
+			for (int i = 0; i < joint.joints.Count; i++)
+				ModuleDockRotate.lprint("restored XMotion " + joint.joints[i].angularXMotion);
+			*/
 		}
 
 		public Quaternion currentRotation(int i)
 		{
-			Quaternion newRotation = Quaternion.Euler(new Vector3(currentAngle(), 0, 0));
+			Quaternion newRotation = Quaternion.Euler(new Vector3(pos, 0, 0));
 			return startRotation[i] * newRotation;
 		}
 
@@ -115,7 +124,7 @@ namespace DockRotate
 			return finished;
 		}
 
-		public bool done(float deltat)
+		private bool done(float deltat)
 		{
 			if (finished)
 				return true;
