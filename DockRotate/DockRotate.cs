@@ -192,8 +192,12 @@ namespace DockRotate
 		)]
 		public void RotateClockwise()
 		{
-			if (canStartRotation())
-				activeRotationModule.enqueueRotation(rotationStep, rotationSpeed, false);
+			if (canStartRotation()) {
+				float s = rotationStep;
+				if (reverseRotation)
+					s = -s;
+				activeRotationModule.enqueueRotation(s, rotationSpeed);
+			}
 		}
 
 		[KSPAction(guiName = "Rotate Counterclockwise", requireFullControl = true)]
@@ -209,8 +213,12 @@ namespace DockRotate
 		)]
 		public void RotateCounterclockwise()
 		{
-			if (canStartRotation())
-				activeRotationModule.enqueueRotation(-rotationStep, rotationSpeed, false);
+			if (canStartRotation()) {
+				float s = -rotationStep;
+				if (reverseRotation)
+					s = -s;
+				activeRotationModule.enqueueRotation(s, rotationSpeed);
+			}
 		}
 
 		[KSPEvent(
@@ -227,7 +235,7 @@ namespace DockRotate
 			if (a - f > rotationStep / 2)
 				f += rotationStep;
 			lprint("snap " + a + " to " + f + " (" + (f - a) + ")");
-			activeRotationModule.enqueueRotation(f - a, rotationSpeed, true);
+			activeRotationModule.enqueueRotation(f - a, rotationSpeed);
 		}
 
 		[KSPEvent(
@@ -467,15 +475,13 @@ namespace DockRotate
 			advanceRotation(Time.fixedDeltaTime);
 		}
 
-		void enqueueRotation(float angle, float speed, bool ignoreReverse)
+		void enqueueRotation(float angle, float speed)
 		{
 			if (activeRotationModule != this) {
 				lprint("activeRotationModule() called on wrong module, ignoring");
 				return;
 			}
 
-			if (!ignoreReverse && reverseRotation)
-				angle = -angle;
 			lprint(descPart(part) + ": enqueueRotation(" + angle + ", " + speed + ")");
 
 			// disableAutoStruts();
