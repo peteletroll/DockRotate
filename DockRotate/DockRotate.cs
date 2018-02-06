@@ -476,7 +476,8 @@ namespace DockRotate
 			if (HighLogic.LoadedScene != GameScenes.FLIGHT)
 				return;
 			setupIfNeeded();
-			advanceRotation(Time.fixedDeltaTime);
+			if (rotCur != null)
+				advanceRotation(Time.fixedDeltaTime);
 		}
 
 		void enqueueRotation(float angle, float speed)
@@ -532,9 +533,6 @@ namespace DockRotate
 				lprint("advanceRotation() called on wrong module, ignoring");
 				return;
 			}
-
-			if (rotCur == null)
-				return;
 
 			if (!part.attachJoint || !part.attachJoint.Joint) {
 				lprint("detached, aborting rotation");
