@@ -70,12 +70,13 @@ namespace DockRotate
 
 		private void onStart()
 		{
-			startRotation = new Quaternion [joint.joints.Count];
-			startPosition = new Vector3 [joint.joints.Count];
-			for (int i = 0; i < joint.joints.Count; i++) {
-				ConfigurableJoint j = joint.joints [i];
-				startRotation [i] = j.targetRotation;
-				startPosition [i] = j.targetPosition;
+			int c = joint.joints.Count;
+			startRotation = new Quaternion[c];
+			startPosition = new Vector3[c];
+			for (int i = 0; i < c; i++) {
+				ConfigurableJoint j = joint.joints[i];
+				startRotation[i] = j.targetRotation;
+				startPosition[i] = j.targetPosition;
 				ConfigurableJointMotion f = ConfigurableJointMotion.Free;
 				j.angularXMotion = f;
 				j.xMotion = f;
