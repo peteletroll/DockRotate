@@ -135,40 +135,6 @@ namespace DockRotate
 		}
 	}
 
-	public class PartSet: Dictionary<string, Part>
-	{
-		private static string key(Part part)
-		{
-			return part.name + "_" + part.flightID;
-		}
-
-		public void add(Part part)
-		{
-			Add(key(part), part);
-		}
-
-		public bool contains(Part Part)
-		{
-			return ContainsKey(key(Part));
-		}
-
-		public Part[] parts()
-		{
-			List<Part> ret = new List<Part>();
-			foreach (KeyValuePair<string, Part> i in this) {
-				ret.Add(i.Value);
-			}
-			return ret.ToArray();
-		}
-
-		public void dump()
-		{
-			Part[] p = parts();
-			for (int i = 0; i < p.Length; i++)
-				ModuleDockRotate.lprint("rotPart " + key(p[i]));
-		}
-	}
-
 	public class ModuleDockRotate: PartModule
 	{
 		[UI_Toggle()]
@@ -552,22 +518,6 @@ namespace DockRotate
 				_propagate(p.children[i], rot);
 		}
 
-		PartSet rotatingPartSet()
-		{
-			PartSet ret = new PartSet();
-			ModuleDockRotate m = activeRotationModule;
-			if (m)
-				_collect(ret, m.part);
-			return ret;
-		}
-
-		private void _collect(PartSet s, Part p)
-		{
-			s.add(p);
-			for (int i = 0; i < p.children.Count; i++)
-				_collect(s, p.children[i]);
-		}
-
 		private void advanceRotation(float deltat)
 		{
 			if (activeRotationModule != this) {
@@ -593,23 +543,6 @@ namespace DockRotate
 				lprint(descPart(part) + ": rotation finished");
 				staticizeRotation(rotCur.tgt);
 				rotCur = null;
-			}
-		}
-
-		private void disableAutoStruts() {
-			if (!part.vessel)
-				return;
-			PartSet rp = rotatingPartSet();
-			Part[] vp = vessel.parts.ToArray();
-			PartJoint[] joints = FindObjectsOfType<PartJoint>();
-			lprint("checking joints: " + joints.Length);
-
-			for (int i = 0; i < joints.Length; i++) {
-				lprint("j[" + i + "]");
-				PartJoint j = joints[i];
-				lprint("Vessel: " + j.Host.vessel);
-				lprint("  Host:" + descPart(j.Host) + " Target: " + descPart(j.Target));
-				lprint("  Parent:" + descPart(j.Parent) + " Child: " + descPart(j.Child));
 			}
 		}
 
