@@ -354,6 +354,10 @@ namespace DockRotate
 
 		private float rotationAngle()
 		{
+			// BUG IS HERE!
+			// this returns the right angle on active part,
+			// and the wrong (negative) angle on the passive part
+
 			ModuleDockRotate module = activeRotationModule;
 			if (!module)
 				return float.NaN;
