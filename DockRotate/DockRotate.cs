@@ -177,6 +177,11 @@ namespace DockRotate
 		public float rotationSpeed = 5;
 
 		[KSPField(
+			isPersistant = true
+		)]
+		float maxSpeed = 90;
+
+		[KSPField(
 			guiActive = false,
 			guiActiveEditor = false,
 			isPersistant = true
@@ -433,11 +438,29 @@ namespace DockRotate
 					continue;
 				}
 			}
+
+			// setMaxSpeed();
+		}
+
+		private void setMaxSpeed()
+		{
+			UI_Control ctl;
+			ctl = Fields["rotationSpeed"].uiControlEditor;
+			if (ctl != null) {
+				lprint("setting editor " + ctl + " at " + maxSpeed);
+				((UI_FloatRange) ctl).maxValue = Mathf.Abs(maxSpeed);
+			}
+			ctl = Fields["rotationSpeed"].uiControlFlight;
+			if (ctl != null) {
+				lprint("setting flight " + ctl + " at " + maxSpeed);
+				((UI_FloatRange) ctl).maxValue = Mathf.Abs(maxSpeed);
+			}
 		}
 
 		public override void OnAwake()
 		{
 			lprint("OnAwake()");
+			base.OnAwake();
 			GameEvents.onVesselGoOnRails.Add(OnVesselGoOnRails);
 			GameEvents.onVesselGoOffRails.Add(OnVesselGoOffRails);
 		}
@@ -445,6 +468,7 @@ namespace DockRotate
 		public override void OnActive()
 		{
 			lprint("OnActive()");
+			base.OnActive();
 		}
 
 		public void OnDestroy()
@@ -474,6 +498,7 @@ namespace DockRotate
 
 		public override void OnStart(StartState state)
 		{
+			base.OnStart(state);
 			if ((state & StartState.Editor) != 0)
 				return;
 			
@@ -484,6 +509,7 @@ namespace DockRotate
 
 		public override void OnUpdate()
 		{
+			base.OnUpdate();
 			setupIfNeeded();
 			checkGuiActive();
 			dockingAngle = rotationAngle();
