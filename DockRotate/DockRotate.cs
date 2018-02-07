@@ -143,9 +143,9 @@ namespace DockRotate
 		public bool rotationEnabled = false;
 
 		[KSPField(
-		          guiName = "Angle", guiUnits = "\u00b0", guiFormat = "0.00", // or "F2"?
+		          guiName = "Angle", guiUnits = "\u00b0", guiFormat = "0.00",
 		          guiActive = true, guiActiveEditor = true
-	         )]
+	    )]
 		float dockingAngle;
 
 		[UI_FloatRange(
@@ -175,6 +175,13 @@ namespace DockRotate
 			guiUnits = "\u00b0/s"
 		)]
 		public float rotationSpeed = 5;
+
+		[KSPField(
+			guiActive = false,
+			guiActiveEditor = false,
+			isPersistant = true
+		)]
+		bool debugMode = false;
 
 		[UI_Toggle(affectSymCounterparts = UI_Scene.None)]
 		[KSPField(guiActive = true, isPersistant = true, guiName = "Reverse Rotation")]
@@ -364,6 +371,7 @@ namespace DockRotate
 			// E: is a KSPEvent;
 			// e: show in editor;
 			// R: hide when rotating;
+			// D: show only with debugMode activated
 			"dockingAngle.F",
 			"rotationStep.Fe",
 			"rotationSpeed.Fe",
@@ -372,7 +380,7 @@ namespace DockRotate
 			"RotateCounterclockwise.E",
 			"RotateToSnap.ER",
 			"ToggleAutostrutDisplay.E",
-			"Dump.E"
+			"Dump.ED"
 		};
 
 		private void checkGuiActive()
@@ -393,11 +401,15 @@ namespace DockRotate
 
 				bool editorGui = flags.IndexOf('e') >= 0;
 
+				bool thisGuiActive = newGuiActive;
+				if (flags.IndexOf('D') >= 0 && !debugMode)
+					thisGuiActive = false;
+
 				if (flags.IndexOf('F') >= 0) {
 					BaseField fld = Fields[name];
 					if (fld != null) {
-						fld.guiActive = newGuiActive;
-						fld.guiActiveEditor = newGuiActive && editorGui;
+						fld.guiActive = thisGuiActive;
+						fld.guiActiveEditor = thisGuiActive && editorGui;
 						UI_Control uc = fld.uiControlEditor;
 						if (uc != null) {
 							uc.scene = (fld.guiActive ? UI_Scene.Flight : 0)
@@ -409,9 +421,9 @@ namespace DockRotate
 					BaseEvent ev = Events[name];
 					if (ev != null) {
 						if (flags.IndexOf('R') >= 0 && rotCur != null)
-							newGuiActive = false;
-						ev.guiActive = newGuiActive;
-						ev.guiActiveEditor = newGuiActive && editorGui;
+							thisGuiActive = false;
+						ev.guiActive = thisGuiActive;
+						ev.guiActiveEditor = thisGuiActive && editorGui;
 						if (name == "ToggleAutostrutDisplay") {
 							ev.guiName = PhysicsGlobals.AutoStrutDisplay ? "Hide Autostruts" : "Show Autostruts";
 						}
