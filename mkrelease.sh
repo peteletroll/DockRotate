@@ -13,8 +13,6 @@ then
 	exit 1
 fi
 
-echo version $version
-
 tmp=`mktemp -d` || exit 1
 trap "rm -rf $tmp" EXIT
 
@@ -32,8 +30,6 @@ do
 	fi
 done
 
-echo generating package in $tmp
-
 rm -f Resources/ModuleManager.*.dll
 cp ~/KSP/KSP_linux/GameData/ModuleManager.*.dll $dir/.. || exit 1
 
@@ -41,11 +37,12 @@ cp $dll README.md LICENSE.md Resources/* $dir || exit 1
 
 zip=/tmp/$name-$version.zip
 rm -f $zip
-
+echo
+echo generating release $zip
 (
 	cd $tmp &&
 	zip -r $zip GameData
 ) || exit 1
-
-echo generated release $zip
+echo done.
+echo
 
