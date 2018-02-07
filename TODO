@@ -10,5 +10,6 @@
 * finish docking port sr. support
 
 * add inline docking port support
+	* redesign rotationAxis() to get information from ModuleDockingNode
 
 * refactor checkGuiActive() to remove the guiList[] logic

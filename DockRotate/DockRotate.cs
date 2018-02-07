@@ -263,11 +263,13 @@ namespace DockRotate
 		// the active module of the couple is the farthest one from the root part
 
 		private int vesselPartCount;
+		private ModuleDockingNode dockingNode; // will be useful for better rotationAxis()
 		private ModuleDockRotate activeRotationModule;
 
 		private void reset()
 		{
 			vesselPartCount = -1;
+			dockingNode = null;
 			activeRotationModule = null;
 		}
 
@@ -277,6 +279,10 @@ namespace DockRotate
 
 			if (part && part.vessel)
 				vesselPartCount = part.vessel.parts.Count;
+
+			dockingNode = part.FindModuleImplementing<ModuleDockingNode>();
+			if (!dockingNode)
+				return;
 
 			if (isActive()) {
 				activeRotationModule = this;
@@ -643,10 +649,9 @@ namespace DockRotate
 			lprint("mass: " + part.mass);
 			lprint("parent: " + descPart(part.parent));
 
-			ModuleDockingNode thisNode = part.parent.FindModuleImplementing<ModuleDockingNode>();
-			if (thisNode) {
-				lprint("size: " + thisNode.nodeType); 
-				ModuleDockingNode otherNode = thisNode.FindOtherNode();
+			if (dockingNode) {
+				lprint("size: " + dockingNode.nodeType);
+				ModuleDockingNode otherNode = dockingNode.FindOtherNode();
 				if (otherNode)
 					lprint("other: " + descPart(otherNode.part));
 			}
