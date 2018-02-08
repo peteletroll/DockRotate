@@ -689,7 +689,8 @@ namespace DockRotate
 
 			if (dockingNode) {
 				lprint("size: " + dockingNode.nodeType);
-				ModuleDockingNode otherNode = dockingNode.FindOtherNode();
+				ModuleDockingNode otherNode = dockingNode.dockedPartUId > 0 ?
+					dockingNode.FindOtherNode() : null;
 				if (otherNode)
 					lprint("other: " + descPart(otherNode.part));
 			}
