@@ -324,9 +324,9 @@ namespace DockRotate
 				return false;
 			ModuleDockingNode parentNode = part.parent.FindModuleImplementing<ModuleDockingNode>();
 			ModuleDockRotate parentRotate = part.parent.FindModuleImplementing<ModuleDockRotate>();
-			return part.parent.name.Equals(part.name)
-				&& parentRotate
-				&& parentNode && parentNode.state != null;
+			return parentNode && parentRotate
+				&& dockingNode.nodeType == parentNode.nodeType
+				&& parentNode.state != null;
 		}
 
 		private bool setupIfNeeded()
