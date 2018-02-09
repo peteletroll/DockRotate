@@ -13,3 +13,6 @@
 	* redesign rotationAxis() to get information from ModuleDockingNode
 
 * refactor checkGuiActive() to remove the guiList[] logic
+
+* fix bug: now you always get staging icons, even when staging is explicitly disabled
+
