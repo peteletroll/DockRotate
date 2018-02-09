@@ -1,3 +1,5 @@
+* proper electricity consumption
+
 * localization
 
 * move staticizeRotation() to RotationAnimation
