@@ -384,8 +384,7 @@ namespace DockRotate
 			"RotateClockwise.E",
 			"RotateCounterclockwise.E",
 			"RotateToSnap.ER",
-			"ToggleAutostrutDisplay.E",
-			"Dump.ED"
+			"ToggleAutostrutDisplay.E"
 		};
 
 		private void checkGuiActive()
@@ -682,7 +681,9 @@ namespace DockRotate
 			lprint("parent: " + descPart(part.parent));
 
 			if (dockingNode) {
-				lprint("size: " + dockingNode.nodeType);
+				lprint("nodeSize: " + dockingNode.nodeType);
+				lprint("nodePos: " + dockingNode.transform.position);
+				lprint("nodeRot: " + dockingNode.transform.rotation.eulerAngles);
 				ModuleDockingNode otherNode = dockingNode.dockedPartUId > 0 ?
 					dockingNode.FindOtherNode() : null;
 				if (otherNode)
@@ -696,7 +697,7 @@ namespace DockRotate
 			lprint("orgPos: " + part.orgPos);
 			lprint("orgRot: " + part.orgRot);
 			lprint("rotationAxis(): " + rotationAxis());
-			dumpJoint(part.attachJoint);
+			// dumpJoint(part.attachJoint);
 			lprint("--------------------");
 		}
 	}
