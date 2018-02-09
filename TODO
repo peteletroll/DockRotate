@@ -16,3 +16,5 @@
 
 * fix bug: now you always get staging icons, even when staging is explicitly disabled
 
+* fix bug: KSPField default values seem to override cfg file settings
+
