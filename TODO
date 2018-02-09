@@ -16,5 +16,3 @@
 
 * refactor checkGuiActive() to remove the guiList[] logic
 
-* fix bug: KSPField default values seem to override cfg file settings
-
