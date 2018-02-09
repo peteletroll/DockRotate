@@ -146,7 +146,7 @@ namespace DockRotate
 		          guiName = "Angle", guiUnits = "\u00b0", guiFormat = "0.00",
 		          guiActive = true, guiActiveEditor = true
 	    )]
-		float dockingAngle;
+		public float dockingAngle;
 
 		[UI_FloatRange(
 			minValue = 0,
@@ -179,14 +179,14 @@ namespace DockRotate
 		[KSPField(
 			isPersistant = true
 		)]
-		float maxSpeed = 90;
+		public float maxSpeed = 90;
 
 		[KSPField(
 			guiActive = false,
 			guiActiveEditor = false,
 			isPersistant = true
 		)]
-		bool debugMode = false;
+		public bool debugMode = false;
 
 		[UI_Toggle(affectSymCounterparts = UI_Scene.None)]
 		[KSPField(guiActive = true, isPersistant = true, guiName = "Reverse Rotation")]
