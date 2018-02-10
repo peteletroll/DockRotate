@@ -108,6 +108,7 @@ namespace DockRotate
 		private void onStop()
 		{
 			pos = tgt;
+			onStep();
 			/*
 			rotatingJoint.angularXMotion = savedXMotion;
 			for (int i = 0; i < joint.joints.Count; i++)
