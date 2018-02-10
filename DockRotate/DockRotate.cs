@@ -149,6 +149,12 @@ namespace DockRotate
 	    )]
 		public float dockingAngle;
 
+		[KSPField(
+			guiName = "Role",
+			guiActive = true, guiActiveEditor = true
+		)]
+		public String nodeRole = "none";
+
 		[UI_FloatRange(
 			minValue = 0,
 			maxValue = 180,
@@ -200,7 +206,7 @@ namespace DockRotate
 		}
 
 		[KSPEvent(
-			guiName = "Rotate Clockwise",
+			guiName = "Rotate Clockwise (+)",
 			guiActive = false,
 			guiActiveEditor = false
 		)]
@@ -221,7 +227,7 @@ namespace DockRotate
 		}
 
 		[KSPEvent(
-			guiName = "Rotate Counterclockwise",
+			guiName = "Rotate Counterclockwise (-)",
 			guiActive = false,
 			guiActiveEditor = false
 		)]
@@ -278,17 +284,24 @@ namespace DockRotate
 
 		private int vesselPartCount;
 		private ModuleDockingNode dockingNode; // will be useful for better rotationAxis()
-		private string lastNodeState = "";
+		private string lastNodeState = "- an impossible state -";
 		private ModuleDockRotate activeRotationModule;
 		private ModuleDockRotate proxyRotationModule;
+		private Vector3 orgNodePos;
+		private Quaternion orgNodeRot;
+		private Vector3 orgNodeAxis;
 
 		private void reset()
 		{
 			vesselPartCount = -1;
 			dockingNode = null;
-			lastNodeState = "- an impossible state -";
+			lastNodeState = "- another impossible state -";
 			activeRotationModule = null;
 			proxyRotationModule = null;
+			nodeRole = "null";
+			orgNodePos = new Vector3(9.9f, 9.9f, 9.9f);
+			orgNodeRot = Quaternion.Euler(9.9f, 9.9f, 9.9f);
+			orgNodeAxis = new Vector3(9.9f, 9.9f, 9.9f);
 		}
 
 		private void setup()
@@ -302,9 +315,14 @@ namespace DockRotate
 			if (!dockingNode)
 				return;
 
+			orgNodeRot = part.orgRot * dockingNode.transform.localRotation;
+			orgNodePos = part.orgPos + part.orgRot * dockingNode.transform.localPosition;
+			orgNodeAxis = orgNodeRot * Vector3.right;
+
 			if (isActive()) {
 				activeRotationModule = this;
 				proxyRotationModule = part.parent.FindModuleImplementing<ModuleDockRotate>();
+				nodeRole = "Active";
 			} else {
 				for (int i = 0; i < part.children.Count; i++) {
 					Part p = part.children[i];
@@ -313,8 +331,12 @@ namespace DockRotate
 						activeRotationModule = dr;
 						break;
 					}
-					if (activeRotationModule)
-						proxyRotationModule = this;
+				}
+				if (activeRotationModule) {
+					proxyRotationModule = this;
+					nodeRole = "Proxy";
+				} else {
+					nodeRole = "None";
 				}
 			}
 
@@ -361,18 +383,27 @@ namespace DockRotate
 
 		private Vector3 rotationAxis()
 		{
-			Part activePart = activeRotationModule.part;
-			return (activePart.orgPos - activePart.parent.orgPos).normalized;
+			return (activeRotationModule.part.orgPos - proxyRotationModule.part.orgPos).normalized;
 		}
 
 		private float rotationAngle()
 		{
-			if (!activeRotationModule)
+			if (!activeRotationModule || !proxyRotationModule)
 				return float.NaN;
+
 			Part p = activeRotationModule.part;
 			Vector3 v1 = p.orgRot * Vector3.forward;
 			Vector3 v2 = p.parent.orgRot * Vector3.forward;
 			Vector3 a = rotationAxis();
+
+			/*
+			Quaternion activeRot = activeRotationModule.part.orgRot * activeRotationModule.dockingNode.nodeTransform.localRotation;
+			Quaternion proxyRot = proxyRotationModule.part.orgRot * proxyRotationModule.dockingNode.nodeTransform.localRotation;
+			Vector3 v1 = activeRot * Vector3.forward;
+			Vector3 v2 = proxyRot * Vector3.forward;
+			Vector3 a = activeRot * Vector3.right;
+			*/
+
 			float angle = Vector3.Angle(v1, v2);
 			float axisAngle = Vector3.Angle(a, Vector3.Cross(v2, v1));
 			return (axisAngle > 10) ? -angle : angle;
@@ -387,6 +418,7 @@ namespace DockRotate
 			// R: hide when rotating;
 			// D: show only with debugMode activated
 			"dockingAngle.F",
+			"nodeRole.F",
 			"rotationStep.Fe",
 			"rotationSpeed.Fe",
 			"reverseRotation.Fe",
@@ -399,6 +431,8 @@ namespace DockRotate
 		private void checkGuiActive()
 		{
 			int i;
+
+			rotationSpeed = Mathf.Abs(rotationSpeed);
 
 			bool newGuiActive = canStartRotation();
 
@@ -701,10 +735,17 @@ namespace DockRotate
 			if (dockingNode) {
 				lprint("size: " + dockingNode.nodeType);
 				lprint("state: " + dockingNode.state);
+				/*
+				lprint("orgNodePos: " + orgNodePos);
+				lprint("orgNodeRot: " + orgNodeRot.eulerAngles);
+				lprint("orgNodeAxis: " + orgNodeAxis);
+				*/
 
 				Transform t = dockingNode.nodeTransform;
-				lprint("nodePos: " + t.localPosition);
-				lprint("nodeRot: " + t.localRotation.eulerAngles);
+				lprint("transf: " + t + " from " + t.parent);
+				lprint("nodeAxisRg: " + toPart(t, Vector3.right));
+				lprint("nodeAxisUp: " + toPart(t, Vector3.up));
+				lprint("nodeAxisFw: " + toPart(t, Vector3.forward));
 			}
 
 			if (part.parent) {
@@ -715,15 +756,15 @@ namespace DockRotate
 
 			if (activeRotationModule) {
 				lprint("rotationAxis(): " + rotationAxis());
-				if (activeRotationModule.dockingNode) {
-					lprint("nodeAxisRg: " + (activeRotationModule.dockingNode.nodeTransform.localRotation * Vector3.right));
-					lprint("nodeAxisUp: " + (activeRotationModule.dockingNode.nodeTransform.localRotation * Vector3.up));
-					lprint("nodeAxisFw: " + (activeRotationModule.dockingNode.nodeTransform.localRotation * Vector3.forward));
-				}
 			}
 
 			// dumpJoint(part.attachJoint);
 			lprint("--------------------");
+		}
+
+		private Vector3 toPart(Transform t, Vector3 v)
+		{
+			return part.transform.InverseTransformDirection(t.TransformDirection(v));
 		}
 	}
 }
