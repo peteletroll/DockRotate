@@ -13,6 +13,7 @@
 
 * add inline docking port support
 	* redesign rotationAxis() to get information from ModuleDockingNode
-	* dockingNode transform not useful, looks like world space
+	* the axis vector is Vector3.forward in nodeTransform reference
+	* fix adjPos() and adjDir() stuff
 
 * refactor checkGuiActive() to remove the guiList[] logic

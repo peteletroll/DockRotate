@@ -287,9 +287,12 @@ namespace DockRotate
 		private string lastNodeState = "- an impossible state -";
 		private ModuleDockRotate activeRotationModule;
 		private ModuleDockRotate proxyRotationModule;
-		private Vector3 orgNodePos;
-		private Quaternion orgNodeRot;
-		private Vector3 orgNodeAxis;
+		private Vector3 orgNodePos; // FIXME probably should go
+		private Vector3 partNodePos; // node position relative to part
+		private Vector3 partNodeAxis; // node rotation axis relative to part
+		private Vector3 partNodeTop; // node top relative to part
+		// private Quaternion orgNodeRot;
+		// private Vector3 orgNodeAxis;
 
 		private void reset()
 		{
@@ -300,8 +303,9 @@ namespace DockRotate
 			proxyRotationModule = null;
 			nodeRole = "null";
 			orgNodePos = new Vector3(9.9f, 9.9f, 9.9f);
-			orgNodeRot = Quaternion.Euler(9.9f, 9.9f, 9.9f);
-			orgNodeAxis = new Vector3(9.9f, 9.9f, 9.9f);
+			partNodePos = partNodeAxis = partNodeTop = new Vector3(9.9f, 9.9f, 9.9f);
+			// orgNodeRot = Quaternion.Euler(9.9f, 9.9f, 9.9f);
+			// orgNodeAxis = new Vector3(9.9f, 9.9f, 9.9f);
 		}
 
 		private void setup()
@@ -315,9 +319,10 @@ namespace DockRotate
 			if (!dockingNode)
 				return;
 
-			orgNodeRot = part.orgRot * dockingNode.transform.localRotation;
-			orgNodePos = part.orgPos + part.orgRot * dockingNode.transform.localPosition;
-			orgNodeAxis = orgNodeRot * Vector3.right;
+			orgNodePos = adjPos(Vector3.zero, dockingNode.transform, vessel.rootPart);
+			partNodePos = adjPos(Vector3.zero, dockingNode.transform, part);
+			partNodeAxis = adjDir(Vector3.forward, dockingNode.transform, part);
+			partNodeTop = adjDir(Vector3.up, dockingNode.transform, part);
 
 			if (isActive()) {
 				activeRotationModule = this;
@@ -357,7 +362,15 @@ namespace DockRotate
 			ModuleDockRotate parentRotate = part.parent.FindModuleImplementing<ModuleDockRotate>();
 			return dockingNode && parentNode && parentRotate
 				&& dockingNode.nodeType == parentNode.nodeType
-				&& parentNode.state != null;
+				&& hasGoodState(dockingNode) && hasGoodState(parentNode)
+				&& (parentRotate.orgNodePos - orgNodePos).magnitude >= 0.05f;
+		}
+
+		bool hasGoodState(ModuleDockingNode node)
+		{
+			if (!node || node.state == null)
+				return false;
+			return node.state.StartsWith("Docked") || node.state == "PreAttached";
 		}
 
 		private bool setupIfNeeded()
@@ -383,7 +396,8 @@ namespace DockRotate
 
 		private Vector3 rotationAxis()
 		{
-			return (activeRotationModule.part.orgPos - proxyRotationModule.part.orgPos).normalized;
+			// return (activeRotationModule.part.orgPos - proxyRotationModule.part.orgPos).normalized;
+			return (activeRotationModule.orgNodePos - proxyRotationModule.orgNodePos).normalized;
 		}
 
 		private float rotationAngle()
@@ -653,6 +667,28 @@ namespace DockRotate
 			joint.zMotion = f;
 		}
 
+		/******** Reference change utilities ********/
+
+		private Vector3 adjDir(Vector3 v, Transform from, Transform to)
+		{
+			return to.InverseTransformDirection(from.TransformDirection(v));
+		}
+
+		private Vector3 adjDir(Vector3 v, Transform from, Part to)
+		{
+			return adjDir(v, from, to.transform);
+		}
+
+		private Vector3 adjPos(Vector3 v, Transform from, Transform to)
+		{
+			return to.InverseTransformPoint(from.TransformPoint(v));
+		}
+
+		private Vector3 adjPos(Vector3 v, Transform from, Part to)
+		{
+			return adjPos(v, from, to.transform);
+		}
+
 		/******** Debugging stuff ********/
 
 		static public void lprint(string msg)
@@ -727,44 +763,43 @@ namespace DockRotate
 
 		void dumpPart() {
 			lprint("--- DUMP " + descPart(part) + " -----------------------");
+			/*
 			lprint("mass: " + part.mass);
 			lprint("parent: " + descPart(part.parent));
 			lprint("orgPos: " + part.orgPos);
 			lprint("orgRot: " + part.orgRot);
+			lprint("orgNodePos: " + orgNodePos);
+			*/
 
 			if (dockingNode) {
 				lprint("size: " + dockingNode.nodeType);
 				lprint("state: " + dockingNode.state);
-				/*
-				lprint("orgNodePos: " + orgNodePos);
-				lprint("orgNodeRot: " + orgNodeRot.eulerAngles);
-				lprint("orgNodeAxis: " + orgNodeAxis);
-				*/
 
-				Transform t = dockingNode.nodeTransform;
-				lprint("transf: " + t + " from " + t.parent);
-				lprint("nodeAxisRg: " + toPart(t, Vector3.right));
-				lprint("nodeAxisUp: " + toPart(t, Vector3.up));
-				lprint("nodeAxisFw: " + toPart(t, Vector3.forward));
+				lprint("nodeAxisFw: " + adjDir(partNodeAxis, part.transform, vessel.rootPart));
+				lprint("nodeAxisUp: " + adjDir(partNodeTop, part.transform, vessel.rootPart));
 			}
 
+			/*
 			if (part.parent) {
 				ModuleDockingNode parentNode = part.parent.FindModuleImplementing<ModuleDockingNode>();
 				if (parentNode)
 					lprint("IDs: " + part.flightID + " " + parentNode.dockedPartUId);
 			}
+			*/
 
 			if (activeRotationModule) {
 				lprint("rotationAxis(): " + rotationAxis());
+				Vector3 posdiff = activeRotationModule.orgNodePos - proxyRotationModule.orgNodePos;
+				lprint("posdiff: " + posdiff.normalized + " [" + posdiff.magnitude + "]");
 			}
 
 			// dumpJoint(part.attachJoint);
 			lprint("--------------------");
 		}
 
-		private Vector3 toPart(Transform t, Vector3 v)
+		private Vector3 toVessel(Transform t, Vector3 v)
 		{
-			return part.transform.InverseTransformDirection(t.TransformDirection(v));
+			return vessel.rootPart.transform.InverseTransformDirection(t.TransformDirection(v));
 		}
 	}
 }
