@@ -193,7 +193,7 @@ namespace DockRotate
 		[KSPField(guiActive = true, isPersistant = true, guiName = "Reverse Rotation")]
 		public bool reverseRotation = false;
 
-		[KSPAction(guiName = "Rotate Clockwise", requireFullControl = true)]
+		[KSPAction(guiName = "Rotate Clockwise (+)", requireFullControl = true)]
 		public void RotateClockwise(KSPActionParam param)
 		{
 			RotateClockwise();
@@ -214,7 +214,7 @@ namespace DockRotate
 			}
 		}
 
-		[KSPAction(guiName = "Rotate Counterclockwise", requireFullControl = true)]
+		[KSPAction(guiName = "Rotate Counterclockwise (-)", requireFullControl = true)]
 		public void RotateCounterclockwise(KSPActionParam param)
 		{
 			RotateCounterclockwise();
@@ -273,17 +273,22 @@ namespace DockRotate
 		}
 
 		// things to be set up by setup()
-		// the active module of the couple is the farthest one from the root part
+		// the active module of the couple is the farthest from the root part
+		// the proxy module of the couple is the closest to the root part
 
 		private int vesselPartCount;
 		private ModuleDockingNode dockingNode; // will be useful for better rotationAxis()
+		private string lastNodeState = "";
 		private ModuleDockRotate activeRotationModule;
+		private ModuleDockRotate proxyRotationModule;
 
 		private void reset()
 		{
 			vesselPartCount = -1;
 			dockingNode = null;
+			lastNodeState = "- an impossible state -";
 			activeRotationModule = null;
+			proxyRotationModule = null;
 		}
 
 		private void setup()
@@ -299,6 +304,7 @@ namespace DockRotate
 
 			if (isActive()) {
 				activeRotationModule = this;
+				proxyRotationModule = part.parent.FindModuleImplementing<ModuleDockRotate>();
 			} else {
 				for (int i = 0; i < part.children.Count; i++) {
 					Part p = part.children[i];
@@ -307,6 +313,8 @@ namespace DockRotate
 						activeRotationModule = dr;
 						break;
 					}
+					if (activeRotationModule)
+						proxyRotationModule = this;
 				}
 			}
 
@@ -513,7 +521,14 @@ namespace DockRotate
 		{
 			if (HighLogic.LoadedScene != GameScenes.FLIGHT)
 				return;
+
 			setupIfNeeded();
+
+			if (dockingNode && dockingNode.state != lastNodeState) {
+				lastNodeState = dockingNode.state;
+				lprint(descPart(part) + " state is now " + lastNodeState);
+			}
+
 			if (rotCur != null)
 				advanceRotation(Time.fixedDeltaTime);
 		}
@@ -680,24 +695,33 @@ namespace DockRotate
 			lprint("--- DUMP " + descPart(part) + " -----------------------");
 			lprint("mass: " + part.mass);
 			lprint("parent: " + descPart(part.parent));
-
-			if (dockingNode) {
-				lprint("nodeSize: " + dockingNode.nodeType);
-				lprint("nodePos: " + dockingNode.transform.position);
-				lprint("nodeRot: " + dockingNode.transform.rotation.eulerAngles);
-				ModuleDockingNode otherNode = dockingNode.dockedPartUId > 0 ?
-					dockingNode.FindOtherNode() : null;
-				if (otherNode)
-					lprint("other: " + descPart(otherNode.part));
-			}
-
-			ModuleDockingNode parentNode = part.parent.FindModuleImplementing<ModuleDockingNode>();
-			if (parentNode)
-				lprint("IDs: " + part.flightID + " " + parentNode.dockedPartUId);
-
 			lprint("orgPos: " + part.orgPos);
 			lprint("orgRot: " + part.orgRot);
-			lprint("rotationAxis(): " + rotationAxis());
+
+			if (dockingNode) {
+				lprint("size: " + dockingNode.nodeType);
+				lprint("state: " + dockingNode.state);
+
+				Transform t = dockingNode.nodeTransform;
+				lprint("nodePos: " + t.localPosition);
+				lprint("nodeRot: " + t.localRotation.eulerAngles);
+			}
+
+			if (part.parent) {
+				ModuleDockingNode parentNode = part.parent.FindModuleImplementing<ModuleDockingNode>();
+				if (parentNode)
+					lprint("IDs: " + part.flightID + " " + parentNode.dockedPartUId);
+			}
+
+			if (activeRotationModule) {
+				lprint("rotationAxis(): " + rotationAxis());
+				if (activeRotationModule.dockingNode) {
+					lprint("nodeAxisRg: " + (activeRotationModule.dockingNode.nodeTransform.localRotation * Vector3.right));
+					lprint("nodeAxisUp: " + (activeRotationModule.dockingNode.nodeTransform.localRotation * Vector3.up));
+					lprint("nodeAxisFw: " + (activeRotationModule.dockingNode.nodeTransform.localRotation * Vector3.forward));
+				}
+			}
+
 			// dumpJoint(part.attachJoint);
 			lprint("--------------------");
 		}
