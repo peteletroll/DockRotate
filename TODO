@@ -17,3 +17,5 @@
 	* fix adjPos() and adjDir() stuff
 
 * refactor checkGuiActive() to remove the guiList[] logic
+
+* use DEBUG instead of clumsy debugMode, include debug dll in distribution
