@@ -287,7 +287,6 @@ namespace DockRotate
 		private string lastNodeState = "- an impossible state -";
 		private ModuleDockRotate activeRotationModule;
 		private ModuleDockRotate proxyRotationModule;
-		private Vector3 orgNodePos; // FIXME probably should go
 		private Vector3 partNodePos; // node position relative to part
 		private Vector3 partNodeAxis; // node rotation axis relative to part
 		private Vector3 partNodeUp; // node vector for measuring angle relative to part
@@ -300,7 +299,6 @@ namespace DockRotate
 			activeRotationModule = null;
 			proxyRotationModule = null;
 			nodeRole = "null";
-			orgNodePos = new Vector3(9.9f, 9.9f, 9.9f);
 			partNodePos = partNodeAxis = partNodeUp = new Vector3(9.9f, 9.9f, 9.9f);
 			// orgNodeRot = Quaternion.Euler(9.9f, 9.9f, 9.9f);
 			// orgNodeAxis = new Vector3(9.9f, 9.9f, 9.9f);
@@ -317,7 +315,6 @@ namespace DockRotate
 			if (!dockingNode)
 				return;
 
-			orgNodePos = Tp(Vector3.zero, T(dockingNode), T(vessel)); // FIXME: use orgPos and orgRot
 			partNodePos = Tp(Vector3.zero, T(dockingNode), T(part));
 			partNodeAxis = Td(Vector3.forward, T(dockingNode), T(part));
 			partNodeUp = Td(Vector3.up, T(dockingNode), T(part));
@@ -399,8 +396,7 @@ namespace DockRotate
 
 		private Vector3 rotationAxis()
 		{
-			// return (activeRotationModule.part.orgPos - proxyRotationModule.part.orgPos).normalized;
-			return (activeRotationModule.orgNodePos - proxyRotationModule.orgNodePos).normalized;
+			return (activeRotationModule.part.orgPos - proxyRotationModule.part.orgPos).normalized;
 		}
 
 		private float rotationAngle()
@@ -662,7 +658,7 @@ namespace DockRotate
 			joint.zMotion = f;
 		}
 
-		/******** Reference change utilities ********/
+		/******** Reference change utilities - dynamic ********/
 
 		private Transform T(Vessel v)
 		{
@@ -692,6 +688,20 @@ namespace DockRotate
 		private Vector3 Tp(Vector3 v, Transform from, Transform to)
 		{
 			return to.InverseTransformPoint(from.TransformPoint(v));
+		}
+
+		/******** Reference change utilities - static ********/
+
+		private Vector3 STd(Vector3 v, Part from, Part to)
+		{
+			// still to debug
+			return Quaternion.Inverse(to.orgRot) * (from.orgRot * v);
+		}
+
+		private Vector3 STp(Vector3 v, Part from, Part to)
+		{
+			// still to write
+			return v;
 		}
 
 		/******** Debugging stuff ********/
@@ -781,8 +791,10 @@ namespace DockRotate
 				lprint("size: " + dockingNode.nodeType);
 				lprint("state: " + dockingNode.state);
 
-				lprint("nodeAxisFw: " + Td(partNodeAxis, T(part), T(vessel)));
-				lprint("nodeAxisUp: " + Td(partNodeUp, T(part), T(vessel)));
+				lprint("nodePos: " + partNodePos);
+
+				lprint("nodeAxis: " + partNodeAxis);
+				lprint("nodeUp: " + partNodeUp);
 			}
 
 			/*
