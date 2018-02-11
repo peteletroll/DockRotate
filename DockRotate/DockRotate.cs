@@ -16,9 +16,9 @@ namespace DockRotate
 		const float accelTime = 2.0f;
 		const float stopMargin = 1.5f;
 
-		static public void lprint(string msg)
+		static public bool lprint(string msg)
 		{
-			ModuleDockRotate.lprint(msg);
+			return ModuleDockRotate.lprint(msg);
 		}
 
 		public RotationAnimation(float pos, float tgt, float maxvel, PartJoint joint)
@@ -358,17 +358,22 @@ namespace DockRotate
 				return false;
 			ModuleDockingNode parentNode = part.parent.FindModuleImplementing<ModuleDockingNode>();
 			ModuleDockRotate parentRotate = part.parent.FindModuleImplementing<ModuleDockRotate>();
-			return dockingNode && parentNode && parentRotate
+			bool ret = dockingNode && parentNode && parentRotate
 				&& dockingNode.nodeType == parentNode.nodeType
 				&& hasGoodState(dockingNode) && hasGoodState(parentNode)
-				&& (parentRotate.orgNodePos - orgNodePos).magnitude >= 0.05f;
+				&& Vector3.Angle(partNodeAxis, Td(Vector3.back, T(parentNode), T(part))) < 3;
+			// lprint("isActive(" + descPart(part) + ") = " + ret);
+			return ret;
 		}
 
 		bool hasGoodState(ModuleDockingNode node)
 		{
 			if (!node || node.state == null)
 				return false;
-			return node.state.StartsWith("Docked") || node.state == "PreAttached";
+			string s = node.state;
+			bool ret = s.StartsWith("Docked") || s == "PreAttached";
+			// lprint("hasGoodState(" + s + ") = " + ret);
+			return ret;
 		}
 
 		private bool setupIfNeeded()
@@ -400,25 +405,21 @@ namespace DockRotate
 
 		private float rotationAngle()
 		{
+			return rotationAngleDynamic();
+		}
+
+		private float rotationAngleDynamic()
+		{
 			if (!activeRotationModule || !proxyRotationModule)
 				return float.NaN;
 
-			Part p = activeRotationModule.part;
-			Vector3 v1 = p.orgRot * Vector3.forward;
-			Vector3 v2 = p.parent.orgRot * Vector3.forward;
-			Vector3 a = rotationAxis();
-
-			/*
-			Quaternion activeRot = activeRotationModule.part.orgRot * activeRotationModule.dockingNode.nodeTransform.localRotation;
-			Quaternion proxyRot = proxyRotationModule.part.orgRot * proxyRotationModule.dockingNode.nodeTransform.localRotation;
-			Vector3 v1 = activeRot * Vector3.forward;
-			Vector3 v2 = proxyRot * Vector3.forward;
-			Vector3 a = activeRot * Vector3.right;
-			*/
+			Vector3 v1 = activeRotationModule.partNodeUp;
+			Vector3 v2 = Td(proxyRotationModule.partNodeUp, T(proxyRotationModule), T(activeRotationModule));
+			Vector3 a = activeRotationModule.partNodeAxis;
 
 			float angle = Vector3.Angle(v1, v2);
 			float axisAngle = Vector3.Angle(a, Vector3.Cross(v2, v1));
-			return (axisAngle > 10) ? -angle : angle;
+			return (axisAngle > 0) ? angle : -angle;
 		}
 
 		private static char[] guiListSep = { '.' };
@@ -673,6 +674,11 @@ namespace DockRotate
 			return p.transform;
 		}
 
+		private Transform T(ModuleDockRotate m)
+		{
+			return m.part.transform;
+		}
+
 		private Transform T(ModuleDockingNode m)
 		{
 			return m.nodeTransform;
@@ -690,9 +696,10 @@ namespace DockRotate
 
 		/******** Debugging stuff ********/
 
-		static public void lprint(string msg)
+		static public bool lprint(string msg)
 		{
 			print("[DockRotate]: " + msg);
+			return true;
 		}
 
 		private static string descPart(Part part)
