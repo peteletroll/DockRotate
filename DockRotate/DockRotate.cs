@@ -290,9 +290,7 @@ namespace DockRotate
 		private Vector3 orgNodePos; // FIXME probably should go
 		private Vector3 partNodePos; // node position relative to part
 		private Vector3 partNodeAxis; // node rotation axis relative to part
-		private Vector3 partNodeTop; // node top relative to part
-		// private Quaternion orgNodeRot;
-		// private Vector3 orgNodeAxis;
+		private Vector3 partNodeUp; // node vector for measuring angle relative to part
 
 		private void reset()
 		{
@@ -303,7 +301,7 @@ namespace DockRotate
 			proxyRotationModule = null;
 			nodeRole = "null";
 			orgNodePos = new Vector3(9.9f, 9.9f, 9.9f);
-			partNodePos = partNodeAxis = partNodeTop = new Vector3(9.9f, 9.9f, 9.9f);
+			partNodePos = partNodeAxis = partNodeUp = new Vector3(9.9f, 9.9f, 9.9f);
 			// orgNodeRot = Quaternion.Euler(9.9f, 9.9f, 9.9f);
 			// orgNodeAxis = new Vector3(9.9f, 9.9f, 9.9f);
 		}
@@ -312,17 +310,17 @@ namespace DockRotate
 		{
 			reset();
 
-			if (part && part.vessel)
-				vesselPartCount = part.vessel.parts.Count;
+			if (part && vessel)
+				vesselPartCount = vessel.parts.Count;
 
 			dockingNode = part.FindModuleImplementing<ModuleDockingNode>();
 			if (!dockingNode)
 				return;
 
-			orgNodePos = adjPos(Vector3.zero, dockingNode.transform, vessel.rootPart);
-			partNodePos = adjPos(Vector3.zero, dockingNode.transform, part);
-			partNodeAxis = adjDir(Vector3.forward, dockingNode.transform, part);
-			partNodeTop = adjDir(Vector3.up, dockingNode.transform, part);
+			orgNodePos = Tp(Vector3.zero, T(dockingNode), T(vessel)); // FIXME: use orgPos and orgRot
+			partNodePos = Tp(Vector3.zero, T(dockingNode), T(part));
+			partNodeAxis = Td(Vector3.forward, T(dockingNode), T(part));
+			partNodeUp = Td(Vector3.up, T(dockingNode), T(part));
 
 			if (isActive()) {
 				activeRotationModule = this;
@@ -375,7 +373,7 @@ namespace DockRotate
 
 		private bool setupIfNeeded()
 		{
-			bool needed = !part || !part.vessel || part.vessel.parts.Count != vesselPartCount;
+			bool needed = !part || !vessel || vessel.parts.Count != vesselPartCount;
 			if (needed)
 				setup();
 			return needed;
@@ -390,8 +388,8 @@ namespace DockRotate
 			return !onRails
 				&& rotationEnabled
 				&& activeRotationModule
-				&& part.vessel
-				&& part.vessel.CurrentControlLevel == Vessel.ControlLevel.FULL;
+				&& vessel
+				&& vessel.CurrentControlLevel == Vessel.ControlLevel.FULL;
 		}
 
 		private Vector3 rotationAxis()
@@ -475,7 +473,6 @@ namespace DockRotate
 						if (uc != null) {
 							uc.scene = (fld.guiActive ? UI_Scene.Flight : 0)
 								| (fld.guiActiveEditor ? UI_Scene.Editor : 0);
-							// lprint("NEW SCENE " + uc.scene);
 						}
 					}
 				} else if (flags.IndexOf('E') >= 0) {
@@ -614,13 +611,10 @@ namespace DockRotate
 
 		private void _propagate(Part p, Quaternion rot)
 		{
-			// lprint("propagating to " + descPart(p));
 			Vector3 dp = p.orgPos - part.orgPos;
 			Vector3 rdp = rot * dp;
 			Vector3 newPos = rdp + part.orgPos;
-			// lprint("oldpos " + p.orgPos);
 			p.orgPos = newPos;
-			// lprint("newpos " + p.orgPos);
 
 			p.orgRot = rot * p.orgRot;
 
@@ -669,24 +663,29 @@ namespace DockRotate
 
 		/******** Reference change utilities ********/
 
-		private Vector3 adjDir(Vector3 v, Transform from, Transform to)
+		private Transform T(Vessel v)
+		{
+			return v.rootPart.transform;
+		}
+
+		private Transform T(Part p)
+		{
+			return p.transform;
+		}
+
+		private Transform T(ModuleDockingNode m)
+		{
+			return m.nodeTransform;
+		}
+
+		private Vector3 Td(Vector3 v, Transform from, Transform to)
 		{
 			return to.InverseTransformDirection(from.TransformDirection(v));
 		}
 
-		private Vector3 adjDir(Vector3 v, Transform from, Part to)
-		{
-			return adjDir(v, from, to.transform);
-		}
-
-		private Vector3 adjPos(Vector3 v, Transform from, Transform to)
+		private Vector3 Tp(Vector3 v, Transform from, Transform to)
 		{
 			return to.InverseTransformPoint(from.TransformPoint(v));
-		}
-
-		private Vector3 adjPos(Vector3 v, Transform from, Part to)
-		{
-			return adjPos(v, from, to.transform);
 		}
 
 		/******** Debugging stuff ********/
@@ -775,8 +774,8 @@ namespace DockRotate
 				lprint("size: " + dockingNode.nodeType);
 				lprint("state: " + dockingNode.state);
 
-				lprint("nodeAxisFw: " + adjDir(partNodeAxis, part.transform, vessel.rootPart));
-				lprint("nodeAxisUp: " + adjDir(partNodeTop, part.transform, vessel.rootPart));
+				lprint("nodeAxisFw: " + Td(partNodeAxis, T(part), T(vessel)));
+				lprint("nodeAxisUp: " + Td(partNodeUp, T(part), T(vessel)));
 			}
 
 			/*
@@ -787,19 +786,16 @@ namespace DockRotate
 			}
 			*/
 
+			/*
 			if (activeRotationModule) {
 				lprint("rotationAxis(): " + rotationAxis());
 				Vector3 posdiff = activeRotationModule.orgNodePos - proxyRotationModule.orgNodePos;
 				lprint("posdiff: " + posdiff.normalized + " [" + posdiff.magnitude + "]");
 			}
+			*/
 
 			// dumpJoint(part.attachJoint);
 			lprint("--------------------");
-		}
-
-		private Vector3 toVessel(Transform t, Vector3 v)
-		{
-			return vessel.rootPart.transform.InverseTransformDirection(t.TransformDirection(v));
 		}
 	}
 }
