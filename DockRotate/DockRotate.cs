@@ -122,7 +122,8 @@ namespace DockRotate
 			return startRotation[i] * newRotation;
 		}
 
-		public bool done() {
+		public bool done()
+		{
 			return finished;
 		}
 
@@ -131,7 +132,7 @@ namespace DockRotate
 			if (finished)
 				return true;
 			if (Mathf.Abs(vel) < stopMargin * deltat * maxacc
-			    && Mathf.Abs(tgt - pos) < stopMargin * deltat * deltat * maxacc / stopMargin)
+				&& Mathf.Abs(tgt - pos) < stopMargin * deltat * deltat * maxacc / stopMargin)
 				finished = true;
 			return finished;
 		}
@@ -144,15 +145,17 @@ namespace DockRotate
 		public bool rotationEnabled = false;
 
 		[KSPField(
-		          guiName = "Angle", guiUnits = "\u00b0", guiFormat = "0.00",
-		          guiActive = true, guiActiveEditor = true
-	    )]
+			guiName = "Angle", guiUnits = "\u00b0", guiFormat = "0.00",
+			guiActive = true, guiActiveEditor = true
+		)]
 		public float dockingAngle;
 
+#if DEBUG
 		[KSPField(
 			guiName = "Role",
 			guiActive = true, guiActiveEditor = true
 		)]
+#endif
 		public String nodeRole = "none";
 
 		[UI_FloatRange(
@@ -261,6 +264,7 @@ namespace DockRotate
 			PhysicsGlobals.AutoStrutDisplay = !PhysicsGlobals.AutoStrutDisplay;
 		}
 
+#if DEBUG
 		[KSPEvent(
 			guiName = "Dump",
 			guiActive = true,
@@ -270,6 +274,7 @@ namespace DockRotate
 		{
 			dumpPart();
 		}
+#endif
 
 		// things to be set up by setup()
 		// the active module of the couple is the farthest from the root part
