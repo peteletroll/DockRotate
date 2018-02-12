@@ -307,6 +307,8 @@ namespace DockRotate
 		private void setup()
 		{
 			reset();
+			if (onRails)
+				return;
 
 			if (part && vessel)
 				vesselPartCount = vessel.parts.Count;
@@ -568,7 +570,7 @@ namespace DockRotate
 
 			if (dockingNode && dockingNode.state != lastNodeState) {
 				lastNodeState = dockingNode.state;
-				lprint(descPart(part) + " state is now " + lastNodeState);
+				lprint(descPart(part) + " is now " + lastNodeState);
 			}
 
 			if (rotCur != null)
@@ -791,8 +793,10 @@ namespace DockRotate
 				lprint("size: " + dockingNode.nodeType);
 				lprint("state: " + dockingNode.state);
 
-				lprint("nodePos: " + partNodePos);
+				ModuleDockingNode other = dockingNode.FindOtherNode();
+				lprint("other: " + (other ? descPart(other.part) : "none"));
 
+				lprint("nodePos: " + partNodePos);
 				lprint("nodeAxis: " + partNodeAxis);
 				lprint("nodeUp: " + partNodeUp);
 			}
