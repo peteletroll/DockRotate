@@ -662,45 +662,45 @@ namespace DockRotate
 
 		/******** Reference change utilities - dynamic ********/
 
-		private Transform T(Vessel v)
+		private static Transform T(Vessel v)
 		{
 			return v.rootPart.transform;
 		}
 
-		private Transform T(Part p)
+		private static Transform T(Part p)
 		{
 			return p.transform;
 		}
 
-		private Transform T(ModuleDockRotate m)
+		private static Transform T(ModuleDockRotate m)
 		{
 			return m.part.transform;
 		}
 
-		private Transform T(ModuleDockingNode m)
+		private static Transform T(ModuleDockingNode m)
 		{
 			return m.nodeTransform;
 		}
 
-		private Vector3 Td(Vector3 v, Transform from, Transform to)
+		private static Vector3 Td(Vector3 v, Transform from, Transform to)
 		{
 			return to.InverseTransformDirection(from.TransformDirection(v));
 		}
 
-		private Vector3 Tp(Vector3 v, Transform from, Transform to)
+		private static Vector3 Tp(Vector3 v, Transform from, Transform to)
 		{
 			return to.InverseTransformPoint(from.TransformPoint(v));
 		}
 
 		/******** Reference change utilities - static ********/
 
-		private Vector3 STd(Vector3 v, Part from, Part to)
+		private static Vector3 STd(Vector3 v, Part from, Part to)
 		{
 			// still to debug
 			return Quaternion.Inverse(to.orgRot) * (from.orgRot * v);
 		}
 
-		private Vector3 STp(Vector3 v, Part from, Part to)
+		private static Vector3 STp(Vector3 v, Part from, Part to)
 		{
 			// still to debug
 			Vector3 vv = from.orgPos + from.orgRot * v;
@@ -709,7 +709,7 @@ namespace DockRotate
 
 		/******** Debugging stuff ********/
 
-		static public bool lprint(string msg)
+		public static bool lprint(string msg)
 		{
 			print("[DockRotate]: " + msg);
 			return true;
