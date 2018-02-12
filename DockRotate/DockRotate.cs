@@ -291,13 +291,13 @@ namespace DockRotate
 		// the proxy module of the couple is the closest to the root part
 
 		private int vesselPartCount;
-		private ModuleDockingNode dockingNode; // will be useful for better rotationAxis()
+		private ModuleDockingNode dockingNode;
 		private string lastNodeState = "- an impossible state -";
 		private ModuleDockRotate activeRotationModule;
 		private ModuleDockRotate proxyRotationModule;
-		private Vector3 partNodePos; // node position relative to part
-		private Vector3 partNodeAxis; // node rotation axis relative to part
-		private Vector3 partNodeUp; // node vector for measuring angle relative to part
+		private Vector3 partNodePos; // node position, relative to part
+		private Vector3 partNodeAxis; // node rotation axis, relative to part
+		private Vector3 partNodeUp; // node vector for measuring angle, relative to part
 
 		private void reset()
 		{
