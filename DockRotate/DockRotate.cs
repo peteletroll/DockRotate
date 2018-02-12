@@ -24,11 +24,6 @@ namespace DockRotate
 			return ModuleDockRotate.lprint(msg);
 		}
 
-		public static implicit operator bool(RotationAnimation ra)
-		{
-			return ra != null;
-		}
-
 		public RotationAnimation(ModuleDockRotate rotationModule, float pos, float tgt, float maxvel)
 		{
 			this.rotationModule = rotationModule;
@@ -254,9 +249,9 @@ namespace DockRotate
 		)]
 		public void RotateToSnap()
 		{
-			if (rotCur || !canStartRotation())
+			if (rotCur != null || !canStartRotation())
 				return;
-			float a = rotationAngle(true);
+			float a = rotationAngle(false);
 			float f = rotationStep * Mathf.Floor(a / rotationStep);
 			if (a - f > rotationStep / 2)
 				f += rotationStep;
@@ -420,7 +415,8 @@ namespace DockRotate
 
 			float angle = Vector3.Angle(v1, v2);
 			float axisAngle = Vector3.Angle(a, Vector3.Cross(v2, v1));
-			return (axisAngle > 0) ? angle : -angle;
+
+			return (axisAngle > 90) ? angle : -angle;
 		}
 
 		private static char[] guiListSep = { '.' };
@@ -478,7 +474,7 @@ namespace DockRotate
 				} else if (flags.IndexOf('E') >= 0) {
 					BaseEvent ev = Events[name];
 					if (ev != null) {
-						if (flags.IndexOf('R') >= 0 && rotCur)
+						if (flags.IndexOf('R') >= 0 && rotCur != null)
 							thisGuiActive = false;
 						ev.guiActive = thisGuiActive;
 						ev.guiActiveEditor = thisGuiActive && editorGui;
@@ -574,7 +570,7 @@ namespace DockRotate
 				lprint(descPart(part) + " is now " + lastNodeState);
 			}
 
-			if (rotCur)
+			if (rotCur != null)
 				advanceRotation(Time.fixedDeltaTime);
 		}
 
@@ -587,7 +583,7 @@ namespace DockRotate
 
 			lprint(descPart(part) + ": enqueueRotation(" + angle + ", " + speed + ")");
 
-			if (rotCur) {
+			if (rotCur != null) {
 				rotCur.tgt += angle;
 				lprint(descPart(part) + ": rotation updated");
 			} else {
