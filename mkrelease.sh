@@ -20,19 +20,27 @@ dir=$tmp/GameData/$name
 mkdir -p $dir || exit 1
 
 dll=DockRotate/bin/Release/DockRotate.dll
+debugdll=DockRotate/bin/Debug/DockRotate.dll
+
+dllname=`basename $dll`
 
 for f in `find . -name \*.cs`
 do
-	if [ $f -nt $dll ]
-	then
-		echo "ABORTING: $f is newer than $dll" 1>&2
-		exit 1
-	fi
+	for d in $dll $debugdll
+	do
+		if [ $f -nt $d ]
+		then
+			echo "ABORTING: $f is newer than $d" 1>&2
+			exit 1
+		fi
+	done
 done
 
 cp ~/KSP/KSP_linux/GameData/ModuleManager.*.dll $dir/.. || exit 1
 
 cp $dll README.md LICENSE.md Resources/* $dir || exit 1
+
+cp $debugdll $dir/${dllname%.dll}.debugdll
 
 zip=/tmp/$name-$version.zip
 rm -f $zip
