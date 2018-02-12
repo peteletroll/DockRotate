@@ -47,7 +47,7 @@ namespace DockRotate
 			float brakingSpace = Mathf.Abs(vel) / 2 * brakingTime;
 
 			float newvel = vel;
-		
+
 			if (goingRightWay && Mathf.Abs(vel) <= maxvel && Math.Abs(tgt - pos) > brakingSpace) {
 				// driving
 				newvel += deltat * Mathf.Sign(tgt - pos) * maxacc;
@@ -547,7 +547,7 @@ namespace DockRotate
 			base.OnStart(state);
 			if ((state & StartState.Editor) != 0)
 				return;
-			
+
 			lprint(descPart(part) + ".OnStart(" + state + ")");
 
 			checkGuiActive();
@@ -587,7 +587,7 @@ namespace DockRotate
 			lprint(descPart(part) + ": enqueueRotation(" + angle + ", " + speed + ")");
 
 			if (rotCur != null) {
-				rotCur.tgt += angle;				
+				rotCur.tgt += angle;
 				lprint(descPart(part) + ": rotation updated");
 			} else {
 				rotCur = new RotationAnimation(0, angle, speed, part.attachJoint);
