@@ -16,7 +16,7 @@ namespace DockRotate
 		const float accelTime = 2.0f;
 		const float stopMargin = 1.5f;
 
-		static public bool lprint(string msg)
+		public static bool lprint(string msg)
 		{
 			return ModuleDockRotate.lprint(msg);
 		}
