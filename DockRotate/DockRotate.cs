@@ -256,7 +256,7 @@ namespace DockRotate
 		{
 			if (rotCur || !canStartRotation())
 				return;
-			float a = rotationAngle(false);
+			float a = rotationAngle(true);
 			float f = rotationStep * Mathf.Floor(a / rotationStep);
 			if (a - f > rotationStep / 2)
 				f += rotationStep;
@@ -559,7 +559,7 @@ namespace DockRotate
 			base.OnUpdate();
 			setupIfNeeded();
 			checkGuiActive();
-			dockingAngle = rotationAngle(rotCur);
+			dockingAngle = rotationAngle(true);
 		}
 
 		public void FixedUpdate()
@@ -799,6 +799,9 @@ namespace DockRotate
 				lprint("nodePos: " + partNodePos);
 				lprint("nodeAxis: " + partNodeAxis);
 				lprint("nodeUp: " + partNodeUp);
+
+				lprint("rotSt: " + rotationAngle(false));
+				lprint("rotDy: " + rotationAngle(true));
 			}
 
 			// dumpJoint(part.attachJoint);
