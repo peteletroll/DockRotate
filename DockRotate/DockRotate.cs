@@ -252,9 +252,7 @@ namespace DockRotate
 			if (rotCur != null || !canStartRotation())
 				return;
 			float a = rotationAngle(false);
-			float f = rotationStep * Mathf.Floor(a / rotationStep);
-			if (a - f > rotationStep / 2)
-				f += rotationStep;
+			float f = rotationStep * Mathf.Floor(a / rotationStep + 0.5f);
 			lprint("snap " + a + " to " + f + " (" + (f - a) + ")");
 			activeRotationModule.enqueueRotation(f - a, rotationSpeed);
 		}
