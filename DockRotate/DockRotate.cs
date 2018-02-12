@@ -246,7 +246,7 @@ namespace DockRotate
 		{
 			if (rotCur != null || !canStartRotation())
 				return;
-			float a = rotationAngle();
+			float a = rotationAngle(false);
 			float f = rotationStep * Mathf.Floor(a / rotationStep);
 			if (a - f > rotationStep / 2)
 				f += rotationStep;
@@ -399,18 +399,15 @@ namespace DockRotate
 			return (activeRotationModule.part.orgPos - proxyRotationModule.part.orgPos).normalized;
 		}
 
-		private float rotationAngle()
-		{
-			return rotationAngleDynamic();
-		}
-
-		private float rotationAngleDynamic()
+		private float rotationAngle(bool dynamic)
 		{
 			if (!activeRotationModule || !proxyRotationModule)
 				return float.NaN;
 
 			Vector3 v1 = activeRotationModule.partNodeUp;
-			Vector3 v2 = Td(proxyRotationModule.partNodeUp, T(proxyRotationModule), T(activeRotationModule));
+			Vector3 v2 = dynamic ?
+				Td(proxyRotationModule.partNodeUp, T(proxyRotationModule), T(activeRotationModule)) :
+				STd(proxyRotationModule.partNodeUp, proxyRotationModule.part, activeRotationModule.part);
 			Vector3 a = activeRotationModule.partNodeAxis;
 
 			float angle = Vector3.Angle(v1, v2);
@@ -554,7 +551,7 @@ namespace DockRotate
 			base.OnUpdate();
 			setupIfNeeded();
 			checkGuiActive();
-			dockingAngle = rotationAngle();
+			dockingAngle = rotationAngle(rotCur != null);
 		}
 
 		public void FixedUpdate()
