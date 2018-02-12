@@ -597,7 +597,6 @@ namespace DockRotate
 		private void staticizeRotation(float angle)
 		{
 			Vector3 axis = rotationAxis();
-			lprint("axis length " + axis.magnitude);
 			Quaternion rot = Quaternion.AngleAxis(angle, axis);
 			lprint("staticize " + rot.eulerAngles);
 			PartJoint joint = part.attachJoint;
@@ -702,8 +701,9 @@ namespace DockRotate
 
 		private Vector3 STp(Vector3 v, Part from, Part to)
 		{
-			// still to write
-			return v;
+			// still to debug
+			Vector3 vv = from.orgPos + from.orgRot * v;
+			return Quaternion.Inverse(to.orgRot) * (vv - to.orgPos);
 		}
 
 		/******** Debugging stuff ********/
