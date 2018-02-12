@@ -6,9 +6,12 @@ namespace DockRotate
 {
 	public class RotationAnimation
 	{
+		private ModuleDockRotate rotationModule;
+		private PartJoint joint;
+
 		public float pos, tgt, vel;
 		private float maxvel, maxacc;
-		private PartJoint joint;
+
 		public Quaternion[] startRotation;
 		public Vector3[] startPosition;
 		private bool started = false, finished = false;
@@ -26,12 +29,14 @@ namespace DockRotate
 			return ra != null;
 		}
 
-		public RotationAnimation(float pos, float tgt, float maxvel, PartJoint joint)
+		public RotationAnimation(ModuleDockRotate rotationModule, float pos, float tgt, float maxvel)
 		{
+			this.rotationModule = rotationModule;
+			this.joint = rotationModule.part.attachJoint;
+
 			this.pos = pos;
 			this.tgt = tgt;
 			this.maxvel = maxvel;
-			this.joint = joint;
 
 			this.vel = 0;
 			this.maxacc = maxvel / accelTime;
@@ -586,7 +591,7 @@ namespace DockRotate
 				rotCur.tgt += angle;
 				lprint(descPart(part) + ": rotation updated");
 			} else {
-				rotCur = new RotationAnimation(0, angle, speed, part.attachJoint);
+				rotCur = new RotationAnimation(this, 0, angle, speed);
 			}
 		}
 
