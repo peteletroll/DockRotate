@@ -188,13 +188,6 @@ namespace DockRotate
 		)]
 		public float maxSpeed = 90;
 
-		[KSPField(
-			guiActive = false,
-			guiActiveEditor = false,
-			isPersistant = true
-		)]
-		public bool debugMode = false;
-
 		[UI_Toggle(affectSymCounterparts = UI_Scene.None)]
 		[KSPField(guiActive = true, isPersistant = true, guiName = "Reverse Rotation")]
 		public bool reverseRotation = false;
@@ -460,8 +453,6 @@ namespace DockRotate
 				bool editorGui = flags.IndexOf('e') >= 0;
 
 				bool thisGuiActive = newGuiActive;
-				if (flags.IndexOf('D') >= 0 && !debugMode)
-					thisGuiActive = false;
 
 				if (flags.IndexOf('F') >= 0) {
 					BaseField fld = Fields[name];
