@@ -303,8 +303,6 @@ namespace DockRotate
 			proxyRotationModule = null;
 			nodeRole = "null";
 			partNodePos = partNodeAxis = partNodeUp = new Vector3(9.9f, 9.9f, 9.9f);
-			// orgNodeRot = Quaternion.Euler(9.9f, 9.9f, 9.9f);
-			// orgNodeAxis = new Vector3(9.9f, 9.9f, 9.9f);
 		}
 
 		private void setup()
@@ -784,7 +782,6 @@ namespace DockRotate
 			lprint("parent: " + descPart(part.parent));
 			lprint("orgPos: " + part.orgPos);
 			lprint("orgRot: " + part.orgRot);
-			lprint("orgNodePos: " + orgNodePos);
 			*/
 
 			if (dockingNode) {
@@ -798,22 +795,6 @@ namespace DockRotate
 				lprint("nodeAxis: " + partNodeAxis);
 				lprint("nodeUp: " + partNodeUp);
 			}
-
-			/*
-			if (part.parent) {
-				ModuleDockingNode parentNode = part.parent.FindModuleImplementing<ModuleDockingNode>();
-				if (parentNode)
-					lprint("IDs: " + part.flightID + " " + parentNode.dockedPartUId);
-			}
-			*/
-
-			/*
-			if (activeRotationModule) {
-				lprint("rotationAxis(): " + rotationAxis());
-				Vector3 posdiff = activeRotationModule.orgNodePos - proxyRotationModule.orgNodePos;
-				lprint("posdiff: " + posdiff.normalized + " [" + posdiff.magnitude + "]");
-			}
-			*/
 
 			// dumpJoint(part.attachJoint);
 			lprint("--------------------");
