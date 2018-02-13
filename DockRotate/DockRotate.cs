@@ -285,72 +285,102 @@ namespace DockRotate
 
 		private int vesselPartCount;
 		private ModuleDockingNode dockingNode;
-		private string lastNodeState = "- an impossible state -";
+		private string lastNodeState = "-";
 		private ModuleDockRotate activeRotationModule;
 		private ModuleDockRotate proxyRotationModule;
 		private Vector3 partNodePos; // node position, relative to part
 		private Vector3 partNodeAxis; // node rotation axis, relative to part
 		private Vector3 partNodeUp; // node vector for measuring angle, relative to part
 
+		private int setupStageCounter = 0;
+
 		private void reset()
 		{
-			vesselPartCount = -1;
-			dockingNode = null;
-			lastNodeState = "- another impossible state -";
-			activeRotationModule = null;
-			proxyRotationModule = null;
-			nodeRole = "null";
-			partNodePos = partNodeAxis = partNodeUp = new Vector3(9.9f, 9.9f, 9.9f);
+			lprint("RESET ALL");
+			List<ModuleDockRotate> rotationModules = vessel.FindPartModulesImplementing<ModuleDockRotate>();
+			for (int i = 0; i < rotationModules.Count; i++)
+				rotationModules[i].setupStageCounter = 0;
 		}
 
-		private void setup()
+		private void stagedSetup()
 		{
-			reset();
-			if (onRails)
+			if (onRails || !part || !vessel || rotCur != null)
 				return;
 
-			if (part && vessel)
-				vesselPartCount = vessel.parts.Count;
+			bool performedSetupStage = true;
 
-			dockingNode = part.FindModuleImplementing<ModuleDockingNode>();
-			if (!dockingNode)
-				return;
+			switch (setupStageCounter) {
 
-			partNodePos = Tp(Vector3.zero, T(dockingNode), T(part));
-			partNodeAxis = Td(Vector3.forward, T(dockingNode), T(part));
-			partNodeUp = Td(Vector3.up, T(dockingNode), T(part));
+				default:
+					performedSetupStage = false;
+					break;
 
-			if (isActive()) {
-				activeRotationModule = this;
-				proxyRotationModule = part.parent.FindModuleImplementing<ModuleDockRotate>();
-				nodeRole = "Active";
-			} else {
-				for (int i = 0; i < part.children.Count; i++) {
-					Part p = part.children[i];
-					ModuleDockRotate dr = p.FindModuleImplementing<ModuleDockRotate>();
-					if (dr && dr.isActive()) {
-						activeRotationModule = dr;
+				case 0:
+					rotationStep = Mathf.Abs(rotationStep);
+					rotationSpeed = Mathf.Abs(rotationSpeed);
+					vesselPartCount = -1;
+					dockingNode = null;
+					lastNodeState = "-";
+					activeRotationModule = null;
+					proxyRotationModule = null;
+					nodeRole = "-";
+					partNodePos = partNodeAxis = partNodeUp = new Vector3(9.9f, 9.9f, 9.9f);
+					break;
+
+				case 1:
+					dockingNode = part.FindModuleImplementing<ModuleDockingNode>();
+					if (!dockingNode)
 						break;
+
+					partNodePos = Tp(Vector3.zero, T(dockingNode), T(part));
+					partNodeAxis = Td(Vector3.forward, T(dockingNode), T(part));
+					partNodeUp = Td(Vector3.up, T(dockingNode), T(part));
+					break;
+
+				case 2:
+					if (!dockingNode)
+						break;
+
+					if (isActive()) {
+						activeRotationModule = this;
+						proxyRotationModule = part.parent.FindModuleImplementing<ModuleDockRotate>();
+						nodeRole = "Active";
+					} else {
+						for (int i = 0; i < part.children.Count; i++) {
+							Part p = part.children[i];
+							ModuleDockRotate dr = p.FindModuleImplementing<ModuleDockRotate>();
+							if (dr && dr.isActive()) {
+								activeRotationModule = dr;
+								break;
+							}
+						}
+						if (activeRotationModule) {
+							proxyRotationModule = this;
+							nodeRole = "Proxy";
+						} else {
+							nodeRole = "None";
+						}
 					}
-				}
-				if (activeRotationModule) {
-					proxyRotationModule = this;
-					nodeRole = "Proxy";
-				} else {
-					nodeRole = "None";
-				}
+
+					string status = "inactive";
+					if (activeRotationModule == this) {
+						status = "active";
+					} else if (activeRotationModule) {
+						status = "proxy to " + descPart(activeRotationModule.part);
+					}
+					lprint("setup(" + descPart(part) + "): " + status);
+
+					break;
 			}
 
-			string status = "inactive";
-			if (activeRotationModule == this) {
-				status = "active";
-			} else if (activeRotationModule) {
-				status = "proxy to " + descPart(activeRotationModule.part);
-			}
-			lprint("setup(" + descPart(part) + "): " + status);
+			if (performedSetupStage)
+				lprint(descPart(part) + " setup(" + setupStageCounter + ")");
+
+			setupStageCounter++;
+
 		}
 
-		private bool isActive() // must be used only in setup()
+		private bool isActive() // must be used only after setup stage 1;
 		{
 			if (!part || !part.parent)
 				return false;
@@ -372,14 +402,6 @@ namespace DockRotate
 			bool ret = s.StartsWith("Docked") || s == "PreAttached";
 			// lprint("hasGoodState(" + s + ") = " + ret);
 			return ret;
-		}
-
-		private bool setupIfNeeded()
-		{
-			bool needed = !part || !vessel || vessel.parts.Count != vesselPartCount;
-			if (needed)
-				setup();
-			return needed;
 		}
 
 		private RotationAnimation rotCur = null;
@@ -440,7 +462,7 @@ namespace DockRotate
 		{
 			int i;
 
-			rotationSpeed = Mathf.Abs(rotationSpeed);
+			dockingAngle = rotationAngle(true);
 
 			bool newGuiActive = canStartRotation();
 
@@ -534,7 +556,7 @@ namespace DockRotate
 				return;
 			// lprint("OnVesselGoOffRails()");
 			onRails = false;
-			setup();
+			reset();
 		}
 
 		public override void OnStart(StartState state)
@@ -551,9 +573,7 @@ namespace DockRotate
 		public override void OnUpdate()
 		{
 			base.OnUpdate();
-			setupIfNeeded();
 			checkGuiActive();
-			dockingAngle = rotationAngle(true);
 		}
 
 		public void FixedUpdate()
@@ -561,17 +581,24 @@ namespace DockRotate
 			if (HighLogic.LoadedScene != GameScenes.FLIGHT)
 				return;
 
-			setupIfNeeded();
+			bool needReset = false;
+
+			if (vessel && vessel.parts.Count != vesselPartCount)
+				needReset = true;
 
 			if (dockingNode && dockingNode.state != lastNodeState) {
 				lprint(descPart(part) + " changed from " + lastNodeState + " to " + dockingNode.state);
-				if (rotCur == null)
-					setup();
 				lastNodeState = dockingNode.state;
+				needReset = true;
 			}
+
+			if (needReset)
+				reset();
 
 			if (rotCur != null)
 				advanceRotation(Time.fixedDeltaTime);
+
+			stagedSetup();
 		}
 
 		void enqueueRotation(float angle, float speed)
