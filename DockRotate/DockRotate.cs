@@ -294,7 +294,7 @@ namespace DockRotate
 
 		private int setupStageCounter = 0;
 
-		private void reset()
+		private void resetVessel()
 		{
 			lprint("RESET ALL");
 			List<ModuleDockRotate> rotationModules = vessel.FindPartModulesImplementing<ModuleDockRotate>();
@@ -304,7 +304,10 @@ namespace DockRotate
 
 		private void stagedSetup()
 		{
-			if (onRails || !part || !vessel || rotCur != null)
+			if (onRails || !part || !vessel)
+				return;
+
+			if (rotCur != null && setupStageCounter > 0)
 				return;
 
 			bool performedSetupStage = true;
@@ -325,19 +328,16 @@ namespace DockRotate
 					proxyRotationModule = null;
 					nodeRole = "-";
 					partNodePos = partNodeAxis = partNodeUp = new Vector3(9.9f, 9.9f, 9.9f);
+
+					dockingNode = part.FindModuleImplementing<ModuleDockingNode>();
+					if (dockingNode) {
+						partNodePos = Tp(Vector3.zero, T(dockingNode), T(part));
+						partNodeAxis = Td(Vector3.forward, T(dockingNode), T(part));
+						partNodeUp = Td(Vector3.up, T(dockingNode), T(part));
+					}
 					break;
 
 				case 1:
-					dockingNode = part.FindModuleImplementing<ModuleDockingNode>();
-					if (!dockingNode)
-						break;
-
-					partNodePos = Tp(Vector3.zero, T(dockingNode), T(part));
-					partNodeAxis = Td(Vector3.forward, T(dockingNode), T(part));
-					partNodeUp = Td(Vector3.up, T(dockingNode), T(part));
-					break;
-
-				case 2:
 					if (!dockingNode)
 						break;
 
@@ -377,7 +377,6 @@ namespace DockRotate
 				lprint(descPart(part) + " setup(" + setupStageCounter + ")");
 
 			setupStageCounter++;
-
 		}
 
 		private bool isActive() // must be used only after setup stage 1;
@@ -547,7 +546,7 @@ namespace DockRotate
 				return;
 			// lprint("OnVesselGoOnRails()");
 			onRails = true;
-			reset();
+			resetVessel();
 		}
 
 		public void OnVesselGoOffRails(Vessel v)
@@ -556,7 +555,7 @@ namespace DockRotate
 				return;
 			// lprint("OnVesselGoOffRails()");
 			onRails = false;
-			reset();
+			resetVessel();
 		}
 
 		public override void OnStart(StartState state)
@@ -593,7 +592,7 @@ namespace DockRotate
 			}
 
 			if (needReset)
-				reset();
+				resetVessel();
 
 			if (rotCur != null)
 				advanceRotation(Time.fixedDeltaTime);
