@@ -778,7 +778,7 @@ namespace DockRotate
 			lprint("  axis: " + joint.axis);
 			lprint("  axisP: " + Td(joint.axis, T(joint), T(part)));
 			lprint("  secAxis: " + joint.secondaryAxis);
-			lprint("  secAxisP: " + Td(joint.secondaryAxis, T(joint), T(part))); 
+			lprint("  secAxisP: " + Td(joint.secondaryAxis, T(joint), T(part)));
 
 			/*
 			lprint("  AXMot: " + joint.angularXMotion);
@@ -793,11 +793,18 @@ namespace DockRotate
 			lprint("  ZDrv: " + descDrv(joint.zDrive));
 			*/
 
+			float ran;
+			Vector3 rax;
+			joint.targetRotation.ToAngleAxis(out ran, out rax);
+			lprint("  TgtRotAngle: " + ran);
+			lprint("  TgtRotAxis: " + rax);
+			lprint("  TgtRotAxisP: " + Td(rax, T(joint), T(part)));
+
 			lprint("  TgtPos: " + joint.targetPosition);
 			lprint("  TgtPosP: " + Tp(joint.targetPosition, T(joint), T(part)));
 			lprint("  Anchors: " + joint.anchor + " " + joint.connectedAnchor);
 			lprint("  AnchorsP: " + Tp(joint.anchor, T(joint), T(part))
-			       + " " + Tp(joint.connectedAnchor, T(joint.connectedBody), T(part)));
+				+ " " + Tp(joint.connectedAnchor, T(joint.connectedBody), T(part)));
 
 			// lprint("Joint YMot:   " + joint.Joint.angularYMotion);
 			// lprint("Joint YLim:   " + descLim(joint.Joint.angularYLimit));
@@ -821,7 +828,7 @@ namespace DockRotate
 		}
 
 		private void dumpPart() {
-			lprint("--- DUMP " + descPart(part) + " -----------------------");
+			lprint("--- DUMP " + descPart(part) + " ---");
 			/*
 			lprint("mass: " + part.mass);
 			lprint("parent: " + descPart(part.parent));
