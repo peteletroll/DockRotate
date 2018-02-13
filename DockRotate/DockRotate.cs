@@ -296,10 +296,14 @@ namespace DockRotate
 
 		private void resetVessel()
 		{
-			lprint("RESET ALL");
 			List<ModuleDockRotate> rotationModules = vessel.FindPartModulesImplementing<ModuleDockRotate>();
-			for (int i = 0; i < rotationModules.Count; i++)
-				rotationModules[i].setupStageCounter = 0;
+			for (int i = 0; i < rotationModules.Count; i++) {
+				ModuleDockRotate m = rotationModules[i];
+				if (m.setupStageCounter != 0) {
+					lprint("reset " + descPart(m.part));
+					m.setupStageCounter = 0;
+				}
+			}
 		}
 
 		private void stagedSetup()
@@ -321,7 +325,7 @@ namespace DockRotate
 				case 0:
 					rotationStep = Mathf.Abs(rotationStep);
 					rotationSpeed = Mathf.Abs(rotationSpeed);
-					vesselPartCount = -1;
+					vesselPartCount = vessel.parts.Count;
 					dockingNode = null;
 					lastNodeState = "-";
 					activeRotationModule = null;
@@ -334,6 +338,7 @@ namespace DockRotate
 						partNodePos = Tp(Vector3.zero, T(dockingNode), T(part));
 						partNodeAxis = Td(Vector3.forward, T(dockingNode), T(part));
 						partNodeUp = Td(Vector3.up, T(dockingNode), T(part));
+						lastNodeState = dockingNode.state;
 					}
 					break;
 
