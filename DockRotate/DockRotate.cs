@@ -564,8 +564,10 @@ namespace DockRotate
 			setupIfNeeded();
 
 			if (dockingNode && dockingNode.state != lastNodeState) {
+				lprint(descPart(part) + " changed from " + lastNodeState + " to " + dockingNode.state);
+				if (rotCur == null)
+					setup();
 				lastNodeState = dockingNode.state;
-				lprint(descPart(part) + " is now " + lastNodeState);
 			}
 
 			if (rotCur != null)
