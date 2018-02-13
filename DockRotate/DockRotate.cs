@@ -694,6 +694,16 @@ namespace DockRotate
 			return p.transform;
 		}
 
+		private static Transform T(ConfigurableJoint j)
+		{
+			return j.transform;
+		}
+
+		private static Transform T(Rigidbody b)
+		{
+			return b.transform;
+		}
+
 		private static Transform T(ModuleDockRotate m)
 		{
 			return m.part.transform;
@@ -760,14 +770,17 @@ namespace DockRotate
 				+ ")";
 		}
 
-		static void dumpJoint(ConfigurableJoint joint)
+		private void dumpJoint(ConfigurableJoint joint)
 		{
 			lprint("  autoConf: " + joint.autoConfigureConnectedAnchor);
 			lprint("  from: " + joint.gameObject);
 			lprint("  to: " + joint.connectedBody);
 			lprint("  axis: " + joint.axis);
+			lprint("  axisP: " + Td(joint.axis, T(joint), T(part)));
 			lprint("  secAxis: " + joint.secondaryAxis);
+			lprint("  secAxisP: " + Td(joint.secondaryAxis, T(joint), T(part))); 
 
+			/*
 			lprint("  AXMot: " + joint.angularXMotion);
 			lprint("  LAXLim: " + descLim(joint.lowAngularXLimit));
 			lprint("  HAXLim: " + descLim(joint.highAngularXLimit));
@@ -778,8 +791,13 @@ namespace DockRotate
 			lprint("  YDrv: " + joint.yDrive);
 			lprint("  ZMot: " + joint.zMotion);
 			lprint("  ZDrv: " + descDrv(joint.zDrive));
+			*/
+
 			lprint("  TgtPos: " + joint.targetPosition);
+			lprint("  TgtPosP: " + Tp(joint.targetPosition, T(joint), T(part)));
 			lprint("  Anchors: " + joint.anchor + " " + joint.connectedAnchor);
+			lprint("  AnchorsP: " + Tp(joint.anchor, T(joint), T(part))
+			       + " " + Tp(joint.connectedAnchor, T(joint.connectedBody), T(part)));
 
 			// lprint("Joint YMot:   " + joint.Joint.angularYMotion);
 			// lprint("Joint YLim:   " + descLim(joint.Joint.angularYLimit));
@@ -787,7 +805,7 @@ namespace DockRotate
 			// lprint("Joint RMode:  " + joint.Joint.rotationDriveMode);
 		}
 
-		static void dumpJoint(PartJoint joint)
+		private void dumpJoint(PartJoint joint)
 		{
 			// lprint("Joint Parent: " + descPart(joint.Parent));
 			// lprint("Joint Child:  " + descPart(joint.Child));
@@ -802,7 +820,7 @@ namespace DockRotate
 			}
 		}
 
-		void dumpPart() {
+		private void dumpPart() {
 			lprint("--- DUMP " + descPart(part) + " -----------------------");
 			/*
 			lprint("mass: " + part.mass);
@@ -826,7 +844,7 @@ namespace DockRotate
 				lprint("rotDy: " + rotationAngle(true));
 			}
 
-			// dumpJoint(part.attachJoint);
+			dumpJoint(part.attachJoint);
 			lprint("--------------------");
 		}
 	}
