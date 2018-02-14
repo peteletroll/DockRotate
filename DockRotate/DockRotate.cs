@@ -99,7 +99,6 @@ namespace DockRotate
 
 		private void onStep(float deltat)
 		{
-			// first rough attempt of electricity consumption
 			for (int i = 0; i < joint.joints.Count; i++) {
 				ConfigurableJoint j = joint.joints[i];
 				Quaternion rot = currentRotation(i);
@@ -110,6 +109,7 @@ namespace DockRotate
 				// joint.joints[i].connectedAnchor = rot * joint.joints[i].connectedAnchor;
 			}
 
+			// first rough attempt for electricity consumption
 			double el = rotationModule.part.RequestResource("ElectricCharge", 1.0 * deltat);
 			if (el <= 0.0)
 				abort();
@@ -142,7 +142,7 @@ namespace DockRotate
 			if (finished)
 				return true;
 			if (Mathf.Abs(vel) < stopMargin * deltat * maxacc
-				&& Mathf.Abs(tgt - pos) < stopMargin * deltat * deltat * maxacc / stopMargin)
+				&& Mathf.Abs(tgt - pos) < deltat * deltat * maxacc)
 				finished = true;
 			return finished;
 		}
