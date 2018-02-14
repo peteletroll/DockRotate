@@ -427,11 +427,6 @@ namespace DockRotate
 				&& vessel.CurrentControlLevel == Vessel.ControlLevel.FULL;
 		}
 
-		private Vector3 rotationAxis()
-		{
-			return (activeRotationModule.part.orgPos - proxyRotationModule.part.orgPos).normalized;
-		}
-
 		private float rotationAngle(bool dynamic)
 		{
 			if (!activeRotationModule || !proxyRotationModule)
@@ -630,7 +625,7 @@ namespace DockRotate
 
 		private void staticizeRotation(float angle)
 		{
-			Vector3 axis = rotationAxis();
+			Vector3 axis = (activeRotationModule.part.orgPos - proxyRotationModule.part.orgPos).normalized;
 			Quaternion rot = Quaternion.AngleAxis(angle, axis);
 			lprint("staticize " + rot.eulerAngles);
 			PartJoint joint = part.attachJoint;
