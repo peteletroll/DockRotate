@@ -637,9 +637,7 @@ namespace DockRotate
 
 		private void staticizeRotation(float angle)
 		{
-			Vector3 axis = (activeRotationModule.part.orgPos - proxyRotationModule.part.orgPos).normalized;
-			Vector3 axis2 = STd(proxyRotationModule.partNodeAxis, proxyRotationModule.part, vessel.rootPart);
-			lprint("staticize axis angular error: " + Vector3.Angle(axis, axis2));
+			Vector3 axis = STd(proxyRotationModule.partNodeAxis, proxyRotationModule.part, vessel.rootPart);
 			Quaternion rot = Quaternion.AngleAxis(angle, axis);
 			lprint("staticize " + rot.eulerAngles);
 			PartJoint joint = part.attachJoint;
