@@ -325,13 +325,15 @@ namespace DockRotate
 				case 0:
 					rotationStep = Mathf.Abs(rotationStep);
 					rotationSpeed = Mathf.Abs(rotationSpeed);
-					vesselPartCount = vessel.parts.Count;
+
 					dockingNode = null;
-					lastNodeState = "-";
 					activeRotationModule = null;
 					proxyRotationModule = null;
 					nodeRole = "-";
 					partNodePos = partNodeAxis = partNodeUp = new Vector3(9.9f, 9.9f, 9.9f);
+
+					vesselPartCount = vessel ? vessel.parts.Count : -1;
+					lastNodeState = "-";
 
 					dockingNode = part.FindModuleImplementing<ModuleDockingNode>();
 					if (dockingNode) {
@@ -379,7 +381,7 @@ namespace DockRotate
 			}
 
 			if (performedSetupStage)
-				lprint(descPart(part) + " setup(" + setupStageCounter + ")");
+				lprint(" setup(" + descPart(part) + "): step " + setupStageCounter + " done");
 
 			setupStageCounter++;
 		}
@@ -388,13 +390,17 @@ namespace DockRotate
 		{
 			if (!part || !part.parent)
 				return false;
+
 			ModuleDockingNode parentNode = part.parent.FindModuleImplementing<ModuleDockingNode>();
 			ModuleDockRotate parentRotate = part.parent.FindModuleImplementing<ModuleDockRotate>();
+
 			bool ret = dockingNode && parentNode && parentRotate
 				&& dockingNode.nodeType == parentNode.nodeType
 				&& hasGoodState(dockingNode) && hasGoodState(parentNode)
 				&& Vector3.Angle(partNodeAxis, Td(Vector3.back, T(parentNode), T(part))) < 3;
+
 			// lprint("isActive(" + descPart(part) + ") = " + ret);
+
 			return ret;
 		}
 
