@@ -279,7 +279,7 @@ namespace DockRotate
 		}
 #endif
 
-		// things to be set up by setup()
+		// things to be set up by stagedSetup()
 		// the active module of the couple is the farthest from the root part
 		// the proxy module of the couple is the closest to the root part
 
@@ -386,7 +386,7 @@ namespace DockRotate
 			setupStageCounter++;
 		}
 
-		private bool isActive() // must be used only after setup stage 1;
+		private bool isActive() // must be used only after setup stage 0;
 		{
 			if (!part || !part.parent)
 				return false;
@@ -397,6 +397,7 @@ namespace DockRotate
 			bool ret = dockingNode && parentNode && parentRotate
 				&& dockingNode.nodeType == parentNode.nodeType
 				&& hasGoodState(dockingNode) && hasGoodState(parentNode)
+				&& (partNodePos - Tp(parentRotate.partNodePos, T(parentRotate.part), T(part))).magnitude < 1.0f
 				&& Vector3.Angle(partNodeAxis, Td(Vector3.back, T(parentNode), T(part))) < 3;
 
 			// lprint("isActive(" + descPart(part) + ") = " + ret);
@@ -434,7 +435,7 @@ namespace DockRotate
 
 			Vector3 v1 = activeRotationModule.partNodeUp;
 			Vector3 v2 = dynamic ?
-				Td(proxyRotationModule.partNodeUp, T(proxyRotationModule), T(activeRotationModule)) :
+				Td(proxyRotationModule.partNodeUp, T(proxyRotationModule.part), T(activeRotationModule.part)) :
 				STd(proxyRotationModule.partNodeUp, proxyRotationModule.part, activeRotationModule.part);
 			Vector3 a = activeRotationModule.partNodeAxis;
 
@@ -710,11 +711,6 @@ namespace DockRotate
 		private static Transform T(Rigidbody b)
 		{
 			return b.transform;
-		}
-
-		private static Transform T(ModuleDockRotate m)
-		{
-			return m.part.transform;
 		}
 
 		private static Transform T(ModuleDockingNode m)
