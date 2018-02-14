@@ -65,7 +65,7 @@ namespace DockRotate
 			vel = newvel;
 			pos += deltat * vel;
 
-			onStep();
+			onStep(deltat);
 
 			if (!finished && done(deltat)) {
 				onStop();
@@ -97,8 +97,9 @@ namespace DockRotate
 			}
 		}
 
-		private void onStep()
+		private void onStep(float deltat)
 		{
+			// first rough attempt of electricity consumption
 			for (int i = 0; i < joint.joints.Count; i++) {
 				ConfigurableJoint j = joint.joints[i];
 				Quaternion rot = currentRotation(i);
@@ -108,12 +109,16 @@ namespace DockRotate
 				// joint.joints[i].anchor = rot * joint.joints[i].anchor;
 				// joint.joints[i].connectedAnchor = rot * joint.joints[i].connectedAnchor;
 			}
+
+			double el = rotationModule.part.RequestResource("ElectricCharge", 1.0 * deltat);
+			if (el <= 0.0)
+				abort();
 		}
 
 		private void onStop()
 		{
 			pos = tgt;
-			onStep();
+			onStep(0);
 			/*
 			rotatingJoint.angularXMotion = savedXMotion;
 			for (int i = 0; i < joint.joints.Count; i++)
@@ -140,6 +145,12 @@ namespace DockRotate
 				&& Mathf.Abs(tgt - pos) < stopMargin * deltat * deltat * maxacc / stopMargin)
 				finished = true;
 			return finished;
+		}
+
+		public void abort()
+		{
+			tgt = pos;
+			vel = 0;
 		}
 	}
 
