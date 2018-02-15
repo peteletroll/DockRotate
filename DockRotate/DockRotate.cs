@@ -128,6 +128,8 @@ namespace DockRotate
 
 		public Quaternion currentRotation(int i)
 		{
+			// the proxy inline rotation bug is here!
+			// newRotation must be computed according to joint axis
 			Quaternion newRotation = Quaternion.Euler(new Vector3(pos, 0, 0));
 			return startRotation[i] * newRotation;
 		}
@@ -636,17 +638,19 @@ namespace DockRotate
 			}
 		}
 
-		private void staticizeRotation(float angle)
+		private void staticizeRotation(RotationAnimation rot)
 		{
+			float angle = rot.tgt;
 			Vector3 axis = STd(proxyRotationModule.partNodeAxis, proxyRotationModule.part, vessel.rootPart);
-			Quaternion rot = Quaternion.AngleAxis(angle, axis);
-			lprint("staticize " + rot.eulerAngles);
+			Quaternion axisRot = Quaternion.AngleAxis(angle, axis);
+			lprint("staticize " + axisRot.eulerAngles);
 			PartJoint joint = part.attachJoint;
 			for (int i = 0; i < joint.joints.Count; i++) {
-				joint.joints[i].secondaryAxis = rot * part.attachJoint.Joint.secondaryAxis;
+				joint.joints[i].secondaryAxis = axisRot * part.attachJoint.Joint.secondaryAxis;
 				joint.joints[i].targetRotation = Quaternion.identity;
+				lprint("CHKROT: " + Quaternion.identity + " " + rot.startRotation[i]);
 			}
-			_propagate(part, rot);
+			_propagate(part, axisRot);
 		}
 
 		private void _propagate(Part p, Quaternion rot)
@@ -679,7 +683,7 @@ namespace DockRotate
 
 			if (rotCur.done()) {
 				lprint(descPart(part) + ": rotation finished");
-				staticizeRotation(rotCur.tgt);
+				staticizeRotation(rotCur);
 				rotCur = null;
 			}
 		}
