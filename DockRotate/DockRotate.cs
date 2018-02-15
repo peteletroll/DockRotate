@@ -755,13 +755,12 @@ namespace DockRotate
 
 		private static Vector3 STd(Vector3 v, Part from, Part to)
 		{
-			// still to debug
 			return Quaternion.Inverse(to.orgRot) * (from.orgRot * v);
 		}
 
 		private static Vector3 STp(Vector3 v, Part from, Part to)
 		{
-			// still to debug
+			// untested yet
 			Vector3 vv = from.orgPos + from.orgRot * v;
 			return Quaternion.Inverse(to.orgRot) * (vv - to.orgPos);
 		}
@@ -803,6 +802,7 @@ namespace DockRotate
 			lprint("  from: " + joint.gameObject);
 			lprint("  to: " + joint.connectedBody);
 			lprint("  axis: " + joint.axis);
+			lprint("  nodeAxis: " + nodeAxisInJointSpace(joint));
 			lprint("  axisP: " + Td(joint.axis, T(joint), T(part)));
 			lprint("  secAxis: " + joint.secondaryAxis);
 			lprint("  secAxisP: " + Td(joint.secondaryAxis, T(joint), T(part)));
