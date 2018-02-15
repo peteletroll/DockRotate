@@ -641,16 +641,17 @@ namespace DockRotate
 		private void staticizeRotation(RotationAnimation rot)
 		{
 			float angle = rot.tgt;
-			Vector3 axis = STd(proxyRotationModule.partNodeAxis, proxyRotationModule.part, vessel.rootPart);
-			Quaternion axisRot = Quaternion.AngleAxis(angle, axis);
-			lprint("staticize " + axisRot.eulerAngles);
+			Vector3 nodeAxis = STd(proxyRotationModule.partNodeAxis, proxyRotationModule.part, vessel.rootPart);
+			Quaternion nodeRot = Quaternion.AngleAxis(angle, nodeAxis);
+			lprint("staticize " + nodeRot.eulerAngles);
+			_propagate(part, nodeRot);
+
 			PartJoint joint = part.attachJoint;
 			for (int i = 0; i < joint.joints.Count; i++) {
-				joint.joints[i].secondaryAxis = axisRot * part.attachJoint.Joint.secondaryAxis;
+				joint.joints[i].secondaryAxis = nodeRot * part.attachJoint.Joint.secondaryAxis;
 				joint.joints[i].targetRotation = Quaternion.identity;
 				lprint("CHKROT: " + Quaternion.identity + " " + rot.startRotation[i]);
 			}
-			_propagate(part, axisRot);
 		}
 
 		private void _propagate(Part p, Quaternion rot)
