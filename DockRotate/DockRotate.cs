@@ -12,6 +12,7 @@ namespace DockRotate
 		public float pos, tgt, vel;
 		private float maxvel, maxacc;
 
+		public Vector3[] jointSpaceAxis;
 		public Quaternion[] startRotation;
 		public Vector3[] startPosition;
 		private bool started = false, finished = false;
@@ -76,10 +77,12 @@ namespace DockRotate
 		private void onStart()
 		{
 			int c = joint.joints.Count;
+			jointSpaceAxis = new Vector3[c];
 			startRotation = new Quaternion[c];
 			startPosition = new Vector3[c];
 			for (int i = 0; i < c; i++) {
 				ConfigurableJoint j = joint.joints[i];
+				jointSpaceAxis[i] = rotationModule.nodeAxisInJointSpace(j);
 				startRotation[i] = j.targetRotation;
 				startPosition[i] = j.targetPosition;
 				ConfigurableJointMotion f = ConfigurableJointMotion.Free;
@@ -457,6 +460,11 @@ namespace DockRotate
 			float axisAngle = Vector3.Angle(a, Vector3.Cross(v2, v1));
 
 			return (axisAngle > 90) ? angle : -angle;
+		}
+
+		public Vector3 nodeAxisInJointSpace(ConfigurableJoint joint)
+		{
+			return Td(partNodeAxis, T(part), T(joint));
 		}
 
 		private static char[] guiListSep = { '.' };

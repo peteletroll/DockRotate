@@ -4,6 +4,7 @@
 
 * move staticizeRotation() to RotationAnimation
 	* probably better to move just the joint handling and leave orgPos/orgRot updates in ModuleDockRotate
+	* update _propagate() to use STd() and STp()
 
 * handle vessel structure change during rotation properly
 	* use abort() function when vessel part count changes
