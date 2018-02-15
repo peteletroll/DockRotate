@@ -716,6 +716,16 @@ namespace DockRotate
 
 		/******** Reference change utilities - dynamic ********/
 
+		private static Vector3 Td(Vector3 v, Transform from, Transform to)
+		{
+			return to.InverseTransformDirection(from.TransformDirection(v));
+		}
+
+		private static Vector3 Tp(Vector3 v, Transform from, Transform to)
+		{
+			return to.InverseTransformPoint(from.TransformPoint(v));
+		}
+
 		private static Transform T(Vessel v)
 		{
 			return v.rootPart.transform;
@@ -739,16 +749,6 @@ namespace DockRotate
 		private static Transform T(ModuleDockingNode m)
 		{
 			return m.nodeTransform;
-		}
-
-		private static Vector3 Td(Vector3 v, Transform from, Transform to)
-		{
-			return to.InverseTransformDirection(from.TransformDirection(v));
-		}
-
-		private static Vector3 Tp(Vector3 v, Transform from, Transform to)
-		{
-			return to.InverseTransformPoint(from.TransformPoint(v));
 		}
 
 		/******** Reference change utilities - static ********/
