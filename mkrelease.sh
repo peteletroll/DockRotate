@@ -24,6 +24,7 @@ debugdll=DockRotate/bin/Debug/DockRotate.dll
 
 dllname=`basename $dll`
 
+foundnewer=0
 for f in `find . -name \*.cs`
 do
 	for d in $dll $debugdll
@@ -31,10 +32,11 @@ do
 		if [ $f -nt $d ]
 		then
 			echo "ABORTING: $f is newer than $d" 1>&2
-			exit 1
+			foundnewer=1
 		fi
 	done
 done
+[ $foundnewer -eq 0 ] || exit 1
 
 cp ~/KSP/KSP_linux/GameData/ModuleManager.*.dll $dir/.. || exit 1
 
