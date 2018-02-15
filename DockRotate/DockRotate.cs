@@ -311,7 +311,7 @@ namespace DockRotate
 			for (int i = 0; i < rotationModules.Count; i++) {
 				ModuleDockRotate m = rotationModules[i];
 				if (m.setupStageCounter != 0) {
-					lprint("reset " + descPart(m.part));
+					// lprint("reset " + descPart(m.part));
 					m.setupStageCounter = 0;
 				}
 			}
@@ -391,8 +391,9 @@ namespace DockRotate
 					break;
 			}
 
-			if (performedSetupStage)
-				lprint(" setup(" + descPart(part) + "): step " + setupStageCounter + " done");
+			if (performedSetupStage) {
+				// lprint ("setup(" + descPart (part) + "): step " + setupStageCounter + " done");
+			}
 
 			setupStageCounter++;
 		}
