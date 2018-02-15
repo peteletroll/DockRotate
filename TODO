@@ -3,19 +3,16 @@
 * localization
 
 * move staticizeRotation() to RotationAnimation
+	* probably better to move just the joint handling and leave orgPos/orgRot updates in ModuleDockRotate
 
 * handle vessel structure change during rotation properly
-	* store initial orgRot and orgPos
-	* update part orgRot ant orgPos during motion
-	* if rotation aborts, part orgRot and orgPos are always updated
+	* use abort() function when vessel part count changes
+	* use it on docking port state change to prevent docking-while-moving problems
 
 * finish docking port sr. support
 
 * add inline docking port support
-	* redesign rotationAxis() to get information from ModuleDockingNode
-	* the axis vector is Vector3.forward in nodeTransform reference
-	* fix adjPos() and adjDir() stuff
+	* just one last bug to fix before release
 
 * refactor checkGuiActive() to remove the guiList[] logic
 
-* use DEBUG instead of clumsy debugMode, include debug dll in distribution
