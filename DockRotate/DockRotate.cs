@@ -12,7 +12,7 @@ namespace DockRotate
 		public float pos, tgt, vel;
 		private float maxvel, maxacc;
 
-		public Vector3[] jointSpaceAxis;
+		public Vector3[] jointRotationAxis;
 		public Quaternion[] startRotation;
 		public Vector3[] startPosition;
 		private bool started = false, finished = false;
@@ -77,12 +77,12 @@ namespace DockRotate
 		private void onStart()
 		{
 			int c = joint.joints.Count;
-			jointSpaceAxis = new Vector3[c];
+			jointRotationAxis = new Vector3[c];
 			startRotation = new Quaternion[c];
 			startPosition = new Vector3[c];
 			for (int i = 0; i < c; i++) {
 				ConfigurableJoint j = joint.joints[i];
-				jointSpaceAxis[i] = rotationModule.nodeAxisInJointSpace(j);
+				jointRotationAxis[i] = rotationModule.jointRotationAxis(j);
 				startRotation[i] = j.targetRotation;
 				startPosition[i] = j.targetPosition;
 				ConfigurableJointMotion f = ConfigurableJointMotion.Free;
@@ -462,7 +462,7 @@ namespace DockRotate
 			return (axisAngle > 90) ? angle : -angle;
 		}
 
-		public Vector3 nodeAxisInJointSpace(ConfigurableJoint joint)
+		public Vector3 jointRotationAxis(ConfigurableJoint joint)
 		{
 			return Td(partNodeAxis, T(part), T(joint));
 		}
@@ -802,7 +802,7 @@ namespace DockRotate
 			lprint("  from: " + joint.gameObject);
 			lprint("  to: " + joint.connectedBody);
 			lprint("  axis: " + joint.axis);
-			lprint("  nodeAxis: " + nodeAxisInJointSpace(joint));
+			lprint("  nodeAxis: " + jointRotationAxis(joint));
 			lprint("  axisP: " + Td(joint.axis, T(joint), T(part)));
 			lprint("  secAxis: " + joint.secondaryAxis);
 			lprint("  secAxisP: " + Td(joint.secondaryAxis, T(joint), T(part)));
