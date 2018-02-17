@@ -70,7 +70,7 @@ namespace DockRotate
 
 			if (!finished && done(deltat)) {
 				onStop();
-				lprint("rotation stopped");
+				// lprint("rotation stopped");
 			}
 		}
 
@@ -87,8 +87,10 @@ namespace DockRotate
 				startPosition[i] = j.targetPosition;
 				ConfigurableJointMotion f = ConfigurableJointMotion.Free;
 				j.angularXMotion = f;
+				j.angularYMotion = f;
+				j.angularZMotion = f;
 				j.xMotion = f;
-				// j.yMotion = f;
+				j.yMotion = f;
 				j.zMotion = f;
 				if (i != 0) {
 					JointDrive d = j.xDrive;
@@ -120,6 +122,12 @@ namespace DockRotate
 
 		private void onStop()
 		{
+			float angle;
+			Vector3 axis;
+			currentRotation(0).ToAngleAxis(out angle, out axis);
+			if (angle < 0)
+				axis = -axis;
+			lprint("stop rot axis " + axis);
 			pos = tgt;
 			onStep(0);
 			/*
@@ -133,7 +141,28 @@ namespace DockRotate
 		{
 			// the proxy inline rotation bug is here!
 			// newRotation must be computed according to joint axis
-			Quaternion newRotation = Quaternion.Euler(new Vector3(pos, 0, 0));
+			// return axis for axial on axial must be Vector3.right = (1, 0, 0)
+			// return axis for inline on axial must be Vector3.right = (1, 0, 0)
+			// return axis for axial on inline must be Vector3.down = (0, -1, 0)
+
+			// partNodeAxis for axial ports is Vector3.up = (0, 1, 0)
+			// partNodeAxis for inline ports is Vector3.back = (0, 0, -1)
+
+			// for active part:
+			// otherPartNodeAxis for axial on axial good is (0, -1, 0)
+			// otherPartNodeAxis for inline on axial good is (0, 0, 1)
+			// otherPartNodeAxis for axial on inline bad is (0, -1, 0)
+
+			// for proxy part:
+			// otherPartNodeAxis for axial on axial good is (0, -1, 0)
+			// otherPartNodeAxis for inline on axial good is (0, -1, 0)
+			// otherPartNodeAxis for axial on inline bad is (0, 0, 1)
+
+			// Quaternion newRotation = Quaternion.Euler(new Vector3(pos, 0, 0));
+			ModuleDockRotate referenceModule = rotationModule.proxyRotationModule;
+			Vector3 rotationAxis = referenceModule.partNodeAxis;
+			rotationAxis = Vector3.right;
+			Quaternion newRotation = Quaternion.AngleAxis(pos, rotationAxis);
 			return startRotation[i] * newRotation;
 		}
 
@@ -302,10 +331,11 @@ namespace DockRotate
 		private int vesselPartCount;
 		private ModuleDockingNode dockingNode;
 		private string lastNodeState = "-";
-		private ModuleDockRotate activeRotationModule;
-		private ModuleDockRotate proxyRotationModule;
+		public ModuleDockRotate otherRotationModule;
+		public ModuleDockRotate activeRotationModule;
+		public ModuleDockRotate proxyRotationModule;
 		private Vector3 partNodePos; // node position, relative to part
-		private Vector3 partNodeAxis; // node rotation axis, relative to part
+		public Vector3 partNodeAxis; // node rotation axis, relative to part
 		private Vector3 partNodeUp; // node vector for measuring angle, relative to part
 
 		private int setupStageCounter = 0;
@@ -343,8 +373,7 @@ namespace DockRotate
 					rotationSpeed = Mathf.Abs(rotationSpeed);
 
 					dockingNode = null;
-					activeRotationModule = null;
-					proxyRotationModule = null;
+					otherRotationModule = activeRotationModule = proxyRotationModule = null;
 					nodeRole = "-";
 					partNodePos = partNodeAxis = partNodeUp = new Vector3(9.9f, 9.9f, 9.9f);
 
@@ -366,14 +395,14 @@ namespace DockRotate
 
 					if (isActive()) {
 						activeRotationModule = this;
-						proxyRotationModule = part.parent.FindModuleImplementing<ModuleDockRotate>();
+						proxyRotationModule = otherRotationModule = part.parent.FindModuleImplementing<ModuleDockRotate>();
 						nodeRole = "Active";
 					} else {
 						for (int i = 0; i < part.children.Count; i++) {
 							Part p = part.children[i];
 							ModuleDockRotate dr = p.FindModuleImplementing<ModuleDockRotate>();
 							if (dr && dr.isActive()) {
-								activeRotationModule = dr;
+								activeRotationModule = otherRotationModule = dr;
 								break;
 							}
 						}
@@ -464,7 +493,7 @@ namespace DockRotate
 
 		public Vector3 jointRotationAxis(ConfigurableJoint joint)
 		{
-			return Td(partNodeAxis, T(part), T(joint));
+			return Td(proxyRotationModule.partNodeAxis, T(proxyRotationModule.part), T(joint));
 		}
 
 		private static char[] guiListSep = { '.' };
@@ -654,11 +683,12 @@ namespace DockRotate
 			lprint("staticize " + nodeRot.eulerAngles);
 			_propagate(part, nodeRot);
 
+			lprint("staticize joint axis: " + nodeAxis);
 			PartJoint joint = part.attachJoint;
 			for (int i = 0; i < joint.joints.Count; i++) {
 				joint.joints[i].secondaryAxis = nodeRot * part.attachJoint.Joint.secondaryAxis;
 				joint.joints[i].targetRotation = Quaternion.identity;
-				lprint("CHKROT: " + Quaternion.identity + " " + rot.startRotation[i]);
+				// lprint("CHKROT: " + Quaternion.identity + " " + rot.startRotation[i]);
 			}
 		}
 
@@ -802,7 +832,7 @@ namespace DockRotate
 			lprint("  from: " + joint.gameObject);
 			lprint("  to: " + joint.connectedBody);
 			lprint("  axis: " + joint.axis);
-			lprint("  nodeAxis: " + jointRotationAxis(joint));
+			lprint("  nodeAxis: " + partNodeAxis);
 			lprint("  axisP: " + Td(joint.axis, T(joint), T(part)));
 			lprint("  secAxis: " + joint.secondaryAxis);
 			lprint("  secAxisP: " + Td(joint.secondaryAxis, T(joint), T(part)));
@@ -863,22 +893,34 @@ namespace DockRotate
 			lprint("orgRot: " + part.orgRot);
 			*/
 
+			if (activeRotationModule) {
+				float angle;
+				Vector3 axis;
+				Quaternion.Euler(new Vector3(90, 0, 0)).ToAngleAxis(out angle, out axis);
+			}
+
 			if (dockingNode) {
 				lprint("size: " + dockingNode.nodeType);
 				lprint("state: " + dockingNode.state);
 
-				ModuleDockingNode other = dockingNode.FindOtherNode();
+				ModuleDockingNode other = dockingNode.dockedPartUId != 0 ? dockingNode.FindOtherNode() : null;
 				lprint("other: " + (other ? descPart(other.part) : "none"));
 
-				lprint("nodePos: " + partNodePos);
-				lprint("nodeAxis: " + partNodeAxis);
-				lprint("nodeUp: " + partNodeUp);
+				lprint("partNodePos: " + partNodePos);
+				lprint("partNodeAxis: " + partNodeAxis);
+				lprint("partNodeUp: " + partNodeUp);
+
+				if (otherRotationModule) {
+					lprint("otherPartNodeAxis1: " + Td(otherRotationModule.partNodeAxis, T(otherRotationModule.part), T(part)));
+					lprint("otherPartNodeAxis2: " + STd(otherRotationModule.partNodeAxis, otherRotationModule.part, part));
+				}
 
 				lprint("rotSt: " + rotationAngle(false));
 				lprint("rotDy: " + rotationAngle(true));
 			}
 
-			dumpJoint(part.attachJoint);
+			// dumpJoint(part.attachJoint);
+
 			lprint("--------------------");
 		}
 	}
