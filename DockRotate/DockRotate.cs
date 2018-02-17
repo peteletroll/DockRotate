@@ -141,9 +141,11 @@ namespace DockRotate
 		{
 			// the proxy inline rotation bug is here!
 			// newRotation must be computed according to joint axis
+
 			// return axis for axial on axial must be Vector3.right = (1, 0, 0)
 			// return axis for inline on axial must be Vector3.right = (1, 0, 0)
 			// return axis for axial on inline must be Vector3.down = (0, -1, 0)
+			// return axis for inline on inline must be Vector3.back = (0, 0, -1)
 
 			// partNodeAxis for axial ports is Vector3.up = (0, 1, 0)
 			// partNodeAxis for inline ports is Vector3.back = (0, 0, -1)
@@ -152,11 +154,13 @@ namespace DockRotate
 			// otherPartNodeAxis for axial on axial good is (0, -1, 0)
 			// otherPartNodeAxis for inline on axial good is (0, 0, 1)
 			// otherPartNodeAxis for axial on inline bad is (0, -1, 0)
+			// otherPartNodeAxis for inline on inline bad is (0, 0, 1)
 
 			// for proxy part:
 			// otherPartNodeAxis for axial on axial good is (0, -1, 0)
 			// otherPartNodeAxis for inline on axial good is (0, -1, 0)
 			// otherPartNodeAxis for axial on inline bad is (0, 0, 1)
+			// otherPartNodeAxis for inline on inline bad is (0, 0, 1)
 
 			// Quaternion newRotation = Quaternion.Euler(new Vector3(pos, 0, 0));
 			ModuleDockRotate referenceModule = rotationModule.proxyRotationModule;
@@ -551,7 +555,7 @@ namespace DockRotate
 				} else if (flags.IndexOf('E') >= 0) {
 					BaseEvent ev = Events[name];
 					if (ev != null) {
-						if (flags.IndexOf('R') >= 0 && rotCur != null)
+						if (flags.IndexOf('R') >= 0 && activeRotationModule && activeRotationModule.rotCur != null)
 							thisGuiActive = false;
 						ev.guiActive = thisGuiActive;
 						ev.guiActiveEditor = thisGuiActive && editorGui;
@@ -680,7 +684,7 @@ namespace DockRotate
 			float angle = rot.tgt;
 			Vector3 nodeAxis = STd(proxyRotationModule.partNodeAxis, proxyRotationModule.part, vessel.rootPart);
 			Quaternion nodeRot = Quaternion.AngleAxis(angle, nodeAxis);
-			lprint("staticize " + nodeRot.eulerAngles);
+			// lprint("staticize " + nodeRot.eulerAngles);
 			_propagate(part, nodeRot);
 
 			lprint("staticize joint axis: " + nodeAxis);
