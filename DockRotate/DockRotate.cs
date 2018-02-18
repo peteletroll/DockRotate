@@ -122,12 +122,7 @@ namespace DockRotate
 
 		private void onStop()
 		{
-			float angle;
-			Vector3 axis;
-			currentRotation(0).ToAngleAxis(out angle, out axis);
-			if (angle < 0)
-				axis = -axis;
-			lprint("stop rot axis " + axis);
+			lprint("stop rot axis " + ModuleDockRotate.qDesc(currentRotation(0)));
 			pos = tgt;
 			onStep(0);
 			/*
@@ -807,6 +802,30 @@ namespace DockRotate
 			return true;
 		}
 
+		public float qAngle(Quaternion q)
+		{
+			float angle;
+			Vector3 axis;
+			q.ToAngleAxis(out angle, out axis);
+			return angle;
+		}
+
+		public Vector3 qAxis(Quaternion q)
+		{
+			float angle;
+			Vector3 axis;
+			q.ToAngleAxis(out angle, out axis);
+			return axis;
+		}
+
+		public static string qDesc(Quaternion q)
+		{
+			float angle;
+			Vector3 axis;
+			q.ToAngleAxis(out angle, out axis);
+			return angle.ToString("F2") + "\u00b0" + axis;
+		}
+
 		private static string descPart(Part part)
 		{
 			if (!part)
@@ -832,14 +851,15 @@ namespace DockRotate
 
 		private void dumpJoint(ConfigurableJoint joint)
 		{
+			lprint("  link: " + joint.gameObject + " to " + joint.connectedBody);
 			lprint("  autoConf: " + joint.autoConfigureConnectedAnchor);
-			lprint("  from: " + joint.gameObject);
-			lprint("  to: " + joint.connectedBody);
+			lprint("  swap: " + joint.swapBodies);
 			lprint("  axis: " + joint.axis);
-			lprint("  nodeAxis: " + partNodeAxis);
-			lprint("  axisP: " + Td(joint.axis, T(joint), T(part)));
 			lprint("  secAxis: " + joint.secondaryAxis);
-			lprint("  secAxisP: " + Td(joint.secondaryAxis, T(joint), T(part)));
+			lprint("  thdAxis: " + Vector3.Cross(joint.axis, joint.secondaryAxis));
+			lprint("  axisV: " + Td(joint.axis, T(joint), T(vessel.rootPart)));
+			lprint("  secAxisV: " + Td(joint.secondaryAxis, T(joint), T(vessel.rootPart)));
+			lprint("  jSpacePartAxis: " + Td(partNodeAxis, T(part), T(joint)));
 
 			/*
 			lprint("  AXMot: " + joint.angularXMotion);
@@ -854,12 +874,8 @@ namespace DockRotate
 			lprint("  ZDrv: " + descDrv(joint.zDrive));
 			*/
 
-			float ran;
-			Vector3 rax;
-			joint.targetRotation.ToAngleAxis(out ran, out rax);
-			lprint("  TgtRotAngle: " + ran);
-			lprint("  TgtRotAxis: " + rax);
-			lprint("  TgtRotAxisP: " + Td(rax, T(joint), T(part)));
+			lprint("  TgtRot: " + qDesc(joint.targetRotation));
+			lprint("  TgtRotAxisP: " + Td(qAxis(joint.targetRotation), T(joint), T(part)));
 
 			lprint("  TgtPos: " + joint.targetPosition);
 			lprint("  TgtPosP: " + Tp(joint.targetPosition, T(joint), T(part)));
@@ -876,12 +892,11 @@ namespace DockRotate
 		private void dumpJoint(PartJoint joint)
 		{
 			// lprint("Joint Parent: " + descPart(joint.Parent));
-			// lprint("Joint Child:  " + descPart(joint.Child));
-			// lprint("Joint Host:   " + descPart(joint.Host));
-			// lprint("Joint Target: " + descPart(joint.Target));
-			// lprint("Joint Axis:   " + joint.Axis);
-			// lprint("Joint Joint:  " + joint.Joint);
-			// lprint("secAxis: " + joint.SecAxis);
+			lprint("jChild: " + descPart(joint.Child));
+			lprint("jHost: " + descPart(joint.Host));
+			lprint("jTarget: " + descPart(joint.Target));
+			lprint("jAxis: " + joint.Axis);
+			lprint("jSecAxis: " + joint.SecAxis);
 			for (int i = 0; i < joint.joints.Count; i++) {
 				lprint("ConfigurableJoint[" + i + "]:");
 				dumpJoint(joint.joints[i]);
@@ -893,15 +908,9 @@ namespace DockRotate
 			/*
 			lprint("mass: " + part.mass);
 			lprint("parent: " + descPart(part.parent));
-			lprint("orgPos: " + part.orgPos);
-			lprint("orgRot: " + part.orgRot);
 			*/
-
-			if (activeRotationModule) {
-				float angle;
-				Vector3 axis;
-				Quaternion.Euler(new Vector3(90, 0, 0)).ToAngleAxis(out angle, out axis);
-			}
+			lprint("orgPos: " + part.orgPos);
+			lprint("orgRot: " + qDesc(part.orgRot));
 
 			if (dockingNode) {
 				lprint("size: " + dockingNode.nodeType);
@@ -910,20 +919,24 @@ namespace DockRotate
 				ModuleDockingNode other = dockingNode.dockedPartUId != 0 ? dockingNode.FindOtherNode() : null;
 				lprint("other: " + (other ? descPart(other.part) : "none"));
 
+				/*
 				lprint("partNodePos: " + partNodePos);
 				lprint("partNodeAxis: " + partNodeAxis);
 				lprint("partNodeUp: " + partNodeUp);
+				*/
+
+				lprint("partNodeAxisV: " + STd(partNodeAxis, part, vessel.rootPart));
 
 				if (otherRotationModule) {
-					lprint("otherPartNodeAxis1: " + Td(otherRotationModule.partNodeAxis, T(otherRotationModule.part), T(part)));
-					lprint("otherPartNodeAxis2: " + STd(otherRotationModule.partNodeAxis, otherRotationModule.part, part));
+					// lprint("otherPartNodeAxis1: " + Td(otherRotationModule.partNodeAxis, T(otherRotationModule.part), T(part)));
+					lprint("otherPartNodeAxis: " + STd(otherRotationModule.partNodeAxis, otherRotationModule.part, part));
 				}
 
 				lprint("rotSt: " + rotationAngle(false));
 				lprint("rotDy: " + rotationAngle(true));
 			}
 
-			// dumpJoint(part.attachJoint);
+			dumpJoint(part.attachJoint);
 
 			lprint("--------------------");
 		}
