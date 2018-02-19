@@ -809,10 +809,19 @@ namespace DockRotate
 			lprint("  swap: " + joint.swapBodies);
 			lprint("  axis: " + joint.axis);
 			lprint("  secAxis: " + joint.secondaryAxis);
+
+			/*
 			lprint("  thdAxis: " + Vector3.Cross(joint.axis, joint.secondaryAxis));
 			lprint("  axisV: " + Td(joint.axis, T(joint), T(vessel.rootPart)));
 			lprint("  secAxisV: " + Td(joint.secondaryAxis, T(joint), T(vessel.rootPart)));
 			lprint("  jSpacePartAxis: " + Td(partNodeAxis, T(part), T(joint)));
+			*/
+
+			Quaternion axr = joint.axisRotation();
+			lprint("axisRotation: " + axr.desc());
+			lprint("axr*right: " + (axr * Vector3.right));
+			lprint("axr*up: " + (axr * Vector3.up));
+			lprint("axr*forward: " + (axr * Vector3.forward));
 
 			/*
 			lprint("  AXMot: " + joint.angularXMotion);
@@ -827,6 +836,7 @@ namespace DockRotate
 			lprint("  ZDrv: " + joint.zDrive.desc());
 			*/
 
+			/*
 			lprint("  TgtRot: " + joint.targetRotation.desc());
 			lprint("  TgtRotAxisP: " + Td(joint.targetRotation.axis(), T(joint), T(part)));
 
@@ -835,6 +845,7 @@ namespace DockRotate
 			lprint("  Anchors: " + joint.anchor + " " + joint.connectedAnchor);
 			lprint("  AnchorsP: " + Tp(joint.anchor, T(joint), T(part))
 				+ " " + Tp(joint.connectedAnchor, T(joint.connectedBody), T(part)));
+			*/
 
 			// lprint("Joint YMot:   " + joint.Joint.angularYMotion);
 			// lprint("Joint YLim:   " + descLim(joint.Joint.angularYLimit));
