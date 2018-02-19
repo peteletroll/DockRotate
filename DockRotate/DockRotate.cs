@@ -12,7 +12,8 @@ namespace DockRotate
 		public float pos, tgt, vel;
 		private float maxvel, maxacc;
 
-		public Vector3[] jointRotationAxis;
+		public Quaternion[] axisRotation;
+		public Vector3[] jointAxis;
 		public Quaternion[] startRotation;
 		public Vector3[] startPosition;
 		private bool started = false, finished = false;
@@ -77,12 +78,14 @@ namespace DockRotate
 		private void onStart()
 		{
 			int c = joint.joints.Count;
-			jointRotationAxis = new Vector3[c];
+			axisRotation = new Quaternion[c];
+			jointAxis = new Vector3[c];
 			startRotation = new Quaternion[c];
 			startPosition = new Vector3[c];
 			for (int i = 0; i < c; i++) {
 				ConfigurableJoint j = joint.joints[i];
-				jointRotationAxis[i] = rotationModule.jointRotationAxis(j);
+				axisRotation[i] = j.axisRotation();
+				jointAxis[i] = ModuleDockRotate.Td(rotationModule.partNodeAxis, ModuleDockRotate.T(rotationModule.part), ModuleDockRotate.T(joint.joints[i]));
 				startRotation[i] = j.targetRotation;
 				startPosition[i] = j.targetPosition;
 				ConfigurableJointMotion f = ConfigurableJointMotion.Free;
@@ -157,12 +160,13 @@ namespace DockRotate
 			// otherPartNodeAxis for axial on inline bad is (0, 0, 1)
 			// otherPartNodeAxis for inline on inline bad is (0, 0, 1)
 
-			// Quaternion newRotation = Quaternion.Euler(new Vector3(pos, 0, 0));
-			ModuleDockRotate referenceModule = rotationModule.proxyRotationModule;
-			Vector3 rotationAxis = referenceModule.partNodeAxis;
-			rotationAxis = Vector3.right;
-			Quaternion newRotation = Quaternion.AngleAxis(pos, rotationAxis);
-			return startRotation[i] * newRotation;
+			Quaternion newJointRotation = Quaternion.AngleAxis(pos, jointAxis[i]);
+
+			Quaternion rot = axisRotation[i].inverse()
+				* newJointRotation * startRotation[i]
+				* axisRotation[i];
+
+			return startRotation[i] * rot;
 		}
 
 		public bool done()
@@ -334,7 +338,8 @@ namespace DockRotate
 		public ModuleDockRotate activeRotationModule;
 		public ModuleDockRotate proxyRotationModule;
 		private Vector3 partNodePos; // node position, relative to part
-		public Vector3 partNodeAxis; // node rotation axis, relative to part
+		public Vector3 partNodeAxis; // node rotation axis, relative to part, reference Vector3.forward
+		public Vector3 partNodeRotationAxis;  // node rotation axis, relative to part, reference Vector3.right
 		private Vector3 partNodeUp; // node vector for measuring angle, relative to part
 
 		private int setupStageCounter = 0;
@@ -374,7 +379,7 @@ namespace DockRotate
 					dockingNode = null;
 					otherRotationModule = activeRotationModule = proxyRotationModule = null;
 					nodeRole = "-";
-					partNodePos = partNodeAxis = partNodeUp = new Vector3(9.9f, 9.9f, 9.9f);
+					partNodePos = partNodeAxis = partNodeRotationAxis = partNodeUp = new Vector3(9.9f, 9.9f, 9.9f);
 
 					vesselPartCount = vessel ? vessel.parts.Count : -1;
 					lastNodeState = "-";
@@ -383,6 +388,7 @@ namespace DockRotate
 					if (dockingNode) {
 						partNodePos = Tp(Vector3.zero, T(dockingNode), T(part));
 						partNodeAxis = Td(Vector3.forward, T(dockingNode), T(part));
+						partNodeRotationAxis = Td(Vector3.right, T(dockingNode), T(part));
 						partNodeUp = Td(Vector3.up, T(dockingNode), T(part));
 						lastNodeState = dockingNode.state;
 					}
@@ -488,11 +494,6 @@ namespace DockRotate
 			float axisAngle = Vector3.Angle(a, Vector3.Cross(v2, v1));
 
 			return (axisAngle > 90) ? angle : -angle;
-		}
-
-		public Vector3 jointRotationAxis(ConfigurableJoint joint)
-		{
-			return Td(proxyRotationModule.partNodeAxis, T(proxyRotationModule.part), T(joint));
 		}
 
 		private static char[] guiListSep = { '.' };
@@ -685,9 +686,9 @@ namespace DockRotate
 			lprint("staticize joint axis: " + nodeAxis);
 			PartJoint joint = part.attachJoint;
 			for (int i = 0; i < joint.joints.Count; i++) {
-				joint.joints[i].secondaryAxis = nodeRot * part.attachJoint.Joint.secondaryAxis;
-				joint.joints[i].targetRotation = Quaternion.identity;
-				// lprint("CHKROT: " + Quaternion.identity + " " + rot.startRotation[i]);
+				Quaternion jointRot = Quaternion.AngleAxis(angle, rot.jointAxis[i]);
+				joint.joints[i].secondaryAxis = jointRot * joint.joints[i].secondaryAxis;
+				joint.joints[i].targetRotation = jointRot.inverse() * rot.startRotation[i];
 			}
 		}
 
@@ -745,37 +746,37 @@ namespace DockRotate
 
 		/******** Reference change utilities - dynamic ********/
 
-		private static Vector3 Td(Vector3 v, Transform from, Transform to)
+		public static Vector3 Td(Vector3 v, Transform from, Transform to)
 		{
 			return to.InverseTransformDirection(from.TransformDirection(v));
 		}
 
-		private static Vector3 Tp(Vector3 v, Transform from, Transform to)
+		public static Vector3 Tp(Vector3 v, Transform from, Transform to)
 		{
 			return to.InverseTransformPoint(from.TransformPoint(v));
 		}
 
-		private static Transform T(Vessel v)
+		public static Transform T(Vessel v)
 		{
 			return v.rootPart.transform;
 		}
 
-		private static Transform T(Part p)
+		public static Transform T(Part p)
 		{
 			return p.transform;
 		}
 
-		private static Transform T(ConfigurableJoint j)
+		public static Transform T(ConfigurableJoint j)
 		{
 			return j.transform;
 		}
 
-		private static Transform T(Rigidbody b)
+		public static Transform T(Rigidbody b)
 		{
 			return b.transform;
 		}
 
-		private static Transform T(ModuleDockingNode m)
+		public static Transform T(ModuleDockingNode m)
 		{
 			return m.nodeTransform;
 		}
@@ -946,6 +947,11 @@ namespace DockRotate
 		}
 
 		/******** Quaternion utilities ********/
+
+		public static Quaternion inverse(this Quaternion q)
+		{
+			return Quaternion.Inverse(q);
+		}
 
 		public static float angle(this Quaternion q)
 		{
