@@ -818,10 +818,10 @@ namespace DockRotate
 			*/
 
 			Quaternion axr = joint.axisRotation();
-			lprint("axisRotation: " + axr.desc());
-			lprint("axr*right: " + (axr * Vector3.right));
-			lprint("axr*up: " + (axr * Vector3.up));
-			lprint("axr*forward: " + (axr * Vector3.forward));
+			lprint("  axisRotation: " + axr.desc());
+			lprint("  axr*right: " + (axr * Vector3.right));
+			lprint("  axr*up: " + (axr * Vector3.up));
+			lprint("  axr*forward: " + (axr * Vector3.forward));
 
 			/*
 			lprint("  AXMot: " + joint.angularXMotion);
@@ -921,6 +921,8 @@ namespace DockRotate
 
 		public static Quaternion axisRotation(this ConfigurableJoint j)
 		{
+			// the returned rotation turns Vector3.right to axis
+			// and Vector3.up to secondaryAxis
 			Vector3 right = j.axis.normalized;
 			Vector3 forward = Vector3.Cross(j.axis, j.secondaryAxis).normalized;
 			Vector3 up = Vector3.Cross(forward, right).normalized;
