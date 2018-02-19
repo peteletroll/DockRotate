@@ -802,22 +802,6 @@ namespace DockRotate
 			return true;
 		}
 
-		private static string descDrv(JointDrive drive)
-		{
-			return "drv(maxFrc=" + drive.maximumForce
-				+ " posSpring=" + drive.positionSpring
-				+ " posDamp=" + drive.positionDamper
-				+ ")";
-		}
-
-		private static string descLim(SoftJointLimit limit)
-		{
-			return "lim(lim=" + limit.limit
-				+ " bounce=" + limit.bounciness
-				+ " cDist=" + limit.contactDistance
-				+ ")";
-		}
-
 		private void dumpJoint(ConfigurableJoint joint)
 		{
 			lprint("  link: " + joint.gameObject + " to " + joint.connectedBody);
@@ -832,15 +816,15 @@ namespace DockRotate
 
 			/*
 			lprint("  AXMot: " + joint.angularXMotion);
-			lprint("  LAXLim: " + descLim(joint.lowAngularXLimit));
-			lprint("  HAXLim: " + descLim(joint.highAngularXLimit));
-			lprint("  AXDrv: " + descDrv(joint.angularXDrive));
+			lprint("  LAXLim: " + joint.lowAngularXLimit.desc());
+			lprint("  HAXLim: " + joint.highAngularXLimit.desc());
+			lprint("  AXDrv: " + joint.angularXDrive.desc());
 			lprint("  TgtRot: " + joint.targetRotation.eulerAngles);
 
 			lprint("  YMot: " + joint.yMotion);
 			lprint("  YDrv: " + joint.yDrive);
 			lprint("  ZMot: " + joint.zMotion);
-			lprint("  ZDrv: " + descDrv(joint.zDrive));
+			lprint("  ZDrv: " + joint.zDrive.desc());
 			*/
 
 			lprint("  TgtRot: " + joint.targetRotation.desc());
@@ -920,6 +904,24 @@ namespace DockRotate
 			if (!part)
 				return "<null>";
 			return part.name + "_" + part.flightID;
+		}
+
+		/******** ConfigurableJoint utilities ********/
+
+		public static string desc(this JointDrive drive)
+		{
+			return "drv(maxFrc=" + drive.maximumForce
+				+ " posSpring=" + drive.positionSpring
+				+ " posDamp=" + drive.positionDamper
+				+ ")";
+		}
+
+		public static string desc(this SoftJointLimit limit)
+		{
+			return "lim(lim=" + limit.limit
+				+ " bounce=" + limit.bounciness
+				+ " cDist=" + limit.contactDistance
+				+ ")";
 		}
 
 		/******** Quaternion utilities ********/
