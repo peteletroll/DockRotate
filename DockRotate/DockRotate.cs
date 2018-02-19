@@ -908,6 +908,14 @@ namespace DockRotate
 
 		/******** ConfigurableJoint utilities ********/
 
+		public static Quaternion axisRotation(this ConfigurableJoint j)
+		{
+			Vector3 right = j.axis.normalized;
+			Vector3 forward = Vector3.Cross(j.axis, j.secondaryAxis).normalized;
+			Vector3 up = Vector3.Cross(forward, right).normalized;
+			return Quaternion.LookRotation(forward, up);
+		}
+
 		public static string desc(this JointDrive drive)
 		{
 			return "drv(maxFrc=" + drive.maximumForce
