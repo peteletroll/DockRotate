@@ -122,7 +122,7 @@ namespace DockRotate
 
 		private void onStop()
 		{
-			lprint("stop rot axis " + ModuleDockRotate.qDesc(currentRotation(0)));
+			lprint("stop rot axis " + currentRotation(0).desc());
 			pos = tgt;
 			onStep(0);
 			/*
@@ -417,9 +417,9 @@ namespace DockRotate
 					if (activeRotationModule == this) {
 						status = "active";
 					} else if (activeRotationModule) {
-						status = "proxy to " + descPart(activeRotationModule.part);
+						status = "proxy to " + activeRotationModule.part.desc();
 					}
-					lprint("setup(" + descPart(part) + "): " + status);
+					lprint("setup(" + part.desc() + "): " + status);
 
 					break;
 			}
@@ -621,7 +621,7 @@ namespace DockRotate
 			if ((state & StartState.Editor) != 0)
 				return;
 
-			lprint(descPart(part) + ".OnStart(" + state + ")");
+			lprint(part.desc() + ".OnStart(" + state + ")");
 
 			checkGuiActive();
 		}
@@ -643,7 +643,7 @@ namespace DockRotate
 				needReset = true;
 
 			if (dockingNode && dockingNode.state != lastNodeState) {
-				lprint(descPart(part) + " changed from " + lastNodeState + " to " + dockingNode.state);
+				lprint(part.desc() + " changed from " + lastNodeState + " to " + dockingNode.state);
 				lastNodeState = dockingNode.state;
 				needReset = true;
 			}
@@ -664,11 +664,11 @@ namespace DockRotate
 				return;
 			}
 
-			lprint(descPart(part) + ": enqueueRotation(" + angle + ", " + speed + ")");
+			lprint(part.desc() + ": enqueueRotation(" + angle + ", " + speed + ")");
 
 			if (rotCur != null) {
 				rotCur.tgt += angle;
-				lprint(descPart(part) + ": rotation updated");
+				lprint(part.desc() + ": rotation updated");
 			} else {
 				rotCur = new RotationAnimation(this, 0, angle, speed);
 			}
@@ -720,7 +720,7 @@ namespace DockRotate
 			rotCur.advance(deltat);
 
 			if (rotCur.done()) {
-				lprint(descPart(part) + ": rotation finished");
+				lprint(part.desc() + ": rotation finished");
 				staticizeRotation(rotCur);
 				rotCur = null;
 			}
@@ -802,37 +802,6 @@ namespace DockRotate
 			return true;
 		}
 
-		public float qAngle(Quaternion q)
-		{
-			float angle;
-			Vector3 axis;
-			q.ToAngleAxis(out angle, out axis);
-			return angle;
-		}
-
-		public Vector3 qAxis(Quaternion q)
-		{
-			float angle;
-			Vector3 axis;
-			q.ToAngleAxis(out angle, out axis);
-			return axis;
-		}
-
-		public static string qDesc(Quaternion q)
-		{
-			float angle;
-			Vector3 axis;
-			q.ToAngleAxis(out angle, out axis);
-			return angle.ToString("F2") + "\u00b0" + axis;
-		}
-
-		private static string descPart(Part part)
-		{
-			if (!part)
-				return "<null>";
-			return part.name + "_" + part.flightID;
-		}
-
 		private static string descDrv(JointDrive drive)
 		{
 			return "drv(maxFrc=" + drive.maximumForce
@@ -874,8 +843,8 @@ namespace DockRotate
 			lprint("  ZDrv: " + descDrv(joint.zDrive));
 			*/
 
-			lprint("  TgtRot: " + qDesc(joint.targetRotation));
-			lprint("  TgtRotAxisP: " + Td(qAxis(joint.targetRotation), T(joint), T(part)));
+			lprint("  TgtRot: " + joint.targetRotation.desc());
+			lprint("  TgtRotAxisP: " + Td(joint.targetRotation.axis(), T(joint), T(part)));
 
 			lprint("  TgtPos: " + joint.targetPosition);
 			lprint("  TgtPosP: " + Tp(joint.targetPosition, T(joint), T(part)));
@@ -892,9 +861,9 @@ namespace DockRotate
 		private void dumpJoint(PartJoint joint)
 		{
 			// lprint("Joint Parent: " + descPart(joint.Parent));
-			lprint("jChild: " + descPart(joint.Child));
-			lprint("jHost: " + descPart(joint.Host));
-			lprint("jTarget: " + descPart(joint.Target));
+			lprint("jChild: " + joint.Child.desc());
+			lprint("jHost: " + joint.Host.desc());
+			lprint("jTarget: " + joint.Target.desc());
 			lprint("jAxis: " + joint.Axis);
 			lprint("jSecAxis: " + joint.SecAxis);
 			for (int i = 0; i < joint.joints.Count; i++) {
@@ -904,20 +873,20 @@ namespace DockRotate
 		}
 
 		private void dumpPart() {
-			lprint("--- DUMP " + descPart(part) + " ---");
+			lprint("--- DUMP " + part.desc() + " ---");
 			/*
 			lprint("mass: " + part.mass);
 			lprint("parent: " + descPart(part.parent));
 			*/
 			lprint("orgPos: " + part.orgPos);
-			lprint("orgRot: " + qDesc(part.orgRot));
+			lprint("orgRot: " + part.orgRot.desc());
 
 			if (dockingNode) {
 				lprint("size: " + dockingNode.nodeType);
 				lprint("state: " + dockingNode.state);
 
 				ModuleDockingNode other = dockingNode.dockedPartUId != 0 ? dockingNode.FindOtherNode() : null;
-				lprint("other: " + (other ? descPart(other.part) : "none"));
+				lprint("other: " + (other ? other.part.desc() : "none"));
 
 				/*
 				lprint("partNodePos: " + partNodePos);
@@ -939,6 +908,44 @@ namespace DockRotate
 			dumpJoint(part.attachJoint);
 
 			lprint("--------------------");
+		}
+	}
+
+	static class Extensions
+	{
+		/******** Part utilities ********/
+
+		public static string desc(this Part part)
+		{
+			if (!part)
+				return "<null>";
+			return part.name + "_" + part.flightID;
+		}
+
+		/******** Quaternion utilities ********/
+
+		public static float angle(this Quaternion q)
+		{
+			float angle;
+			Vector3 axis;
+			q.ToAngleAxis(out angle, out axis);
+			return angle;
+		}
+
+		public static Vector3 axis(this Quaternion q)
+		{
+			float angle;
+			Vector3 axis;
+			q.ToAngleAxis(out angle, out axis);
+			return axis;
+		}
+
+		public static string desc(this Quaternion q)
+		{
+			float angle;
+			Vector3 axis;
+			q.ToAngleAxis(out angle, out axis);
+			return angle.ToString("F2") + "\u00b0" + axis;
 		}
 	}
 }
