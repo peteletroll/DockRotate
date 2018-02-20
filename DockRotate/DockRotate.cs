@@ -85,7 +85,9 @@ namespace DockRotate
 			for (int i = 0; i < c; i++) {
 				ConfigurableJoint j = joint.joints[i];
 				axisRotation[i] = j.axisRotation();
-				jointAxis[i] = ModuleDockRotate.Td(rotationModule.partNodeAxis, ModuleDockRotate.T(rotationModule.part), ModuleDockRotate.T(joint.joints[i]));
+				jointAxis[i] = ModuleDockRotate.Td(rotationModule.partNodeAxis,
+					ModuleDockRotate.T(rotationModule.part),
+					ModuleDockRotate.T(joint.joints[i]));
 				startRotation[i] = j.targetRotation;
 				startPosition[i] = j.targetPosition;
 				ConfigurableJointMotion f = ConfigurableJointMotion.Free;
@@ -137,29 +139,6 @@ namespace DockRotate
 
 		public Quaternion currentRotation(int i)
 		{
-			// the proxy inline rotation bug is here!
-			// newRotation must be computed according to joint axis
-
-			// return axis for axial on axial must be Vector3.right = (1, 0, 0)
-			// return axis for inline on axial must be Vector3.right = (1, 0, 0)
-			// return axis for axial on inline must be Vector3.down = (0, -1, 0)
-			// return axis for inline on inline must be Vector3.back = (0, 0, -1)
-
-			// partNodeAxis for axial ports is Vector3.up = (0, 1, 0)
-			// partNodeAxis for inline ports is Vector3.back = (0, 0, -1)
-
-			// for active part:
-			// otherPartNodeAxis for axial on axial good is (0, -1, 0)
-			// otherPartNodeAxis for inline on axial good is (0, 0, 1)
-			// otherPartNodeAxis for axial on inline bad is (0, -1, 0)
-			// otherPartNodeAxis for inline on inline bad is (0, 0, 1)
-
-			// for proxy part:
-			// otherPartNodeAxis for axial on axial good is (0, -1, 0)
-			// otherPartNodeAxis for inline on axial good is (0, -1, 0)
-			// otherPartNodeAxis for axial on inline bad is (0, 0, 1)
-			// otherPartNodeAxis for inline on inline bad is (0, 0, 1)
-
 			Quaternion newJointRotation = Quaternion.AngleAxis(pos, jointAxis[i]);
 
 			Quaternion rot = axisRotation[i].inverse()
@@ -339,7 +318,6 @@ namespace DockRotate
 		public ModuleDockRotate proxyRotationModule;
 		private Vector3 partNodePos; // node position, relative to part
 		public Vector3 partNodeAxis; // node rotation axis, relative to part, reference Vector3.forward
-		public Vector3 partNodeRotationAxis;  // node rotation axis, relative to part, reference Vector3.right
 		private Vector3 partNodeUp; // node vector for measuring angle, relative to part
 
 		private int setupStageCounter = 0;
@@ -377,9 +355,9 @@ namespace DockRotate
 					rotationSpeed = Mathf.Abs(rotationSpeed);
 
 					dockingNode = null;
-					otherRotationModule = activeRotationModule = proxyRotationModule = null;
+					activeRotationModule = otherRotationModule = proxyRotationModule = null;
 					nodeRole = "-";
-					partNodePos = partNodeAxis = partNodeRotationAxis = partNodeUp = new Vector3(9.9f, 9.9f, 9.9f);
+					partNodePos = partNodeAxis = partNodeUp = new Vector3(9.9f, 9.9f, 9.9f);
 
 					vesselPartCount = vessel ? vessel.parts.Count : -1;
 					lastNodeState = "-";
@@ -388,7 +366,6 @@ namespace DockRotate
 					if (dockingNode) {
 						partNodePos = Tp(Vector3.zero, T(dockingNode), T(part));
 						partNodeAxis = Td(Vector3.forward, T(dockingNode), T(part));
-						partNodeRotationAxis = Td(Vector3.right, T(dockingNode), T(part));
 						partNodeUp = Td(Vector3.up, T(dockingNode), T(part));
 						lastNodeState = dockingNode.state;
 					}
@@ -489,7 +466,7 @@ namespace DockRotate
 			Vector3 v2 = dynamic ?
 				Td(proxyRotationModule.partNodeUp, T(proxyRotationModule.part), T(activeRotationModule.part)) :
 				STd(proxyRotationModule.partNodeUp, proxyRotationModule.part, activeRotationModule.part);
-			v2 = Vector3.ProjectOnPlane(v2, a);
+			v2 = Vector3.ProjectOnPlane(v2, a).normalized;
 
 			float angle = Vector3.Angle(v1, v2);
 			float axisAngle = Vector3.Angle(a, Vector3.Cross(v2, v1));
@@ -567,21 +544,6 @@ namespace DockRotate
 			}
 
 			// setMaxSpeed();
-		}
-
-		private void setMaxSpeed()
-		{
-			UI_Control ctl;
-			ctl = Fields["rotationSpeed"].uiControlEditor;
-			if (ctl != null) {
-				lprint("setting editor " + ctl + " at " + maxSpeed);
-				((UI_FloatRange) ctl).maxValue = Mathf.Abs(maxSpeed);
-			}
-			ctl = Fields["rotationSpeed"].uiControlFlight;
-			if (ctl != null) {
-				lprint("setting flight " + ctl + " at " + maxSpeed);
-				((UI_FloatRange) ctl).maxValue = Mathf.Abs(maxSpeed);
-			}
 		}
 
 		public override void OnAwake()
@@ -850,10 +812,12 @@ namespace DockRotate
 				+ " " + Tp(joint.connectedAnchor, T(joint.connectedBody), T(part)));
 			*/
 
-			// lprint("Joint YMot:   " + joint.Joint.angularYMotion);
-			// lprint("Joint YLim:   " + descLim(joint.Joint.angularYLimit));
-			// lprint("Joint aYZDrv: " + descDrv(joint.Joint.angularYZDrive));
-			// lprint("Joint RMode:  " + joint.Joint.rotationDriveMode);
+			/*
+			lprint("Joint YMot: " + joint.Joint.angularYMotion);
+			lprint("Joint YLim: " + descLim(joint.Joint.angularYLimit));
+			lprint("Joint aYZDrv: " + descDrv(joint.Joint.angularYZDrive));
+			lprint("Joint RMode: " + joint.Joint.rotationDriveMode);
+			*/
 		}
 
 		private void dumpJoint(PartJoint joint)
