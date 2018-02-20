@@ -612,6 +612,8 @@ namespace DockRotate
 				lprint(part.desc() + " changed from " + lastNodeState + " to " + dockingNode.state);
 				lastNodeState = dockingNode.state;
 				needReset = true;
+				if (rotCur != null)
+					rotCur.abort();
 			}
 
 			if (needReset)
