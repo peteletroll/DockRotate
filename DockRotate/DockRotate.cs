@@ -184,13 +184,11 @@ namespace DockRotate
 		)]
 		public float dockingAngle;
 
-#if DEBUG
 		[KSPField(
-			guiName = "Role",
-			guiActive = true, guiActiveEditor = true
+			guiName = "Status",
+			guiActive = false, guiActiveEditor = false
 		)]
-#endif
-		public String nodeRole = "none";
+		public String nodeStatus = "";
 
 		[UI_FloatRange(
 			minValue = 0,
@@ -314,6 +312,7 @@ namespace DockRotate
 
 		private int vesselPartCount;
 		private ModuleDockingNode dockingNode;
+		private string nodeRole = "-";
 		private string lastNodeState = "-";
 		public ModuleDockRotate otherRotationModule;
 		public ModuleDockRotate activeRotationModule;
@@ -358,6 +357,7 @@ namespace DockRotate
 
 					dockingNode = null;
 					activeRotationModule = otherRotationModule = proxyRotationModule = null;
+					nodeStatus = "";
 					nodeRole = "-";
 					partNodePos = partNodeAxis = partNodeUp = new Vector3(9.9f, 9.9f, 9.9f);
 
@@ -502,6 +502,22 @@ namespace DockRotate
 			dockingAngle = rotationAngle(true);
 
 			bool newGuiActive = canStartRotation();
+
+			nodeStatus = "";
+
+			if (rotationEnabled) {
+				int nJoints = activeRotationModule.part.attachJoint.joints.Count;
+#if DEBUG
+				nodeStatus = nodeRole + " [" + nJoints + "]";
+#else
+				if (nJoints > 1) {
+					nodeStatus = "Not Supported [" + nJoints + "]";
+					newGuiActive = false;
+				}
+#endif
+			}
+
+			Fields["nodeStatus"].guiActive = nodeStatus.Length > 0;
 
 			for (i = 0; i < guiList.Length; i++) {
 				string[] spec = guiList[i].Split(guiListSep);
@@ -836,6 +852,7 @@ namespace DockRotate
 			lprint("mass: " + part.mass);
 			lprint("parent: " + descPart(part.parent));
 			*/
+			lprint("role: " + nodeRole);
 			lprint("orgPos: " + part.orgPos);
 			lprint("orgRot: " + part.orgRot.desc());
 
