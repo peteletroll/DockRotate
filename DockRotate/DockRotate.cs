@@ -130,11 +130,13 @@ namespace DockRotate
 			lprint("stop rot axis " + currentRotation(0).desc());
 			pos = tgt;
 			onStep(0);
-			/*
-			rotatingJoint.angularXMotion = savedXMotion;
-			for (int i = 0; i < joint.joints.Count; i++)
-				ModuleDockRotate.lprint("restored XMotion " + joint.joints[i].angularXMotion);
-			*/
+
+			for (int i = 0; i < joint.joints.Count; i++) {
+				Quaternion jointRot = Quaternion.AngleAxis(tgt, jointAxis[i]);
+				joint.joints[i].axis = jointRot * joint.joints[i].axis;
+				joint.joints[i].secondaryAxis = jointRot * joint.joints[i].secondaryAxis;
+				joint.joints[i].targetRotation = startRotation[i];
+			}
 		}
 
 		public Quaternion currentRotation(int i)
@@ -643,17 +645,7 @@ namespace DockRotate
 			float angle = rot.tgt;
 			Vector3 nodeAxis = STd(proxyRotationModule.partNodeAxis, proxyRotationModule.part, vessel.rootPart);
 			Quaternion nodeRot = Quaternion.AngleAxis(angle, nodeAxis);
-			// lprint("staticize " + nodeRot.eulerAngles);
 			_propagate(part, nodeRot);
-
-			lprint("staticize joint axis: " + nodeAxis);
-			PartJoint joint = part.attachJoint;
-			for (int i = 0; i < joint.joints.Count; i++) {
-				Quaternion jointRot = Quaternion.AngleAxis(angle, rot.jointAxis[i]);
-				joint.joints[i].axis = jointRot * joint.joints[i].axis;
-				joint.joints[i].secondaryAxis = jointRot * joint.joints[i].secondaryAxis;
-				joint.joints[i].targetRotation = rot.startRotation[i];
-			}
 		}
 
 		private void _propagate(Part p, Quaternion rot)
@@ -782,11 +774,13 @@ namespace DockRotate
 			lprint("  jSpacePartAxis: " + Td(partNodeAxis, T(part), T(joint)));
 			*/
 
+			/*
 			Quaternion axr = joint.axisRotation();
 			lprint("  axisRotation: " + axr.desc());
 			lprint("  axr*right: " + (axr * Vector3.right));
 			lprint("  axr*up: " + (axr * Vector3.up));
 			lprint("  axr*forward: " + (axr * Vector3.forward));
+			*/
 
 			/*
 			lprint("  AXMot: " + joint.angularXMotion);
@@ -863,8 +857,7 @@ namespace DockRotate
 					lprint("otherPartNodeAxis: " + STd(otherRotationModule.partNodeAxis, otherRotationModule.part, part));
 				}
 
-				lprint("rotSt: " + rotationAngle(false));
-				lprint("rotDy: " + rotationAngle(true));
+				lprint("rot: static " + rotationAngle(false) + ", dynamic " + rotationAngle(true));
 			}
 
 			dumpJoint(part.attachJoint);
