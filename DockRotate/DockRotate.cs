@@ -454,8 +454,18 @@ namespace DockRotate
 			return !onRails
 				&& rotationEnabled
 				&& activeRotationModule
+				&& countJoints() == 1
 				&& vessel
 				&& vessel.CurrentControlLevel == Vessel.ControlLevel.FULL;
+		}
+
+		public int countJoints()
+		{
+			if (!activeRotationModule)
+				return 0;
+			if (!activeRotationModule.part.attachJoint)
+				return 0;
+			return activeRotationModule.part.attachJoint.joints.Count;
 		}
 
 		private float rotationAngle(bool dynamic)
@@ -505,17 +515,15 @@ namespace DockRotate
 
 			nodeStatus = "";
 
-			if (rotationEnabled && activeRotationModule && activeRotationModule.part.attachJoint) {
-				int nJoints = activeRotationModule.part.attachJoint.joints.Count;
+			int nJoints = countJoints();
 #if DEBUG
-				nodeStatus = nodeRole + " [" + nJoints + "]";
+			nodeStatus = nodeRole + " [" + nJoints + "]";
 #else
-				if (nJoints > 1) {
-					nodeStatus = "Can't Move, Try Redock [" + nJoints + "]";
-					newGuiActive = false;
-				}
-#endif
+			if (nJoints > 1) {
+				nodeStatus = "Can't Move, Try Redock [" + nJoints + "]";
+				newGuiActive = false;
 			}
+#endif
 
 			Fields["nodeStatus"].guiActive = nodeStatus.Length > 0;
 
