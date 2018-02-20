@@ -687,8 +687,9 @@ namespace DockRotate
 			PartJoint joint = part.attachJoint;
 			for (int i = 0; i < joint.joints.Count; i++) {
 				Quaternion jointRot = Quaternion.AngleAxis(angle, rot.jointAxis[i]);
+				joint.joints[i].axis = jointRot * joint.joints[i].axis;
 				joint.joints[i].secondaryAxis = jointRot * joint.joints[i].secondaryAxis;
-				joint.joints[i].targetRotation = jointRot.inverse() * rot.startRotation[i];
+				joint.joints[i].targetRotation = rot.startRotation[i];
 			}
 		}
 
