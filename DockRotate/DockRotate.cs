@@ -299,7 +299,7 @@ namespace DockRotate
 		{
 			if (rotCur != null || !canStartRotation())
 				return;
-			float a = rotationAngle(false);
+			float a = rotationAngle(true);
 			float f = rotationStep * Mathf.Floor(a / rotationStep + 0.5f);
 			lprint("snap " + a + " to " + f + " (" + (f - a) + ")");
 			activeRotationModule.enqueueRotation(f - a, rotationSpeed);
@@ -484,11 +484,12 @@ namespace DockRotate
 			if (!activeRotationModule || !proxyRotationModule)
 				return float.NaN;
 
+			Vector3 a = activeRotationModule.partNodeAxis;
 			Vector3 v1 = activeRotationModule.partNodeUp;
 			Vector3 v2 = dynamic ?
 				Td(proxyRotationModule.partNodeUp, T(proxyRotationModule.part), T(activeRotationModule.part)) :
 				STd(proxyRotationModule.partNodeUp, proxyRotationModule.part, activeRotationModule.part);
-			Vector3 a = activeRotationModule.partNodeAxis;
+			v2 = Vector3.ProjectOnPlane(v2, a);
 
 			float angle = Vector3.Angle(v1, v2);
 			float axisAngle = Vector3.Angle(a, Vector3.Cross(v2, v1));
