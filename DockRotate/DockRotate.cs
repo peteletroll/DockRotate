@@ -505,13 +505,13 @@ namespace DockRotate
 
 			nodeStatus = "";
 
-			if (rotationEnabled) {
+			if (rotationEnabled && activeRotationModule && activeRotationModule.part.attachJoint) {
 				int nJoints = activeRotationModule.part.attachJoint.joints.Count;
 #if DEBUG
 				nodeStatus = nodeRole + " [" + nJoints + "]";
 #else
 				if (nJoints > 1) {
-					nodeStatus = "Not Supported [" + nJoints + "]";
+					nodeStatus = "Can't Move, Try Redock [" + nJoints + "]";
 					newGuiActive = false;
 				}
 #endif
@@ -853,6 +853,7 @@ namespace DockRotate
 			lprint("parent: " + descPart(part.parent));
 			*/
 			lprint("role: " + nodeRole);
+			lprint("status: " + nodeStatus);
 			lprint("orgPos: " + part.orgPos);
 			lprint("orgRot: " + part.orgRot.desc());
 
