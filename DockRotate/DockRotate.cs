@@ -77,6 +77,7 @@ namespace DockRotate
 
 		private void onStart()
 		{
+			joint.Host.vessel.releaseAllAutoStruts();
 			int c = joint.joints.Count;
 			axisRotation = new Quaternion[c];
 			jointAxis = new Vector3[c];
@@ -896,6 +897,16 @@ namespace DockRotate
 
 	static class Extensions
 	{
+		/******** vessel utilities ********/
+
+		public static void releaseAllAutoStruts(this Vessel v)
+		{
+			List<Part> parts = v.parts;
+			for (int i = 0; i < parts.Count; i++) {
+				parts[i].ReleaseAutoStruts();
+			}
+		}
+
 		/******** Part utilities ********/
 
 		public static string desc(this Part part)
