@@ -14,4 +14,6 @@ And if you want to uninstall the module, you won't lose any ship, because there'
 
 Rotation will malfunction if parts on opposite sides of the rotating joint are connected by struts or autostruts. Autostrut display can be toggled via right-click menu for help.
 
-( * ) Clamp-O-Tron Sr. can rotate only when docked in flight.
+Forum page: https://forum.kerbalspaceprogram.com/index.php?/topic/170484-dockrotate-rotation-control-on-docking-ports/
+
+( * ) Should work with any port based on ModuleDockingNode. Clamp-O-Tron Sr. can rotate only when docked in flight.
