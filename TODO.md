@@ -10,3 +10,5 @@
 
 * refactor checkGuiActive() to remove the guiList[] logic
 
+* try snapRotation stuff proposed by Psycho\_zs
+

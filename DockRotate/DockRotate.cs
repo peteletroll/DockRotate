@@ -319,10 +319,7 @@ namespace DockRotate
 		{
 			if (rotCur != null || !canStartRotation())
 				return;
-			float a = rotationAngle(true);
-			float f = rotationStep * Mathf.Floor(a / rotationStep + 0.5f);
-			lprint("snap " + a + " to " + f + " (" + (f - a) + ")");
-			activeRotationModule.enqueueRotation(f - a, rotationSpeed);
+			activeRotationModule.enqueueRotationToSnap(rotationStep, rotationSpeed);
 		}
 
 		[KSPEvent(
@@ -448,6 +445,14 @@ namespace DockRotate
 					}
 					lprint("setup(" + part.desc() + "): " + status);
 
+					break;
+
+				case 2:
+					if (dockingNode.snapRotation && dockingNode.snapOffset > 0
+					    && activeRotationModule == this
+					    && (rotationEnabled || proxyRotationModule.rotationEnabled)) {
+						enqueueRotationToSnap(dockingNode.snapOffset, rotationSpeed);
+					}
 					break;
 			}
 
@@ -706,6 +711,20 @@ namespace DockRotate
 			} else {
 				rotCur = new RotationAnimation(this, 0, angle, speed);
 			}
+		}
+
+		void enqueueRotationToSnap(float snap, float speed)
+		{
+			if (rotCur != null) {
+				lprint("rotation active, can't enqueueRotationToSnap(" + snap + ", " + speed + ")");
+				return;
+			}
+			float a = rotationAngle(true);
+			if (float.IsNaN(a))
+				return;
+			float f = snap * Mathf.Floor(a / snap + 0.5f);
+			lprint("snap " + a + " to " + f + " (" + (f - a) + ")");
+			enqueueRotation(f - a, rotationSpeed);
 		}
 
 		private void staticizeRotation(RotationAnimation rot)
