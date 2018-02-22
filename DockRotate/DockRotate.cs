@@ -751,23 +751,6 @@ namespace DockRotate
 			}
 		}
 
-		public void disableJoint(ConfigurableJoint joint)
-		{
-			ConfigurableJointMotion f = ConfigurableJointMotion.Free;
-			JointDrive d = joint.angularXDrive;
-			d.positionSpring = 0;
-			d.positionDamper = 0;
-			d.maximumForce = 1e20f;
-			joint.angularXMotion = f;
-			joint.angularXDrive = d;
-			joint.angularYMotion = f;
-			joint.angularZMotion = f;
-			joint.angularYZDrive = d;
-			joint.xMotion = f;
-			joint.yMotion = f;
-			joint.zMotion = f;
-		}
-
 		/******** Reference change utilities - dynamic ********/
 
 		public static Vector3 Td(Vector3 v, Transform from, Transform to)
@@ -938,7 +921,7 @@ namespace DockRotate
 
 	static class Extensions
 	{
-		/******** vessel utilities ********/
+		/******** Vessel utilities ********/
 
 		public static void releaseAllAutoStruts(this Vessel v)
 		{
@@ -989,6 +972,23 @@ namespace DockRotate
 				+ " bounce=" + limit.bounciness
 				+ " cDist=" + limit.contactDistance
 				+ ")";
+		}
+
+		public static void disable(this ConfigurableJoint joint)
+		{
+			ConfigurableJointMotion f = ConfigurableJointMotion.Free;
+			JointDrive d = joint.angularXDrive;
+			d.positionSpring = 0;
+			d.positionDamper = 0;
+			d.maximumForce = 1e20f;
+			joint.angularXMotion = f;
+			joint.angularXDrive = d;
+			joint.angularYMotion = f;
+			joint.angularZMotion = f;
+			joint.angularYZDrive = d;
+			joint.xMotion = f;
+			joint.yMotion = f;
+			joint.zMotion = f;
 		}
 
 		/******** Quaternion utilities ********/
