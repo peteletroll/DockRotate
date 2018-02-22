@@ -16,8 +16,8 @@ namespace DockRotate
 
 		public Quaternion[] axisRotation;
 		public Vector3[] jointAxis;
-		public Quaternion[] startRotation;
-		public Vector3[] startPosition;
+		public Quaternion[] startTgtRotation;
+		public Vector3[] startTgtPosition;
 		private bool started = false, finished = false;
 
 		const float accelTime = 2.0f;
@@ -117,16 +117,16 @@ namespace DockRotate
 			int c = joint.joints.Count;
 			axisRotation = new Quaternion[c];
 			jointAxis = new Vector3[c];
-			startRotation = new Quaternion[c];
-			startPosition = new Vector3[c];
+			startTgtRotation = new Quaternion[c];
+			startTgtPosition = new Vector3[c];
 			for (int i = 0; i < c; i++) {
 				ConfigurableJoint j = joint.joints[i];
 				axisRotation[i] = j.axisRotation();
 				jointAxis[i] = ModuleDockRotate.Td(rotationModule.partNodeAxis,
 					ModuleDockRotate.T(rotationModule.part),
 					ModuleDockRotate.T(joint.joints[i]));
-				startRotation[i] = j.targetRotation;
-				startPosition[i] = j.targetPosition;
+				startTgtRotation[i] = j.targetRotation;
+				startTgtPosition[i] = j.targetPosition;
 				ConfigurableJointMotion f = ConfigurableJointMotion.Free;
 				j.angularXMotion = f;
 				j.angularYMotion = f;
@@ -172,7 +172,7 @@ namespace DockRotate
 				Quaternion jointRot = Quaternion.AngleAxis(tgt, jointAxis[i]);
 				joint.joints[i].axis = jointRot * joint.joints[i].axis;
 				joint.joints[i].secondaryAxis = jointRot * joint.joints[i].secondaryAxis;
-				joint.joints[i].targetRotation = startRotation[i];
+				joint.joints[i].targetRotation = startTgtRotation[i];
 			}
 			if (decCount() <= 0) {
 				lprint("securing autostruts on vessel " + vesselId);
@@ -185,10 +185,10 @@ namespace DockRotate
 			Quaternion newJointRotation = Quaternion.AngleAxis(pos, jointAxis[i]);
 
 			Quaternion rot = axisRotation[i].inverse()
-				* newJointRotation * startRotation[i]
+				* newJointRotation * startTgtRotation[i]
 				* axisRotation[i];
 
-			return startRotation[i] * rot;
+			return startTgtRotation[i] * rot;
 		}
 
 		public bool done()
