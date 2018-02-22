@@ -180,7 +180,7 @@ namespace DockRotate
 			}
 		}
 
-		public Quaternion currentRotation(int i)
+		private Quaternion currentRotation(int i)
 		{
 			Quaternion newJointRotation = Quaternion.AngleAxis(pos, jointAxis[i]);
 
@@ -352,9 +352,9 @@ namespace DockRotate
 		private ModuleDockingNode dockingNode;
 		private string nodeRole = "-";
 		private string lastNodeState = "-";
-		public ModuleDockRotate otherRotationModule;
-		public ModuleDockRotate activeRotationModule;
-		public ModuleDockRotate proxyRotationModule;
+		private ModuleDockRotate otherRotationModule;
+		private ModuleDockRotate activeRotationModule;
+		private ModuleDockRotate proxyRotationModule;
 		private Vector3 partNodePos; // node position, relative to part
 		public Vector3 partNodeAxis; // node rotation axis, relative to part, reference Vector3.forward
 		private Vector3 partNodeUp; // node vector for measuring angle, relative to part
@@ -482,7 +482,7 @@ namespace DockRotate
 			return ret;
 		}
 
-		bool hasGoodState(ModuleDockingNode node)
+		private bool hasGoodState(ModuleDockingNode node)
 		{
 			if (!node || node.state == null)
 				return false;
@@ -506,7 +506,7 @@ namespace DockRotate
 				&& vessel.CurrentControlLevel == Vessel.ControlLevel.FULL;
 		}
 
-		public int countJoints()
+		private int countJoints()
 		{
 			if (!activeRotationModule)
 				return 0;
@@ -696,7 +696,7 @@ namespace DockRotate
 			stagedSetup();
 		}
 
-		void enqueueRotation(float angle, float speed)
+		private void enqueueRotation(float angle, float speed)
 		{
 			if (activeRotationModule != this) {
 				lprint("activeRotationModule() called on wrong module, ignoring");
@@ -713,7 +713,7 @@ namespace DockRotate
 			}
 		}
 
-		void enqueueRotationToSnap(float snap, float speed)
+		private void enqueueRotationToSnap(float snap, float speed)
 		{
 			if (rotCur != null) {
 				lprint("rotation active, can't enqueueRotationToSnap(" + snap + ", " + speed + ")");
@@ -938,7 +938,7 @@ namespace DockRotate
 		}
 	}
 
-	static class Extensions
+	public static class Extensions
 	{
 		/******** Vessel utilities ********/
 
