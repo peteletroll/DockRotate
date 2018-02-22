@@ -12,6 +12,8 @@ namespace DockRotate
 		public float pos, tgt, vel;
 		private float maxvel, maxacc;
 
+		Guid vesselId;
+
 		public Quaternion[] axisRotation;
 		public Vector3[] jointAxis;
 		public Quaternion[] startRotation;
@@ -20,6 +22,8 @@ namespace DockRotate
 
 		const float accelTime = 2.0f;
 		const float stopMargin = 1.5f;
+
+		private static Dictionary<Guid, int> vesselRotCount = new Dictionary<Guid, int>();
 
 		public static bool lprint(string msg)
 		{
@@ -31,12 +35,43 @@ namespace DockRotate
 			this.rotationModule = rotationModule;
 			this.joint = rotationModule.part.attachJoint;
 
+			this.vesselId = joint.Host.vessel.id;
+
 			this.pos = pos;
 			this.tgt = tgt;
 			this.maxvel = maxvel;
 
 			this.vel = 0;
 			this.maxacc = maxvel / accelTime;
+		}
+
+		private int incCount()
+		{
+			if (!vesselRotCount.ContainsKey(vesselId))
+				vesselRotCount[vesselId] = 0;
+			int ret = vesselRotCount[vesselId];
+			if (ret < 0) {
+				lprint("WARNING: vesselRotCount[" + vesselId + "] = " + ret + " in incCount()");
+				ret = vesselRotCount[vesselId] = 0;
+			}
+			return vesselRotCount[vesselId] = ++ret;
+		}
+
+		private int decCount()
+		{
+			if (!vesselRotCount.ContainsKey(vesselId))
+				vesselRotCount[vesselId] = 0;
+			int ret = --vesselRotCount[vesselId];
+			if (ret < 0) {
+				lprint("WARNING: vesselRotCount[" + vesselId + "] = " + ret + " in decCount()");
+				ret = vesselRotCount[vesselId] = 0;
+			}
+			return ret;
+		}
+
+		public static void resetCount(Guid vesselId)
+		{
+			vesselRotCount.Remove(vesselId);
 		}
 
 		public void advance(float deltat)
@@ -46,7 +81,7 @@ namespace DockRotate
 			if (!started) {
 				onStart();
 				started = true;
-				lprint("rotation started (" + pos + ", " + tgt + ")");
+				lprint("rotation started (" + pos + ", " + tgt + ") on vessel " + vesselId);
 			}
 
 			bool goingRightWay = (tgt - pos) * vel >= 0;
@@ -77,6 +112,7 @@ namespace DockRotate
 
 		private void onStart()
 		{
+			incCount();
 			joint.Host.vessel.releaseAllAutoStruts();
 			int c = joint.joints.Count;
 			axisRotation = new Quaternion[c];
@@ -138,7 +174,10 @@ namespace DockRotate
 				joint.joints[i].secondaryAxis = jointRot * joint.joints[i].secondaryAxis;
 				joint.joints[i].targetRotation = startRotation[i];
 			}
-			joint.Host.vessel.secureAllAutoStruts();
+			if (decCount() <= 0) {
+				lprint("securing autostruts on vessel " + vesselId);
+				joint.Host.vessel.secureAllAutoStruts();
+			}
 		}
 
 		public Quaternion currentRotation(int i)
@@ -335,6 +374,7 @@ namespace DockRotate
 					m.setupStageCounter = 0;
 				}
 			}
+			RotationAnimation.resetCount(part.vessel.id);
 		}
 
 		private void stagedSetup()
