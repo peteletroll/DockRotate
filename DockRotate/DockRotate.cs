@@ -14,18 +14,18 @@ namespace DockRotate
 
 		Guid vesselId;
 
-		public Quaternion[] axisRotation;
-		public Vector3[] jointAxis;
-		public Quaternion[] startTgtRotation;
-		public Vector3[] startTgtPosition;
+		private Quaternion[] axisRotation;
+		private Vector3[] jointAxis;
+		private Quaternion[] startTgtRotation;
+		private Vector3[] startTgtPosition;
 		private bool started = false, finished = false;
 
-		const float accelTime = 2.0f;
-		const float stopMargin = 1.5f;
+		private const float accelTime = 2.0f;
+		private const float stopMargin = 1.5f;
 
 		private static Dictionary<Guid, int> vesselRotCount = new Dictionary<Guid, int>();
 
-		public static bool lprint(string msg)
+		private static bool lprint(string msg)
 		{
 			return ModuleDockRotate.lprint(msg);
 		}
