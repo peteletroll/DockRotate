@@ -138,6 +138,7 @@ namespace DockRotate
 				joint.joints[i].secondaryAxis = jointRot * joint.joints[i].secondaryAxis;
 				joint.joints[i].targetRotation = startRotation[i];
 			}
+			joint.Host.vessel.secureAllAutoStruts();
 		}
 
 		public Quaternion currentRotation(int i)
@@ -905,6 +906,12 @@ namespace DockRotate
 			for (int i = 0; i < parts.Count; i++) {
 				parts[i].ReleaseAutoStruts();
 			}
+		}
+
+		public static void secureAllAutoStruts(this Vessel v)
+		{
+			v.releaseAllAutoStruts();
+			v.CycleAllAutoStrut();
 		}
 
 		/******** Part utilities ********/
