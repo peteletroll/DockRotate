@@ -715,6 +715,10 @@ namespace DockRotate
 
 		private void enqueueRotationToSnap(float snap, float speed)
 		{
+			snap = Mathf.Abs(snap);
+			if (snap < 0.5)
+				return;
+
 			if (rotCur != null) {
 				lprint("rotation active, can't enqueueRotationToSnap(" + snap + ", " + speed + ")");
 				return;
