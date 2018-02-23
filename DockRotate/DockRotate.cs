@@ -172,7 +172,7 @@ namespace DockRotate
 
 		private void onStop()
 		{
-			lprint("stop rot axis " + currentRotation(0).desc());
+			// lprint("stop rot axis " + currentRotation(0).desc());
 			pos = tgt;
 			onStep(0);
 
@@ -393,7 +393,7 @@ namespace DockRotate
 			if (onRails || !part || !vessel)
 				return;
 
-			if (rotCur != null && setupStageCounter > 0)
+			if (rotCur != null)
 				return;
 
 			bool performedSetupStage = true;
@@ -694,11 +694,18 @@ namespace DockRotate
 				needReset = true;
 
 			if (dockingNode && dockingNode.state != lastNodeState) {
-				lprint(part.desc() + " changed from " + lastNodeState + " to " + dockingNode.state);
+				ModuleDockingNode other = dockingNode.FindOtherNode();
+				lprint(part.desc() + " changed from " + lastNodeState
+					+ " to " + dockingNode.state
+					+ " with " + (other ? other.part.desc() : "node"));
+				if (other && other.vessel == vessel) {
+					lprint("same vessel, not stopping");
+				} else {
+					needReset = true;
+					if (rotCur != null)
+						rotCur.abort(false, "docking port state changed");
+				}
 				lastNodeState = dockingNode.state;
-				needReset = true;
-				if (rotCur != null)
-					rotCur.abort(false, "docking port state changed");
 			}
 
 			if (needReset)
@@ -718,6 +725,8 @@ namespace DockRotate
 			}
 
 			lprint(part.desc() + ": enqueueRotation(" + angle + ", " + speed + ")");
+			if (speed < 0.5)
+				return;
 
 			if (rotCur != null) {
 				rotCur.tgt += angle;
@@ -784,7 +793,7 @@ namespace DockRotate
 			if (activeRotationModule != this) {
 				lprint("advanceRotation() called on wrong module, aborting");
 				if (rotCur != null)
-					rotCur.abort(true, "wrong module");
+					rotCur.abort(false, "wrong module");
 				return;
 			}
 
