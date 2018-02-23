@@ -12,7 +12,8 @@ namespace DockRotate
 		public float pos, tgt, vel;
 		private float maxvel, maxacc;
 
-		Guid vesselId;
+		private Guid vesselId;
+		private Part startParent;
 
 		private Quaternion[] axisRotation;
 		private Vector3[] jointAxis;
@@ -35,7 +36,8 @@ namespace DockRotate
 			this.rotationModule = rotationModule;
 			this.joint = rotationModule.part.attachJoint;
 
-			this.vesselId = joint.Host.vessel.id;
+			this.vesselId = rotationModule.part.vessel.id;
+			this.startParent = rotationModule.part.parent;
 
 			this.pos = pos;
 			this.tgt = tgt;
@@ -76,6 +78,8 @@ namespace DockRotate
 
 		public void advance(float deltat)
 		{
+			if (rotationModule.part.parent != startParent)
+				abort(true);
 			if (finished)
 				return;
 			if (!started) {
