@@ -149,11 +149,13 @@ namespace DockRotate
 			for (int i = 0; i < joint.joints.Count; i++) {
 				ConfigurableJoint j = joint.joints[i];
 				Quaternion rot = currentRotation(i);
-				j.targetRotation = rot;
-				// j.targetPosition = rot * j.anchor - j.anchor;
-				// lprint("adv " + j.targetRotation.eulerAngles + " " + j.targetPosition);
-				// joint.joints[i].anchor = rot * joint.joints[i].anchor;
-				// joint.joints[i].connectedAnchor = rot * joint.joints[i].connectedAnchor;
+				if (j) {
+					j.targetRotation = rot;
+					// j.targetPosition = rot * j.anchor - j.anchor;
+					// lprint("adv " + j.targetRotation.eulerAngles + " " + j.targetPosition);
+					// joint.joints[i].anchor = rot * joint.joints[i].anchor;
+					// joint.joints[i].connectedAnchor = rot * joint.joints[i].connectedAnchor;
+				}
 			}
 
 			// first rough attempt for electricity consumption
@@ -170,9 +172,12 @@ namespace DockRotate
 
 			for (int i = 0; i < joint.joints.Count; i++) {
 				Quaternion jointRot = Quaternion.AngleAxis(tgt, jointAxis[i]);
-				joint.joints[i].axis = jointRot * joint.joints[i].axis;
-				joint.joints[i].secondaryAxis = jointRot * joint.joints[i].secondaryAxis;
-				joint.joints[i].targetRotation = startTgtRotation[i];
+				ConfigurableJoint j = joint.joints[i];
+				if (j) {
+					j.axis = jointRot * j.axis;
+					j.secondaryAxis = jointRot * j.secondaryAxis;
+					j.targetRotation = startTgtRotation[i];
+				}
 			}
 			if (decCount() <= 0) {
 				lprint("securing autostruts on vessel " + vesselId);
@@ -208,8 +213,12 @@ namespace DockRotate
 
 		public void abort(bool hard)
 		{
+			lprint((hard ? "HARD " : "") + "ABORTING");
+			lprint("ABORTING");
 			tgt = pos;
 			vel = 0;
+			if (hard)
+				finished = true;
 		}
 	}
 
@@ -699,9 +708,7 @@ namespace DockRotate
 		private void enqueueRotation(float angle, float speed)
 		{
 			if (activeRotationModule != this) {
-				lprint("enqueueRotation() called on wrong module, aborting");
-				if (rotCur != null)
-					rotCur.abort(true);
+				lprint("enqueueRotation() called on wrong module, ignoring");
 				return;
 			}
 
@@ -735,6 +742,10 @@ namespace DockRotate
 
 		private void staticizeRotation(RotationAnimation rot)
 		{
+			if (rot == null)
+				return;
+			if (!activeRotationModule)
+				return;
 			float angle = rot.tgt;
 			Vector3 nodeAxis = STd(proxyRotationModule.partNodeAxis, proxyRotationModule.part, vessel.rootPart);
 			Quaternion nodeRot = Quaternion.AngleAxis(angle, nodeAxis);
@@ -756,6 +767,15 @@ namespace DockRotate
 
 		private void advanceRotation(float deltat)
 		{
+			if (rotCur == null)
+				return;
+
+			if (rotCur.done()) {
+				lprint(part.desc() + ": rotation finished");
+				staticizeRotation(rotCur);
+				rotCur = null;
+			}
+
 			if (activeRotationModule != this) {
 				lprint("advanceRotation() called on wrong module, aborting");
 				if (rotCur != null)
@@ -770,12 +790,6 @@ namespace DockRotate
 			}
 
 			rotCur.advance(deltat);
-
-			if (rotCur.done()) {
-				lprint(part.desc() + ": rotation finished");
-				staticizeRotation(rotCur);
-				rotCur = null;
-			}
 		}
 
 		/******** Reference change utilities - dynamic ********/
