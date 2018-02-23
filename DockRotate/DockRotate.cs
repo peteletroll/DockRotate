@@ -79,7 +79,7 @@ namespace DockRotate
 		public void advance(float deltat)
 		{
 			if (rotationModule.part.parent != startParent)
-				abort(true);
+				abort(true, "changed parent");
 			if (finished)
 				return;
 			if (!started) {
@@ -163,9 +163,11 @@ namespace DockRotate
 			}
 
 			// first rough attempt for electricity consumption
-			double el = rotationModule.part.RequestResource("ElectricCharge", 1.0 * deltat);
-			if (el <= 0.0)
-				abort(false);
+			if (deltat > 0) {
+				double el = rotationModule.part.RequestResource("ElectricCharge", 1.0 * deltat);
+				if (el <= 0.0)
+					abort(false, "no electric charge");
+			}
 		}
 
 		private void onStop()
@@ -215,10 +217,9 @@ namespace DockRotate
 			return finished;
 		}
 
-		public void abort(bool hard)
+		public void abort(bool hard, string msg)
 		{
-			lprint((hard ? "HARD " : "") + "ABORTING");
-			lprint("ABORTING");
+			lprint((hard ? "HARD " : "") + "ABORTING: " + msg);
 			tgt = pos;
 			vel = 0;
 			if (hard)
@@ -697,7 +698,7 @@ namespace DockRotate
 				lastNodeState = dockingNode.state;
 				needReset = true;
 				if (rotCur != null)
-					rotCur.abort(false);
+					rotCur.abort(false, "docking port state changed");
 			}
 
 			if (needReset)
@@ -773,23 +774,24 @@ namespace DockRotate
 		{
 			if (rotCur == null)
 				return;
-
 			if (rotCur.done()) {
 				lprint(part.desc() + ": rotation finished");
 				staticizeRotation(rotCur);
 				rotCur = null;
+				return;
 			}
 
 			if (activeRotationModule != this) {
 				lprint("advanceRotation() called on wrong module, aborting");
 				if (rotCur != null)
-					rotCur.abort(true);
+					rotCur.abort(true, "wrong module");
 				return;
 			}
 
 			if (!part.attachJoint || !part.attachJoint.Joint) {
 				lprint("detached, aborting rotation");
-				rotCur = null;
+				if (rotCur != null)
+					rotCur.abort(true, "detached");
 				return;
 			}
 
