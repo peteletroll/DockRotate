@@ -699,7 +699,9 @@ namespace DockRotate
 		private void enqueueRotation(float angle, float speed)
 		{
 			if (activeRotationModule != this) {
-				lprint("activeRotationModule() called on wrong module, ignoring");
+				lprint("enqueueRotation() called on wrong module, aborting");
+				if (rotCur != null)
+					rotCur.abort(true);
 				return;
 			}
 
@@ -755,8 +757,9 @@ namespace DockRotate
 		private void advanceRotation(float deltat)
 		{
 			if (activeRotationModule != this) {
-				lprint("advanceRotation() called on wrong module, ignoring");
-				rotCur = null;
+				lprint("advanceRotation() called on wrong module, aborting");
+				if (rotCur != null)
+					rotCur.abort(true);
 				return;
 			}
 
