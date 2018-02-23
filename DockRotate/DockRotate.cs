@@ -756,6 +756,7 @@ namespace DockRotate
 		{
 			if (activeRotationModule != this) {
 				lprint("advanceRotation() called on wrong module, ignoring");
+				rotCur = null;
 				return;
 			}
 
