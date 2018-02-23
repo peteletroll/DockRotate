@@ -159,7 +159,7 @@ namespace DockRotate
 			// first rough attempt for electricity consumption
 			double el = rotationModule.part.RequestResource("ElectricCharge", 1.0 * deltat);
 			if (el <= 0.0)
-				abort();
+				abort(false);
 		}
 
 		private void onStop()
@@ -206,7 +206,7 @@ namespace DockRotate
 			return finished;
 		}
 
-		public void abort()
+		public void abort(bool hard)
 		{
 			tgt = pos;
 			vel = 0;
@@ -684,7 +684,7 @@ namespace DockRotate
 				lastNodeState = dockingNode.state;
 				needReset = true;
 				if (rotCur != null)
-					rotCur.abort();
+					rotCur.abort(false);
 			}
 
 			if (needReset)
