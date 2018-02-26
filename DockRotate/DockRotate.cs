@@ -34,7 +34,7 @@ namespace DockRotate
 		public RotationAnimation(ModuleDockRotate rotationModule, float pos, float tgt, float maxvel)
 		{
 			this.rotationModule = rotationModule;
-			this.joint = rotationModule.part.attachJoint;
+			this.joint = rotationModule.rotatingJoint;
 
 			this.vesselId = rotationModule.part.vessel.id;
 			this.startParent = rotationModule.part.parent;
@@ -366,9 +366,9 @@ namespace DockRotate
 		private ModuleDockingNode dockingNode;
 		private string nodeRole = "-";
 		private string lastNodeState = "-";
-		private ModuleDockRotate otherRotationModule;
 		private ModuleDockRotate activeRotationModule;
 		private ModuleDockRotate proxyRotationModule;
+		public PartJoint rotatingJoint;
 		private Vector3 partNodePos; // node position, relative to part
 		public Vector3 partNodeAxis; // node rotation axis, relative to part, reference Vector3.forward
 		private Vector3 partNodeUp; // node vector for measuring angle, relative to part
@@ -409,9 +409,10 @@ namespace DockRotate
 					rotationSpeed = Mathf.Abs(rotationSpeed);
 
 					dockingNode = null;
-					activeRotationModule = otherRotationModule = proxyRotationModule = null;
+					rotatingJoint = null;
+					activeRotationModule = proxyRotationModule = null;
 					nodeStatus = "";
-					nodeRole = "-";
+					nodeRole = "None";
 					partNodePos = partNodeAxis = partNodeUp = new Vector3(9.9f, 9.9f, 9.9f);
 
 					vesselPartCount = vessel ? vessel.parts.Count : -1;
@@ -430,38 +431,40 @@ namespace DockRotate
 					if (!dockingNode)
 						break;
 
-					if (isActive()) {
-						activeRotationModule = this;
-						proxyRotationModule = otherRotationModule = part.parent.FindModuleImplementing<ModuleDockRotate>();
-						nodeRole = "Active";
-					} else {
-						for (int i = 0; i < part.children.Count; i++) {
-							Part p = part.children[i];
-							ModuleDockRotate dr = p.FindModuleImplementing<ModuleDockRotate>();
-							if (dr && dr.isActive()) {
-								activeRotationModule = otherRotationModule = dr;
-								break;
-							}
+					if (hasGoodState(dockingNode) && dockingNode.sameVesselDockJoint) {
+						ModuleDockRotate otherModule = dockingNode.sameVesselDockJoint.Target.FindModuleImplementing<ModuleDockRotate>();
+						if (otherModule) {
+							activeRotationModule = this;
+							proxyRotationModule = otherModule;
+							rotatingJoint = dockingNode.sameVesselDockJoint;
+							nodeRole = "ActiveSame";
 						}
-						if (activeRotationModule) {
-							proxyRotationModule = this;
-							nodeRole = "Proxy";
-						} else {
-							nodeRole = "None";
+					} else if (isActive()) {
+						proxyRotationModule = part.parent.FindModuleImplementing<ModuleDockRotate>();
+						if (proxyRotationModule) {
+							activeRotationModule = this;
+							rotatingJoint = part.attachJoint;
+							nodeRole = "Active";
 						}
 					}
-
-					string status = "inactive";
-					if (activeRotationModule == this) {
-						status = "active";
-					} else if (activeRotationModule) {
-						status = "proxy to " + activeRotationModule.part.desc();
-					}
-					lprint("setup(" + part.desc() + "): " + status);
-
 					break;
 
 				case 2:
+					if (activeRotationModule == this) {
+						proxyRotationModule.activeRotationModule = this;
+						proxyRotationModule.proxyRotationModule = proxyRotationModule;
+						proxyRotationModule.nodeRole = "Proxy";
+					}
+					break;
+
+				case 3:
+					if (activeRotationModule == this) {
+						lprint("pair " + activeRotationModule.part.desc()
+							+ " on " + proxyRotationModule.part.desc());
+					}
+					break;
+
+				case 4:
 					if (dockingNode.snapRotation && dockingNode.snapOffset > 0
 					    && activeRotationModule == this
 					    && (rotationEnabled || proxyRotationModule.rotationEnabled)) {
@@ -524,9 +527,9 @@ namespace DockRotate
 		{
 			if (!activeRotationModule)
 				return 0;
-			if (!activeRotationModule.part.attachJoint)
+			if (!activeRotationModule.rotatingJoint)
 				return 0;
-			return activeRotationModule.part.attachJoint.joints.Count;
+			return activeRotationModule.rotatingJoint.joints.Count;
 		}
 
 		private float rotationAngle(bool dynamic)
@@ -694,12 +697,13 @@ namespace DockRotate
 				needReset = true;
 
 			if (dockingNode && dockingNode.state != lastNodeState) {
-				ModuleDockingNode other = dockingNode.FindOtherNode();
+				ModuleDockingNode other = dockingNode.otherNode();
 				lprint(part.desc() + " changed from " + lastNodeState
 					+ " to " + dockingNode.state
 					+ " with " + (other ? other.part.desc() : "node"));
 				if (other && other.vessel == vessel) {
-					lprint("same vessel, not stopping");
+					if (rotCur != null)
+						lprint("same vessel, not stopping");
 				} else {
 					needReset = true;
 					if (rotCur != null)
@@ -758,8 +762,12 @@ namespace DockRotate
 		{
 			if (rot == null)
 				return;
-			if (!activeRotationModule)
+			if (activeRotationModule != this)
 				return;
+			if (rotatingJoint != part.attachJoint) {
+				lprint("skip staticize: same vessel joint");
+				return;
+			}
 			float angle = rot.tgt;
 			Vector3 nodeAxis = STd(proxyRotationModule.partNodeAxis, proxyRotationModule.part, vessel.rootPart);
 			Quaternion nodeRot = Quaternion.AngleAxis(angle, nodeAxis);
@@ -866,13 +874,13 @@ namespace DockRotate
 			return true;
 		}
 
-		private void dumpJoint(ConfigurableJoint joint)
+		private void dumpJoint(ConfigurableJoint j)
 		{
-			lprint("  link: " + joint.gameObject + " to " + joint.connectedBody);
-			lprint("  autoConf: " + joint.autoConfigureConnectedAnchor);
-			lprint("  swap: " + joint.swapBodies);
-			lprint("  axis: " + joint.axis);
-			lprint("  secAxis: " + joint.secondaryAxis);
+			lprint("  link: " + j.gameObject + " to " + j.connectedBody);
+			lprint("  autoConf: " + j.autoConfigureConnectedAnchor);
+			lprint("  swap: " + j.swapBodies);
+			lprint("  axis: " + j.axis);
+			lprint("  secAxis: " + j.secondaryAxis);
 
 			/*
 			lprint("  thdAxis: " + Vector3.Cross(joint.axis, joint.secondaryAxis));
@@ -889,18 +897,18 @@ namespace DockRotate
 			lprint("  axr*forward: " + (axr * Vector3.forward));
 			*/
 
-			/*
-			lprint("  AXMot: " + joint.angularXMotion);
-			lprint("  LAXLim: " + joint.lowAngularXLimit.desc());
-			lprint("  HAXLim: " + joint.highAngularXLimit.desc());
-			lprint("  AXDrv: " + joint.angularXDrive.desc());
-			lprint("  TgtRot: " + joint.targetRotation.eulerAngles);
+			// /*
+			lprint("  AXMot: " + j.angularXMotion);
+			lprint("  LAXLim: " + j.lowAngularXLimit.desc());
+			lprint("  HAXLim: " + j.highAngularXLimit.desc());
+			lprint("  AXDrv: " + j.angularXDrive.desc());
+			lprint("  TgtRot: " + j.targetRotation.eulerAngles);
 
-			lprint("  YMot: " + joint.yMotion);
-			lprint("  YDrv: " + joint.yDrive);
-			lprint("  ZMot: " + joint.zMotion);
-			lprint("  ZDrv: " + joint.zDrive.desc());
-			*/
+			lprint("  YMot: " + j.yMotion);
+			lprint("  YDrv: " + j.yDrive);
+			lprint("  ZMot: " + j.zMotion);
+			lprint("  ZDrv: " + j.zDrive.desc());
+			// */
 
 			/*
 			lprint("  TgtRot: " + joint.targetRotation.desc());
@@ -921,17 +929,17 @@ namespace DockRotate
 			*/
 		}
 
-		private void dumpJoint(PartJoint joint)
+		private void dumpJoint(PartJoint j)
 		{
 			// lprint("Joint Parent: " + descPart(joint.Parent));
-			lprint("jChild: " + joint.Child.desc());
-			lprint("jHost: " + joint.Host.desc());
-			lprint("jTarget: " + joint.Target.desc());
-			lprint("jAxis: " + joint.Axis);
-			lprint("jSecAxis: " + joint.SecAxis);
-			for (int i = 0; i < joint.joints.Count; i++) {
+			lprint("jChild: " + j.Child.desc());
+			lprint("jHost: " + j.Host.desc());
+			lprint("jTarget: " + j.Target.desc());
+			lprint("jAxis: " + j.Axis);
+			lprint("jSecAxis: " + j.SecAxis);
+			for (int i = 0; i < j.joints.Count; i++) {
 				lprint("ConfigurableJoint[" + i + "]:");
-				dumpJoint(joint.joints[i]);
+				dumpJoint(j.joints[i]);
 			}
 		}
 
@@ -950,7 +958,7 @@ namespace DockRotate
 				lprint("size: " + dockingNode.nodeType);
 				lprint("state: " + dockingNode.state);
 
-				ModuleDockingNode other = dockingNode.dockedPartUId != 0 ? dockingNode.FindOtherNode() : null;
+				ModuleDockingNode other = dockingNode.otherNode();
 				lprint("other: " + (other ? other.part.desc() : "none"));
 
 				/*
@@ -961,15 +969,17 @@ namespace DockRotate
 
 				lprint("partNodeAxisV: " + STd(partNodeAxis, part, vessel.rootPart));
 
-				if (otherRotationModule) {
-					// lprint("otherPartNodeAxis1: " + Td(otherRotationModule.partNodeAxis, T(otherRotationModule.part), T(part)));
-					lprint("otherPartNodeAxis: " + STd(otherRotationModule.partNodeAxis, otherRotationModule.part, part));
-				}
-
 				lprint("rot: static " + rotationAngle(false) + ", dynamic " + rotationAngle(true));
 			}
 
-			dumpJoint(part.attachJoint);
+			PartJoint svj = dockingNode.sameVesselDockJoint;
+			if (svj) {
+				lprint("sameVesselDockJoint:");
+				dumpJoint(svj);
+			}
+
+			if (rotatingJoint)
+				dumpJoint(rotatingJoint);
 
 			lprint("--------------------");
 		}
@@ -1000,6 +1010,16 @@ namespace DockRotate
 			if (!part)
 				return "<null>";
 			return part.name + "_" + part.flightID;
+		}
+
+		/******** ModuleDockingMode utilities ********/
+
+		public static ModuleDockingNode otherNode(this ModuleDockingNode node)
+		{
+			// this prevents a warning
+			if (node.dockedPartUId >= 0)
+				return null;
+			return node.FindOtherNode();
 		}
 
 		/******** ConfigurableJoint utilities ********/
