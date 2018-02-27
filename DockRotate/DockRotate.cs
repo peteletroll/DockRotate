@@ -82,11 +82,6 @@ namespace DockRotate
 				abort(true, "changed parent");
 			if (finished)
 				return;
-			if (!started) {
-				onStart();
-				started = true;
-				lprint("rotation started (" + pos + ", " + tgt + ") on vessel " + vesselId);
-			}
 
 			bool goingRightWay = (tgt - pos) * vel >= 0;
 			float brakingTime = Mathf.Abs(vel) / maxacc + 2 * stopMargin * deltat;
@@ -101,6 +96,12 @@ namespace DockRotate
 			} else {
 				// braking
 				newvel -= deltat * Mathf.Sign(vel) * maxacc;
+			}
+
+			if (!started) {
+				onStart();
+				started = true;
+				lprint("rotation started (" + pos + ", " + tgt + ") on vessel " + vesselId);
 			}
 
 			vel = newvel;
