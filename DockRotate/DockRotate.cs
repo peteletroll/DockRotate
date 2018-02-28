@@ -705,7 +705,7 @@ namespace DockRotate
 				ModuleDockingNode other = dockingNode.otherNode();
 				lprint(part.desc() + " changed from " + lastNodeState
 					+ " to " + dockingNode.state
-					+ " with " + (other ? other.part.desc() : "node"));
+					+ " with " + (other ? other.part.desc() : "none"));
 				if (other && other.vessel == vessel) {
 					if (rotCur != null)
 						lprint("same vessel, not stopping");
@@ -1031,7 +1031,7 @@ namespace DockRotate
 		public static ModuleDockingNode otherNode(this ModuleDockingNode node)
 		{
 			// this prevents a warning
-			if (node.dockedPartUId >= 0)
+			if (node.dockedPartUId <= 0)
 				return null;
 			return node.FindOtherNode();
 		}
