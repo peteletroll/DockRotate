@@ -427,6 +427,8 @@ namespace DockRotate
 						partNodeAxis = Td(Vector3.forward, T(dockingNode), T(part));
 						partNodeUp = Td(Vector3.up, T(dockingNode), T(part));
 						lastNodeState = dockingNode.state;
+						if (dockingNode.sameVesselDockJoint)
+							lastSameVesselDockPart = dockingNode.sameVesselDockJoint.Target;
 					}
 					break;
 
@@ -483,7 +485,7 @@ namespace DockRotate
 			setupStageCounter++;
 		}
 
-		private bool isActive() // must be used only after setup stage 0;
+		private bool isActive() // must be used only after setup stage 0
 		{
 			if (!part || !part.parent)
 				return false;
