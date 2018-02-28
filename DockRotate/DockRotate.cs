@@ -365,8 +365,9 @@ namespace DockRotate
 
 		private int vesselPartCount;
 		private ModuleDockingNode dockingNode;
-		private string nodeRole = "-";
+		public string nodeRole = "-";
 		private string lastNodeState = "-";
+		private Part lastSameVesselDockPart;
 		private ModuleDockRotate activeRotationModule;
 		private ModuleDockRotate proxyRotationModule;
 		public PartJoint rotatingJoint;
@@ -418,6 +419,7 @@ namespace DockRotate
 
 					vesselPartCount = vessel ? vessel.parts.Count : -1;
 					lastNodeState = "-";
+					lastSameVesselDockPart = null;
 
 					dockingNode = part.FindModuleImplementing<ModuleDockingNode>();
 					if (dockingNode) {
@@ -432,7 +434,7 @@ namespace DockRotate
 					if (!dockingNode)
 						break;
 
-					if (hasGoodState(dockingNode) && dockingNode.sameVesselDockJoint) {
+					if (dockingNode.sameVesselDockJoint) {
 						ModuleDockRotate otherModule = dockingNode.sameVesselDockJoint.Target.FindModuleImplementing<ModuleDockRotate>();
 						if (otherModule) {
 							activeRotationModule = this;
@@ -711,6 +713,13 @@ namespace DockRotate
 						rotCur.abort(false, "docking port state changed");
 				}
 				lastNodeState = dockingNode.state;
+			}
+
+			Part svdp = (dockingNode && dockingNode.sameVesselDockJoint) ? dockingNode.sameVesselDockJoint.Target : null;
+			if (dockingNode && rotCur == null && svdp != lastSameVesselDockPart) {
+				lprint(part.desc() + " changed same vessel joint");
+				needReset = true;
+				lastSameVesselDockPart = svdp;
 			}
 
 			if (needReset)
@@ -1010,7 +1019,9 @@ namespace DockRotate
 		{
 			if (!part)
 				return "<null>";
-			return part.name + "_" + part.flightID;
+			ModuleDockRotate mdr = part.FindModuleImplementing<ModuleDockRotate>();
+			return part.name + "_" + part.flightID
+				+ (mdr ? "_" + mdr.nodeRole : "");
 		}
 
 		/******** ModuleDockingMode utilities ********/
