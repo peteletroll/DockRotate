@@ -101,7 +101,6 @@ namespace DockRotate
 			if (!started) {
 				onStart();
 				started = true;
-				lprint("rotation started (" + pos + ", " + tgt + ") on vessel " + vesselId);
 			}
 
 			vel = newvel;
@@ -111,7 +110,6 @@ namespace DockRotate
 
 			if (!finished && done(deltat)) {
 				onStop();
-				// lprint("rotation stopped");
 			}
 		}
 
@@ -147,6 +145,9 @@ namespace DockRotate
 					j.zDrive = d;
 				}
 			}
+			lprint(rotationModule.part.desc() + ": started "
+				+ pos + "\u00b0 -> " + tgt + "\u00b0, "
+				+ maxvel + "\u00b0/s");
 		}
 
 		private void onStep(float deltat)
@@ -190,6 +191,7 @@ namespace DockRotate
 				lprint("securing autostruts on vessel " + vesselId);
 				joint.Host.vessel.secureAllAutoStruts();
 			}
+			lprint(rotationModule.part.desc() + ": rotation stopped");
 		}
 
 		private Quaternion currentRotation(int i)
@@ -365,8 +367,8 @@ namespace DockRotate
 
 		private int vesselPartCount;
 		private ModuleDockingNode dockingNode;
-		public string nodeRole = "-";
-		private string lastNodeState = "-";
+		public string nodeRole = "Init";
+		private string lastNodeState = "Init";
 		private Part lastSameVesselDockPart;
 		private ModuleDockRotate activeRotationModule;
 		private ModuleDockRotate proxyRotationModule;
@@ -436,12 +438,13 @@ namespace DockRotate
 					if (!dockingNode)
 						break;
 
-					if (dockingNode.sameVesselDockJoint) {
-						ModuleDockRotate otherModule = dockingNode.sameVesselDockJoint.Target.FindModuleImplementing<ModuleDockRotate>();
+					PartJoint svj = dockingNode.sameVesselDockJoint;
+					if (svj) {
+						ModuleDockRotate otherModule = svj.Target.FindModuleImplementing<ModuleDockRotate>();
 						if (otherModule) {
 							activeRotationModule = this;
 							proxyRotationModule = otherModule;
-							rotatingJoint = dockingNode.sameVesselDockJoint;
+							rotatingJoint = svj;
 							nodeRole = "ActiveSame";
 						}
 					} else if (isActive()) {
@@ -464,8 +467,8 @@ namespace DockRotate
 
 				case 3:
 					if (activeRotationModule == this) {
-						lprint("pair " + activeRotationModule.part.desc()
-							+ " on " + proxyRotationModule.part.desc());
+						lprint(activeRotationModule.part.desc()
+							+ ": on " + proxyRotationModule.part.desc());
 					}
 					break;
 
@@ -643,7 +646,7 @@ namespace DockRotate
 
 		public override void OnAwake()
 		{
-			lprint("OnAwake()");
+			lprint((part ? part.desc() : "<no part>") + ".OnAwake()");
 			base.OnAwake();
 			GameEvents.onVesselGoOnRails.Add(OnVesselGoOnRails);
 			GameEvents.onVesselGoOffRails.Add(OnVesselGoOffRails);
@@ -651,7 +654,7 @@ namespace DockRotate
 
 		public void OnDestroy()
 		{
-			lprint("OnDestroy()");
+			lprint((part ? part.desc() : "<no part>") + ".OnDestroy()");
 			GameEvents.onVesselGoOnRails.Remove(OnVesselGoOnRails);
 			GameEvents.onVesselGoOffRails.Remove(OnVesselGoOffRails);
 		}
@@ -703,12 +706,12 @@ namespace DockRotate
 
 			if (dockingNode && dockingNode.state != lastNodeState) {
 				ModuleDockingNode other = dockingNode.otherNode();
-				lprint(part.desc() + " changed from " + lastNodeState
+				lprint(part.desc() + ": from " + lastNodeState
 					+ " to " + dockingNode.state
 					+ " with " + (other ? other.part.desc() : "none"));
 				if (other && other.vessel == vessel) {
 					if (rotCur != null)
-						lprint("same vessel, not stopping");
+						lprint(part.desc() + ": same vessel, not stopping");
 				} else {
 					needReset = true;
 					if (rotCur != null)
@@ -717,9 +720,10 @@ namespace DockRotate
 				lastNodeState = dockingNode.state;
 			}
 
-			Part svdp = (dockingNode && dockingNode.sameVesselDockJoint) ? dockingNode.sameVesselDockJoint.Target : null;
+			Part svdp = (dockingNode && dockingNode.sameVesselDockJoint) ?
+				dockingNode.sameVesselDockJoint.Target : null;
 			if (dockingNode && rotCur == null && svdp != lastSameVesselDockPart) {
-				lprint(part.desc() + " changed same vessel joint");
+				lprint(part.desc() + ": changed same vessel joint");
 				needReset = true;
 				lastSameVesselDockPart = svdp;
 			}
@@ -740,7 +744,7 @@ namespace DockRotate
 				return;
 			}
 
-			lprint(part.desc() + ": enqueueRotation(" + angle + ", " + speed + ")");
+			lprint(part.desc() + ": enqueueRotation(" + angle + "\u00b0, " + speed + "\u00b0/s)");
 			if (speed < 0.5)
 				return;
 
@@ -766,7 +770,7 @@ namespace DockRotate
 			if (float.IsNaN(a))
 				return;
 			float f = snap * Mathf.Floor(a / snap + 0.5f);
-			lprint("snap " + a + " to " + f + " (" + (f - a) + ")");
+			lprint(part.desc() + ": snap " + a + " to " + f + " (" + (f - a) + ")");
 			enqueueRotation(f - a, rotationSpeed);
 		}
 
@@ -777,7 +781,7 @@ namespace DockRotate
 			if (activeRotationModule != this)
 				return;
 			if (rotatingJoint != part.attachJoint) {
-				lprint("skip staticize: same vessel joint");
+				lprint(part.desc() + ": skip staticize, same vessel joint");
 				return;
 			}
 			float angle = rot.tgt;
@@ -804,7 +808,6 @@ namespace DockRotate
 			if (rotCur == null)
 				return;
 			if (rotCur.done()) {
-				lprint(part.desc() + ": rotation finished");
 				staticizeRotation(rotCur);
 				rotCur = null;
 				return;
@@ -818,7 +821,7 @@ namespace DockRotate
 			}
 
 			if (!part.attachJoint || !part.attachJoint.Joint) {
-				lprint("detached, aborting rotation");
+				lprint(part.desc() + " detached, aborting rotation");
 				if (rotCur != null)
 					rotCur.abort(true, "detached");
 				return;
@@ -984,14 +987,10 @@ namespace DockRotate
 				lprint("rot: static " + rotationAngle(false) + ", dynamic " + rotationAngle(true));
 			}
 
-			PartJoint svj = dockingNode.sameVesselDockJoint;
-			if (svj) {
-				lprint("sameVesselDockJoint:");
-				dumpJoint(svj);
-			}
-
-			if (rotatingJoint)
+			if (rotatingJoint) {
+				lprint(rotatingJoint == part.attachJoint ? "parent joint:" : "same vessel joint:"); 
 				dumpJoint(rotatingJoint);
+			}
 
 			lprint("--------------------");
 		}
