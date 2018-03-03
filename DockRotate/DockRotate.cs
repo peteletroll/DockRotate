@@ -650,7 +650,7 @@ namespace DockRotate
 
 		public override void OnAwake()
 		{
-			lprint((part ? part.desc() : "<no part>") + ".OnAwake()");
+			// lprint((part ? part.desc() : "<no part>") + ".OnAwake()");
 			base.OnAwake();
 			GameEvents.onVesselGoOnRails.Add(OnVesselGoOnRails);
 			GameEvents.onVesselGoOffRails.Add(OnVesselGoOffRails);
@@ -658,7 +658,7 @@ namespace DockRotate
 
 		public void OnDestroy()
 		{
-			lprint((part ? part.desc() : "<no part>") + ".OnDestroy()");
+			// lprint((part ? part.desc() : "<no part>") + ".OnDestroy()");
 			GameEvents.onVesselGoOnRails.Remove(OnVesselGoOnRails);
 			GameEvents.onVesselGoOffRails.Remove(OnVesselGoOffRails);
 		}
@@ -683,12 +683,10 @@ namespace DockRotate
 
 		public override void OnStart(StartState state)
 		{
+			lprint(part.desc() + ".OnStart(" + state + ")");
 			base.OnStart(state);
 			if ((state & StartState.Editor) != 0)
 				return;
-
-			lprint(part.desc() + ".OnStart(" + state + ")");
-
 			checkGuiActive();
 		}
 
