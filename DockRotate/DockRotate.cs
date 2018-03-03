@@ -703,10 +703,10 @@ namespace DockRotate
 			if (HighLogic.LoadedScene != GameScenes.FLIGHT)
 				return;
 
-			string resetMsg = null;
+			string resetMsg = "";
 
 			if (vessel && vessel.parts.Count != vesselPartCount)
-				resetMsg = "";
+				resetMsg = "part count changed";
 
 			if (dockingNode && dockingNode.state != lastNodeState) {
 				ModuleDockingNode other = dockingNode.otherNode();
