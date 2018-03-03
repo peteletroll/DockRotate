@@ -288,7 +288,9 @@ namespace DockRotate
 		[KSPAction(guiName = "Rotate Clockwise (+)", requireFullControl = true)]
 		public void RotateClockwise(KSPActionParam param)
 		{
-			RotateClockwise();
+			ModuleDockRotate tgt = actionTarget();
+			if (tgt)
+				tgt.RotateClockwise();
 		}
 
 		[KSPEvent(
@@ -309,7 +311,9 @@ namespace DockRotate
 		[KSPAction(guiName = "Rotate Counterclockwise (-)", requireFullControl = true)]
 		public void RotateCounterclockwise(KSPActionParam param)
 		{
-			RotateCounterclockwise();
+			ModuleDockRotate tgt = actionTarget();
+			if (tgt)
+				tgt.RotateCounterclockwise();
 		}
 
 		[KSPEvent(
@@ -828,6 +832,21 @@ namespace DockRotate
 			}
 
 			rotCur.advance(deltat);
+		}
+
+		private ModuleDockRotate actionTarget()
+		{
+			if (rotationEnabled)
+				return this;
+			ModuleDockRotate ret = null;
+			if (activeRotationModule && activeRotationModule.rotationEnabled) {
+				ret = activeRotationModule;
+			} else if (proxyRotationModule && proxyRotationModule.rotationEnabled) {
+				ret = proxyRotationModule;
+			}
+			if (ret)
+				lprint(part.desc() + ": forwards to " + ret.part.desc());
+			return ret;
 		}
 
 		/******** Reference change utilities - dynamic ********/
