@@ -383,8 +383,10 @@ namespace DockRotate
 
 		private int setupStageCounter = 0;
 
-		private void resetVessel()
+		private void resetVessel(string msg)
 		{
+			if (msg.Length > 0)
+				lprint(part.desc() + " resets vessel: " + msg);
 			List<ModuleDockRotate> rotationModules = vessel.FindPartModulesImplementing<ModuleDockRotate>();
 			for (int i = 0; i < rotationModules.Count; i++) {
 				ModuleDockRotate m = rotationModules[i];
@@ -669,7 +671,7 @@ namespace DockRotate
 				return;
 			// lprint("OnVesselGoOnRails()");
 			onRails = true;
-			resetVessel();
+			resetVessel("go on rails");
 		}
 
 		public void OnVesselGoOffRails(Vessel v)
@@ -678,7 +680,7 @@ namespace DockRotate
 				return;
 			// lprint("OnVesselGoOffRails()");
 			onRails = false;
-			resetVessel();
+			resetVessel("go off rails");
 		}
 
 		public override void OnStart(StartState state)
@@ -701,10 +703,10 @@ namespace DockRotate
 			if (HighLogic.LoadedScene != GameScenes.FLIGHT)
 				return;
 
-			bool needReset = false;
+			string resetMsg = null;
 
 			if (vessel && vessel.parts.Count != vesselPartCount)
-				needReset = true;
+				resetMsg = "";
 
 			if (dockingNode && dockingNode.state != lastNodeState) {
 				ModuleDockingNode other = dockingNode.otherNode();
@@ -715,9 +717,9 @@ namespace DockRotate
 					if (rotCur != null)
 						lprint(part.desc() + ": same vessel, not stopping");
 				} else {
-					needReset = true;
+					resetMsg = "docking port state changed";
 					if (rotCur != null)
-						rotCur.abort(false, "docking port state changed");
+						rotCur.abort(false, resetMsg);
 				}
 				lastNodeState = dockingNode.state;
 			}
@@ -725,13 +727,12 @@ namespace DockRotate
 			Part svdp = (dockingNode && dockingNode.sameVesselDockJoint) ?
 				dockingNode.sameVesselDockJoint.Target : null;
 			if (dockingNode && rotCur == null && svdp != lastSameVesselDockPart) {
-				lprint(part.desc() + ": changed same vessel joint");
-				needReset = true;
+				resetMsg = "changed same vessel joint";
 				lastSameVesselDockPart = svdp;
 			}
 
-			if (needReset)
-				resetVessel();
+			if (resetMsg.Length > 0)
+				resetVessel(resetMsg);
 
 			if (rotCur != null)
 				advanceRotation(Time.fixedDeltaTime);
