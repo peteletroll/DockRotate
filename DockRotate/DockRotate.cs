@@ -338,7 +338,7 @@ namespace DockRotate
 		)]
 		public void RotateToSnap()
 		{
-			if (rotCur != null || !canStartRotation())
+			if (!canStartRotation())
 				return;
 			activeRotationModule.enqueueRotationToSnap(rotationStep, rotationSpeed);
 		}
@@ -577,7 +577,7 @@ namespace DockRotate
 			"reverseRotation.Fe",
 			"RotateClockwise.E",
 			"RotateCounterclockwise.E",
-			"RotateToSnap.ER",
+			"RotateToSnap.E",
 			"ToggleAutostrutDisplay.E"
 		};
 
@@ -764,11 +764,7 @@ namespace DockRotate
 			if (snap < 0.5)
 				return;
 
-			if (rotCur != null) {
-				lprint("rotation active, can't enqueueRotationToSnap(" + snap + ", " + speed + ")");
-				return;
-			}
-			float a = rotationAngle(true);
+			float a = rotCur == null ? rotationAngle(true) : rotCur.tgt;
 			if (float.IsNaN(a))
 				return;
 			float f = snap * Mathf.Floor(a / snap + 0.5f);
