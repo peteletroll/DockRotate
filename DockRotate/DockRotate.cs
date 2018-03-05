@@ -17,7 +17,7 @@ namespace DockRotate
 
 		private struct RotJointInfo
 		{
-			public Quaternion axisRotation;
+			public Quaternion localToJoint;
 			public Vector3 jointAxis;
 			public Quaternion startTgtRotation;
 			public Vector3 startTgtPosition;
@@ -127,7 +127,7 @@ namespace DockRotate
 			for (int i = 0; i < c; i++) {
 				ConfigurableJoint j = joint.joints[i];
 
-				rji[i].axisRotation = j.axisRotation();
+				rji[i].localToJoint = j.localToJoint();
 				rji[i].jointAxis = ModuleDockRotate.Td(rotationModule.partNodeAxis,
 					ModuleDockRotate.T(rotationModule.part),
 					ModuleDockRotate.T(joint.joints[i]));
@@ -202,9 +202,9 @@ namespace DockRotate
 		{
 			Quaternion newJointRotation = Quaternion.AngleAxis(pos, rji[i].jointAxis);
 
-			Quaternion rot = rji[i].axisRotation.inverse()
+			Quaternion rot = rji[i].localToJoint.inverse()
 				* newJointRotation * rji[i].startTgtRotation
-				* rji[i].axisRotation;
+				* rji[i].localToJoint;
 
 			return rji[i].startTgtRotation * rot;
 		}
@@ -1057,10 +1057,15 @@ namespace DockRotate
 
 		/******** ConfigurableJoint utilities ********/
 
-		public static Quaternion axisRotation(this ConfigurableJoint j)
+		public static Quaternion localToJoint(this ConfigurableJoint j)
 		{
-			// the returned rotation turns Vector3.right to axis
-			// and Vector3.up to secondaryAxis
+			// the returned rotation turns Vector3.right (1, 0, 0) to axis
+			// and Vector3.up (0, 1, 0) to secondaryAxis
+
+			// local2joint() * v means:
+			// vector v expressed in local coordinates defined by (axis, secondaryAxis)
+			// result is same vector in joint transform space
+
 			Vector3 right = j.axis.normalized;
 			Vector3 forward = Vector3.Cross(j.axis, j.secondaryAxis).normalized;
 			Vector3 up = Vector3.Cross(forward, right).normalized;
