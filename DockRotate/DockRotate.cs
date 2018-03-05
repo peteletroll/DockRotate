@@ -17,7 +17,7 @@ namespace DockRotate
 
 		private struct RotJointInfo
 		{
-			public Quaternion localToJoint;
+			public Quaternion localToJoint, jointToLocal;
 			public Vector3 jointAxis;
 			public Quaternion startTgtRotation;
 			public Vector3 startTgtPosition;
@@ -128,6 +128,7 @@ namespace DockRotate
 				ConfigurableJoint j = joint.joints[i];
 
 				rji[i].localToJoint = j.localToJoint();
+				rji[i].jointToLocal = j.localToJoint().inverse();
 				rji[i].jointAxis = ModuleDockRotate.Td(rotationModule.partNodeAxis,
 					ModuleDockRotate.T(rotationModule.part),
 					ModuleDockRotate.T(joint.joints[i]));
@@ -202,7 +203,7 @@ namespace DockRotate
 		{
 			Quaternion newJointRotation = Quaternion.AngleAxis(pos, rji[i].jointAxis);
 
-			Quaternion rot = rji[i].localToJoint.inverse()
+			Quaternion rot = rji[i].jointToLocal
 				* newJointRotation * rji[i].startTgtRotation
 				* rji[i].localToJoint;
 
