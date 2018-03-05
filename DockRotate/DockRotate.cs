@@ -15,10 +15,15 @@ namespace DockRotate
 		private Guid vesselId;
 		private Part startParent;
 
-		private Quaternion[] axisRotation;
-		private Vector3[] jointAxis;
-		private Quaternion[] startTgtRotation;
-		private Vector3[] startTgtPosition;
+		private struct RotJointInfo
+		{
+			public Quaternion axisRotation;
+			public Vector3 jointAxis;
+			public Quaternion startTgtRotation;
+			public Vector3 startTgtPosition;
+		}
+		private RotJointInfo[] rji;
+
 		private bool started = false, finished = false;
 
 		private const float accelTime = 2.0f;
@@ -118,18 +123,17 @@ namespace DockRotate
 			incCount();
 			joint.Host.vessel.releaseAllAutoStruts();
 			int c = joint.joints.Count;
-			axisRotation = new Quaternion[c];
-			jointAxis = new Vector3[c];
-			startTgtRotation = new Quaternion[c];
-			startTgtPosition = new Vector3[c];
+			rji = new RotJointInfo[c];
 			for (int i = 0; i < c; i++) {
 				ConfigurableJoint j = joint.joints[i];
-				axisRotation[i] = j.axisRotation();
-				jointAxis[i] = ModuleDockRotate.Td(rotationModule.partNodeAxis,
+
+				rji[i].axisRotation = j.axisRotation();
+				rji[i].jointAxis = ModuleDockRotate.Td(rotationModule.partNodeAxis,
 					ModuleDockRotate.T(rotationModule.part),
 					ModuleDockRotate.T(joint.joints[i]));
-				startTgtRotation[i] = j.targetRotation;
-				startTgtPosition[i] = j.targetPosition;
+				rji[i].startTgtRotation = j.targetRotation;
+				rji[i].startTgtPosition = j.targetPosition;
+
 				ConfigurableJointMotion f = ConfigurableJointMotion.Free;
 				j.angularXMotion = f;
 				j.angularYMotion = f;
@@ -179,12 +183,12 @@ namespace DockRotate
 			onStep(0);
 
 			for (int i = 0; i < joint.joints.Count; i++) {
-				Quaternion jointRot = Quaternion.AngleAxis(tgt, jointAxis[i]);
+				Quaternion jointRot = Quaternion.AngleAxis(tgt, rji[i].jointAxis);
 				ConfigurableJoint j = joint.joints[i];
 				if (j) {
 					j.axis = jointRot * j.axis;
 					j.secondaryAxis = jointRot * j.secondaryAxis;
-					j.targetRotation = startTgtRotation[i];
+					j.targetRotation = rji[i].startTgtRotation;
 				}
 			}
 			if (decCount() <= 0) {
@@ -196,13 +200,13 @@ namespace DockRotate
 
 		private Quaternion currentRotation(int i)
 		{
-			Quaternion newJointRotation = Quaternion.AngleAxis(pos, jointAxis[i]);
+			Quaternion newJointRotation = Quaternion.AngleAxis(pos, rji[i].jointAxis);
 
-			Quaternion rot = axisRotation[i].inverse()
-				* newJointRotation * startTgtRotation[i]
-				* axisRotation[i];
+			Quaternion rot = rji[i].axisRotation.inverse()
+				* newJointRotation * rji[i].startTgtRotation
+				* rji[i].axisRotation;
 
-			return startTgtRotation[i] * rot;
+			return rji[i].startTgtRotation * rot;
 		}
 
 		public bool done()
