@@ -532,7 +532,9 @@ namespace DockRotate
 			return !onRails
 				&& rotationEnabled
 				&& activeRotationModule
+#if !DEBUG
 				&& countJoints() == 1
+#endif
 				&& vessel
 				&& vessel.CurrentControlLevel == Vessel.ControlLevel.FULL;
 		}
