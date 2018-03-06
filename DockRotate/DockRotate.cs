@@ -941,28 +941,25 @@ namespace DockRotate
 			lprint("  axr*forward: " + (axr * Vector3.forward));
 			*/
 
-			// /*
+			/*
 			lprint("  AXMot: " + j.angularXMotion);
 			lprint("  LAXLim: " + j.lowAngularXLimit.desc());
 			lprint("  HAXLim: " + j.highAngularXLimit.desc());
 			lprint("  AXDrv: " + j.angularXDrive.desc());
-			lprint("  TgtRot: " + j.targetRotation.eulerAngles);
 
 			lprint("  YMot: " + j.yMotion);
 			lprint("  YDrv: " + j.yDrive);
 			lprint("  ZMot: " + j.zMotion);
 			lprint("  ZDrv: " + j.zDrive.desc());
-			// */
+			*/
 
-			/*
-			lprint("  TgtRot: " + joint.targetRotation.desc());
-			lprint("  TgtRotAxisP: " + Td(joint.targetRotation.axis(), T(joint), T(part)));
-
-			lprint("  TgtPos: " + joint.targetPosition);
-			lprint("  TgtPosP: " + Tp(joint.targetPosition, T(joint), T(part)));
-			lprint("  Anchors: " + joint.anchor + " " + joint.connectedAnchor);
-			lprint("  AnchorsP: " + Tp(joint.anchor, T(joint), T(part))
-				+ " " + Tp(joint.connectedAnchor, T(joint.connectedBody), T(part)));
+			lprint("  TgtRot: " + j.targetRotation.desc());
+			lprint("  TgtPos: " + j.targetPosition);
+			// lprint("  TgtPosP: " + Tp(j.targetPosition, T(j), T(part))); - FIXME
+			lprint("  Anchors: " + j.anchor + " -> " + j.connectedAnchor);
+			/* FIXME
+			lprint("  AnchorsP: " + Tp(j.anchor, T(j), T(part))
+				+ " -> " + Tp(j.connectedAnchor, T(j.connectedBody), T(part)));
 			*/
 
 			/*
@@ -979,8 +976,10 @@ namespace DockRotate
 			lprint("jChild: " + j.Child.desc());
 			lprint("jHost: " + j.Host.desc());
 			lprint("jTarget: " + j.Target.desc());
+			/*
 			lprint("jAxis: " + j.Axis);
 			lprint("jSecAxis: " + j.SecAxis);
+			*/
 			for (int i = 0; i < j.joints.Count; i++) {
 				lprint("ConfigurableJoint[" + i + "]:");
 				dumpJoint(j.joints[i]);
@@ -993,13 +992,12 @@ namespace DockRotate
 			lprint("mass: " + part.mass);
 			lprint("parent: " + descPart(part.parent));
 			*/
-			lprint("role: " + nodeRole);
-			lprint("status: " + nodeStatus);
+			lprint("role: " + nodeRole + ", status: " + nodeStatus);
 			lprint("orgPos: " + part.orgPos);
 			lprint("orgRot: " + part.orgRot.desc());
 
 			if (dockingNode) {
-				lprint("size: " + dockingNode.nodeType);
+				// lprint("size: " + dockingNode.nodeType);
 				lprint("state: " + dockingNode.state);
 
 				ModuleDockingNode other = dockingNode.otherNode();
