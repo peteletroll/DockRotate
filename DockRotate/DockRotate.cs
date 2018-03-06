@@ -128,7 +128,7 @@ namespace DockRotate
 				ConfigurableJoint j = joint.joints[i];
 
 				rji[i].localToJoint = j.localToJoint();
-				rji[i].jointToLocal = j.localToJoint().inverse();
+				rji[i].jointToLocal = rji[i].localToJoint.inverse();
 				rji[i].jointAxis = ModuleDockRotate.Td(rotationModule.partNodeAxis,
 					ModuleDockRotate.T(rotationModule.part),
 					ModuleDockRotate.T(joint.joints[i]));
@@ -1063,7 +1063,7 @@ namespace DockRotate
 			// the returned rotation turns Vector3.right (1, 0, 0) to axis
 			// and Vector3.up (0, 1, 0) to secondaryAxis
 
-			// local2joint() * v means:
+			// localToJoint() * v means:
 			// vector v expressed in local coordinates defined by (axis, secondaryAxis)
 			// result is same vector in joint transform space
 
