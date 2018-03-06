@@ -336,6 +336,14 @@ namespace DockRotate
 			}
 		}
 
+		[KSPAction(guiName = "Rotate to Snap", requireFullControl = true)]
+		public void RotateToSnap(KSPActionParam param)
+		{
+			ModuleDockRotate tgt = actionTarget();
+			if (tgt)
+				tgt.RotateToSnap();
+		}
+
 		[KSPEvent(
 			guiName = "Rotate to Snap",
 			guiActive = false,
