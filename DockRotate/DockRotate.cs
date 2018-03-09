@@ -166,6 +166,8 @@ namespace DockRotate
 					// lprint("adv " + j.targetRotation.eulerAngles + " " + j.targetPosition);
 					// joint.joints[i].anchor = rot * joint.joints[i].anchor;
 					// joint.joints[i].connectedAnchor = rot * joint.joints[i].connectedAnchor;
+
+					// energy += j.currentTorque.magnitude * Mathf.Abs(vel) * deltat;
 				}
 			}
 
