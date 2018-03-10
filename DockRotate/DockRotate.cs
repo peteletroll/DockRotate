@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using KSP.Localization;
 
 namespace DockRotate
 {
@@ -240,17 +241,17 @@ namespace DockRotate
 	public class ModuleDockRotate: PartModule
 	{
 		[UI_Toggle()]
-		[KSPField(guiName = "Rotation", guiActive = true, guiActiveEditor = true, isPersistant = true)]
+		[KSPField(guiName = "#DCKROT_rotation", guiActive = true, guiActiveEditor = true, isPersistant = true)]
 		public bool rotationEnabled = false;
 
 		[KSPField(
-			guiName = "Angle", guiUnits = "\u00b0", guiFormat = "0.00",
+			guiName = "#DCKROT_angle", guiUnits = "\u00b0", guiFormat = "0.00",
 			guiActive = true, guiActiveEditor = true
 		)]
 		public float dockingAngle;
 
 		[KSPField(
-			guiName = "Status",
+			guiName = "#DCKROT_status",
 			guiActive = false, guiActiveEditor = false
 		)]
 		public String nodeStatus = "";
@@ -264,7 +265,7 @@ namespace DockRotate
 			guiActive = true,
 			guiActiveEditor = false,
 			isPersistant = true,
-			guiName = "Rotation Step",
+			guiName = "#DCKROT_rotation_step",
 			guiUnits = "\u00b0"
 		)]
 		public float rotationStep = 15;
@@ -278,7 +279,7 @@ namespace DockRotate
 			guiActive = true,
 			guiActiveEditor = false,
 			isPersistant = true,
-			guiName = "Rotation Speed",
+			guiName = "#DCKROT_rotation_speed",
 			guiUnits = "\u00b0/s"
 		)]
 		public float rotationSpeed = 5;
@@ -289,10 +290,10 @@ namespace DockRotate
 		public float maxSpeed = 90;
 
 		[UI_Toggle(affectSymCounterparts = UI_Scene.None)]
-		[KSPField(guiActive = true, isPersistant = true, guiName = "Reverse Rotation")]
+		[KSPField(guiActive = true, isPersistant = true, guiName = "#DCKROT_reverse_rotation")]
 		public bool reverseRotation = false;
 
-		[KSPAction(guiName = "Rotate Clockwise (+)", requireFullControl = true)]
+		[KSPAction(guiName = "#DCKROT_rotate_clockwise", requireFullControl = true)]
 		public void RotateClockwise(KSPActionParam param)
 		{
 			ModuleDockRotate tgt = actionTarget();
@@ -301,7 +302,7 @@ namespace DockRotate
 		}
 
 		[KSPEvent(
-			guiName = "Rotate Clockwise (+)",
+			guiName = "#DCKROT_rotate_clockwise",
 			guiActive = false,
 			guiActiveEditor = false
 		)]
@@ -315,7 +316,7 @@ namespace DockRotate
 			}
 		}
 
-		[KSPAction(guiName = "Rotate Counterclockwise (-)", requireFullControl = true)]
+		[KSPAction(guiName = "#DCKROT_rotate_counterclockwise", requireFullControl = true)]
 		public void RotateCounterclockwise(KSPActionParam param)
 		{
 			ModuleDockRotate tgt = actionTarget();
@@ -324,7 +325,7 @@ namespace DockRotate
 		}
 
 		[KSPEvent(
-			guiName = "Rotate Counterclockwise (-)",
+			guiName = "#DCKROT_rotate_counterclockwise",
 			guiActive = false,
 			guiActiveEditor = false
 		)]
@@ -338,7 +339,7 @@ namespace DockRotate
 			}
 		}
 
-		[KSPAction(guiName = "Rotate to Snap", requireFullControl = true)]
+		[KSPAction(guiName = "#DCKROT_rotate_to_snap", requireFullControl = true)]
 		public void RotateToSnap(KSPActionParam param)
 		{
 			ModuleDockRotate tgt = actionTarget();
@@ -347,7 +348,7 @@ namespace DockRotate
 		}
 
 		[KSPEvent(
-			guiName = "Rotate to Snap",
+			guiName = "#DCKROT_rotate_to_snap",
 			guiActive = false,
 			guiActiveEditor = false
 		)]
@@ -359,7 +360,7 @@ namespace DockRotate
 		}
 
 		[KSPEvent(
-			guiName = "Toggle Autostrut Display",
+			guiName = "#DCKROT_toggle_autostrut_display",
 			guiActive = false,
 			guiActiveEditor = false
 		)]
@@ -370,7 +371,7 @@ namespace DockRotate
 
 #if DEBUG
 		[KSPEvent(
-			guiName = "Dump",
+			guiName = "#DCKROT_dump",
 			guiActive = true,
 			guiActiveEditor = false
 		)]
@@ -655,7 +656,7 @@ namespace DockRotate
 						ev.guiActive = thisGuiActive;
 						ev.guiActiveEditor = thisGuiActive && editorGui;
 						if (name == "ToggleAutostrutDisplay") {
-							ev.guiName = PhysicsGlobals.AutoStrutDisplay ? "Hide Autostruts" : "Show Autostruts";
+							ev.guiName = PhysicsGlobals.AutoStrutDisplay ? "#DCKROT_hide_autostruts" : "#DCKROT_show_autostruts";
 						}
 					}
 				} else {
