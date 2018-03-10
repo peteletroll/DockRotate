@@ -922,11 +922,14 @@ namespace DockRotate
 
 		private void dumpJoint(ConfigurableJoint j)
 		{
+			Quaternion localToJoint = j.localToJoint();
+
 			lprint("  link: " + j.gameObject + " to " + j.connectedBody);
 			lprint("  autoConf: " + j.autoConfigureConnectedAnchor);
 			lprint("  swap: " + j.swapBodies);
 			lprint("  axis: " + j.axis);
 			lprint("  secAxis: " + j.secondaryAxis);
+			lprint("  localToJoint: " + localToJoint.desc());
 
 			/*
 			lprint("  thdAxis: " + Vector3.Cross(joint.axis, joint.secondaryAxis));
@@ -958,7 +961,9 @@ namespace DockRotate
 			lprint("  TgtRot: " + j.targetRotation.desc());
 			lprint("  TgtPos: " + j.targetPosition);
 			// lprint("  TgtPosP: " + Tp(j.targetPosition, T(j), T(part))); - FIXME
-			lprint("  Anchors: " + j.anchor + " -> " + j.connectedAnchor);
+			lprint("  Anchor: " + j.anchor);
+			lprint("  ConnAnchor: " + j.connectedAnchor
+				+ " (" + Tp(j.connectedAnchor, T(j.connectedBody), T(j)) + ")");
 			/* FIXME
 			lprint("  AnchorsP: " + Tp(j.anchor, T(j), T(part))
 				+ " -> " + Tp(j.connectedAnchor, T(j.connectedBody), T(part)));
