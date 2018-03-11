@@ -18,4 +18,4 @@ Autostruts are removed during motion, and restored after.
 
 Forum page: https://forum.kerbalspaceprogram.com/index.php?/topic/170484-dockrotate-rotation-control-on-docking-ports/
 
-( * ) Should work with any port based on ModuleDockingNode. Clamp-O-Tron Sr. can rotate only when docked in flight.
+( * ) Should work with any port based on ModuleDockingNode.
