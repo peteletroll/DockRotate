@@ -160,10 +160,11 @@ namespace DockRotate
 		{
 			for (int i = 0; i < joint.joints.Count; i++) {
 				ConfigurableJoint j = joint.joints[i];
-				Quaternion rot = currentRotation(i);
+				Quaternion jRot = currentRotation(i);
+				Quaternion pRot = Quaternion.AngleAxis(pos, rji[i].jointAxis);
 				if (j) {
-					j.targetRotation = rot;
-					// j.targetPosition = rot * j.anchor - j.anchor;
+					j.targetRotation = jRot;
+					j.targetPosition = rji[i].jointToLocal * (pRot * j.anchor - j.anchor);
 					// lprint("adv " + j.targetRotation.eulerAngles + " " + j.targetPosition);
 					// joint.joints[i].anchor = rot * joint.joints[i].anchor;
 					// joint.joints[i].connectedAnchor = rot * joint.joints[i].connectedAnchor;
