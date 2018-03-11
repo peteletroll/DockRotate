@@ -923,14 +923,16 @@ namespace DockRotate
 
 		private void dumpJoint(ConfigurableJoint j)
 		{
-			Quaternion localToJoint = j.localToJoint();
+			// Quaternion localToJoint = j.localToJoint();
 
-			lprint("  link: " + j.gameObject + " to " + j.connectedBody);
-			lprint("  autoConf: " + j.autoConfigureConnectedAnchor);
-			lprint("  swap: " + j.swapBodies);
-			lprint("  axis: " + j.axis);
-			lprint("  secAxis: " + j.secondaryAxis);
-			lprint("  localToJoint: " + localToJoint.desc());
+			lprint("  Link: " + j.gameObject + " to " + j.connectedBody);
+			// lprint("  autoConf: " + j.autoConfigureConnectedAnchor);
+			// lprint("  swap: " + j.swapBodies);
+			lprint("  Axes: " + j.axis.desc() + ", " + j.secondaryAxis.desc());
+			// lprint("  localToJoint: " + localToJoint.desc());
+			lprint("  Anchors: " + j.anchor.desc()
+				+ " -> " + j.connectedAnchor.desc()
+				+ " [" + Tp(j.connectedAnchor, T(j.connectedBody), T(j)).desc() + "]");
 
 			/*
 			lprint("  thdAxis: " + Vector3.Cross(joint.axis, joint.secondaryAxis));
@@ -959,12 +961,9 @@ namespace DockRotate
 			lprint("  ZDrv: " + j.zDrive.desc());
 			*/
 
-			lprint("  TgtRot: " + j.targetRotation.desc());
-			lprint("  TgtPos: " + j.targetPosition);
+			lprint("  Tgt: " + j.targetPosition.desc() + ", " + j.targetRotation.desc());
 			// lprint("  TgtPosP: " + Tp(j.targetPosition, T(j), T(part))); - FIXME
-			lprint("  Anchor: " + j.anchor);
-			lprint("  ConnAnchor: " + j.connectedAnchor
-				+ " (" + Tp(j.connectedAnchor, T(j.connectedBody), T(j)) + ")");
+
 			/* FIXME
 			lprint("  AnchorsP: " + Tp(j.anchor, T(j), T(part))
 				+ " -> " + Tp(j.connectedAnchor, T(j.connectedBody), T(part)));
@@ -981,13 +980,18 @@ namespace DockRotate
 		private void dumpJoint(PartJoint j)
 		{
 			// lprint("Joint Parent: " + descPart(joint.Parent));
+
+			/*
 			lprint("jChild: " + j.Child.desc());
 			lprint("jHost: " + j.Host.desc());
 			lprint("jTarget: " + j.Target.desc());
+			*/
+
 			/*
 			lprint("jAxis: " + j.Axis);
 			lprint("jSecAxis: " + j.SecAxis);
 			*/
+
 			for (int i = 0; i < j.joints.Count; i++) {
 				lprint("ConfigurableJoint[" + i + "]:");
 				dumpJoint(j.joints[i]);
@@ -1001,8 +1005,7 @@ namespace DockRotate
 			lprint("parent: " + descPart(part.parent));
 			*/
 			lprint("role: " + nodeRole + ", status: " + nodeStatus);
-			lprint("orgPos: " + part.orgPos);
-			lprint("orgRot: " + part.orgRot.desc());
+			lprint("org: " + part.orgPos.desc() + ", " + part.orgRot.desc());
 
 			if (dockingNode) {
 				// lprint("size: " + dockingNode.nodeType);
@@ -1017,7 +1020,7 @@ namespace DockRotate
 				lprint("partNodeUp: " + partNodeUp);
 				*/
 
-				lprint("partNodeAxisV: " + STd(partNodeAxis, part, vessel.rootPart));
+				lprint("partNodeAxisV: " + STd(partNodeAxis, part, vessel.rootPart).desc());
 
 				lprint("rot: static " + rotationAngle(false) + ", dynamic " + rotationAngle(true));
 			}
@@ -1120,6 +1123,16 @@ namespace DockRotate
 			joint.zMotion = f;
 		}
 
+		/******** Vector3 utilities ********/
+
+		public static string desc(this Vector3 v)
+		{
+			return "(" + v.x.ToString("F2")
+				+ ", " + v.y.ToString("F2")
+				+ ", " + v.z.ToString("F2")
+				+ ")";
+		}
+
 		/******** Quaternion utilities ********/
 
 		public static Quaternion inverse(this Quaternion q)
@@ -1148,7 +1161,7 @@ namespace DockRotate
 			float angle;
 			Vector3 axis;
 			q.ToAngleAxis(out angle, out axis);
-			return angle.ToString("F2") + "\u00b0" + axis;
+			return angle.ToString("F1") + "\u00b0" + axis.desc();
 		}
 	}
 }
