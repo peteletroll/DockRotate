@@ -158,9 +158,6 @@ namespace DockRotate
 				if (j) {
 					j.targetRotation = jRot;
 					j.targetPosition = rji[i].startTgtPosition + rji[i].jointToLocal * (pRot * j.anchor - j.anchor);
-					// lprint("adv " + j.targetRotation.eulerAngles + " " + j.targetPosition);
-					// joint.joints[i].anchor = rot * joint.joints[i].anchor;
-					// joint.joints[i].connectedAnchor = rot * joint.joints[i].connectedAnchor;
 
 					// energy += j.currentTorque.magnitude * Mathf.Abs(vel) * deltat;
 				}
@@ -184,9 +181,18 @@ namespace DockRotate
 				Quaternion jointRot = Quaternion.AngleAxis(tgt, rji[i].jointAxis);
 				ConfigurableJoint j = joint.joints[i];
 				if (j) {
+					// staticize rotation
 					j.axis = jointRot * j.axis;
 					j.secondaryAxis = jointRot * j.secondaryAxis;
 					j.targetRotation = rji[i].startTgtRotation;
+
+					// staticize target anchors
+					Vector3 tgtAxis = ModuleDockRotate.Td(rotationModule.proxyRotationModule.partNodeAxis,
+						ModuleDockRotate.T(rotationModule.proxyRotationModule.part),
+						ModuleDockRotate.T(rotationModule.proxyRotationModule.part.rb));
+					Quaternion tgtRot = Quaternion.AngleAxis(pos, tgtAxis);
+					j.connectedAnchor = tgtRot * j.connectedAnchor;
+					j.targetPosition = rji[i].startTgtPosition;
 				}
 			}
 			if (decCount() <= 0) {
@@ -384,8 +390,8 @@ namespace DockRotate
 		public string nodeRole = "Init";
 		private string lastNodeState = "Init";
 		private Part lastSameVesselDockPart;
-		private ModuleDockRotate activeRotationModule;
-		private ModuleDockRotate proxyRotationModule;
+		public ModuleDockRotate activeRotationModule;
+		public ModuleDockRotate proxyRotationModule;
 		public PartJoint rotatingJoint;
 		private Vector3 partNodePos; // node position, relative to part
 		public Vector3 partNodeAxis; // node rotation axis, relative to part, reference Vector3.forward
@@ -395,16 +401,18 @@ namespace DockRotate
 
 		private void resetVessel(string msg)
 		{
-			if (msg.Length > 0)
-				lprint(part.desc() + " resets vessel: " + msg);
+			bool reset = false;
 			List<ModuleDockRotate> rotationModules = vessel.FindPartModulesImplementing<ModuleDockRotate>();
 			for (int i = 0; i < rotationModules.Count; i++) {
 				ModuleDockRotate m = rotationModules[i];
 				if (m.setupStageCounter != 0) {
 					// lprint("reset " + descPart(m.part));
+					reset = true;
 					m.setupStageCounter = 0;
 				}
 			}
+			if (reset && msg.Length > 0)
+				lprint(part.desc() + " resets vessel: " + msg);
 			RotationAnimation.resetCount(part.vessel.id);
 		}
 
@@ -542,9 +550,6 @@ namespace DockRotate
 			return !onRails
 				&& rotationEnabled
 				&& activeRotationModule
-#if !DEBUG
-				&& countJoints() == 1
-#endif
 				&& vessel
 				&& vessel.CurrentControlLevel == Vessel.ControlLevel.FULL;
 		}
@@ -606,14 +611,7 @@ namespace DockRotate
 			nodeStatus = "";
 
 			int nJoints = countJoints();
-#if DEBUG
 			nodeStatus = nodeRole + " [" + nJoints + "]";
-#else
-			if (nJoints > 1) {
-				nodeStatus = "Can't Move, Try Redock [" + nJoints + "]";
-				newGuiActive = false;
-			}
-#endif
 
 			Fields["nodeStatus"].guiActive = nodeStatus.Length > 0;
 
@@ -697,7 +695,7 @@ namespace DockRotate
 
 		public override void OnStart(StartState state)
 		{
-			lprint(part.desc() + ".OnStart(" + state + ")");
+			// lprint(part.desc() + ".OnStart(" + state + ")");
 			base.OnStart(state);
 			if ((state & StartState.Editor) != 0)
 				return;
