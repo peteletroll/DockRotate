@@ -143,13 +143,6 @@ namespace DockRotate
 				j.xMotion = f;
 				j.yMotion = f;
 				j.zMotion = f;
-				if (i != 0) {
-					JointDrive d = j.xDrive;
-					d.positionSpring = 0;
-					j.xDrive = d;
-					j.yDrive = d;
-					j.zDrive = d;
-				}
 			}
 			lprint(rotationModule.part.desc() + ": started "
 				+ pos + "\u00b0 -> " + tgt + "\u00b0, "
@@ -164,7 +157,7 @@ namespace DockRotate
 				Quaternion pRot = Quaternion.AngleAxis(pos, rji[i].jointAxis);
 				if (j) {
 					j.targetRotation = jRot;
-					j.targetPosition = rji[i].jointToLocal * (pRot * j.anchor - j.anchor);
+					j.targetPosition = rji[i].startTgtPosition + rji[i].jointToLocal * (pRot * j.anchor - j.anchor);
 					// lprint("adv " + j.targetRotation.eulerAngles + " " + j.targetPosition);
 					// joint.joints[i].anchor = rot * joint.joints[i].anchor;
 					// joint.joints[i].connectedAnchor = rot * joint.joints[i].connectedAnchor;
