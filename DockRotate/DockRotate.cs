@@ -572,7 +572,7 @@ namespace DockRotate
 			Vector3 v1 = activeRotationModule.partNodeUp;
 			Vector3 v2 = dynamic ?
 				Td(proxyRotationModule.partNodeUp, T(proxyRotationModule.part), T(activeRotationModule.part)) :
-				STd(proxyRotationModule.partNodeUp, proxyRotationModule.part, activeRotationModule.part);
+				proxyRotationModule.partNodeUp.STd(proxyRotationModule.part, activeRotationModule.part);
 			v2 = Vector3.ProjectOnPlane(v2, a).normalized;
 
 			float angle = Vector3.Angle(v1, v2);
@@ -794,7 +794,7 @@ namespace DockRotate
 				return;
 			}
 			float angle = rot.tgt;
-			Vector3 nodeAxis = STd(proxyRotationModule.partNodeAxis, proxyRotationModule.part, vessel.rootPart);
+			Vector3 nodeAxis = proxyRotationModule.partNodeAxis.STd(proxyRotationModule.part, vessel.rootPart);
 			Quaternion nodeRot = Quaternion.AngleAxis(angle, nodeAxis);
 			_propagate(part, nodeRot);
 		}
@@ -889,20 +889,6 @@ namespace DockRotate
 		public static Transform T(ModuleDockingNode m)
 		{
 			return m.nodeTransform;
-		}
-
-		/******** Reference change utilities - static ********/
-
-		private static Vector3 STd(Vector3 v, Part from, Part to)
-		{
-			return Quaternion.Inverse(to.orgRot) * (from.orgRot * v);
-		}
-
-		private static Vector3 STp(Vector3 v, Part from, Part to)
-		{
-			// untested yet
-			Vector3 vv = from.orgPos + from.orgRot * v;
-			return Quaternion.Inverse(to.orgRot) * (vv - to.orgPos);
 		}
 
 		/******** Debugging stuff ********/
@@ -1012,7 +998,7 @@ namespace DockRotate
 				lprint("partNodeUp: " + partNodeUp);
 				*/
 
-				lprint("partNodeAxisV: " + STd(partNodeAxis, part, vessel.rootPart).desc());
+				lprint("partNodeAxisV: " + partNodeAxis.STd(part, vessel.rootPart).desc());
 
 				lprint("rot: static " + rotationAngle(false) + ", dynamic " + rotationAngle(true));
 			}
@@ -1154,6 +1140,20 @@ namespace DockRotate
 			Vector3 axis;
 			q.ToAngleAxis(out angle, out axis);
 			return angle.ToString("F1") + "\u00b0" + axis.desc();
+		}
+
+		/******** Reference change utilities - static ********/
+
+		public static Vector3 STd(this Vector3 v, Part from, Part to)
+		{
+			return Quaternion.Inverse(to.orgRot) * (from.orgRot * v);
+		}
+
+		public static Vector3 STp(this Vector3 v, Part from, Part to)
+		{
+			// untested yet
+			Vector3 vv = from.orgPos + from.orgRot * v;
+			return Quaternion.Inverse(to.orgRot) * (vv - to.orgPos);
 		}
 	}
 }
