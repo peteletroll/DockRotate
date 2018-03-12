@@ -131,8 +131,8 @@ namespace DockRotate
 				rji[i].localToJoint = j.localToJoint();
 				rji[i].jointToLocal = rji[i].localToJoint.inverse();
 				rji[i].jointAxis = rotationModule.partNodeAxis.Td(
-					ModuleDockRotate.T(rotationModule.part),
-					ModuleDockRotate.T(joint.joints[i]));
+					rotationModule.part.T(),
+					joint.joints[i].T());
 				rji[i].startTgtRotation = j.targetRotation;
 				rji[i].startTgtPosition = j.targetPosition;
 
@@ -188,8 +188,8 @@ namespace DockRotate
 
 					// staticize target anchors
 					Vector3 tgtAxis = rotationModule.proxyRotationModule.partNodeAxis.Td(
-						ModuleDockRotate.T(rotationModule.proxyRotationModule.part),
-						ModuleDockRotate.T(rotationModule.proxyRotationModule.part.rb));
+						rotationModule.proxyRotationModule.part.T(),
+						rotationModule.proxyRotationModule.part.rb.T());
 					Quaternion tgtRot = Quaternion.AngleAxis(pos, tgtAxis);
 					j.connectedAnchor = tgtRot * j.connectedAnchor;
 					j.targetPosition = rji[i].startTgtPosition;
@@ -449,9 +449,9 @@ namespace DockRotate
 
 					dockingNode = part.FindModuleImplementing<ModuleDockingNode>();
 					if (dockingNode) {
-						partNodePos = Vector3.zero.Tp(T(dockingNode), T(part));
-						partNodeAxis = Vector3.forward.Td(T(dockingNode), T(part));
-						partNodeUp = Vector3.up.Td(T(dockingNode), T(part));
+						partNodePos = Vector3.zero.Tp(dockingNode.T(), part.T());
+						partNodeAxis = Vector3.forward.Td(dockingNode.T(), part.T());
+						partNodeUp = Vector3.up.Td(dockingNode.T(), part.T());
 						lastNodeState = dockingNode.state;
 						if (dockingNode.sameVesselDockJoint)
 							lastSameVesselDockPart = dockingNode.sameVesselDockJoint.Target;
@@ -523,8 +523,8 @@ namespace DockRotate
 			bool ret = dockingNode && parentNode && parentRotate
 				&& dockingNode.nodeType == parentNode.nodeType
 				&& hasGoodState(dockingNode) && hasGoodState(parentNode)
-				&& (partNodePos - parentRotate.partNodePos.Tp(T(parentRotate.part), T(part))).magnitude < 1.0f
-				&& Vector3.Angle(partNodeAxis, Vector3.back.Td(T(parentNode), T(part))) < 3;
+				&& (partNodePos - parentRotate.partNodePos.Tp(parentRotate.part.T(), part.T())).magnitude < 1.0f
+				&& Vector3.Angle(partNodeAxis, Vector3.back.Td(parentNode.T(), part.T())) < 3;
 
 			// lprint("isActive(" + descPart(part) + ") = " + ret);
 
@@ -571,7 +571,7 @@ namespace DockRotate
 			Vector3 a = activeRotationModule.partNodeAxis;
 			Vector3 v1 = activeRotationModule.partNodeUp;
 			Vector3 v2 = dynamic ?
-				proxyRotationModule.partNodeUp.Td(T(proxyRotationModule.part), T(activeRotationModule.part)) :
+				proxyRotationModule.partNodeUp.Td(proxyRotationModule.part.T(), activeRotationModule.part.T()) :
 				proxyRotationModule.partNodeUp.STd(proxyRotationModule.part, activeRotationModule.part);
 			v2 = Vector3.ProjectOnPlane(v2, a).normalized;
 
@@ -854,33 +854,6 @@ namespace DockRotate
 			return ret;
 		}
 
-		/******** Reference change utilities - dynamic ********/
-
-		public static Transform T(Vessel v)
-		{
-			return v.rootPart.transform;
-		}
-
-		public static Transform T(Part p)
-		{
-			return p.transform;
-		}
-
-		public static Transform T(ConfigurableJoint j)
-		{
-			return j.transform;
-		}
-
-		public static Transform T(Rigidbody b)
-		{
-			return b.transform;
-		}
-
-		public static Transform T(ModuleDockingNode m)
-		{
-			return m.nodeTransform;
-		}
-
 		/******** Debugging stuff ********/
 
 		public static bool lprint(string msg)
@@ -900,7 +873,7 @@ namespace DockRotate
 			// lprint("  localToJoint: " + localToJoint.desc());
 			lprint("  Anchors: " + j.anchor.desc()
 				+ " -> " + j.connectedAnchor.desc()
-				+ " [" + j.connectedAnchor.Tp(T(j.connectedBody), T(j)).desc() + "]");
+				+ " [" + j.connectedAnchor.Tp(j.connectedBody.T(), j.T()).desc() + "]");
 
 			/*
 			lprint("  thdAxis: " + Vector3.Cross(joint.axis, joint.secondaryAxis));
@@ -1142,6 +1115,31 @@ namespace DockRotate
 		public static Vector3 Tp(this Vector3 v, Transform from, Transform to)
 		{
 			return to.InverseTransformPoint(from.TransformPoint(v));
+		}
+
+		public static Transform T(this Vessel v)
+		{
+			return v.rootPart.transform;
+		}
+
+		public static Transform T(this Part p)
+		{
+			return p.transform;
+		}
+
+		public static Transform T(this ConfigurableJoint j)
+		{
+			return j.transform;
+		}
+
+		public static Transform T(this Rigidbody b)
+		{
+			return b.transform;
+		}
+
+		public static Transform T(this ModuleDockingNode m)
+		{
+			return m.nodeTransform;
 		}
 
 		/******** Reference change utilities - static ********/
