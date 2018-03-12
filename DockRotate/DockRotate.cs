@@ -130,7 +130,7 @@ namespace DockRotate
 
 				rji[i].localToJoint = j.localToJoint();
 				rji[i].jointToLocal = rji[i].localToJoint.inverse();
-				rji[i].jointAxis = ModuleDockRotate.Td(rotationModule.partNodeAxis,
+				rji[i].jointAxis = rotationModule.partNodeAxis.Td(
 					ModuleDockRotate.T(rotationModule.part),
 					ModuleDockRotate.T(joint.joints[i]));
 				rji[i].startTgtRotation = j.targetRotation;
@@ -187,7 +187,7 @@ namespace DockRotate
 					j.targetRotation = rji[i].startTgtRotation;
 
 					// staticize target anchors
-					Vector3 tgtAxis = ModuleDockRotate.Td(rotationModule.proxyRotationModule.partNodeAxis,
+					Vector3 tgtAxis = rotationModule.proxyRotationModule.partNodeAxis.Td(
 						ModuleDockRotate.T(rotationModule.proxyRotationModule.part),
 						ModuleDockRotate.T(rotationModule.proxyRotationModule.part.rb));
 					Quaternion tgtRot = Quaternion.AngleAxis(pos, tgtAxis);
@@ -449,9 +449,9 @@ namespace DockRotate
 
 					dockingNode = part.FindModuleImplementing<ModuleDockingNode>();
 					if (dockingNode) {
-						partNodePos = Tp(Vector3.zero, T(dockingNode), T(part));
-						partNodeAxis = Td(Vector3.forward, T(dockingNode), T(part));
-						partNodeUp = Td(Vector3.up, T(dockingNode), T(part));
+						partNodePos = Vector3.zero.Tp(T(dockingNode), T(part));
+						partNodeAxis = Vector3.forward.Td(T(dockingNode), T(part));
+						partNodeUp = Vector3.up.Td(T(dockingNode), T(part));
 						lastNodeState = dockingNode.state;
 						if (dockingNode.sameVesselDockJoint)
 							lastSameVesselDockPart = dockingNode.sameVesselDockJoint.Target;
@@ -523,8 +523,8 @@ namespace DockRotate
 			bool ret = dockingNode && parentNode && parentRotate
 				&& dockingNode.nodeType == parentNode.nodeType
 				&& hasGoodState(dockingNode) && hasGoodState(parentNode)
-				&& (partNodePos - Tp(parentRotate.partNodePos, T(parentRotate.part), T(part))).magnitude < 1.0f
-				&& Vector3.Angle(partNodeAxis, Td(Vector3.back, T(parentNode), T(part))) < 3;
+				&& (partNodePos - parentRotate.partNodePos.Tp(T(parentRotate.part), T(part))).magnitude < 1.0f
+				&& Vector3.Angle(partNodeAxis, Vector3.back.Td(T(parentNode), T(part))) < 3;
 
 			// lprint("isActive(" + descPart(part) + ") = " + ret);
 
@@ -571,7 +571,7 @@ namespace DockRotate
 			Vector3 a = activeRotationModule.partNodeAxis;
 			Vector3 v1 = activeRotationModule.partNodeUp;
 			Vector3 v2 = dynamic ?
-				Td(proxyRotationModule.partNodeUp, T(proxyRotationModule.part), T(activeRotationModule.part)) :
+				proxyRotationModule.partNodeUp.Td(T(proxyRotationModule.part), T(activeRotationModule.part)) :
 				proxyRotationModule.partNodeUp.STd(proxyRotationModule.part, activeRotationModule.part);
 			v2 = Vector3.ProjectOnPlane(v2, a).normalized;
 
@@ -856,16 +856,6 @@ namespace DockRotate
 
 		/******** Reference change utilities - dynamic ********/
 
-		public static Vector3 Td(Vector3 v, Transform from, Transform to)
-		{
-			return to.InverseTransformDirection(from.TransformDirection(v));
-		}
-
-		public static Vector3 Tp(Vector3 v, Transform from, Transform to)
-		{
-			return to.InverseTransformPoint(from.TransformPoint(v));
-		}
-
 		public static Transform T(Vessel v)
 		{
 			return v.rootPart.transform;
@@ -910,7 +900,7 @@ namespace DockRotate
 			// lprint("  localToJoint: " + localToJoint.desc());
 			lprint("  Anchors: " + j.anchor.desc()
 				+ " -> " + j.connectedAnchor.desc()
-				+ " [" + Tp(j.connectedAnchor, T(j.connectedBody), T(j)).desc() + "]");
+				+ " [" + j.connectedAnchor.Tp(T(j.connectedBody), T(j)).desc() + "]");
 
 			/*
 			lprint("  thdAxis: " + Vector3.Cross(joint.axis, joint.secondaryAxis));
@@ -1140,6 +1130,18 @@ namespace DockRotate
 			Vector3 axis;
 			q.ToAngleAxis(out angle, out axis);
 			return angle.ToString("F1") + "\u00b0" + axis.desc();
+		}
+
+		/******** Reference change utilities - dynamic ********/
+
+		public static Vector3 Td(this Vector3 v, Transform from, Transform to)
+		{
+			return to.InverseTransformDirection(from.TransformDirection(v));
+		}
+
+		public static Vector3 Tp(this Vector3 v, Transform from, Transform to)
+		{
+			return to.InverseTransformPoint(from.TransformPoint(v));
 		}
 
 		/******** Reference change utilities - static ********/
