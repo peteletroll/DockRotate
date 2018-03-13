@@ -359,16 +359,6 @@ namespace DockRotate
 			activeRotationModule.enqueueRotationToSnap(rotationStep, rotationSpeed);
 		}
 
-		[KSPEvent(
-			guiName = "#DCKROT_toggle_autostrut_display",
-			guiActive = false,
-			guiActiveEditor = false
-		)]
-		public void ToggleAutostrutDisplay()
-		{
-			PhysicsGlobals.AutoStrutDisplay = !PhysicsGlobals.AutoStrutDisplay;
-		}
-
 #if DEBUG
 		[KSPEvent(
 			guiName = "#DCKROT_dump",
@@ -596,8 +586,7 @@ namespace DockRotate
 			"reverseRotation.Fe",
 			"RotateClockwise.E",
 			"RotateCounterclockwise.E",
-			"RotateToSnap.E",
-			"ToggleAutostrutDisplay.E"
+			"RotateToSnap.E"
 		};
 
 		private void checkGuiActive()
@@ -647,9 +636,6 @@ namespace DockRotate
 							thisGuiActive = false;
 						ev.guiActive = thisGuiActive;
 						ev.guiActiveEditor = thisGuiActive && editorGui;
-						if (name == "ToggleAutostrutDisplay") {
-							ev.guiName = PhysicsGlobals.AutoStrutDisplay ? "#DCKROT_hide_autostruts" : "#DCKROT_show_autostruts";
-						}
 					}
 				} else {
 					lprint("bad guiList flags " + guiList[i]);
