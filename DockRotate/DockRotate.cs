@@ -794,13 +794,6 @@ namespace DockRotate
 				return;
 			}
 
-			if (!part.attachJoint || !part.attachJoint.Joint) {
-				lprint(part.desc() + " detached, aborting rotation");
-				if (rotCur != null)
-					rotCur.abort(true, "detached");
-				return;
-			}
-
 			rotCur.advance(deltat);
 		}
 
