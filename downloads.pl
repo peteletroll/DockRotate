@@ -13,7 +13,7 @@ my $j = get($url)
 	or die "$0: can't get $url\n";
 $j = from_json($j);
 my $total = 0;
-foreach my $r (@$j) {
+foreach my $r (reverse @$j) {
 	foreach my $a (@{$r->{assets}}) {
 		my $c = $a->{download_count};
 		printf "%6d %s\n", $c, $a->{name};
