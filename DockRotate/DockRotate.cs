@@ -787,11 +787,7 @@ namespace DockRotate
 
 		private void _propagate(Part p, Quaternion rot)
 		{
-			Vector3 dp = p.orgPos - part.orgPos;
-			Vector3 rdp = rot * dp;
-			Vector3 newPos = rdp + part.orgPos;
-			p.orgPos = newPos;
-
+			p.orgPos = rot * (p.orgPos - part.orgPos) + part.orgPos;
 			p.orgRot = rot * p.orgRot;
 
 			for (int i = 0; i < p.children.Count; i++)
