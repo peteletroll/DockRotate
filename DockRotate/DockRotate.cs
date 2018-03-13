@@ -396,7 +396,6 @@ namespace DockRotate
 			for (int i = 0; i < rotationModules.Count; i++) {
 				ModuleDockRotate m = rotationModules[i];
 				if (m.setupStageCounter != 0) {
-					// lprint("reset " + descPart(m.part));
 					reset = true;
 					m.setupStageCounter = 0;
 				}
@@ -414,13 +413,7 @@ namespace DockRotate
 			if (rotCur != null)
 				return;
 
-			bool performedSetupStage = true;
-
 			switch (setupStageCounter) {
-
-				default:
-					performedSetupStage = false;
-					break;
 
 				case 0:
 					rotationStep = Mathf.Abs(rotationStep);
@@ -495,10 +488,6 @@ namespace DockRotate
 					break;
 			}
 
-			if (performedSetupStage) {
-				// lprint ("setup(" + descPart (part) + "): step " + setupStageCounter + " done");
-			}
-
 			setupStageCounter++;
 		}
 
@@ -527,7 +516,6 @@ namespace DockRotate
 				return false;
 			string s = node.state;
 			bool ret = s.StartsWith("Docked") || s == "PreAttached";
-			// lprint("hasGoodState(" + s + ") = " + ret);
 			return ret;
 		}
 
@@ -642,8 +630,6 @@ namespace DockRotate
 					continue;
 				}
 			}
-
-			// setMaxSpeed();
 		}
 
 		public override void OnAwake()
@@ -665,7 +651,6 @@ namespace DockRotate
 		{
 			if (v != vessel)
 				return;
-			// lprint("OnVesselGoOnRails()");
 			onRails = true;
 			resetVessel("go on rails");
 		}
@@ -674,14 +659,12 @@ namespace DockRotate
 		{
 			if (v != vessel)
 				return;
-			// lprint("OnVesselGoOffRails()");
 			onRails = false;
 			resetVessel("go off rails");
 		}
 
 		public override void OnStart(StartState state)
 		{
-			// lprint(part.desc() + ".OnStart(" + state + ")");
 			base.OnStart(state);
 			if ((state & StartState.Editor) != 0)
 				return;
@@ -1128,14 +1111,14 @@ namespace DockRotate
 
 		public static Vector3 STd(this Vector3 v, Part from, Part to)
 		{
-			return Quaternion.Inverse(to.orgRot) * (from.orgRot * v);
+			return to.orgRot.inverse() * (from.orgRot * v);
 		}
 
 		public static Vector3 STp(this Vector3 v, Part from, Part to)
 		{
 			// untested yet
 			Vector3 vv = from.orgPos + from.orgRot * v;
-			return Quaternion.Inverse(to.orgRot) * (vv - to.orgPos);
+			return to.orgRot.inverse() * (vv - to.orgPos);
 		}
 	}
 }
