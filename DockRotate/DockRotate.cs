@@ -13,6 +13,8 @@ namespace DockRotate
 		public float pos, tgt, vel;
 		private float maxvel, maxacc;
 
+		public float staticDelta;
+
 		private Guid vesselId;
 		private Part startParent;
 
@@ -48,6 +50,8 @@ namespace DockRotate
 			this.pos = pos;
 			this.tgt = tgt;
 			this.maxvel = maxvel;
+
+			this.staticDelta = 0;
 
 			this.vel = 0;
 			this.maxacc = maxvel / accelTime;
@@ -121,6 +125,7 @@ namespace DockRotate
 
 		private void onStart()
 		{
+			staticDelta = rotationModule.rotationAngle(false) - rotationModule.rotationAngle(true);
 			incCount();
 			joint.Host.vessel.releaseAllAutoStruts();
 			int c = joint.joints.Count;
@@ -145,7 +150,8 @@ namespace DockRotate
 				j.zMotion = f;
 			}
 			lprint(rotationModule.part.desc() + ": started "
-				+ pos + "\u00b0 -> " + tgt + "\u00b0, "
+				+ pos + "\u00b0 -> " + tgt + "\u00b0"
+				+ " (" + staticDelta + "\u00b0), "
 				+ maxvel + "\u00b0/s");
 		}
 
@@ -541,7 +547,7 @@ namespace DockRotate
 			return activeRotationModule.rotatingJoint.joints.Count;
 		}
 
-		private float rotationAngle(bool dynamic)
+		public float rotationAngle(bool dynamic)
 		{
 			if (!activeRotationModule || !proxyRotationModule)
 				return float.NaN;
@@ -762,7 +768,7 @@ namespace DockRotate
 				lprint(part.desc() + ": skip staticize, same vessel joint");
 				return;
 			}
-			float angle = rot.tgt;
+			float angle = rot.tgt + rot.staticDelta;
 			Vector3 nodeAxis = proxyRotationModule.partNodeAxis.STd(proxyRotationModule.part, vessel.rootPart);
 			Quaternion nodeRot = Quaternion.AngleAxis(angle, nodeAxis);
 			_propagate(part, nodeRot);
@@ -921,7 +927,9 @@ namespace DockRotate
 
 				lprint("partNodeAxisV: " + partNodeAxis.STd(part, vessel.rootPart).desc());
 
-				lprint("rot: static " + rotationAngle(false) + ", dynamic " + rotationAngle(true));
+				float rotS = rotationAngle(false);
+				float rotD = rotationAngle(true);
+				lprint("rot: static " + rotS + ", dynamic " + rotD + ", delta " + (rotS - rotD));
 			}
 
 			if (rotatingJoint) {
