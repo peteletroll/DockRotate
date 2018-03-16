@@ -81,9 +81,9 @@ namespace DockRotate
 			return ret;
 		}
 
-		public static void resetCount(Guid vesselId)
+		public static void resetCount(Vessel v)
 		{
-			vesselRotCount.Remove(vesselId);
+			vesselRotCount.Remove(v.id);
 		}
 
 		public void advance(float deltat)
@@ -408,7 +408,7 @@ namespace DockRotate
 			}
 			if (reset && msg.Length > 0)
 				lprint(part.desc() + " resets vessel: " + msg);
-			RotationAnimation.resetCount(part.vessel.id);
+			RotationAnimation.resetCount(part.vessel);
 		}
 
 		private void stagedSetup()
