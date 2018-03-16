@@ -1007,32 +1007,26 @@ namespace DockRotate
 				+ ")";
 		}
 
-		public static void reconfigureForRotation(this ConfigurableJoint j)
+		public static void reconfigureForRotation(this ConfigurableJoint joint)
 		{
 			ConfigurableJointMotion f = ConfigurableJointMotion.Free;
-			j.angularXMotion = f;
-			j.angularYMotion = f;
-			j.angularZMotion = f;
-			j.xMotion = f;
-			j.yMotion = f;
-			j.zMotion = f;
+			joint.angularXMotion = f;
+			joint.angularYMotion = f;
+			joint.angularZMotion = f;
+			joint.xMotion = f;
+			joint.yMotion = f;
+			joint.zMotion = f;
 		}
 
 		public static void disable(this ConfigurableJoint joint)
 		{
-			ConfigurableJointMotion f = ConfigurableJointMotion.Free;
+			joint.reconfigureForRotation();
 			JointDrive d = joint.angularXDrive;
 			d.positionSpring = 0;
 			d.positionDamper = 0;
 			d.maximumForce = 1e20f;
-			joint.angularXMotion = f;
 			joint.angularXDrive = d;
-			joint.angularYMotion = f;
-			joint.angularZMotion = f;
 			joint.angularYZDrive = d;
-			joint.xMotion = f;
-			joint.yMotion = f;
-			joint.zMotion = f;
 		}
 
 		/******** Vector3 utilities ********/
