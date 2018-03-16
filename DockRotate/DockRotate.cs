@@ -141,13 +141,7 @@ namespace DockRotate
 				rji[i].startTgtRotation = j.targetRotation;
 				rji[i].startTgtPosition = j.targetPosition;
 
-				ConfigurableJointMotion f = ConfigurableJointMotion.Free;
-				j.angularXMotion = f;
-				j.angularYMotion = f;
-				j.angularZMotion = f;
-				j.xMotion = f;
-				j.yMotion = f;
-				j.zMotion = f;
+				j.reconfigureForRotation();
 			}
 			lprint(rotationModule.part.desc() + ": started "
 				+ pos + "\u00b0 -> " + tgt + "\u00b0"
@@ -1011,6 +1005,17 @@ namespace DockRotate
 				+ " bounce=" + limit.bounciness
 				+ " cDist=" + limit.contactDistance
 				+ ")";
+		}
+
+		public static void reconfigureForRotation(this ConfigurableJoint j)
+		{
+			ConfigurableJointMotion f = ConfigurableJointMotion.Free;
+			j.angularXMotion = f;
+			j.angularYMotion = f;
+			j.angularZMotion = f;
+			j.xMotion = f;
+			j.yMotion = f;
+			j.zMotion = f;
 		}
 
 		public static void disable(this ConfigurableJoint joint)
