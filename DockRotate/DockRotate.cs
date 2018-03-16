@@ -7,6 +7,7 @@ namespace DockRotate
 	public class RotationAnimation
 	{
 		private ModuleDockRotate rotationModule;
+		private Part part;
 		private PartJoint joint;
 
 		public float pos, tgt, vel;
@@ -16,6 +17,9 @@ namespace DockRotate
 
 		private Guid vesselId;
 		private Part startParent;
+
+		private static string soundFile = "DockRotate/DockRotateMotor";
+		private FXGroup sound;
 
 		private struct RotJointInfo
 		{
@@ -42,9 +46,10 @@ namespace DockRotate
 		{
 			this.rotationModule = rotationModule;
 			this.joint = rotationModule.rotatingJoint;
+			this.part = rotationModule.part;
 
 			this.vesselId = rotationModule.part.vessel.id;
-			this.startParent = rotationModule.part.parent;
+			this.startParent = part.parent;
 
 			this.pos = pos;
 			this.tgt = tgt;
@@ -87,7 +92,7 @@ namespace DockRotate
 
 		public void advance(float deltat)
 		{
-			if (rotationModule.part.parent != startParent)
+			if (part.parent != startParent)
 				abort(true, "changed parent");
 			if (finished)
 				return;
@@ -142,6 +147,11 @@ namespace DockRotate
 
 				j.reconfigureForRotation();
 			}
+
+			setupSound();
+			if (sound != null)
+				sound.audio.Play();
+
 			lprint(rotationModule.part.desc() + ": started "
 				+ pos + "\u00b0 -> " + tgt + "\u00b0"
 				+ " (" + staticDelta + "\u00b0), "
@@ -162,9 +172,15 @@ namespace DockRotate
 				}
 			}
 
+			if (sound != null) {
+				float p = Mathf.Sqrt(Mathf.Abs(vel / maxvel));
+				sound.audio.volume = p * GameSettings.SHIP_VOLUME;
+				sound.audio.pitch = p;
+			}
+
 			// first rough attempt for electricity consumption
 			if (deltat > 0) {
-				double el = rotationModule.part.RequestResource("ElectricCharge", 1.0 * deltat);
+				double el = part.RequestResource("ElectricCharge", 1.0 * deltat);
 				if (el <= 0.0)
 					abort(false, "no electric charge");
 			}
@@ -173,6 +189,9 @@ namespace DockRotate
 		private void onStop()
 		{
 			// lprint("stop rot axis " + currentRotation(0).desc());
+			if (sound != null)
+				sound.audio.Stop();
+
 			pos = tgt;
 			onStep(0);
 
@@ -199,6 +218,31 @@ namespace DockRotate
 				joint.Host.vessel.secureAllAutoStruts();
 			}
 			lprint(rotationModule.part.desc() + ": rotation stopped");
+		}
+
+		private void setupSound()
+		{
+			try {
+				AudioClip clip = GameDatabase.Instance.GetAudioClip(soundFile);
+				if (!clip) {
+					lprint("clip " + soundFile + "not found");
+					return;
+				}
+
+				sound = new FXGroup("motor");
+				sound.audio = part.gameObject.AddComponent<AudioSource>();
+				sound.audio.clip = clip;
+				sound.audio.volume = 0;
+				sound.audio.pitch = 0;
+				sound.audio.loop = true;
+				sound.audio.rolloffMode = AudioRolloffMode.Logarithmic;
+				sound.audio.dopplerLevel = 0f;
+				sound.audio.maxDistance = 10;
+				sound.audio.playOnAwake = false;
+			} catch (Exception e) {
+				sound = null;
+				lprint("sound: " + e.Message);
+			}
 		}
 
 		private Quaternion currentRotation(int i)
@@ -230,6 +274,10 @@ namespace DockRotate
 		public void abort(bool hard, string msg)
 		{
 			lprint((hard ? "HARD " : "") + "ABORTING: " + msg);
+
+			if (sound != null)
+				sound.audio.Stop();
+
 			tgt = pos;
 			vel = 0;
 			if (hard)
