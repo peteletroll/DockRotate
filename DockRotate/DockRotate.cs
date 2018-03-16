@@ -19,7 +19,8 @@ namespace DockRotate
 		private Part startParent;
 
 		private static string soundFile = "DockRotate/DockRotateMotor";
-		private FXGroup sound;
+		private AudioSource sound;
+		float pitchAlteration;
 
 		private struct RotJointInfo
 		{
@@ -150,7 +151,7 @@ namespace DockRotate
 
 			setupSound();
 			if (sound != null)
-				sound.audio.Play();
+				sound.Play();
 
 			lprint(rotationModule.part.desc() + ": started "
 				+ pos + "\u00b0 -> " + tgt + "\u00b0"
@@ -174,8 +175,8 @@ namespace DockRotate
 
 			if (sound != null) {
 				float p = Mathf.Sqrt(Mathf.Abs(vel / maxvel));
-				sound.audio.volume = p * GameSettings.SHIP_VOLUME;
-				sound.audio.pitch = p;
+				sound.volume = p * GameSettings.SHIP_VOLUME;
+				sound.pitch = p * pitchAlteration;
 			}
 
 			// first rough attempt for electricity consumption
@@ -190,7 +191,7 @@ namespace DockRotate
 		{
 			// lprint("stop rot axis " + currentRotation(0).desc());
 			if (sound != null)
-				sound.audio.Stop();
+				sound.Stop();
 
 			pos = tgt;
 			onStep(0);
@@ -229,16 +230,17 @@ namespace DockRotate
 					return;
 				}
 
-				sound = new FXGroup("DockRotateMotor");
-				sound.audio = part.gameObject.AddComponent<AudioSource>();
-				sound.audio.clip = clip;
-				sound.audio.volume = 0;
-				sound.audio.pitch = 0;
-				sound.audio.loop = true;
-				sound.audio.rolloffMode = AudioRolloffMode.Logarithmic;
-				sound.audio.dopplerLevel = 0f;
-				sound.audio.maxDistance = 10;
-				sound.audio.playOnAwake = false;
+				sound = part.gameObject.AddComponent<AudioSource>();
+				sound.clip = clip;
+				sound.volume = 0;
+				sound.pitch = 0;
+				sound.loop = true;
+				sound.rolloffMode = AudioRolloffMode.Logarithmic;
+				sound.dopplerLevel = 0f;
+				sound.maxDistance = 10;
+				sound.playOnAwake = false;
+
+				pitchAlteration = UnityEngine.Random.Range(0.9f, 1.1f);
 			} catch (Exception e) {
 				sound = null;
 				lprint("sound: " + e.Message);
@@ -276,7 +278,7 @@ namespace DockRotate
 			lprint((hard ? "HARD " : "") + "ABORTING: " + msg);
 
 			if (sound != null)
-				sound.audio.Stop();
+				sound.Stop();
 
 			tgt = pos;
 			vel = 0;
