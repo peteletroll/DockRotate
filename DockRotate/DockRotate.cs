@@ -229,7 +229,7 @@ namespace DockRotate
 					return;
 				}
 
-				sound = new FXGroup("motor");
+				sound = new FXGroup("DockRotateMotor");
 				sound.audio = part.gameObject.AddComponent<AudioSource>();
 				sound.audio.clip = clip;
 				sound.audio.volume = 0;
