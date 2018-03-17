@@ -13,8 +13,6 @@ namespace DockRotate
 		public float pos, tgt, vel;
 		private float maxvel, maxacc;
 
-		public float staticDelta;
-
 		private Guid vesselId;
 		private Part startParent;
 
@@ -55,8 +53,6 @@ namespace DockRotate
 			this.pos = pos;
 			this.tgt = tgt;
 			this.maxvel = maxvel;
-
-			this.staticDelta = 0;
 
 			this.vel = 0;
 			this.maxacc = maxvel / accelTime;
@@ -130,7 +126,6 @@ namespace DockRotate
 
 		private void onStart()
 		{
-			staticDelta = rotationModule.rotationAngle(false) - rotationModule.rotationAngle(true);
 			incCount();
 			joint.Host.vessel.releaseAllAutoStruts();
 			int c = joint.joints.Count;
@@ -155,7 +150,6 @@ namespace DockRotate
 
 			lprint(rotationModule.part.desc() + ": started "
 				+ pos + "\u00b0 -> " + tgt + "\u00b0"
-				+ " (" + staticDelta + "\u00b0), "
 				+ maxvel + "\u00b0/s");
 		}
 
@@ -409,6 +403,12 @@ namespace DockRotate
 		}
 
 #if DEBUG
+		[KSPField(
+			guiName = "#DCKROT_static_delta", guiUnits = "\u00b0", guiFormat = "0.0000",
+			guiActive = true, guiActiveEditor = false
+		)]
+		public float angleDelta;
+
 		[KSPEvent(
 			guiName = "#DCKROT_dump",
 			guiActive = true,
@@ -608,6 +608,24 @@ namespace DockRotate
 			return (axisAngle > 90) ? angle : -angle;
 		}
 
+		public float staticDelta()
+		// = static - dynamic
+		{
+			if (!activeRotationModule || !proxyRotationModule)
+				return float.NaN;
+
+			Vector3 a = activeRotationModule.partNodeAxis;
+			Vector3 vd = proxyRotationModule.partNodeUp.Td(proxyRotationModule.part.T(), activeRotationModule.part.T());
+			vd = Vector3.ProjectOnPlane(vd, a).normalized;
+			Vector3 vs = proxyRotationModule.partNodeUp.STd(proxyRotationModule.part, activeRotationModule.part);
+			vs = Vector3.ProjectOnPlane(vs, a).normalized;
+
+			float angle = Vector3.Angle(vs, vd);
+			float axisAngle = Vector3.Angle(a, Vector3.Cross(vd, vs));
+
+			return (axisAngle > 90) ? angle : -angle;
+		}
+
 		private static char[] guiListSep = { '.' };
 
 		private static string[] guiList = {
@@ -631,6 +649,9 @@ namespace DockRotate
 			int i;
 
 			dockingAngle = rotationAngle(true);
+#if DEBUG
+			angleDelta = staticDelta();
+#endif
 
 			bool newGuiActive = canStartRotation();
 
@@ -793,7 +814,7 @@ namespace DockRotate
 			if (snap < 0.5)
 				return;
 
-			float a = rotCur == null ? rotationAngle(true) : rotCur.tgt;
+			float a = rotCur == null ? rotationAngle(false) : rotCur.tgt;
 			if (float.IsNaN(a))
 				return;
 			float f = snap * Mathf.Floor(a / snap + 0.5f);
@@ -811,7 +832,7 @@ namespace DockRotate
 				lprint(part.desc() + ": skip staticize, same vessel joint");
 				return;
 			}
-			float angle = rot.tgt + rot.staticDelta;
+			float angle = rot.tgt;
 			Vector3 nodeAxis = proxyRotationModule.partNodeAxis.STd(proxyRotationModule.part, vessel.rootPart);
 			Quaternion nodeRot = Quaternion.AngleAxis(angle, nodeAxis);
 			_propagate(part, nodeRot);
