@@ -16,10 +16,6 @@ namespace DockRotate
 		private Guid vesselId;
 		private Part startParent;
 
-		private static string soundFile = "DockRotate/DockRotateMotor";
-		private AudioSource sound;
-		float pitchAlteration;
-
 		private struct RotJointInfo
 		{
 			public Quaternion localToJoint, jointToLocal;
@@ -144,9 +140,9 @@ namespace DockRotate
 				j.reconfigureForRotation();
 			}
 
-			setupSound();
-			if (sound != null)
-				sound.Play();
+			rotationModule.setupSound();
+			if (rotationModule.sound != null)
+				rotationModule.sound.Play();
 
 			lprint(String.Format("{0}: started {1:F4}\u00b0 -> {2:F4}\u00b0 at {3}\u00b0/s",
 				rotationModule.part.desc(), pos, tgt, maxvel));
@@ -166,10 +162,10 @@ namespace DockRotate
 				}
 			}
 
-			if (sound != null) {
+			if (rotationModule.sound != null) {
 				float p = Mathf.Sqrt(Mathf.Abs(vel / maxvel));
-				sound.volume = p * GameSettings.SHIP_VOLUME;
-				sound.pitch = p * pitchAlteration;
+				rotationModule.sound.volume = p * GameSettings.SHIP_VOLUME;
+				rotationModule.sound.pitch = p * rotationModule.pitchAlteration;
 			}
 
 			// first rough attempt for electricity consumption
@@ -183,8 +179,8 @@ namespace DockRotate
 		private void onStop()
 		{
 			// lprint("stop rot axis " + currentRotation(0).desc());
-			if (sound != null)
-				sound.Stop();
+			if (rotationModule.sound != null)
+				rotationModule.sound.Stop();
 
 			pos = tgt;
 			onStep(0);
@@ -212,32 +208,6 @@ namespace DockRotate
 				joint.Host.vessel.secureAllAutoStruts();
 			}
 			lprint(rotationModule.part.desc() + ": rotation stopped");
-		}
-
-		private void setupSound()
-		{
-			try {
-				AudioClip clip = GameDatabase.Instance.GetAudioClip(soundFile);
-				if (!clip) {
-					lprint("clip " + soundFile + "not found");
-					return;
-				}
-
-				sound = part.gameObject.AddComponent<AudioSource>();
-				sound.clip = clip;
-				sound.volume = 0;
-				sound.pitch = 0;
-				sound.loop = true;
-				sound.rolloffMode = AudioRolloffMode.Logarithmic;
-				sound.dopplerLevel = 0f;
-				sound.maxDistance = 10;
-				sound.playOnAwake = false;
-
-				pitchAlteration = UnityEngine.Random.Range(0.9f, 1.1f);
-			} catch (Exception e) {
-				sound = null;
-				lprint("sound: " + e.Message);
-			}
 		}
 
 		private Quaternion currentRotation(int i)
@@ -270,8 +240,8 @@ namespace DockRotate
 		{
 			lprint((hard ? "HARD " : "") + "ABORTING: " + msg);
 
-			if (sound != null)
-				sound.Stop();
+			if (rotationModule.sound != null)
+				rotationModule.sound.Stop();
 
 			tgt = pos;
 			vel = 0;
@@ -431,6 +401,10 @@ namespace DockRotate
 
 		private int setupStageCounter = 0;
 
+		public static string soundFile = "DockRotate/DockRotateMotor";
+		public AudioSource sound;
+		public float pitchAlteration;
+
 		private void resetVessel(string msg)
 		{
 			bool reset = false;
@@ -531,6 +505,37 @@ namespace DockRotate
 			}
 
 			setupStageCounter++;
+		}
+
+		public void setupSound()
+		{
+			if (sound)
+				return;
+
+			try {
+				AudioClip clip = GameDatabase.Instance.GetAudioClip(soundFile);
+				if (!clip) {
+					lprint("clip " + soundFile + "not found");
+					return;
+				}
+
+				sound = part.gameObject.AddComponent<AudioSource>();
+				sound.clip = clip;
+				sound.volume = 0;
+				sound.pitch = 0;
+				sound.loop = true;
+				sound.rolloffMode = AudioRolloffMode.Logarithmic;
+				sound.dopplerLevel = 0f;
+				sound.maxDistance = 10;
+				sound.playOnAwake = false;
+
+				pitchAlteration = UnityEngine.Random.Range(0.9f, 1.1f);
+
+				lprint(part.desc() + ": added sound");
+			} catch (Exception e) {
+				sound = null;
+				lprint("sound: " + e.Message);
+			}
 		}
 
 		private bool isActive() // must be used only after setup stage 0
