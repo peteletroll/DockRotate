@@ -19,3 +19,6 @@ Autostruts are removed during motion, and restored after.
 Forum page: https://forum.kerbalspaceprogram.com/index.php?/topic/170484-dockrotate-rotation-control-on-docking-ports/
 
 ( * ) Should work with any port based on ModuleDockingNode.
+
+( ** ) DockRotate can be compatible with Kerbal Joint Reinforcement. KJR configuration must be updated.
+
