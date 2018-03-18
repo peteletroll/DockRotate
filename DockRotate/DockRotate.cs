@@ -148,9 +148,8 @@ namespace DockRotate
 			if (sound != null)
 				sound.Play();
 
-			lprint(rotationModule.part.desc() + ": started "
-				+ pos + "\u00b0 -> " + tgt + "\u00b0"
-				+ maxvel + "\u00b0/s");
+			lprint(String.Format("{0}: started {1:F4}\u00b0 -> {2:F4}\u00b0 at {3}\u00b0/s",
+				rotationModule.part.desc(), pos, tgt, maxvel));
 		}
 
 		private void onStep(float deltat)
@@ -288,10 +287,10 @@ namespace DockRotate
 		public bool rotationEnabled = false;
 
 		[KSPField(
-			guiName = "#DCKROT_angle", guiUnits = "\u00b0", guiFormat = "0.00",
+			guiName = "#DCKROT_angle",
 			guiActive = true, guiActiveEditor = true
 		)]
-		public float dockingAngle;
+		public string angleInfo;
 
 		[KSPField(
 			guiName = "#DCKROT_status",
@@ -403,14 +402,8 @@ namespace DockRotate
 		}
 
 #if DEBUG
-		[KSPField(
-			guiName = "#DCKROT_static_delta", guiUnits = "\u00b0", guiFormat = "0.0000",
-			guiActive = true, guiActiveEditor = false
-		)]
-		public float angleDelta;
-
 		[KSPEvent(
-			guiName = "#DCKROT_dump",
+			guiName = "Dump",
 			guiActive = true,
 			guiActiveEditor = false
 		)]
@@ -608,8 +601,8 @@ namespace DockRotate
 			return (axisAngle > 90) ? angle : -angle;
 		}
 
-		public float staticDelta()
-		// = static - dynamic
+		public float dynamicDelta()
+		// = dynamic - static
 		{
 			if (!activeRotationModule || !proxyRotationModule)
 				return float.NaN;
@@ -621,9 +614,9 @@ namespace DockRotate
 			vs = Vector3.ProjectOnPlane(vs, a).normalized;
 
 			float angle = Vector3.Angle(vs, vd);
-			float axisAngle = Vector3.Angle(a, Vector3.Cross(vd, vs));
+			float axisAngle = Vector3.Angle(a, Vector3.Cross(vs, vd));
 
-			return (axisAngle > 90) ? angle : -angle;
+			return (axisAngle > 90) ? -angle : angle;
 		}
 
 		private static char[] guiListSep = { '.' };
@@ -634,7 +627,7 @@ namespace DockRotate
 			// e: show in editor;
 			// R: hide when rotating;
 			// D: show only with debugMode activated
-			"dockingAngle.F",
+			"angleInfo.F",
 			"nodeRole.F",
 			"rotationStep.Fe",
 			"rotationSpeed.Fe",
@@ -648,10 +641,14 @@ namespace DockRotate
 		{
 			int i;
 
-			dockingAngle = rotationAngle(true);
-#if DEBUG
-			angleDelta = staticDelta();
-#endif
+			if (activeRotationModule && activeRotationModule.rotCur != null) {
+				angleInfo = String.Format("{0:+0.00;-0.00;0.00}\u00b0",
+					rotationAngle(true));
+			} else {
+				angleInfo = String.Format("{0:+0.00;-0.00;0.00}\u00b0 ({1:+0.0000;-0.0000;0.0000}\u00b0)",
+					rotationAngle(false),
+					dynamicDelta());
+			}
 
 			bool newGuiActive = canStartRotation();
 
@@ -757,20 +754,40 @@ namespace DockRotate
 			if (vessel && vessel.parts.Count != vesselPartCount)
 				resetMsg = "part count changed";
 
+			/*
+
+				docking node states:
+
+				* PreAttached
+				* Docked (docker/same vessel/dockee) - (docker) and (same vessel) are coupled with (dockee)
+				* Ready
+				* Disengage
+				* Acquire
+				* Acquire (dockee)
+
+			*/
+
 			if (dockingNode && dockingNode.state != lastNodeState) {
+				string newNodeState = dockingNode.state;
 				ModuleDockingNode other = dockingNode.otherNode();
+
 				lprint(part.desc() + ": from " + lastNodeState
-					+ " to " + dockingNode.state
+					+ " to " + newNodeState
 					+ " with " + (other ? other.part.desc() : "none"));
+
 				if (other && other.vessel == vessel) {
-					if (rotCur != null)
+					if (rotCur != null) {
 						lprint(part.desc() + ": same vessel, not stopping");
+					} else {
+						resetMsg = "docking port state changed on same vessel";
+					}
 				} else {
 					resetMsg = "docking port state changed";
 					if (rotCur != null)
 						rotCur.abort(false, resetMsg);
 				}
-				lastNodeState = dockingNode.state;
+
+				lastNodeState = newNodeState;
 			}
 
 			Part svdp = (dockingNode && dockingNode.sameVesselDockJoint) ?
@@ -796,7 +813,8 @@ namespace DockRotate
 				return;
 			}
 
-			lprint(part.desc() + ": enqueueRotation(" + angle + "\u00b0, " + speed + "\u00b0/s)");
+			lprint(String.Format("{0}: enqueueRotation({1:F4}\u00b0, {2}\00b0/s)",
+				part.desc(), angle, speed));
 			if (speed < 0.5)
 				return;
 
@@ -818,7 +836,8 @@ namespace DockRotate
 			if (float.IsNaN(a))
 				return;
 			float f = snap * Mathf.Floor(a / snap + 0.5f);
-			lprint(part.desc() + ": snap " + a + " to " + f + " (" + (f - a) + ")");
+			lprint(String.Format("{0}: snap {1:F4} to {2:F4} ({3:F4})",
+				part.desc(), a, f, f - a));
 			enqueueRotation(f - a, rotationSpeed);
 		}
 
@@ -990,10 +1009,6 @@ namespace DockRotate
 				*/
 
 				lprint("partNodeAxisV: " + partNodeAxis.STd(part, vessel.rootPart).desc());
-
-				float rotS = rotationAngle(false);
-				float rotD = rotationAngle(true);
-				lprint("rot: static " + rotS + ", dynamic " + rotD + ", delta " + (rotS - rotD));
 			}
 
 			if (rotatingJoint) {
