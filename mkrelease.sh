@@ -13,6 +13,8 @@ then
 	exit 1
 fi
 
+json_pp < Resources/$name.version > /dev/null || exit 1
+
 tmp=`mktemp -d` || exit 1
 trap "rm -rf $tmp" EXIT
 
