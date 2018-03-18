@@ -144,8 +144,8 @@ namespace DockRotate
 			if (rotationModule.sound != null)
 				rotationModule.sound.Play();
 
-			lprint(String.Format("{0}: started {1:F4}\u00b0 -> {2:F4}\u00b0 at {3}\u00b0/s",
-				rotationModule.part.desc(), pos, tgt, maxvel));
+			lprint(String.Format("{0}: started {1:F4}\u00b0 at {2}\u00b0/s",
+				rotationModule.part.desc(), tgt, maxvel));
 		}
 
 		private void onStep(float deltat)
@@ -818,17 +818,19 @@ namespace DockRotate
 				return;
 			}
 
-			lprint(String.Format("{0}: enqueueRotation({1:F4}\u00b0, {2}\00b0/s)",
-				part.desc(), angle, speed));
 			if (speed < 0.5)
 				return;
 
+			string action = "none";
 			if (rotCur != null) {
 				rotCur.tgt += angle;
-				lprint(part.desc() + ": rotation updated");
+				action = "updated";
 			} else {
 				rotCur = new RotationAnimation(this, 0, angle, speed);
+				action = "added";
 			}
+			lprint(String.Format("{0}: enqueueRotation({1:F4}\u00b0, {2}\u00b0/s), {3}",
+				part.desc(), angle, speed, action));
 		}
 
 		private void enqueueRotationToSnap(float snap, float speed)
