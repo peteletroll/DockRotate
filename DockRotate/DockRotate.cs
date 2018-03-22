@@ -250,37 +250,37 @@ namespace DockRotate
 		}
 	}
 
-	public class PartSet: Dictionary<string, Part>
+	public class PartSet: Dictionary<uint, Part>
 	{
-		private static string key(Part part)
-		{
-			return part.name + "_" + part.flightID;
-		}
+		private Part[] partArray = null;
 
 		public void add(Part part)
 		{
-			Add(key(part), part);
+			partArray = null;
+			Add(part.flightID, part);
 		}
 
-		public bool contains(Part Part)
+		public bool contains(Part part)
 		{
-			return ContainsKey(key(Part));
+			return ContainsKey(part.flightID);
 		}
 
 		public Part[] parts()
 		{
+			if (partArray != null)
+				return partArray;
 			List<Part> ret = new List<Part>();
-			foreach (KeyValuePair<string, Part> i in this) {
+			foreach (KeyValuePair<uint, Part> i in this) {
 				ret.Add(i.Value);
 			}
-			return ret.ToArray();
+			return partArray = ret.ToArray();
 		}
 
 		public void dump()
 		{
 			Part[] p = parts();
 			for (int i = 0; i < p.Length; i++)
-				ModuleDockRotate.lprint("rotPart " + key(p[i]));
+				ModuleDockRotate.lprint("rotPart " + p[i].desc());
 		}
 	}
 
