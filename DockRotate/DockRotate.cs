@@ -415,6 +415,16 @@ namespace DockRotate
 		{
 			dumpPart();
 		}
+
+		[KSPEvent(
+			guiName = "Dump Vessel Joints",
+			guiActive = true,
+			guiActiveEditor = false
+		)]
+		public void DumpVesselJoints()
+		{
+			vessel.dumpPartJoints();
+		}
 #endif
 
 		// things to be set up by stagedSetup()
@@ -1079,6 +1089,11 @@ namespace DockRotate
 
 	public static class Extensions
 	{
+		private static bool lprint(string msg)
+		{
+			return ModuleDockRotate.lprint(msg);
+		}
+
 		/******** Vessel utilities ********/
 
 		public static void releaseAllAutoStruts(this Vessel v)
@@ -1093,6 +1108,23 @@ namespace DockRotate
 		{
 			v.releaseAllAutoStruts();
 			v.CycleAllAutoStrut();
+		}
+
+		public static void dumpPartJoints(this Vessel v)
+		{
+			List<PartJoint> vesselJoints = new List<PartJoint>();
+			PartJoint[] allJoints = UnityEngine.Object.FindObjectsOfType<PartJoint>();
+
+			lprint("------------------------");
+			int count = 0;
+			foreach (PartJoint j in allJoints) {
+				if (!j.Host || j.Host.vessel != v)
+					continue;
+				if (!j.Target || j.Target.vessel != v)
+					continue;
+				lprint("[" + ++count + "]" + j.desc());
+			}
+			lprint("------------------------");
 		}
 
 		/******** Part utilities ********/
@@ -1114,6 +1146,15 @@ namespace DockRotate
 			if (node.dockedPartUId <= 0)
 				return null;
 			return node.FindOtherNode();
+		}
+
+		/******** PartJoint utilities ********/
+
+		public static string desc(this PartJoint j)
+		{
+			string from = (j.Host == j.Parent ? j.Host.desc() : j.Host.desc() + "/" + j.Parent.desc());
+			string to = (j.Target == j.Child ? j.Target.desc() : j.Target.desc() + "/" + j.Child.desc());
+			return from + " -> " + to;
 		}
 
 		/******** ConfigurableJoint utilities ********/
