@@ -1132,7 +1132,8 @@ namespace DockRotate
 					continue;
 				if (!j.Target || j.Target.vessel != v)
 					continue;
-				lprint("[" + ++count + "]" + j.desc());
+				lprint("[" + ++count + "] " + j.desc());
+				vesselJoints.Add(j);
 			}
 			lprint("------------------------");
 		}
@@ -1162,9 +1163,10 @@ namespace DockRotate
 
 		public static string desc(this PartJoint j)
 		{
-			string from = (j.Host == j.Parent ? j.Host.desc() : j.Host.desc() + "/" + j.Parent.desc());
-			string to = (j.Target == j.Child ? j.Target.desc() : j.Target.desc() + "/" + j.Child.desc());
-			return from + " -> " + to;
+			string from = (j.Host == j.Child ? j.Host.desc() : j.Host.desc() + "/" + j.Child.desc());
+			string to = (j.Target == j.Parent ? j.Target.desc() : j.Target.desc() + "/" + j.Parent.desc());
+			bool notree = j.Child && j.Child.attachJoint != j;
+			return from + " -> " + to + (notree ? " NOTREE" : "");
 		}
 
 		/******** ConfigurableJoint utilities ********/
