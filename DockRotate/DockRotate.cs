@@ -425,6 +425,16 @@ namespace DockRotate
 		{
 			vessel.dumpPartJoints();
 		}
+
+		[KSPEvent(
+			guiName = "Toggle AutoStrut Display",
+			guiActive = true,
+			guiActiveEditor = false
+		)]
+		public void ToggleAutostrutDisplay()
+		{
+			PhysicsGlobals.AutoStrutDisplay = !PhysicsGlobals.AutoStrutDisplay;
+		}
 #endif
 
 		// things to be set up by stagedSetup()
