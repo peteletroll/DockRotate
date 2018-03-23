@@ -123,7 +123,11 @@ namespace DockRotate
 		private void onStart()
 		{
 			incCount();
-			joint.Host.vessel.releaseAllAutoStruts();
+			if (rotationModule.activeRotationModule.smartAutoStruts || rotationModule.proxyRotationModule.smartAutoStruts) {
+				rotationModule.releaseCrossAutoStruts();
+			} else {
+				part.vessel.releaseAllAutoStruts();
+			}
 			int c = joint.joints.Count;
 			rji = new RotJointInfo[c];
 			for (int i = 0; i < c; i++) {
@@ -287,7 +291,12 @@ namespace DockRotate
 	public class ModuleDockRotate: PartModule
 	{
 		[UI_Toggle()]
-		[KSPField(guiName = "#DCKROT_rotation", guiActive = true, guiActiveEditor = true, isPersistant = true)]
+		[KSPField(
+			guiName = "#DCKROT_rotation",
+			guiActive = true,
+			guiActiveEditor = true,
+			isPersistant = true
+		)]
 		public bool rotationEnabled = false;
 
 		[KSPField(
@@ -336,10 +345,26 @@ namespace DockRotate
 		public float maxSpeed = 90;
 
 		[UI_Toggle(affectSymCounterparts = UI_Scene.None)]
-		[KSPField(guiActive = true, isPersistant = true, guiName = "#DCKROT_reverse_rotation")]
+		[KSPField(
+			guiActive = true,
+			isPersistant = true,
+			guiName = "#DCKROT_reverse_rotation"
+		)]
 		public bool reverseRotation = false;
 
-		[KSPAction(guiName = "#DCKROT_rotate_clockwise", requireFullControl = true)]
+		[UI_Toggle()]
+		[KSPField(
+			guiActive = true,
+			guiActiveEditor = true,
+			isPersistant = true,
+			guiName = "#DCKROT_smart_autostruts"
+		)]
+		public bool smartAutoStruts = false;
+
+		[KSPAction(
+			guiName = "#DCKROT_rotate_clockwise",
+			requireFullControl = true
+		)]
 		public void RotateClockwise(KSPActionParam param)
 		{
 			ModuleDockRotate tgt = actionTarget();
@@ -362,7 +387,10 @@ namespace DockRotate
 			}
 		}
 
-		[KSPAction(guiName = "#DCKROT_rotate_counterclockwise", requireFullControl = true)]
+		[KSPAction(
+			guiName = "#DCKROT_rotate_counterclockwise",
+			requireFullControl = true
+		)]
 		public void RotateCounterclockwise(KSPActionParam param)
 		{
 			ModuleDockRotate tgt = actionTarget();
@@ -385,7 +413,10 @@ namespace DockRotate
 			}
 		}
 
-		[KSPAction(guiName = "#DCKROT_rotate_to_snap", requireFullControl = true)]
+		[KSPAction(
+			guiName = "#DCKROT_rotate_to_snap",
+			requireFullControl = true
+		)]
 		public void RotateToSnap(KSPActionParam param)
 		{
 			ModuleDockRotate tgt = actionTarget();
@@ -414,16 +445,6 @@ namespace DockRotate
 		public void Dump()
 		{
 			dumpPart();
-		}
-
-		[KSPEvent(
-			guiName = "Dump Vessel Joints",
-			guiActive = true,
-			guiActiveEditor = false
-		)]
-		public void DumpVesselJoints()
-		{
-			releaseCrossAutoStruts();
 		}
 
 		[KSPEvent(
@@ -647,7 +668,6 @@ namespace DockRotate
 			PartSet rotParts = rotatingPartSet();
 			List<ModuleDockingNode> dockingNodes = vessel.FindPartModulesImplementing<ModuleDockingNode>();
 
-			lprint ("--- ANALYZING JOINTS ---");
 			int count = 0;
 			foreach (PartJoint j in UnityEngine.Object.FindObjectsOfType<PartJoint>()) {
 				if (!j.Host || j.Host.vessel != vessel)
@@ -668,13 +688,10 @@ namespace DockRotate
 				if (isSameVesselJoint)
 					continue;
 
-				lprint ("releasing [" + ++count + "] " + j.desc());
-				// j.DestroyJoint();
+				lprint("releasing [" + ++count + "] " + j.desc());
+				j.DestroyJoint();
 			}
-			lprint ("------------------------");
 		}
-
-
 
 		public float rotationAngle(bool dynamic)
 		{
@@ -722,6 +739,7 @@ namespace DockRotate
 			// D: show only with debugMode activated
 			"angleInfo.F",
 			"nodeRole.F",
+			"smartAutoStruts.F",
 			"rotationStep.Fe",
 			"rotationSpeed.Fe",
 			"reverseRotation.Fe",
