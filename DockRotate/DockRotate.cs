@@ -645,6 +645,7 @@ namespace DockRotate
 		public void releaseCrossAutoStruts()
 		{
 			PartSet rotParts = rotatingPartSet();
+			List<ModuleDockingNode> dockingNodes = vessel.FindPartModulesImplementing<ModuleDockingNode>();
 
 			lprint ("--- ANALYZING JOINTS ---");
 			int count = 0;
@@ -660,7 +661,12 @@ namespace DockRotate
 				if (rotParts.contains(j.Host) == rotParts.contains(j.Target))
 					continue;
 
-				// FIXME: add check for same vessel docking joints
+				bool isSameVesselJoint = false;
+				for (int i = 0; !isSameVesselJoint && i < dockingNodes.Count; i++)
+					if (j == dockingNodes[i].sameVesselDockJoint)
+						isSameVesselJoint = true;
+				if (isSameVesselJoint)
+					continue;
 
 				lprint ("[" + ++count + "] " + j.desc());
 			}
