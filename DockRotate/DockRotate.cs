@@ -296,11 +296,6 @@ namespace DockRotate
 		)]
 		public float rotationSpeed = 5;
 
-		[KSPField(
-			isPersistant = true
-		)]
-		public float maxSpeed = 90;
-
 		[UI_Toggle(affectSymCounterparts = UI_Scene.None)]
 		[KSPField(guiActive = true, isPersistant = true, guiName = "#DCKROT_reverse_rotation")]
 		public bool reverseRotation = false;
