@@ -423,7 +423,7 @@ namespace DockRotate
 		)]
 		public void DumpVesselJoints()
 		{
-			vessel.dumpPartJoints();
+			releaseCrossAutoStruts();
 		}
 
 		[KSPEvent(
@@ -641,6 +641,33 @@ namespace DockRotate
 				return 0;
 			return activeRotationModule.rotatingJoint.joints.Count;
 		}
+
+		public void releaseCrossAutoStruts()
+		{
+			PartSet rotParts = rotatingPartSet();
+
+			lprint ("--- ANALYZING JOINTS ---");
+			int count = 0;
+			foreach (PartJoint j in UnityEngine.Object.FindObjectsOfType<PartJoint>()) {
+				if (!j.Host || j.Host.vessel != vessel)
+					continue;
+				if (!j.Target || j.Target.vessel != vessel)
+					continue;
+				if (j == j.Host.attachJoint)
+					continue;
+				if (j == j.Target.attachJoint)
+					continue;
+				if (rotParts.contains(j.Host) == rotParts.contains(j.Target))
+					continue;
+
+				// FIXME: add check for same vessel docking joints
+
+				lprint ("[" + ++count + "] " + j.desc());
+			}
+			lprint ("------------------------");
+		}
+
+
 
 		public float rotationAngle(bool dynamic)
 		{
@@ -1120,24 +1147,6 @@ namespace DockRotate
 			v.CycleAllAutoStrut();
 		}
 
-		public static void dumpPartJoints(this Vessel v)
-		{
-			List<PartJoint> vesselJoints = new List<PartJoint>();
-			PartJoint[] allJoints = UnityEngine.Object.FindObjectsOfType<PartJoint>();
-
-			lprint("------------------------");
-			int count = 0;
-			foreach (PartJoint j in allJoints) {
-				if (!j.Host || j.Host.vessel != v)
-					continue;
-				if (!j.Target || j.Target.vessel != v)
-					continue;
-				lprint("[" + ++count + "] " + j.desc());
-				vesselJoints.Add(j);
-			}
-			lprint("------------------------");
-		}
-
 		/******** Part utilities ********/
 
 		public static string desc(this Part part)
@@ -1165,8 +1174,7 @@ namespace DockRotate
 		{
 			string from = (j.Host == j.Child ? j.Host.desc() : j.Host.desc() + "/" + j.Child.desc());
 			string to = (j.Target == j.Parent ? j.Target.desc() : j.Target.desc() + "/" + j.Parent.desc());
-			bool notree = j.Child && j.Child.attachJoint != j;
-			return from + " -> " + to + (notree ? " NOTREE" : "");
+			return from + " -> " + to;
 		}
 
 		/******** ConfigurableJoint utilities ********/
