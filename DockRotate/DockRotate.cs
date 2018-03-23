@@ -668,7 +668,8 @@ namespace DockRotate
 				if (isSameVesselJoint)
 					continue;
 
-				lprint ("[" + ++count + "] " + j.desc());
+				lprint ("releasing [" + ++count + "] " + j.desc());
+				// j.DestroyJoint();
 			}
 			lprint ("------------------------");
 		}
