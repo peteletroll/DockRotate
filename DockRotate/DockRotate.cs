@@ -737,9 +737,10 @@ namespace DockRotate
 			// e: show in editor;
 			// R: hide when rotating;
 			// D: show only with debugMode activated
+			// A: show with advanced tweakables
 			"angleInfo.F",
 			"nodeRole.F",
-			"smartAutoStruts.F",
+			"smartAutoStruts.FA",
 			"rotationStep.Fe",
 			"rotationSpeed.Fe",
 			"reverseRotation.Fe",
@@ -783,6 +784,8 @@ namespace DockRotate
 				bool editorGui = flags.IndexOf('e') >= 0;
 
 				bool thisGuiActive = newGuiActive;
+				if (flags.IndexOf('A') >= 0)
+					thisGuiActive = thisGuiActive && GameSettings.ADVANCED_TWEAKABLES;
 
 				if (flags.IndexOf('F') >= 0) {
 					BaseField fld = Fields[name];
