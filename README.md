@@ -16,6 +16,8 @@ Rotation will malfunction if parts on opposite sides of the rotating joint are c
 
 Autostruts are removed during motion, and restored after.
 
+If advanced tweakables are enabled, you can access to the experimental smart autostruts. If the "Smart Autostrats" flag is enabled only the autostruts that cross the rotating joint are removed. This can misbehave with crossing struts, use with caution and quicksave before!
+
 Forum page: https://forum.kerbalspaceprogram.com/index.php?/topic/170484-dockrotate-rotation-control-on-docking-ports/
 
 ( * ) Should work with any port based on ModuleDockingNode.
