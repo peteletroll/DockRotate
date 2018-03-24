@@ -443,11 +443,11 @@ namespace DockRotate
 		}
 
 		[KSPEvent(
-			guiName = "Toggle AutoStrut Display",
+			guiName = "Toggle Autostrut Display",
 			guiActive = true,
 			guiActiveEditor = false
 		)]
-		public void ToggleAutostrutDisplay()
+		public void ToggleAutoStrutDisplay()
 		{
 			PhysicsGlobals.AutoStrutDisplay = !PhysicsGlobals.AutoStrutDisplay;
 		}
@@ -742,7 +742,7 @@ namespace DockRotate
 			"RotateClockwise.E",
 			"RotateCounterclockwise.E",
 			"RotateToSnap.E",
-			"ToggleAutostrutDisplay.E"
+			"ToggleAutoStrutDisplay.E"
 		};
 
 		private void checkGuiActive()
@@ -801,7 +801,7 @@ namespace DockRotate
 							thisGuiActive = false;
 						ev.guiActive = thisGuiActive;
 						ev.guiActiveEditor = thisGuiActive && editorGui;
-						if (name == "ToggleAutostrutDisplay") {
+						if (name == "ToggleAutoStrutDisplay") {
 							ev.guiName = PhysicsGlobals.AutoStrutDisplay ? "Hide Autostruts" : "Show Autostruts";
 						}
 					}
