@@ -123,7 +123,11 @@ namespace DockRotate
 		private void onStart()
 		{
 			incCount();
-			joint.Host.vessel.releaseAllAutoStruts();
+			if (rotationModule.activeRotationModule.smartAutoStruts || rotationModule.proxyRotationModule.smartAutoStruts) {
+				rotationModule.releaseCrossAutoStruts();
+			} else {
+				part.vessel.releaseAllAutoStruts();
+			}
 			int c = joint.joints.Count;
 			rji = new RotJointInfo[c];
 			for (int i = 0; i < c; i++) {
@@ -250,10 +254,49 @@ namespace DockRotate
 		}
 	}
 
+	public class PartSet: Dictionary<uint, Part>
+	{
+		private Part[] partArray = null;
+
+		public void add(Part part)
+		{
+			partArray = null;
+			Add(part.flightID, part);
+		}
+
+		public bool contains(Part part)
+		{
+			return ContainsKey(part.flightID);
+		}
+
+		public Part[] parts()
+		{
+			if (partArray != null)
+				return partArray;
+			List<Part> ret = new List<Part>();
+			foreach (KeyValuePair<uint, Part> i in this) {
+				ret.Add(i.Value);
+			}
+			return partArray = ret.ToArray();
+		}
+
+		public void dump()
+		{
+			Part[] p = parts();
+			for (int i = 0; i < p.Length; i++)
+				ModuleDockRotate.lprint("rotPart " + p[i].desc());
+		}
+	}
+
 	public class ModuleDockRotate: PartModule
 	{
 		[UI_Toggle()]
-		[KSPField(guiName = "#DCKROT_rotation", guiActive = true, guiActiveEditor = true, isPersistant = true)]
+		[KSPField(
+			guiName = "#DCKROT_rotation",
+			guiActive = true,
+			guiActiveEditor = true,
+			isPersistant = true
+		)]
 		public bool rotationEnabled = false;
 
 		[KSPField(
@@ -297,10 +340,26 @@ namespace DockRotate
 		public float rotationSpeed = 5;
 
 		[UI_Toggle(affectSymCounterparts = UI_Scene.None)]
-		[KSPField(guiActive = true, isPersistant = true, guiName = "#DCKROT_reverse_rotation")]
+		[KSPField(
+			guiActive = true,
+			isPersistant = true,
+			guiName = "#DCKROT_reverse_rotation"
+		)]
 		public bool reverseRotation = false;
 
-		[KSPAction(guiName = "#DCKROT_rotate_clockwise", requireFullControl = true)]
+		[UI_Toggle()]
+		[KSPField(
+			guiActive = true,
+			guiActiveEditor = true,
+			isPersistant = true,
+			guiName = "#DCKROT_smart_autostruts"
+		)]
+		public bool smartAutoStruts = false;
+
+		[KSPAction(
+			guiName = "#DCKROT_rotate_clockwise",
+			requireFullControl = true
+		)]
 		public void RotateClockwise(KSPActionParam param)
 		{
 			ModuleDockRotate tgt = actionTarget();
@@ -323,7 +382,10 @@ namespace DockRotate
 			}
 		}
 
-		[KSPAction(guiName = "#DCKROT_rotate_counterclockwise", requireFullControl = true)]
+		[KSPAction(
+			guiName = "#DCKROT_rotate_counterclockwise",
+			requireFullControl = true
+		)]
 		public void RotateCounterclockwise(KSPActionParam param)
 		{
 			ModuleDockRotate tgt = actionTarget();
@@ -346,7 +408,10 @@ namespace DockRotate
 			}
 		}
 
-		[KSPAction(guiName = "#DCKROT_rotate_to_snap", requireFullControl = true)]
+		[KSPAction(
+			guiName = "#DCKROT_rotate_to_snap",
+			requireFullControl = true
+		)]
 		public void RotateToSnap(KSPActionParam param)
 		{
 			ModuleDockRotate tgt = actionTarget();
@@ -375,6 +440,16 @@ namespace DockRotate
 		public void Dump()
 		{
 			dumpPart();
+		}
+
+		[KSPEvent(
+			guiName = "Toggle AutoStrut Display",
+			guiActive = true,
+			guiActiveEditor = false
+		)]
+		public void ToggleAutostrutDisplay()
+		{
+			PhysicsGlobals.AutoStrutDisplay = !PhysicsGlobals.AutoStrutDisplay;
 		}
 #endif
 
@@ -583,6 +658,36 @@ namespace DockRotate
 			return activeRotationModule.rotatingJoint.joints.Count;
 		}
 
+		public void releaseCrossAutoStruts()
+		{
+			PartSet rotParts = rotatingPartSet();
+			List<ModuleDockingNode> dockingNodes = vessel.FindPartModulesImplementing<ModuleDockingNode>();
+
+			int count = 0;
+			foreach (PartJoint j in UnityEngine.Object.FindObjectsOfType<PartJoint>()) {
+				if (!j.Host || j.Host.vessel != vessel)
+					continue;
+				if (!j.Target || j.Target.vessel != vessel)
+					continue;
+				if (j == j.Host.attachJoint)
+					continue;
+				if (j == j.Target.attachJoint)
+					continue;
+				if (rotParts.contains(j.Host) == rotParts.contains(j.Target))
+					continue;
+
+				bool isSameVesselJoint = false;
+				for (int i = 0; !isSameVesselJoint && i < dockingNodes.Count; i++)
+					if (j == dockingNodes[i].sameVesselDockJoint)
+						isSameVesselJoint = true;
+				if (isSameVesselJoint)
+					continue;
+
+				lprint("releasing [" + ++count + "] " + j.desc());
+				j.DestroyJoint();
+			}
+		}
+
 		public float rotationAngle(bool dynamic)
 		{
 			if (!activeRotationModule || !proxyRotationModule)
@@ -627,8 +732,10 @@ namespace DockRotate
 			// e: show in editor;
 			// R: hide when rotating;
 			// D: show only with debugMode activated
+			// A: show with advanced tweakables
 			"angleInfo.F",
 			"nodeRole.F",
+			"smartAutoStruts.FA",
 			"rotationStep.Fe",
 			"rotationSpeed.Fe",
 			"reverseRotation.Fe",
@@ -672,6 +779,8 @@ namespace DockRotate
 				bool editorGui = flags.IndexOf('e') >= 0;
 
 				bool thisGuiActive = newGuiActive;
+				if (flags.IndexOf('A') >= 0)
+					thisGuiActive = thisGuiActive && GameSettings.ADVANCED_TWEAKABLES;
 
 				if (flags.IndexOf('F') >= 0) {
 					BaseField fld = Fields[name];
@@ -868,6 +977,22 @@ namespace DockRotate
 				_propagate(p.children[i], rot);
 		}
 
+		PartSet rotatingPartSet()
+		{
+			PartSet ret = new PartSet();
+			ModuleDockRotate m = activeRotationModule;
+			if (m)
+				_collect(ret, m.part);
+			return ret;
+		}
+
+		private void _collect(PartSet s, Part p)
+		{
+			s.add(p);
+			for (int i = 0; i < p.children.Count; i++)
+				_collect(s, p.children[i]);
+		}
+
 		private void advanceRotation(float deltat)
 		{
 			if (rotCur == null)
@@ -1024,6 +1149,11 @@ namespace DockRotate
 
 	public static class Extensions
 	{
+		private static bool lprint(string msg)
+		{
+			return ModuleDockRotate.lprint(msg);
+		}
+
 		/******** Vessel utilities ********/
 
 		public static void releaseAllAutoStruts(this Vessel v)
@@ -1059,6 +1189,15 @@ namespace DockRotate
 			if (node.dockedPartUId <= 0)
 				return null;
 			return node.FindOtherNode();
+		}
+
+		/******** PartJoint utilities ********/
+
+		public static string desc(this PartJoint j)
+		{
+			string from = (j.Host == j.Child ? j.Host.desc() : j.Host.desc() + "/" + j.Child.desc());
+			string to = (j.Target == j.Parent ? j.Target.desc() : j.Target.desc() + "/" + j.Parent.desc());
+			return from + " -> " + to;
 		}
 
 		/******** ConfigurableJoint utilities ********/
