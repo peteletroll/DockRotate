@@ -741,7 +741,8 @@ namespace DockRotate
 			"reverseRotation.Fe",
 			"RotateClockwise.E",
 			"RotateCounterclockwise.E",
-			"RotateToSnap.E"
+			"RotateToSnap.E",
+			"ToggleAutostrutDisplay.E"
 		};
 
 		private void checkGuiActive()
@@ -800,6 +801,9 @@ namespace DockRotate
 							thisGuiActive = false;
 						ev.guiActive = thisGuiActive;
 						ev.guiActiveEditor = thisGuiActive && editorGui;
+						if (name == "ToggleAutostrutDisplay") {
+							ev.guiName = PhysicsGlobals.AutoStrutDisplay ? "Hide Autostruts" : "Show Autostruts";
+						}
 					}
 				} else {
 					lprint("bad guiList flags " + guiList[i]);
