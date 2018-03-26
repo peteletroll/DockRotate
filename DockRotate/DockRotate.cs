@@ -989,29 +989,6 @@ namespace DockRotate
 			enqueueRotation(f - a, rotationSpeed);
 		}
 
-		private void staticizeRotation(RotationAnimation rot)
-		{
-			if (activeRotationModule != this)
-				return;
-			if (rotatingJoint != part.attachJoint) {
-				lprint(part.desc() + ": skip staticize, same vessel joint");
-				return;
-			}
-			float angle = rot.tgt;
-			Vector3 nodeAxis = (-activeRotationModule.partNodeAxis).STd(activeRotationModule.part, vessel.rootPart);
-			Quaternion nodeRot = Quaternion.AngleAxis(angle, nodeAxis);
-			_propagate(part, nodeRot);
-		}
-
-		private void _propagate(Part p, Quaternion rot)
-		{
-			p.orgPos = rot * (p.orgPos - part.orgPos) + part.orgPos;
-			p.orgRot = rot * p.orgRot;
-
-			for (int i = 0; i < p.children.Count; i++)
-				_propagate(p.children[i], rot);
-		}
-
 		PartSet rotatingPartSet()
 		{
 			PartSet ret = new PartSet();
