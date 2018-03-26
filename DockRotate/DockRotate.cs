@@ -204,12 +204,12 @@ namespace DockRotate
 				Quaternion jointRot = Quaternion.AngleAxis(tgt, rji[i].jointAxis);
 				ConfigurableJoint j = joint.joints[i];
 				if (j) {
-					// staticize rotation
+					// staticize joint rotation
 					j.axis = jointRot * j.axis;
 					j.secondaryAxis = jointRot * j.secondaryAxis;
 					j.targetRotation = rji[i].startTgtRotation;
 
-					// staticize target anchors
+					// staticize joint target anchors
 					Vector3 tgtAxis = rotationModule.proxyRotationModule.partNodeAxis.Td(
 						rotationModule.proxyRotationModule.part.T(),
 						rotationModule.proxyRotationModule.part.rb.T());
@@ -223,6 +223,28 @@ namespace DockRotate
 				joint.Host.vessel.secureAllAutoStruts();
 			}
 			lprint(rotationModule.part.desc() + ": rotation stopped");
+			staticizeRotation();
+		}
+
+		private void staticizeRotation()
+		{
+			if (joint != part.attachJoint) {
+				lprint(part.desc() + ": skip staticize, same vessel joint");
+				return;
+			}
+			float angle = tgt;
+			Vector3 nodeAxis = (-rotationModule.partNodeAxis).STd(rotationModule.part, part.vessel.rootPart);
+			Quaternion nodeRot = Quaternion.AngleAxis(angle, nodeAxis);
+			_propagate(part, nodeRot);
+		}
+
+		private void _propagate(Part p, Quaternion rot)
+		{
+			p.orgPos = rot * (p.orgPos - part.orgPos) + part.orgPos;
+			p.orgRot = rot * p.orgRot;
+
+			for (int i = 0; i < p.children.Count; i++)
+				_propagate(p.children[i], rot);
 		}
 
 		private Quaternion currentRotation(int i)
@@ -1011,7 +1033,6 @@ namespace DockRotate
 			if (rotCur == null)
 				return;
 			if (rotCur.done()) {
-				staticizeRotation(rotCur);
 				rotCur = null;
 				return;
 			}
