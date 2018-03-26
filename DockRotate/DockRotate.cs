@@ -37,6 +37,17 @@ namespace DockRotate
 			return ModuleDockRotate.lprint(msg);
 		}
 
+		/*
+
+		Notes for generalizing for NodeRotate:
+		A RotationAnimation must contain:
+		- a rotating part (current DockRotate active part)
+		- a rotating point (current ModuleDockRotate.partNodePos)
+		- a rotating axis (current ModuleDockRotate.partNodeAxis)
+		- a rotating joint (not necessarily Part.attachJoint, there's same vessel docking too)
+
+		*/
+
 		public RotationAnimation(ModuleDockRotate rotationModule, float pos, float tgt, float maxvel)
 		{
 			this.rotationModule = rotationModule;
@@ -958,8 +969,6 @@ namespace DockRotate
 
 		private void staticizeRotation(RotationAnimation rot)
 		{
-			if (rot == null)
-				return;
 			if (activeRotationModule != this)
 				return;
 			if (rotatingJoint != part.attachJoint) {
@@ -967,7 +976,7 @@ namespace DockRotate
 				return;
 			}
 			float angle = rot.tgt;
-			Vector3 nodeAxis = proxyRotationModule.partNodeAxis.STd(proxyRotationModule.part, vessel.rootPart);
+			Vector3 nodeAxis = (-activeRotationModule.partNodeAxis).STd(activeRotationModule.part, vessel.rootPart);
 			Quaternion nodeRot = Quaternion.AngleAxis(angle, nodeAxis);
 			_propagate(part, nodeRot);
 		}
