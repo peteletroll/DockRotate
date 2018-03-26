@@ -6,9 +6,10 @@ namespace DockRotate
 {
 	public class RotationAnimation
 	{
-		private ModuleDockRotate rotationModule;
 		private Part part;
+		private Vector3 node, axis;
 		private PartJoint joint;
+		private ModuleDockRotate rotationModule;
 
 		public float pos, tgt, vel;
 		private float maxvel, maxacc;
@@ -48,11 +49,13 @@ namespace DockRotate
 
 		*/
 
-		public RotationAnimation(ModuleDockRotate rotationModule, float pos, float tgt, float maxvel)
+		public RotationAnimation(Part part, Vector3 node, Vector3 axis, PartJoint joint, ModuleDockRotate rotationModule, float pos, float tgt, float maxvel)
 		{
+			this.part = part;
+			this.node = node;
+			this.axis = axis;
 			this.rotationModule = rotationModule;
-			this.joint = rotationModule.rotatingJoint;
-			this.part = rotationModule.part;
+			this.joint = joint;
 
 			this.vesselId = rotationModule.part.vessel.id;
 			this.startParent = part.parent;
@@ -146,7 +149,7 @@ namespace DockRotate
 
 				rji[i].localToJoint = j.localToJoint();
 				rji[i].jointToLocal = rji[i].localToJoint.inverse();
-				rji[i].jointAxis = rotationModule.partNodeAxis.Td(
+				rji[i].jointAxis = axis.Td(
 					rotationModule.part.T(),
 					joint.joints[i].T());
 				rji[i].startTgtRotation = j.targetRotation;
@@ -233,14 +236,15 @@ namespace DockRotate
 				return;
 			}
 			float angle = tgt;
-			Vector3 nodeAxis = (-rotationModule.partNodeAxis).STd(rotationModule.part, part.vessel.rootPart);
+			Vector3 nodeAxis = (-rotationModule.partNodeAxis).STd(part, part.vessel.rootPart);
 			Quaternion nodeRot = Quaternion.AngleAxis(angle, nodeAxis);
 			_propagate(part, nodeRot);
 		}
 
 		private void _propagate(Part p, Quaternion rot)
 		{
-			p.orgPos = rot * (p.orgPos - part.orgPos) + part.orgPos;
+			Vector3 vNode = node.STp(part, part.vessel.rootPart);
+			p.orgPos = rot * (p.orgPos - vNode) + vNode;
 			p.orgRot = rot * p.orgRot;
 
 			for (int i = 0; i < p.children.Count; i++)
@@ -967,7 +971,7 @@ namespace DockRotate
 				rotCur.tgt += angle;
 				action = "updated";
 			} else {
-				rotCur = new RotationAnimation(this, 0, angle, speed);
+				rotCur = new RotationAnimation(part, partNodePos, partNodeAxis, rotatingJoint, this, 0, angle, speed);
 				action = "added";
 			}
 			lprint(String.Format("{0}: enqueueRotation({1:F4}\u00b0, {2}\u00b0/s), {3}",
