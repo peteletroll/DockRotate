@@ -9,6 +9,7 @@ namespace DockRotate
 		private Part part;
 		private Vector3 node, axis;
 		private PartJoint joint;
+		public bool smartAutoStruts = false;
 		private ModuleDockRotate rotationModule;
 
 		public float pos, tgt, vel;
@@ -137,7 +138,7 @@ namespace DockRotate
 		private void onStart()
 		{
 			incCount();
-			if (rotationModule.activeRotationModule.smartAutoStruts || rotationModule.proxyRotationModule.smartAutoStruts) {
+			if (smartAutoStruts) {
 				rotationModule.releaseCrossAutoStruts();
 			} else {
 				part.vessel.releaseAllAutoStruts();
@@ -974,6 +975,7 @@ namespace DockRotate
 				action = "updated";
 			} else {
 				rotCur = new RotationAnimation(part, partNodePos, partNodeAxis, rotatingJoint, this, 0, angle, speed);
+				rotCur.smartAutoStruts = activeRotationModule.smartAutoStruts || proxyRotationModule.smartAutoStruts;
 				action = "added";
 			}
 			lprint(String.Format("{0}: enqueueRotation({1:F4}\u00b0, {2}\u00b0/s), {3}",
