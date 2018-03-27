@@ -10,7 +10,6 @@ namespace DockRotate
 		private Vector3 node, axis;
 		private PartJoint joint;
 		public bool smartAutoStruts = false;
-		private ModuleDockRotate rotationModule;
 
 		public float pos, tgt, vel;
 		private float maxvel, maxacc;
@@ -54,16 +53,15 @@ namespace DockRotate
 
 		*/
 
-		public RotationAnimation(Part part, Vector3 node, Vector3 axis, PartJoint joint, ModuleDockRotate rotationModule, float pos, float tgt, float maxvel)
+		public RotationAnimation(Part part, Vector3 node, Vector3 axis, PartJoint joint, float pos, float tgt, float maxvel)
 		{
 			this.part = part;
 			this.node = node;
 			this.axis = axis;
 			this.joint = joint;
-			this.rotationModule = rotationModule;
 
 			this.otherPart = joint.Host == part ? joint.Target : joint.Host;
-			this.vesselId = rotationModule.part.vessel.id;
+			this.vesselId = part.vessel.id;
 			this.startParent = part.parent;
 
 			this.pos = pos;
@@ -144,7 +142,7 @@ namespace DockRotate
 		{
 			incCount();
 			if (smartAutoStruts) {
-				rotationModule.releaseCrossAutoStruts();
+				releaseCrossAutoStruts();
 			} else {
 				part.vessel.releaseAllAutoStruts();
 			}
@@ -288,6 +286,50 @@ namespace DockRotate
 
 			for (int i = 0; i < p.children.Count; i++)
 				_propagate(p.children[i], rot);
+		}
+
+		public void releaseCrossAutoStruts()
+		{
+			PartSet rotParts = rotatingPartSet();
+			List<ModuleDockingNode> dockingNodes = part.vessel.FindPartModulesImplementing<ModuleDockingNode>();
+
+			int count = 0;
+			foreach (PartJoint j in UnityEngine.Object.FindObjectsOfType<PartJoint>()) {
+				if (!j.Host || j.Host.vessel != part.vessel)
+					continue;
+				if (!j.Target || j.Target.vessel != part.vessel)
+					continue;
+				if (j == j.Host.attachJoint)
+					continue;
+				if (j == j.Target.attachJoint)
+					continue;
+				if (rotParts.contains(j.Host) == rotParts.contains(j.Target))
+					continue;
+
+				bool isSameVesselJoint = false;
+				for (int i = 0; !isSameVesselJoint && i < dockingNodes.Count; i++)
+					if (j == dockingNodes[i].sameVesselDockJoint)
+						isSameVesselJoint = true;
+				if (isSameVesselJoint)
+					continue;
+
+				lprint("releasing [" + ++count + "] " + j.desc());
+				j.DestroyJoint();
+			}
+		}
+
+		private PartSet rotatingPartSet()
+		{
+			PartSet ret = new PartSet();
+			_collect(ret, part);
+			return ret;
+		}
+
+		private void _collect(PartSet s, Part p)
+		{
+			s.add(p);
+			for (int i = 0; i < p.children.Count; i++)
+				_collect(s, p.children[i]);
 		}
 
 		private Quaternion currentRotation(int i)
@@ -703,36 +745,6 @@ namespace DockRotate
 			return activeRotationModule.rotatingJoint.joints.Count;
 		}
 
-		public void releaseCrossAutoStruts()
-		{
-			PartSet rotParts = rotatingPartSet();
-			List<ModuleDockingNode> dockingNodes = vessel.FindPartModulesImplementing<ModuleDockingNode>();
-
-			int count = 0;
-			foreach (PartJoint j in UnityEngine.Object.FindObjectsOfType<PartJoint>()) {
-				if (!j.Host || j.Host.vessel != vessel)
-					continue;
-				if (!j.Target || j.Target.vessel != vessel)
-					continue;
-				if (j == j.Host.attachJoint)
-					continue;
-				if (j == j.Target.attachJoint)
-					continue;
-				if (rotParts.contains(j.Host) == rotParts.contains(j.Target))
-					continue;
-
-				bool isSameVesselJoint = false;
-				for (int i = 0; !isSameVesselJoint && i < dockingNodes.Count; i++)
-					if (j == dockingNodes[i].sameVesselDockJoint)
-						isSameVesselJoint = true;
-				if (isSameVesselJoint)
-					continue;
-
-				lprint("releasing [" + ++count + "] " + j.desc());
-				j.DestroyJoint();
-			}
-		}
-
 		public float rotationAngle(bool dynamic)
 		{
 			if (!activeRotationModule || !proxyRotationModule)
@@ -979,7 +991,7 @@ namespace DockRotate
 				rotCur.tgt += angle;
 				action = "updated";
 			} else {
-				rotCur = new RotationAnimation(part, partNodePos, partNodeAxis, rotatingJoint, this, 0, angle, speed);
+				rotCur = new RotationAnimation(part, partNodePos, partNodeAxis, rotatingJoint, 0, angle, speed);
 				rotCur.smartAutoStruts = activeRotationModule.smartAutoStruts || proxyRotationModule.smartAutoStruts;
 				action = "added";
 			}
@@ -1000,22 +1012,6 @@ namespace DockRotate
 			lprint(String.Format("{0}: snap {1:F4} to {2:F4} ({3:F4})",
 				part.desc(), a, f, f - a));
 			enqueueRotation(f - a, rotationSpeed);
-		}
-
-		PartSet rotatingPartSet()
-		{
-			PartSet ret = new PartSet();
-			ModuleDockRotate m = activeRotationModule;
-			if (m)
-				_collect(ret, m.part);
-			return ret;
-		}
-
-		private void _collect(PartSet s, Part p)
-		{
-			s.add(p);
-			for (int i = 0; i < p.children.Count; i++)
-				_collect(s, p.children[i]);
 		}
 
 		private void advanceRotation(float deltat)
