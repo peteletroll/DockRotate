@@ -59,8 +59,8 @@ namespace DockRotate
 			this.part = part;
 			this.node = node;
 			this.axis = axis;
-			this.rotationModule = rotationModule;
 			this.joint = joint;
+			this.rotationModule = rotationModule;
 
 			this.vesselId = rotationModule.part.vessel.id;
 			this.startParent = part.parent;
@@ -220,9 +220,8 @@ namespace DockRotate
 					j.targetRotation = rji[i].startTgtRotation;
 
 					// staticize joint target anchors
-					Vector3 tgtAxis = rotationModule.proxyRotationModule.partNodeAxis.Td(
-						rotationModule.proxyRotationModule.part.T(),
-						rotationModule.proxyRotationModule.part.rb.T());
+					ModuleDockRotate m = rotationModule.proxyRotationModule;
+					Vector3 tgtAxis = m.partNodeAxis.Td(m.part.T(), m.part.rb.T());
 					Quaternion tgtRot = Quaternion.AngleAxis(pos, tgtAxis);
 					j.connectedAnchor = tgtRot * j.connectedAnchor;
 					j.targetPosition = rji[i].startTgtPosition;
