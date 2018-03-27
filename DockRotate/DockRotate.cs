@@ -273,7 +273,7 @@ namespace DockRotate
 				return;
 			}
 			float angle = tgt;
-			Vector3 nodeAxis = (-rotationModule.partNodeAxis).STd(part, part.vessel.rootPart);
+			Vector3 nodeAxis = -axis.STd(part, part.vessel.rootPart);
 			Quaternion nodeRot = Quaternion.AngleAxis(angle, nodeAxis);
 			_propagate(part, nodeRot);
 		}
