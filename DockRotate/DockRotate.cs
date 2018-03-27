@@ -338,13 +338,15 @@ namespace DockRotate
 
 		[KSPField(
 			guiName = "#DCKROT_angle",
-			guiActive = true, guiActiveEditor = true
+			guiActive = true,
+			guiActiveEditor = false
 		)]
 		public string angleInfo;
 
 		[KSPField(
 			guiName = "#DCKROT_status",
-			guiActive = false, guiActiveEditor = false
+			guiActive = false,
+			guiActiveEditor = false
 		)]
 		public String nodeStatus = "";
 
