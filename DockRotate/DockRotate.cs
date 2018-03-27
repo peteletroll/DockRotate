@@ -6,7 +6,7 @@ namespace DockRotate
 {
 	public class RotationAnimation
 	{
-		private Part part;
+		private Part part, otherPart;
 		private Vector3 node, axis;
 		private PartJoint joint;
 		public bool smartAutoStruts = false;
@@ -62,6 +62,7 @@ namespace DockRotate
 			this.joint = joint;
 			this.rotationModule = rotationModule;
 
+			this.otherPart = joint.Host == part ? joint.Target : joint.Host;
 			this.vesselId = rotationModule.part.vessel.id;
 			this.startParent = part.parent;
 
@@ -220,8 +221,9 @@ namespace DockRotate
 					j.targetRotation = rji[i].startTgtRotation;
 
 					// staticize joint target anchors
-					ModuleDockRotate m = rotationModule.proxyRotationModule;
-					Vector3 tgtAxis = m.partNodeAxis.Td(m.part.T(), m.part.rb.T());
+					// ModuleDockRotate m = rotationModule.proxyRotationModule;
+					// Vector3 tgtAxis = m.partNodeAxis.Td(m.part.T(), m.part.rb.T());
+					Vector3 tgtAxis = -axis.STd(part, otherPart).Td(otherPart.T(), otherPart.rb.T());
 					Quaternion tgtRot = Quaternion.AngleAxis(pos, tgtAxis);
 					j.connectedAnchor = tgtRot * j.connectedAnchor;
 					j.targetPosition = rji[i].startTgtPosition;
