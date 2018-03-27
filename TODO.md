@@ -5,3 +5,7 @@
 
 * refactor checkGuiActive() to remove the guiList[] logic
 
+* split ModuleDockRotate into ModuleBaseRotate + ModuleDockRotate
+
+* write ModuleNodeRotate
+
