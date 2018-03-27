@@ -150,7 +150,7 @@ namespace DockRotate
 				rji[i].localToJoint = j.localToJoint();
 				rji[i].jointToLocal = rji[i].localToJoint.inverse();
 				rji[i].jointAxis = axis.Td(
-					rotationModule.part.T(),
+					part.T(),
 					joint.joints[i].T());
 				rji[i].startTgtRotation = j.targetRotation;
 				rji[i].startTgtPosition = j.targetPosition;
@@ -163,7 +163,7 @@ namespace DockRotate
 				rotationModule.sound.Play();
 
 			lprint(String.Format("{0}: started {1:F4}\u00b0 at {2}\u00b0/s",
-				rotationModule.part.desc(), tgt, maxvel));
+				part.desc(), tgt, maxvel));
 		}
 
 		private void onStep(float deltat)
@@ -225,7 +225,7 @@ namespace DockRotate
 				lprint("securing autostruts on vessel " + vesselId);
 				joint.Host.vessel.secureAllAutoStruts();
 			}
-			lprint(rotationModule.part.desc() + ": rotation stopped");
+			lprint(part.desc() + ": rotation stopped");
 			staticizeRotation();
 		}
 
