@@ -408,8 +408,63 @@ namespace DockRotate
 		}
 	}
 
-	public class ModuleBaseRotate: PartModule
+	public abstract class ModuleBaseRotate: PartModule
 	{
+		protected bool onRails;
+
+		public void OnVesselGoOnRails(Vessel v)
+		{
+			if (v != vessel)
+				return;
+			onRails = true;
+			resetVessel("go on rails");
+		}
+
+		public void OnVesselGoOffRails(Vessel v)
+		{
+			if (v != vessel)
+				return;
+			onRails = false;
+			resetVessel("go off rails");
+		}
+
+		public override void OnAwake()
+		{
+			// lprint((part ? part.desc() : "<no part>") + ".OnAwake()");
+			base.OnAwake();
+			GameEvents.onVesselGoOnRails.Add(OnVesselGoOnRails);
+			GameEvents.onVesselGoOffRails.Add(OnVesselGoOffRails);
+		}
+
+		public void OnDestroy()
+		{
+			// lprint((part ? part.desc() : "<no part>") + ".OnDestroy()");
+			GameEvents.onVesselGoOnRails.Remove(OnVesselGoOnRails);
+			GameEvents.onVesselGoOffRails.Remove(OnVesselGoOffRails);
+		}
+
+		protected int setupStageCounter = 0;
+
+		protected abstract void stagedSetup();
+
+		protected void resetVessel(string msg)
+		{
+			bool reset = false;
+			List<ModuleBaseRotate> rotationModules = vessel.FindPartModulesImplementing<ModuleBaseRotate>();
+			for (int i = 0; i < rotationModules.Count; i++) {
+				ModuleBaseRotate m = rotationModules[i];
+				if (m.setupStageCounter != 0) {
+					reset = true;
+					m.setupStageCounter = 0;
+				}
+			}
+			if (reset && msg.Length > 0)
+				lprint(part.desc() + " resets vessel: " + msg);
+			RotationAnimation.resetCount(part.vessel);
+		}
+
+		/******** Debugging stuff ********/
+
 		public static bool lprint(string msg)
 		{
 			print("[DockRotate]: " + msg);
@@ -600,25 +655,7 @@ namespace DockRotate
 		public Vector3 partNodeAxis; // node rotation axis, relative to part, reference Vector3.forward
 		private Vector3 partNodeUp; // node vector for measuring angle, relative to part
 
-		private int setupStageCounter = 0;
-
-		private void resetVessel(string msg)
-		{
-			bool reset = false;
-			List<ModuleDockRotate> rotationModules = vessel.FindPartModulesImplementing<ModuleDockRotate>();
-			for (int i = 0; i < rotationModules.Count; i++) {
-				ModuleDockRotate m = rotationModules[i];
-				if (m.setupStageCounter != 0) {
-					reset = true;
-					m.setupStageCounter = 0;
-				}
-			}
-			if (reset && msg.Length > 0)
-				lprint(part.desc() + " resets vessel: " + msg);
-			RotationAnimation.resetCount(part.vessel);
-		}
-
-		private void stagedSetup()
+		protected override void stagedSetup()
 		{
 			if (onRails || !part || !vessel)
 				return;
@@ -733,8 +770,6 @@ namespace DockRotate
 		}
 
 		private RotationAnimation rotCur = null;
-
-		private bool onRails;
 
 		private bool canStartRotation()
 		{
@@ -876,37 +911,6 @@ namespace DockRotate
 					continue;
 				}
 			}
-		}
-
-		public override void OnAwake()
-		{
-			// lprint((part ? part.desc() : "<no part>") + ".OnAwake()");
-			base.OnAwake();
-			GameEvents.onVesselGoOnRails.Add(OnVesselGoOnRails);
-			GameEvents.onVesselGoOffRails.Add(OnVesselGoOffRails);
-		}
-
-		public void OnDestroy()
-		{
-			// lprint((part ? part.desc() : "<no part>") + ".OnDestroy()");
-			GameEvents.onVesselGoOnRails.Remove(OnVesselGoOnRails);
-			GameEvents.onVesselGoOffRails.Remove(OnVesselGoOffRails);
-		}
-
-		public void OnVesselGoOnRails(Vessel v)
-		{
-			if (v != vessel)
-				return;
-			onRails = true;
-			resetVessel("go on rails");
-		}
-
-		public void OnVesselGoOffRails(Vessel v)
-		{
-			if (v != vessel)
-				return;
-			onRails = false;
-			resetVessel("go off rails");
 		}
 
 		public override void OnStart(StartState state)
