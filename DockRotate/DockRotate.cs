@@ -447,6 +447,11 @@ namespace DockRotate
 
 		protected bool onRails;
 
+		public PartJoint rotatingJoint;
+		protected Vector3 partNodePos; // node position, relative to part
+		public Vector3 partNodeAxis; // node rotation axis, relative to part, reference Vector3.forward
+		protected Vector3 partNodeUp; // node vector for measuring angle, relative to part
+
 		public void OnVesselGoOnRails(Vessel v)
 		{
 			if (v != vessel)
@@ -504,6 +509,23 @@ namespace DockRotate
 				&& rotationEnabled
 				&& vessel
 				&& vessel.CurrentControlLevel == Vessel.ControlLevel.FULL;
+		}
+
+		protected virtual void enqueueRotation(float angle, float speed)
+		{
+			if (speed < 0.5)
+				return;
+
+			string action = "none";
+			if (rotCur != null) {
+				rotCur.tgt += angle;
+				action = "updated";
+			} else {
+				rotCur = new RotationAnimation(part, partNodePos, partNodeAxis, rotatingJoint, 0, angle, speed);
+				action = "added";
+			}
+			lprint(String.Format("{0}: enqueueRotation({1:F4}\u00b0, {2}\u00b0/s), {3}",
+				part.desc(), angle, speed, action));
 		}
 
 		/******** Debugging stuff ********/
@@ -647,10 +669,6 @@ namespace DockRotate
 		private Part lastSameVesselDockPart;
 		public ModuleDockRotate activeRotationModule;
 		public ModuleDockRotate proxyRotationModule;
-		public PartJoint rotatingJoint;
-		private Vector3 partNodePos; // node position, relative to part
-		public Vector3 partNodeAxis; // node rotation axis, relative to part, reference Vector3.forward
-		private Vector3 partNodeUp; // node vector for measuring angle, relative to part
 
 		protected override void stagedSetup()
 		{
@@ -980,27 +998,15 @@ namespace DockRotate
 			stagedSetup();
 		}
 
-		private void enqueueRotation(float angle, float speed)
+		protected override void enqueueRotation(float angle, float speed)
 		{
 			if (activeRotationModule != this) {
 				lprint("enqueueRotation() called on wrong module, ignoring");
 				return;
 			}
-
-			if (speed < 0.5)
-				return;
-
-			string action = "none";
-			if (rotCur != null) {
-				rotCur.tgt += angle;
-				action = "updated";
-			} else {
-				rotCur = new RotationAnimation(part, partNodePos, partNodeAxis, rotatingJoint, 0, angle, speed);
+			base.enqueueRotation(angle, speed);
+			if (rotCur != null)
 				rotCur.smartAutoStruts = activeRotationModule.smartAutoStruts || proxyRotationModule.smartAutoStruts;
-				action = "added";
-			}
-			lprint(String.Format("{0}: enqueueRotation({1:F4}\u00b0, {2}\u00b0/s), {3}",
-				part.desc(), angle, speed, action));
 		}
 
 		private void enqueueRotationToSnap(float snap, float speed)
