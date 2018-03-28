@@ -396,6 +396,51 @@ namespace DockRotate
 
 	public abstract class ModuleBaseRotate: PartModule
 	{
+		[UI_Toggle()]
+		[KSPField(
+			guiName = "#DCKROT_rotation",
+			guiActive = true,
+			guiActiveEditor = true,
+			isPersistant = true
+		)]
+		public bool rotationEnabled = false;
+
+		[UI_FloatRange(
+			minValue = 0,
+			maxValue = 180,
+			stepIncrement = 5
+		)]
+		[KSPField(
+			guiActive = true,
+			guiActiveEditor = false,
+			isPersistant = true,
+			guiName = "#DCKROT_rotation_step",
+			guiUnits = "\u00b0"
+		)]
+		public float rotationStep = 15;
+
+		[UI_FloatRange(
+			minValue = 1,
+			maxValue = 90,
+			stepIncrement = 1
+		)]
+		[KSPField(
+			guiActive = true,
+			guiActiveEditor = false,
+			isPersistant = true,
+			guiName = "#DCKROT_rotation_speed",
+			guiUnits = "\u00b0/s"
+		)]
+		public float rotationSpeed = 5;
+
+		[UI_Toggle(affectSymCounterparts = UI_Scene.None)]
+		[KSPField(
+			guiActive = true,
+			isPersistant = true,
+			guiName = "#DCKROT_reverse_rotation"
+		)]
+		public bool reverseRotation = false;
+
 		protected int vesselPartCount;
 
 		protected RotationAnimation rotCur = null;
@@ -453,6 +498,14 @@ namespace DockRotate
 			RotationAnimation.resetCount(vessel);
 		}
 
+		protected virtual bool canStartRotation()
+		{
+			return !onRails
+				&& rotationEnabled
+				&& vessel
+				&& vessel.CurrentControlLevel == Vessel.ControlLevel.FULL;
+		}
+
 		/******** Debugging stuff ********/
 
 		public static bool lprint(string msg)
@@ -464,15 +517,6 @@ namespace DockRotate
 
 	public class ModuleDockRotate: ModuleBaseRotate
 	{
-		[UI_Toggle()]
-		[KSPField(
-			guiName = "#DCKROT_rotation",
-			guiActive = true,
-			guiActiveEditor = true,
-			isPersistant = true
-		)]
-		public bool rotationEnabled = false;
-
 		[KSPField(
 			guiName = "#DCKROT_angle",
 			guiActive = true,
@@ -486,42 +530,6 @@ namespace DockRotate
 			guiActiveEditor = false
 		)]
 		public String nodeStatus = "";
-
-		[UI_FloatRange(
-			minValue = 0,
-			maxValue = 180,
-			stepIncrement = 5
-		)]
-		[KSPField(
-			guiActive = true,
-			guiActiveEditor = false,
-			isPersistant = true,
-			guiName = "#DCKROT_rotation_step",
-			guiUnits = "\u00b0"
-		)]
-		public float rotationStep = 15;
-
-		[UI_FloatRange(
-			minValue = 1,
-			maxValue = 90,
-			stepIncrement = 1
-		)]
-		[KSPField(
-			guiActive = true,
-			guiActiveEditor = false,
-			isPersistant = true,
-			guiName = "#DCKROT_rotation_speed",
-			guiUnits = "\u00b0/s"
-		)]
-		public float rotationSpeed = 5;
-
-		[UI_Toggle(affectSymCounterparts = UI_Scene.None)]
-		[KSPField(
-			guiActive = true,
-			isPersistant = true,
-			guiName = "#DCKROT_reverse_rotation"
-		)]
-		public bool reverseRotation = false;
 
 		[UI_Toggle()]
 		[KSPField(
@@ -758,13 +766,9 @@ namespace DockRotate
 			return ret;
 		}
 
-		private bool canStartRotation()
+		protected override bool canStartRotation()
 		{
-			return !onRails
-				&& rotationEnabled
-				&& activeRotationModule
-				&& vessel
-				&& vessel.CurrentControlLevel == Vessel.ControlLevel.FULL;
+			return base.canStartRotation() && activeRotationModule;
 		}
 
 		private int countJoints()
