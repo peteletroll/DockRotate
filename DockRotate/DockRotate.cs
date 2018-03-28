@@ -396,6 +396,10 @@ namespace DockRotate
 
 	public abstract class ModuleBaseRotate: PartModule
 	{
+		protected int vesselPartCount;
+
+		protected RotationAnimation rotCur = null;
+
 		protected bool onRails;
 
 		public void OnVesselGoOnRails(Vessel v)
@@ -446,7 +450,7 @@ namespace DockRotate
 			}
 			if (reset && msg.Length > 0)
 				lprint(part.desc() + " resets vessel: " + msg);
-			RotationAnimation.resetCount(part.vessel);
+			RotationAnimation.resetCount(vessel);
 		}
 
 		/******** Debugging stuff ********/
@@ -629,7 +633,6 @@ namespace DockRotate
 		// the active module of the couple is the farthest from the root part
 		// the proxy module of the couple is the closest to the root part
 
-		private int vesselPartCount;
 		private ModuleDockingNode dockingNode;
 		public string nodeRole = "Init";
 		private string lastNodeState = "Init";
@@ -754,8 +757,6 @@ namespace DockRotate
 			bool ret = s.StartsWith("Docked") || s == "PreAttached";
 			return ret;
 		}
-
-		private RotationAnimation rotCur = null;
 
 		private bool canStartRotation()
 		{
