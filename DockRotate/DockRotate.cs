@@ -39,7 +39,7 @@ namespace DockRotate
 
 		private static bool lprint(string msg)
 		{
-			return ModuleDockRotate.lprint(msg);
+			return ModuleBaseRotate.lprint(msg);
 		}
 
 		/*
@@ -404,11 +404,20 @@ namespace DockRotate
 		{
 			Part[] p = parts();
 			for (int i = 0; i < p.Length; i++)
-				ModuleDockRotate.lprint("rotPart " + p[i].desc());
+				ModuleBaseRotate.lprint("rotPart " + p[i].desc());
 		}
 	}
 
-	public class ModuleDockRotate: PartModule
+	public class ModuleBaseRotate: PartModule
+	{
+		public static bool lprint(string msg)
+		{
+			print("[DockRotate]: " + msg);
+			return true;
+		}
+	}
+
+	public class ModuleDockRotate: ModuleBaseRotate
 	{
 		[UI_Toggle()]
 		[KSPField(
@@ -1050,12 +1059,6 @@ namespace DockRotate
 
 		/******** Debugging stuff ********/
 
-		public static bool lprint(string msg)
-		{
-			print("[DockRotate]: " + msg);
-			return true;
-		}
-
 		private void dumpJoint(ConfigurableJoint j)
 		{
 			// Quaternion localToJoint = j.localToJoint();
@@ -1171,7 +1174,7 @@ namespace DockRotate
 	{
 		private static bool lprint(string msg)
 		{
-			return ModuleDockRotate.lprint(msg);
+			return ModuleBaseRotate.lprint(msg);
 		}
 
 		/******** Vessel utilities ********/
