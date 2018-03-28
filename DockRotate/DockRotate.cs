@@ -441,6 +441,15 @@ namespace DockRotate
 		)]
 		public bool reverseRotation = false;
 
+		[UI_Toggle()]
+		[KSPField(
+			guiActive = true,
+			guiActiveEditor = true,
+			isPersistant = true,
+			guiName = "#DCKROT_smart_autostruts"
+		)]
+		public bool smartAutoStruts = false;
+
 		protected int vesselPartCount;
 
 		protected RotationAnimation rotCur = null;
@@ -513,6 +522,9 @@ namespace DockRotate
 
 		protected virtual void enqueueRotation(float angle, float speed)
 		{
+			if (!rotatingJoint)
+				return;
+
 			if (speed < 0.5)
 				return;
 
@@ -522,6 +534,7 @@ namespace DockRotate
 				action = "updated";
 			} else {
 				rotCur = new RotationAnimation(part, partNodePos, partNodeAxis, rotatingJoint, 0, angle, speed);
+				rotCur.smartAutoStruts = smartAutoStruts;
 				action = "added";
 			}
 			lprint(String.Format("{0}: enqueueRotation({1:F4}\u00b0, {2}\u00b0/s), {3}",
@@ -552,15 +565,6 @@ namespace DockRotate
 			guiActiveEditor = false
 		)]
 		public String nodeStatus = "";
-
-		[UI_Toggle()]
-		[KSPField(
-			guiActive = true,
-			guiActiveEditor = true,
-			isPersistant = true,
-			guiName = "#DCKROT_smart_autostruts"
-		)]
-		public bool smartAutoStruts = false;
 
 		[KSPAction(
 			guiName = "#DCKROT_rotate_clockwise",
