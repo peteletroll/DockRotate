@@ -290,7 +290,7 @@ namespace DockRotate
 
 		public void releaseCrossAutoStruts()
 		{
-			PartSet rotParts = rotatingPartSet();
+			PartSet rotParts = part.allPartsFromHere();
 			List<ModuleDockingNode> dockingNodes = part.vessel.FindPartModulesImplementing<ModuleDockingNode>();
 
 			int count = 0;
@@ -316,20 +316,6 @@ namespace DockRotate
 				lprint("releasing [" + ++count + "] " + j.desc());
 				j.DestroyJoint();
 			}
-		}
-
-		private PartSet rotatingPartSet()
-		{
-			PartSet ret = new PartSet();
-			_collect(ret, part);
-			return ret;
-		}
-
-		private void _collect(PartSet s, Part p)
-		{
-			s.add(p);
-			for (int i = 0; i < p.children.Count; i++)
-				_collect(s, p.children[i]);
 		}
 
 		private Quaternion currentRotation(int i)
@@ -1198,6 +1184,20 @@ namespace DockRotate
 		}
 
 		/******** Part utilities ********/
+
+		public static PartSet allPartsFromHere(this Part p)
+		{
+			PartSet ret = new PartSet();
+			_collect(ret, p);
+			return ret;
+		}
+
+		private static void _collect(PartSet s, Part p)
+		{
+			s.add(p);
+			for (int i = 0; i < p.children.Count; i++)
+				_collect(s, p.children[i]);
+		}
 
 		public static string desc(this Part part)
 		{
