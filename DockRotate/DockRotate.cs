@@ -541,6 +541,13 @@ namespace DockRotate
 				part.desc(), angle, speed, action));
 		}
 
+		public virtual string neededResetMsg()
+		{
+			if (vessel && vessel.parts.Count != vesselPartCount)
+				return "part count changed";
+			return "";
+		}
+
 		/******** Debugging stuff ********/
 
 		public static bool lprint(string msg)
@@ -955,10 +962,11 @@ namespace DockRotate
 			stagedSetup();
 		}
 
-		public string neededResetMsg()
+		public override string neededResetMsg()
 		{
-			if (vessel && vessel.parts.Count != vesselPartCount)
-				return "part count changed";
+			string msg = base.neededResetMsg();
+			if (msg.Length > 0)
+				return msg;
 
 			/*
 
