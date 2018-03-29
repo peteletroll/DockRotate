@@ -945,10 +945,20 @@ namespace DockRotate
 			if (HighLogic.LoadedScene != GameScenes.FLIGHT)
 				return;
 
-			string resetMsg = "";
+			string resetMsg = neededResetMsg();
+			if (resetMsg.Length > 0)
+				resetVessel(resetMsg);
 
+			if (rotCur != null)
+				advanceRotation(Time.fixedDeltaTime);
+
+			stagedSetup();
+		}
+
+		public string neededResetMsg()
+		{
 			if (vessel && vessel.parts.Count != vesselPartCount)
-				resetMsg = "part count changed";
+				return "part count changed";
 
 			/*
 
@@ -967,39 +977,34 @@ namespace DockRotate
 				string newNodeState = dockingNode.state;
 				ModuleDockingNode other = dockingNode.otherNode();
 
-				lprint(part.desc() + ": from " + lastNodeState
+				lprint (part.desc() + ": from " + lastNodeState
 					+ " to " + newNodeState
 					+ " with " + (other ? other.part.desc() : "none"));
+
+				lastNodeState = newNodeState;
 
 				if (other && other.vessel == vessel) {
 					if (rotCur != null) {
 						lprint(part.desc() + ": same vessel, not stopping");
 					} else {
-						resetMsg = "docking port state changed on same vessel";
+						return "docking port state changed on same vessel";
 					}
 				} else {
-					resetMsg = "docking port state changed";
+					string ret = "docking port state changed";
 					if (rotCur != null)
-						rotCur.abort(false, resetMsg);
+						rotCur.abort(false, ret);
+					return ret;
 				}
-
-				lastNodeState = newNodeState;
 			}
 
 			Part svdp = (dockingNode && dockingNode.sameVesselDockJoint) ?
 				dockingNode.sameVesselDockJoint.Target : null;
 			if (dockingNode && rotCur == null && svdp != lastSameVesselDockPart) {
-				resetMsg = "changed same vessel joint";
 				lastSameVesselDockPart = svdp;
+				return "changed same vessel joint";
 			}
 
-			if (resetMsg.Length > 0)
-				resetVessel(resetMsg);
-
-			if (rotCur != null)
-				advanceRotation(Time.fixedDeltaTime);
-
-			stagedSetup();
+			return "";
 		}
 
 		protected override void enqueueRotation(float angle, float speed)
