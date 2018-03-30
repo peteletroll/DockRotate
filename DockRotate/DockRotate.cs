@@ -674,12 +674,13 @@ namespace DockRotate
 			lprint("rotPart: " + rotatingPart.desc());
 			AttachNode[] nodes = part.FindAttachNodes("");
 			for (int i = 0; i < nodes.Length; i++) {
-				lprint("  node [" + i + "] \"" + nodes[i].id + "\"");
-				lprint("    size: " + rotatingNode.size);
-				lprint("    dir: " + rotatingNode.orientation.desc());
-				lprint("    pos: " + rotatingNode.position.desc());
-				lprint("    orgdir: " + rotatingNode.originalOrientation.desc());
-				lprint("    orgpos: " + rotatingNode.originalPosition.desc());
+				AttachNode n = nodes[i];
+				lprint("  node [" + i + "] \"" + n.id + "\"");
+				lprint("    size: " + n.size);
+				lprint("    dir: " + n.orientation.desc());
+				lprint("    pos: " + n.position.desc());
+				lprint("    orgdir: " + n.originalOrientation.desc());
+				lprint("    orgpos: " + n.originalPosition.desc());
 			}
 			if (rotatingJoint) {
 				lprint(rotatingJoint == part.attachJoint ? "parent joint:" : "not parent joint:");
