@@ -562,7 +562,7 @@ namespace DockRotate
 		[KSPField(
 			isPersistant = true
 		)]
-		public string rotatingNode = "";
+		public string rotatingNodeName = "";
 
 #if DEBUG
 		[KSPEvent(
@@ -586,6 +586,7 @@ namespace DockRotate
 		}
 #endif
 
+		public AttachNode rotatingNode;
 		public Part rotatingPart;
 
 		protected override void stagedSetup()
@@ -610,9 +611,12 @@ namespace DockRotate
 					break;
 
 				case 1:
-					AttachNode node = part.FindAttachNode(rotatingNode);
-					if (node != null) {
-						Part other = node.attachedPart;
+					rotatingNode = part.FindAttachNode(rotatingNodeName);
+					if (rotatingNode == null)
+						lprint(part.desc() + " has no node named " + rotatingNodeName);
+					AttachNode otherNode = rotatingNode != null ? rotatingNode.FindOpposingNode() : null;
+					if (rotatingNode != null && otherNode != null) {
+						Part other = rotatingNode.attachedPart;
 						if (part.parent == other) {
 							rotatingPart = part;
 						} else if (other.parent == part) {
@@ -621,6 +625,14 @@ namespace DockRotate
 					}
 					if (rotatingPart)
 						rotatingJoint = part.attachJoint;
+					break;
+
+				case 2:
+					if (rotatingJoint) {
+						lprint(part.desc()
+						       + ": on "
+						       + (rotatingPart == part ? "itself" : rotatingPart.desc()));
+					}
 					break;
 
 			}
