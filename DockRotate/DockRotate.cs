@@ -643,6 +643,13 @@ namespace DockRotate
 						lprint(part.desc() + " has no node named \"" + rotatingNodeName + "\"");
 					AttachNode otherNode = rotatingNode != null ? rotatingNode.FindOpposingNode() : null;
 					if (rotatingNode != null && otherNode != null) {
+						partNodePos = rotatingNode.position;
+						partNodeAxis = rotatingNode.orientation;
+
+						Vector3 up1 = Vector3.ProjectOnPlane(Vector3.up, partNodeAxis);
+						Vector3 up2 = Vector3.ProjectOnPlane(Vector3.forward, partNodeAxis);
+						partNodeUp = (up1.magnitude > up2.magnitude ? up1 : up2).normalized;
+
 						Part other = rotatingNode.attachedPart;
 						if (part.parent == other) {
 							rotatingPart = part;
