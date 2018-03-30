@@ -600,6 +600,7 @@ namespace DockRotate
 			switch (setupStageCounter) {
 
 				case 0:
+					lprint(part.desc() + ": NodeRotate setup");
 					rotationStep = Mathf.Abs(rotationStep);
 					rotationSpeed = Mathf.Abs(rotationSpeed);
 
@@ -613,7 +614,7 @@ namespace DockRotate
 				case 1:
 					rotatingNode = part.FindAttachNode(rotatingNodeName);
 					if (rotatingNode == null)
-						lprint(part.desc() + " has no node named " + rotatingNodeName);
+						lprint(part.desc() + " has no node named \"" + rotatingNodeName + "\"");
 					AttachNode otherNode = rotatingNode != null ? rotatingNode.FindOpposingNode() : null;
 					if (rotatingNode != null && otherNode != null) {
 						Part other = rotatingNode.attachedPart;
