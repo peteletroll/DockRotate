@@ -557,6 +557,91 @@ namespace DockRotate
 		}
 	}
 
+	public class ModuleNodeRotate: ModuleBaseRotate
+	{
+		[KSPField(
+			isPersistant = true
+		)]
+		public string rotatingNode = "";
+
+#if DEBUG
+		[KSPEvent(
+			guiName = "Dump",
+			guiActive = true,
+			guiActiveEditor = false
+		)]
+		public void Dump()
+		{
+			dumpPart();
+		}
+
+		[KSPEvent(
+			guiName = "Toggle Autostrut Display",
+			guiActive = true,
+			guiActiveEditor = false
+		)]
+		public void ToggleAutoStrutDisplay()
+		{
+			PhysicsGlobals.AutoStrutDisplay = !PhysicsGlobals.AutoStrutDisplay;
+		}
+#endif
+
+		public Part rotatingPart;
+
+		protected override void stagedSetup()
+		{
+			if (onRails || !part || !vessel)
+				return;
+
+			if (rotCur != null)
+				return;
+
+			switch (setupStageCounter) {
+
+				case 0:
+					rotationStep = Mathf.Abs(rotationStep);
+					rotationSpeed = Mathf.Abs(rotationSpeed);
+
+					rotatingPart = null;
+					rotatingJoint = null;
+					partNodePos = partNodeAxis = partNodeUp = new Vector3(9.9f, 9.9f, 9.9f);
+
+					vesselPartCount = vessel ? vessel.parts.Count : -1;
+					break;
+
+				case 1:
+					AttachNode node = part.FindAttachNode(rotatingNode);
+					if (node != null) {
+						Part other = node.attachedPart;
+						if (part.parent == other) {
+							rotatingPart = part;
+						} else if (other.parent == part) {
+							rotatingPart = other;
+						}
+					}
+					if (rotatingPart)
+						rotatingJoint = part.attachJoint;
+					break;
+
+			}
+
+			setupStageCounter++;
+		}
+
+		public void dumpPart()
+		{
+			lprint("--- DUMP " + part.desc() + " ---");
+			lprint("rotPart: " + rotatingPart.desc());
+			if (rotatingJoint) {
+				lprint(rotatingJoint == part.attachJoint ? "parent joint:" : "same vessel joint:");
+				rotatingJoint.dump();
+			}
+
+			lprint("--------------------");
+
+		}
+	}
+
 	public class ModuleDockRotate: ModuleBaseRotate
 	{
 		[KSPField(
