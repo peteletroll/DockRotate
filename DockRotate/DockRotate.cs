@@ -658,8 +658,8 @@ namespace DockRotate
 				case 2:
 					if (rotatingJoint) {
 						lprint(part.desc()
-						       + ": on "
-						       + (rotatingPart == part ? "itself" : rotatingPart.desc()));
+							+ ": on "
+							+ (rotatingPart == part ? "itself" : rotatingPart.desc()));
 					}
 					break;
 
@@ -675,9 +675,14 @@ namespace DockRotate
 			AttachNode[] nodes = part.FindAttachNodes("");
 			for (int i = 0; i < nodes.Length; i++) {
 				lprint("  node [" + i + "] \"" + nodes[i].id + "\"");
+				lprint("    size: " + rotatingNode.size);
+				lprint("    dir: " + rotatingNode.orientation.desc());
+				lprint("    pos: " + rotatingNode.position.desc());
+				lprint("    orgdir: " + rotatingNode.originalOrientation.desc());
+				lprint("    orgpos: " + rotatingNode.originalPosition.desc());
 			}
 			if (rotatingJoint) {
-				lprint(rotatingJoint == part.attachJoint ? "parent joint:" : "same vessel joint:");
+				lprint(rotatingJoint == part.attachJoint ? "parent joint:" : "not parent joint:");
 				rotatingJoint.dump();
 			}
 
@@ -886,8 +891,8 @@ namespace DockRotate
 
 				case 4:
 					if (dockingNode.snapRotation && dockingNode.snapOffset > 0
-					    && activeRotationModule == this
-					    && (rotationEnabled || proxyRotationModule.rotationEnabled)) {
+						&& activeRotationModule == this
+						&& (rotationEnabled || proxyRotationModule.rotationEnabled)) {
 						enqueueRotationToSnap(dockingNode.snapOffset, rotationSpeed);
 					}
 					break;
