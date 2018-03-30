@@ -627,7 +627,6 @@ namespace DockRotate
 			switch (setupStageCounter) {
 
 				case 0:
-					lprint(part.desc() + ": NodeRotate setup");
 					rotationStep = Mathf.Abs(rotationStep);
 					rotationSpeed = Mathf.Abs(rotationSpeed);
 
@@ -677,10 +676,9 @@ namespace DockRotate
 				AttachNode n = nodes[i];
 				lprint("  node [" + i + "] \"" + n.id + "\"");
 				lprint("    size: " + n.size);
-				lprint("    dir: " + n.orientation.desc());
-				lprint("    pos: " + n.position.desc());
-				lprint("    orgdir: " + n.originalOrientation.desc());
-				lprint("    orgpos: " + n.originalPosition.desc());
+				_dumpv("dir", n.orientation, n.originalOrientation);
+				_dumpv("sec", n.secondaryAxis, n.originalSecondaryAxis);
+				_dumpv("pos", n.position, n.originalPosition);
 			}
 			if (rotatingJoint) {
 				lprint(rotatingJoint == part.attachJoint ? "parent joint:" : "not parent joint:");
@@ -688,7 +686,14 @@ namespace DockRotate
 			}
 
 			lprint("--------------------");
+		}
 
+		private void _dumpv(string label, Vector3 v, Vector3 orgv)
+		{
+			lprint("      "
+				+ label + ": "
+				+ v.desc()
+				+ ", org " + (orgv == v ? "=" : orgv.desc()));
 		}
 	}
 
