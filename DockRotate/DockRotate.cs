@@ -541,6 +541,33 @@ namespace DockRotate
 				part.desc(), angle, speed, action));
 		}
 
+		protected virtual void advanceRotation(float deltat)
+		{
+			if (rotCur == null)
+				return;
+			if (rotCur.done()) {
+				rotCur = null;
+				return;
+			}
+
+			rotCur.advance(deltat);
+		}
+
+		public void FixedUpdate()
+		{
+			if (HighLogic.LoadedScene != GameScenes.FLIGHT)
+				return;
+
+			string resetMsg = neededResetMsg();
+			if (resetMsg.Length > 0)
+				resetVessel(resetMsg);
+
+			if (rotCur != null)
+				advanceRotation(Time.fixedDeltaTime);
+
+			stagedSetup();
+		}
+
 		public virtual string neededResetMsg()
 		{
 			if (vessel && vessel.parts.Count != vesselPartCount)
@@ -645,6 +672,10 @@ namespace DockRotate
 		{
 			lprint("--- DUMP " + part.desc() + " ---");
 			lprint("rotPart: " + rotatingPart.desc());
+			AttachNode[] nodes = part.FindAttachNodes("");
+			for (int i = 0; i < nodes.Length; i++) {
+				lprint("  node [" + i + "] \"" + nodes[i].id + "\"");
+			}
 			if (rotatingJoint) {
 				lprint(rotatingJoint == part.attachJoint ? "parent joint:" : "same vessel joint:");
 				rotatingJoint.dump();
@@ -1045,21 +1076,6 @@ namespace DockRotate
 			checkGuiActive();
 		}
 
-		public void FixedUpdate()
-		{
-			if (HighLogic.LoadedScene != GameScenes.FLIGHT)
-				return;
-
-			string resetMsg = neededResetMsg();
-			if (resetMsg.Length > 0)
-				resetVessel(resetMsg);
-
-			if (rotCur != null)
-				advanceRotation(Time.fixedDeltaTime);
-
-			stagedSetup();
-		}
-
 		public override string neededResetMsg()
 		{
 			string msg = base.neededResetMsg();
@@ -1139,23 +1155,16 @@ namespace DockRotate
 			enqueueRotation(f - a, rotationSpeed);
 		}
 
-		private void advanceRotation(float deltat)
+		protected override void advanceRotation(float deltat)
 		{
-			if (rotCur == null)
-				return;
-			if (rotCur.done()) {
-				rotCur = null;
-				return;
-			}
+			base.advanceRotation(deltat);
 
-			if (activeRotationModule != this) {
+			if (activeRotationModule && activeRotationModule != this) {
 				lprint("advanceRotation() called on wrong module, aborting");
 				if (rotCur != null)
 					rotCur.abort(false, "wrong module");
 				return;
 			}
-
-			rotCur.advance(deltat);
 		}
 
 		private ModuleDockRotate actionTarget()
