@@ -646,9 +646,7 @@ namespace DockRotate
 						partNodePos = rotatingNode.position;
 						partNodeAxis = rotatingNode.orientation;
 
-						Vector3 up1 = Vector3.ProjectOnPlane(Vector3.up, partNodeAxis);
-						Vector3 up2 = Vector3.ProjectOnPlane(Vector3.forward, partNodeAxis);
-						partNodeUp = (up1.magnitude > up2.magnitude ? up1 : up2).normalized;
+						partNodeUp = part.up(partNodeAxis);
 
 						Part other = rotatingNode.attachedPart;
 						if (part.parent == other) {
@@ -1282,6 +1280,13 @@ namespace DockRotate
 			ModuleDockRotate mdr = part.FindModuleImplementing<ModuleDockRotate>();
 			return part.name + "_" + part.flightID
 				+ (mdr ? "_" + mdr.nodeRole : "");
+		}
+
+		public static Vector3 up(this Part part, Vector3 axis)
+		{
+			Vector3 up1 = Vector3.ProjectOnPlane(Vector3.up, axis);
+			Vector3 up2 = Vector3.ProjectOnPlane(Vector3.forward, axis);
+			return (up1.magnitude > up2.magnitude ? up1 : up2).normalized;
 		}
 
 		/******** ModuleDockingMode utilities ********/
