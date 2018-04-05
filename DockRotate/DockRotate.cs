@@ -294,7 +294,9 @@ namespace DockRotate
 			List<ModuleDockingNode> dockingNodes = part.vessel.FindPartModulesImplementing<ModuleDockingNode>();
 
 			int count = 0;
-			foreach (PartJoint j in UnityEngine.Object.FindObjectsOfType<PartJoint>()) {
+			PartJoint[] allJoints = UnityEngine.Object.FindObjectsOfType<PartJoint>();
+			for (int ii = 0; ii < allJoints.Length; ii++) {
+				PartJoint j = allJoints[ii];
 				if (!j.Host || j.Host.vessel != part.vessel)
 					continue;
 				if (!j.Target || j.Target.vessel != part.vessel)
