@@ -518,6 +518,27 @@ namespace DockRotate
 			GameEvents.onVesselGoOffRails.Remove(OnVesselGoOffRails);
 		}
 
+		protected static char[] guiListSep = { '.' };
+
+		protected static string[] guiList = {
+			// F: is a KSPField;
+			// E: is a KSPEvent;
+			// e: show in editor;
+			// R: hide when rotating;
+			// D: show only with debugMode activated
+			// A: show with advanced tweakables
+			"angleInfo.F",
+			"nodeRole.F",
+			"smartAutoStruts.FA",
+			"rotationStep.Fe",
+			"rotationSpeed.Fe",
+			"reverseRotation.Fe",
+			"RotateClockwise.E",
+			"RotateCounterclockwise.E",
+			"RotateToSnap.E",
+			"ToggleAutoStrutDisplay.E"
+		};
+
 		protected abstract void checkGuiActive();
 
 		public override void OnStart(StartState state)
@@ -1010,27 +1031,6 @@ namespace DockRotate
 
 			return (axisAngle > 90) ? -angle : angle;
 		}
-
-		private static char[] guiListSep = { '.' };
-
-		private static string[] guiList = {
-			// F: is a KSPField;
-			// E: is a KSPEvent;
-			// e: show in editor;
-			// R: hide when rotating;
-			// D: show only with debugMode activated
-			// A: show with advanced tweakables
-			"angleInfo.F",
-			"nodeRole.F",
-			"smartAutoStruts.FA",
-			"rotationStep.Fe",
-			"rotationSpeed.Fe",
-			"reverseRotation.Fe",
-			"RotateClockwise.E",
-			"RotateCounterclockwise.E",
-			"RotateToSnap.E",
-			"ToggleAutoStrutDisplay.E"
-		};
 
 		protected override void checkGuiActive()
 		{
