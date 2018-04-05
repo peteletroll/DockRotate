@@ -593,6 +593,8 @@ namespace DockRotate
 			rotCur.advance(deltat);
 		}
 
+		protected abstract RotationAnimation currentRotation();
+
 		public void FixedUpdate()
 		{
 			if (HighLogic.LoadedScene != GameScenes.FLIGHT)
@@ -688,6 +690,11 @@ namespace DockRotate
 			}
 
 			setupStageCounter++;
+		}
+
+		protected override RotationAnimation currentRotation()
+		{
+			return rotCur;
 		}
 
 		protected override void checkGuiActive()
@@ -1016,7 +1023,7 @@ namespace DockRotate
 		{
 			int i;
 
-			if (activeRotationModule && activeRotationModule.rotCur != null) {
+			if (currentRotation() != null) {
 				angleInfo = String.Format("{0:+0.00;-0.00;0.00}\u00b0",
 					rotationAngle(true));
 			} else {
@@ -1064,7 +1071,7 @@ namespace DockRotate
 				} else if (flags.IndexOf('E') >= 0) {
 					BaseEvent ev = Events[name];
 					if (ev != null) {
-						if (flags.IndexOf('R') >= 0 && activeRotationModule && activeRotationModule.rotCur != null)
+						if (flags.IndexOf('R') >= 0 && currentRotation() != null)
 							thisGuiActive = false;
 						ev.guiActive = thisGuiActive;
 						ev.guiActiveEditor = thisGuiActive && editorGui;
@@ -1168,6 +1175,11 @@ namespace DockRotate
 					rotCur.abort(false, "wrong module");
 				return;
 			}
+		}
+
+		protected override RotationAnimation currentRotation()
+		{
+			return activeRotationModule ? activeRotationModule.rotCur : null;
 		}
 
 		private ModuleDockRotate actionTarget()
