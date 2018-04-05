@@ -450,6 +450,30 @@ namespace DockRotate
 		)]
 		public bool smartAutoStruts = false;
 
+#if DEBUG
+		[KSPEvent(
+			guiName = "Dump",
+			guiActive = true,
+			guiActiveEditor = false
+		)]
+		public void Dump()
+		{
+			dumpPart();
+		}
+
+		[KSPEvent (
+			guiName = "Toggle Autostrut Display",
+			guiActive = true,
+			guiActiveEditor = false
+		)]
+		public void ToggleAutoStrutDisplay()
+		{
+			PhysicsGlobals.AutoStrutDisplay = !PhysicsGlobals.AutoStrutDisplay;
+		}
+#endif
+
+		protected abstract void dumpPart();
+
 		protected int vesselPartCount;
 
 		protected RotationAnimation rotCur = null;
@@ -591,28 +615,6 @@ namespace DockRotate
 		)]
 		public string rotatingNodeName = "";
 
-#if DEBUG
-		[KSPEvent(
-			guiName = "Dump",
-			guiActive = true,
-			guiActiveEditor = false
-		)]
-		public void Dump()
-		{
-			dumpPart();
-		}
-
-		[KSPEvent(
-			guiName = "Toggle Autostrut Display",
-			guiActive = true,
-			guiActiveEditor = false
-		)]
-		public void ToggleAutoStrutDisplay()
-		{
-			PhysicsGlobals.AutoStrutDisplay = !PhysicsGlobals.AutoStrutDisplay;
-		}
-#endif
-
 		public AttachNode rotatingNode;
 		public Part rotatingPart;
 
@@ -672,7 +674,7 @@ namespace DockRotate
 			setupStageCounter++;
 		}
 
-		public void dumpPart()
+		protected override void dumpPart()
 		{
 			lprint("--- DUMP " + part.desc() + " ---");
 			lprint("rotPart: " + rotatingPart.desc());
@@ -792,28 +794,6 @@ namespace DockRotate
 				return;
 			activeRotationModule.enqueueRotationToSnap(rotationStep, rotationSpeed);
 		}
-
-#if DEBUG
-		[KSPEvent(
-			guiName = "Dump",
-			guiActive = true,
-			guiActiveEditor = false
-		)]
-		public void Dump()
-		{
-			dumpPart();
-		}
-
-		[KSPEvent(
-			guiName = "Toggle Autostrut Display",
-			guiActive = true,
-			guiActiveEditor = false
-		)]
-		public void ToggleAutoStrutDisplay()
-		{
-			PhysicsGlobals.AutoStrutDisplay = !PhysicsGlobals.AutoStrutDisplay;
-		}
-#endif
 
 		// things to be set up by stagedSetup()
 		// the active module of the couple is the farthest from the root part
@@ -1200,7 +1180,7 @@ namespace DockRotate
 
 		/******** Debugging stuff ********/
 
-		private void dumpPart() {
+		protected override void dumpPart() {
 			lprint("--- DUMP " + part.desc() + " ---");
 			/*
 			lprint("mass: " + part.mass);
