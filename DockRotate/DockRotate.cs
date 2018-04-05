@@ -659,8 +659,14 @@ namespace DockRotate
 
 				case 1:
 					rotatingNode = part.FindAttachNode(rotatingNodeName);
-					if (rotatingNode == null)
+					if (rotatingNode == null) {
 						lprint(part.desc() + " has no node named \"" + rotatingNodeName + "\"");
+						AttachNode[] nodes = part.FindAttachNodes("");
+						string nodeList = part.desc() + " available nodes:";
+						for (int i = 0; i < nodes.Length; i++)
+							nodeList += " " + nodes[i].id;
+						lprint(nodeList);
+					}
 					AttachNode otherNode = rotatingNode != null ? rotatingNode.FindOpposingNode() : null;
 					if (rotatingNode != null && otherNode != null) {
 						partNodePos = rotatingNode.position;
