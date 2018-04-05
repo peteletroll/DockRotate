@@ -779,6 +779,8 @@ namespace DockRotate
 					rotatingJoint = null;
 					partNodePos = partNodeAxis = partNodeUp = new Vector3(9.9f, 9.9f, 9.9f);
 
+					nodeRole = "None";
+
 					vesselPartCount = vessel ? vessel.parts.Count : -1;
 					break;
 
@@ -802,8 +804,10 @@ namespace DockRotate
 						Part other = rotatingNode.attachedPart;
 						if (part.parent == other) {
 							rotatingPart = part;
+							nodeRole = "Active";
 						} else if (other.parent == part) {
 							rotatingPart = other;
+							nodeRole = "Proxy";
 						}
 					}
 					if (rotatingPart)
