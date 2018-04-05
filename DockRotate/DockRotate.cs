@@ -235,7 +235,7 @@ namespace DockRotate
 			staticizeRotation();
 		}
 
-		public void setupSound ()
+		public void setupSound()
 		{
 			if (sound)
 				return;
@@ -452,6 +452,20 @@ namespace DockRotate
 		)]
 		public bool smartAutoStruts = false;
 
+		[KSPField(
+			guiName = "#DCKROT_angle",
+			guiActive = true,
+			guiActiveEditor = false
+		)]
+		public string angleInfo;
+
+		[KSPField(
+			guiName = "#DCKROT_status",
+			guiActive = false,
+			guiActiveEditor = false
+		)]
+		public String nodeStatus = "";
+
 #if DEBUG
 		[KSPEvent(
 			guiName = "Dump",
@@ -463,7 +477,7 @@ namespace DockRotate
 			dumpPart();
 		}
 
-		[KSPEvent (
+		[KSPEvent(
 			guiName = "Toggle Autostrut Display",
 			guiActive = true,
 			guiActiveEditor = false
@@ -473,8 +487,13 @@ namespace DockRotate
 			PhysicsGlobals.AutoStrutDisplay = !PhysicsGlobals.AutoStrutDisplay;
 		}
 #endif
+		protected abstract float rotationAngle(bool dynamic);
+
+		protected abstract float dynamicDelta();
 
 		protected abstract void dumpPart();
+
+		protected abstract int countJoints();
 
 		protected int vesselPartCount;
 
@@ -483,6 +502,7 @@ namespace DockRotate
 		protected bool onRails;
 
 		public PartJoint rotatingJoint;
+		public string nodeRole = "Init";
 		protected Vector3 partNodePos; // node position, relative to part
 		public Vector3 partNodeAxis; // node rotation axis, relative to part, reference Vector3.forward
 		protected Vector3 partNodeUp; // node vector for measuring angle, relative to part
@@ -539,7 +559,73 @@ namespace DockRotate
 			"ToggleAutoStrutDisplay.E"
 		};
 
-		protected abstract void checkGuiActive();
+		protected void checkGuiActive()
+		{
+			int i;
+
+			if (currentRotation() != null) {
+				angleInfo = String.Format("{0:+0.00;-0.00;0.00}\u00b0",
+					rotationAngle(true));
+			} else {
+				angleInfo = String.Format("{0:+0.00;-0.00;0.00}\u00b0 ({1:+0.0000;-0.0000;0.0000}\u00b0)",
+					rotationAngle(false),
+					dynamicDelta());
+			}
+
+			bool newGuiActive = canStartRotation();
+
+			nodeStatus = "";
+
+			int nJoints = countJoints();
+			nodeStatus = nodeRole + " [" + nJoints + "]";
+
+			Fields["nodeStatus"].guiActive = nodeStatus.Length > 0;
+
+			for (i = 0; i < guiList.Length; i++) {
+				string[] spec = guiList[i].Split(guiListSep);
+				if (spec.Length != 2) {
+					lprint("bad guiList entry " + guiList[i]);
+					continue;
+				}
+
+				string name = spec[0];
+				string flags = spec[1];
+
+				bool editorGui = flags.IndexOf('e') >= 0;
+
+				bool thisGuiActive = newGuiActive;
+				if (flags.IndexOf('A') >= 0)
+					thisGuiActive = thisGuiActive && GameSettings.ADVANCED_TWEAKABLES;
+
+				if (flags.IndexOf('F') >= 0) {
+					BaseField fld = Fields[name];
+					if (fld != null) {
+						fld.guiActive = thisGuiActive;
+						fld.guiActiveEditor = thisGuiActive && editorGui;
+						UI_Control uc = fld.uiControlEditor;
+						if (uc != null) {
+							uc.scene = (fld.guiActive ? UI_Scene.Flight : 0)
+								| (fld.guiActiveEditor ? UI_Scene.Editor : 0);
+						}
+					}
+				} else if (flags.IndexOf('E') >= 0) {
+					BaseEvent ev = Events[name];
+					if (ev != null) {
+						if (flags.IndexOf('R') >= 0 && currentRotation() != null)
+							thisGuiActive = false;
+						ev.guiActive = thisGuiActive;
+						ev.guiActiveEditor = thisGuiActive && editorGui;
+						if (name == "ToggleAutoStrutDisplay") {
+							ev.guiName = PhysicsGlobals.AutoStrutDisplay ? "Hide Autostruts" : "Show Autostruts";
+						}
+					}
+				} else {
+					lprint("bad guiList flags " + guiList[i]);
+					continue;
+				}
+			}
+		}
+
 
 		public override void OnStart(StartState state)
 		{
@@ -549,7 +635,7 @@ namespace DockRotate
 			checkGuiActive();
 		}
 
-		public override void OnUpdate ()
+		public override void OnUpdate()
 		{
 			base.OnUpdate();
 			checkGuiActive();
@@ -659,6 +745,22 @@ namespace DockRotate
 		public AttachNode rotatingNode;
 		public Part rotatingPart;
 
+		protected override int countJoints()
+		{
+			return rotatingJoint ? rotatingJoint.joints.Count : 0;
+		}
+
+		protected override float rotationAngle(bool dynamic)
+		{
+			return float.NaN; // FIXME: return something meaningful
+		}
+
+		protected override float dynamicDelta()
+		// = dynamic - static
+		{
+			return float.NaN; // FIXME: return something meaningful
+		}
+
 		protected override void stagedSetup()
 		{
 			if (onRails || !part || !vessel)
@@ -731,11 +833,6 @@ namespace DockRotate
 			return base.canStartRotation() && rotatingJoint;
 		}
 
-		protected override void checkGuiActive()
-		{
-			// FIXME: put something here
-		}
-
 		protected override void dumpPart()
 		{
 			lprint("--- DUMP " + part.desc() + " ---");
@@ -768,20 +865,6 @@ namespace DockRotate
 
 	public class ModuleDockRotate: ModuleBaseRotate
 	{
-		[KSPField(
-			guiName = "#DCKROT_angle",
-			guiActive = true,
-			guiActiveEditor = false
-		)]
-		public string angleInfo;
-
-		[KSPField(
-			guiName = "#DCKROT_status",
-			guiActive = false,
-			guiActiveEditor = false
-		)]
-		public String nodeStatus = "";
-
 		[KSPAction(
 			guiName = "#DCKROT_rotate_clockwise",
 			requireFullControl = true
@@ -862,7 +945,6 @@ namespace DockRotate
 		// the proxy module of the couple is the closest to the root part
 
 		private ModuleDockingNode dockingNode;
-		public string nodeRole = "Init";
 		private string lastNodeState = "Init";
 		private Part lastSameVesselDockPart;
 		public ModuleDockRotate activeRotationModule;
@@ -987,7 +1069,7 @@ namespace DockRotate
 			return base.canStartRotation() && activeRotationModule;
 		}
 
-		private int countJoints()
+		protected override int countJoints()
 		{
 			if (!activeRotationModule)
 				return 0;
@@ -996,7 +1078,7 @@ namespace DockRotate
 			return activeRotationModule.rotatingJoint.joints.Count;
 		}
 
-		public float rotationAngle(bool dynamic)
+		protected override float rotationAngle(bool dynamic)
 		{
 			if (!activeRotationModule || !proxyRotationModule)
 				return float.NaN;
@@ -1014,7 +1096,7 @@ namespace DockRotate
 			return (axisAngle > 90) ? angle : -angle;
 		}
 
-		public float dynamicDelta()
+		protected override float dynamicDelta()
 		// = dynamic - static
 		{
 			if (!activeRotationModule || !proxyRotationModule)
@@ -1030,73 +1112,6 @@ namespace DockRotate
 			float axisAngle = Vector3.Angle(a, Vector3.Cross(vs, vd));
 
 			return (axisAngle > 90) ? -angle : angle;
-		}
-
-		protected override void checkGuiActive()
-		{
-			int i;
-
-			if (currentRotation() != null) {
-				angleInfo = String.Format("{0:+0.00;-0.00;0.00}\u00b0",
-					rotationAngle(true));
-			} else {
-				angleInfo = String.Format("{0:+0.00;-0.00;0.00}\u00b0 ({1:+0.0000;-0.0000;0.0000}\u00b0)",
-					rotationAngle(false),
-					dynamicDelta());
-			}
-
-			bool newGuiActive = canStartRotation();
-
-			nodeStatus = "";
-
-			int nJoints = countJoints();
-			nodeStatus = nodeRole + " [" + nJoints + "]";
-
-			Fields["nodeStatus"].guiActive = nodeStatus.Length > 0;
-
-			for (i = 0; i < guiList.Length; i++) {
-				string[] spec = guiList[i].Split(guiListSep);
-				if (spec.Length != 2) {
-					lprint("bad guiList entry " + guiList[i]);
-					continue;
-				}
-
-				string name = spec[0];
-				string flags = spec[1];
-
-				bool editorGui = flags.IndexOf('e') >= 0;
-
-				bool thisGuiActive = newGuiActive;
-				if (flags.IndexOf('A') >= 0)
-					thisGuiActive = thisGuiActive && GameSettings.ADVANCED_TWEAKABLES;
-
-				if (flags.IndexOf('F') >= 0) {
-					BaseField fld = Fields[name];
-					if (fld != null) {
-						fld.guiActive = thisGuiActive;
-						fld.guiActiveEditor = thisGuiActive && editorGui;
-						UI_Control uc = fld.uiControlEditor;
-						if (uc != null) {
-							uc.scene = (fld.guiActive ? UI_Scene.Flight : 0)
-								| (fld.guiActiveEditor ? UI_Scene.Editor : 0);
-						}
-					}
-				} else if (flags.IndexOf('E') >= 0) {
-					BaseEvent ev = Events[name];
-					if (ev != null) {
-						if (flags.IndexOf('R') >= 0 && currentRotation() != null)
-							thisGuiActive = false;
-						ev.guiActive = thisGuiActive;
-						ev.guiActiveEditor = thisGuiActive && editorGui;
-						if (name == "ToggleAutoStrutDisplay") {
-							ev.guiName = PhysicsGlobals.AutoStrutDisplay ? "Hide Autostruts" : "Show Autostruts";
-						}
-					}
-				} else {
-					lprint("bad guiList flags " + guiList[i]);
-					continue;
-				}
-			}
 		}
 
 		public override string neededResetMsg()
@@ -1122,7 +1137,7 @@ namespace DockRotate
 				string newNodeState = dockingNode.state;
 				ModuleDockingNode other = dockingNode.otherNode();
 
-				lprint (part.desc() + ": from " + lastNodeState
+				lprint(part.desc() + ": from " + lastNodeState
 					+ " to " + newNodeState
 					+ " with " + (other ? other.part.desc() : "none"));
 
