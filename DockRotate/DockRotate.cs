@@ -697,6 +697,11 @@ namespace DockRotate
 			return rotCur;
 		}
 
+		protected override bool canStartRotation()
+		{
+			return base.canStartRotation() && rotatingJoint;
+		}
+
 		protected override void checkGuiActive()
 		{
 			// FIXME: put something here
