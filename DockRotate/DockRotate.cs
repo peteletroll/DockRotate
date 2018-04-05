@@ -516,6 +516,22 @@ namespace DockRotate
 			GameEvents.onVesselGoOffRails.Remove(OnVesselGoOffRails);
 		}
 
+		protected abstract void checkGuiActive();
+
+		public override void OnStart(StartState state)
+		{
+			base.OnStart(state);
+			if ((state & StartState.Editor) != 0)
+				return;
+			checkGuiActive();
+		}
+
+		public override void OnUpdate ()
+		{
+			base.OnUpdate();
+			checkGuiActive();
+		}
+
 		protected int setupStageCounter = 0;
 
 		protected abstract void stagedSetup();
@@ -672,6 +688,11 @@ namespace DockRotate
 			}
 
 			setupStageCounter++;
+		}
+
+		protected override void checkGuiActive()
+		{
+			// FIXME: put something here
 		}
 
 		protected override void dumpPart()
@@ -991,7 +1012,7 @@ namespace DockRotate
 			"ToggleAutoStrutDisplay.E"
 		};
 
-		private void checkGuiActive()
+		protected override void checkGuiActive()
 		{
 			int i;
 
@@ -1056,20 +1077,6 @@ namespace DockRotate
 					continue;
 				}
 			}
-		}
-
-		public override void OnStart(StartState state)
-		{
-			base.OnStart(state);
-			if ((state & StartState.Editor) != 0)
-				return;
-			checkGuiActive();
-		}
-
-		public override void OnUpdate()
-		{
-			base.OnUpdate();
-			checkGuiActive();
 		}
 
 		public override string neededResetMsg()
