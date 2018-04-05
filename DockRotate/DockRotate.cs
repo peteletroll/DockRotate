@@ -744,6 +744,8 @@ namespace DockRotate
 
 		public AttachNode rotatingNode;
 		public Part rotatingPart;
+		public Part otherPart;
+		public Vector3 otherPartUp;
 
 		protected override int countJoints()
 		{
@@ -752,13 +754,38 @@ namespace DockRotate
 
 		protected override float rotationAngle(bool dynamic)
 		{
-			return float.NaN; // FIXME: return something meaningful
+			if (!otherPart)
+				return float.NaN;
+
+			Vector3 a = partNodeAxis;
+			Vector3 v1 = partNodeUp;
+			Vector3 v2 = dynamic ?
+				otherPartUp.Td(otherPart.T(), part.T()) :
+				otherPartUp.STd(otherPart, part);
+			v2 = Vector3.ProjectOnPlane(v2, a).normalized;
+
+			float angle = Vector3.Angle(v1, v2);
+			float axisAngle = Vector3.Angle(a, Vector3.Cross(v2, v1));
+
+			return (axisAngle > 90) ? angle : -angle;
 		}
 
 		protected override float dynamicDelta()
 		// = dynamic - static
 		{
-			return float.NaN; // FIXME: return something meaningful
+			if (!otherPart)
+				return float.NaN;
+
+			Vector3 a = partNodeAxis;
+			Vector3 vd = otherPartUp.Td(otherPart.T(), part.T());
+			vd = Vector3.ProjectOnPlane(vd, a).normalized;
+			Vector3 vs = otherPartUp.STd(otherPart, part);
+			vs = Vector3.ProjectOnPlane(vs, a).normalized;
+
+			float angle = Vector3.Angle(vs, vd);
+			float axisAngle = Vector3.Angle(a, Vector3.Cross(vs, vd));
+
+			return (axisAngle > 90) ? -angle : angle;
 		}
 
 		protected override void stagedSetup()
@@ -775,9 +802,10 @@ namespace DockRotate
 					rotationStep = Mathf.Abs(rotationStep);
 					rotationSpeed = Mathf.Abs(rotationSpeed);
 
+					otherPart = null;
 					rotatingPart = null;
 					rotatingJoint = null;
-					partNodePos = partNodeAxis = partNodeUp = new Vector3(9.9f, 9.9f, 9.9f);
+					partNodePos = partNodeAxis = partNodeUp = otherPartUp = new Vector3(9.9f, 9.9f, 9.9f);
 
 					nodeRole = "None";
 
@@ -803,15 +831,19 @@ namespace DockRotate
 
 						Part other = rotatingNode.attachedPart;
 						if (part.parent == other) {
+							otherPart = other;
 							rotatingPart = part;
 							nodeRole = "Active";
 						} else if (other.parent == part) {
+							otherPart = other;
 							rotatingPart = other;
 							nodeRole = "Proxy";
 						}
 					}
 					if (rotatingPart)
 						rotatingJoint = part.attachJoint;
+					if (otherPart)
+						otherPartUp = otherPart.up(partNodeAxis.STd(part, otherPart));
 					break;
 
 				case 2:
@@ -841,6 +873,7 @@ namespace DockRotate
 		{
 			lprint("--- DUMP " + part.desc() + " ---");
 			lprint("rotPart: " + rotatingPart.desc());
+			lprint("other: " + otherPart.desc());
 			AttachNode[] nodes = part.FindAttachNodes("");
 			for (int i = 0; i < nodes.Length; i++) {
 				AttachNode n = nodes[i];
