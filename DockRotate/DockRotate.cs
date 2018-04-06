@@ -487,6 +487,13 @@ namespace DockRotate
 			PhysicsGlobals.AutoStrutDisplay = !PhysicsGlobals.AutoStrutDisplay;
 		}
 #endif
+
+		protected abstract void doRotateClockwise();
+
+		protected abstract void doRotateCounterclockwise();
+
+		protected abstract void doRotateToSnap();
+
 		protected abstract float rotationAngle(bool dynamic);
 
 		protected abstract float dynamicDelta();
@@ -859,6 +866,21 @@ namespace DockRotate
 			setupStageCounter++;
 		}
 
+		protected override void doRotateClockwise()
+		{
+			// FIXME: do something here
+		}
+
+		protected override void doRotateCounterclockwise()
+		{
+			// FIXME: do something here
+		}
+
+		protected override void doRotateToSnap()
+		{
+			// FIXME: do something here
+		}
+
 		protected override RotationAnimation currentRotation()
 		{
 			return rotCur;
@@ -920,12 +942,7 @@ namespace DockRotate
 		)]
 		public void RotateClockwise()
 		{
-			if (canStartRotation()) {
-				float s = rotationStep;
-				if (reverseRotation)
-					s = -s;
-				activeRotationModule.enqueueRotation(s, rotationSpeed);
-			}
+			doRotateClockwise();
 		}
 
 		[KSPAction(
@@ -946,12 +963,7 @@ namespace DockRotate
 		)]
 		public void RotateCounterclockwise()
 		{
-			if (canStartRotation()) {
-				float s = -rotationStep;
-				if (reverseRotation)
-					s = -s;
-				activeRotationModule.enqueueRotation(s, rotationSpeed);
-			}
+			doRotateCounterclockwise();
 		}
 
 		[KSPAction(
@@ -972,9 +984,7 @@ namespace DockRotate
 		)]
 		public void RotateToSnap()
 		{
-			if (!canStartRotation())
-				return;
-			activeRotationModule.enqueueRotationToSnap(rotationStep, rotationSpeed);
+			doRotateToSnap();
 		}
 
 		// things to be set up by stagedSetup()
@@ -1240,6 +1250,33 @@ namespace DockRotate
 					rotCur.abort(false, "wrong module");
 				return;
 			}
+		}
+
+		protected override void doRotateClockwise()
+		{
+			if (canStartRotation()) {
+				float s = rotationStep;
+				if (reverseRotation)
+					s = -s;
+				activeRotationModule.enqueueRotation(s, rotationSpeed);
+			}
+		}
+
+		protected override void doRotateCounterclockwise()
+		{
+			if (canStartRotation()) {
+				float s = -rotationStep;
+				if (reverseRotation)
+					s = -s;
+				activeRotationModule.enqueueRotation(s, rotationSpeed);
+			}
+		}
+
+		protected override void doRotateToSnap()
+		{
+			if (!canStartRotation())
+				return;
+			activeRotationModule.enqueueRotationToSnap(rotationStep, rotationSpeed);
 		}
 
 		protected override RotationAnimation currentRotation()
