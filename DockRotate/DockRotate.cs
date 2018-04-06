@@ -488,11 +488,11 @@ namespace DockRotate
 		}
 #endif
 
-		protected abstract void doRotateClockwise();
+		public abstract void doRotateClockwise();
 
-		protected abstract void doRotateCounterclockwise();
+		public abstract void doRotateCounterclockwise();
 
-		protected abstract void doRotateToSnap();
+		public abstract void doRotateToSnap();
 
 		protected abstract float rotationAngle(bool dynamic);
 
@@ -666,6 +666,11 @@ namespace DockRotate
 			if (reset && msg.Length > 0)
 				lprint(part.desc() + " resets vessel: " + msg);
 			RotationAnimation.resetCount(vessel);
+		}
+
+		protected virtual ModuleBaseRotate actionTarget()
+		{
+			return canStartRotation() ? this : null;
 		}
 
 		protected virtual bool canStartRotation()
@@ -866,17 +871,17 @@ namespace DockRotate
 			setupStageCounter++;
 		}
 
-		protected override void doRotateClockwise()
+		public override void doRotateClockwise()
 		{
 			// FIXME: do something here
 		}
 
-		protected override void doRotateCounterclockwise()
+		public override void doRotateCounterclockwise()
 		{
 			// FIXME: do something here
 		}
 
-		protected override void doRotateToSnap()
+		public override void doRotateToSnap()
 		{
 			// FIXME: do something here
 		}
@@ -930,9 +935,9 @@ namespace DockRotate
 		)]
 		public void RotateClockwise(KSPActionParam param)
 		{
-			ModuleDockRotate tgt = actionTarget();
+			ModuleBaseRotate tgt = actionTarget();
 			if (tgt)
-				tgt.RotateClockwise();
+				tgt.doRotateClockwise();
 		}
 
 		[KSPEvent(
@@ -951,9 +956,9 @@ namespace DockRotate
 		)]
 		public void RotateCounterclockwise(KSPActionParam param)
 		{
-			ModuleDockRotate tgt = actionTarget();
+			ModuleBaseRotate tgt = actionTarget();
 			if (tgt)
-				tgt.RotateCounterclockwise();
+				tgt.doRotateCounterclockwise();
 		}
 
 		[KSPEvent(
@@ -972,9 +977,9 @@ namespace DockRotate
 		)]
 		public void RotateToSnap(KSPActionParam param)
 		{
-			ModuleDockRotate tgt = actionTarget();
+			ModuleBaseRotate tgt = actionTarget();
 			if (tgt)
-				tgt.RotateToSnap();
+				tgt.doRotateToSnap();
 		}
 
 		[KSPEvent(
@@ -1252,7 +1257,7 @@ namespace DockRotate
 			}
 		}
 
-		protected override void doRotateClockwise()
+		public override void doRotateClockwise()
 		{
 			if (canStartRotation()) {
 				float s = rotationStep;
@@ -1262,7 +1267,7 @@ namespace DockRotate
 			}
 		}
 
-		protected override void doRotateCounterclockwise()
+		public override void doRotateCounterclockwise()
 		{
 			if (canStartRotation()) {
 				float s = -rotationStep;
@@ -1272,7 +1277,7 @@ namespace DockRotate
 			}
 		}
 
-		protected override void doRotateToSnap()
+		public override void doRotateToSnap()
 		{
 			if (!canStartRotation())
 				return;
@@ -1284,7 +1289,7 @@ namespace DockRotate
 			return activeRotationModule ? activeRotationModule.rotCur : null;
 		}
 
-		private ModuleDockRotate actionTarget()
+		protected override ModuleBaseRotate actionTarget()
 		{
 			if (rotationEnabled)
 				return this;
