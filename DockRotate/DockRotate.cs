@@ -466,6 +466,69 @@ namespace DockRotate
 		)]
 		public String nodeStatus = "";
 
+		[KSPAction(
+			guiName = "#DCKROT_rotate_clockwise",
+			requireFullControl = true
+		)]
+		public void RotateClockwise(KSPActionParam param)
+		{
+			ModuleBaseRotate tgt = actionTarget();
+			if (tgt)
+				tgt.doRotateClockwise();
+		}
+
+		[KSPEvent(
+			guiName = "#DCKROT_rotate_clockwise",
+			guiActive = false,
+			guiActiveEditor = false
+		)]
+		public void RotateClockwise()
+		{
+			doRotateClockwise();
+		}
+
+		[KSPAction(
+			guiName = "#DCKROT_rotate_counterclockwise",
+			requireFullControl = true
+		)]
+		public void RotateCounterclockwise(KSPActionParam param)
+		{
+			ModuleBaseRotate tgt = actionTarget();
+			if (tgt)
+				tgt.doRotateCounterclockwise();
+		}
+
+		[KSPEvent(
+			guiName = "#DCKROT_rotate_counterclockwise",
+			guiActive = false,
+			guiActiveEditor = false
+		)]
+		public void RotateCounterclockwise()
+		{
+			doRotateCounterclockwise();
+		}
+
+		[KSPAction(
+			guiName = "#DCKROT_rotate_to_snap",
+			requireFullControl = true
+		)]
+		public void RotateToSnap(KSPActionParam param)
+		{
+			ModuleBaseRotate tgt = actionTarget();
+			if (tgt)
+				tgt.doRotateToSnap();
+		}
+
+		[KSPEvent(
+			guiName = "#DCKROT_rotate_to_snap",
+			guiActive = false,
+			guiActiveEditor = false
+		)]
+		public void RotateToSnap()
+		{
+			doRotateToSnap();
+		}
+
 #if DEBUG
 		[KSPEvent(
 			guiName = "Dump",
@@ -929,69 +992,6 @@ namespace DockRotate
 
 	public class ModuleDockRotate: ModuleBaseRotate
 	{
-		[KSPAction(
-			guiName = "#DCKROT_rotate_clockwise",
-			requireFullControl = true
-		)]
-		public void RotateClockwise(KSPActionParam param)
-		{
-			ModuleBaseRotate tgt = actionTarget();
-			if (tgt)
-				tgt.doRotateClockwise();
-		}
-
-		[KSPEvent(
-			guiName = "#DCKROT_rotate_clockwise",
-			guiActive = false,
-			guiActiveEditor = false
-		)]
-		public void RotateClockwise()
-		{
-			doRotateClockwise();
-		}
-
-		[KSPAction(
-			guiName = "#DCKROT_rotate_counterclockwise",
-			requireFullControl = true
-		)]
-		public void RotateCounterclockwise(KSPActionParam param)
-		{
-			ModuleBaseRotate tgt = actionTarget();
-			if (tgt)
-				tgt.doRotateCounterclockwise();
-		}
-
-		[KSPEvent(
-			guiName = "#DCKROT_rotate_counterclockwise",
-			guiActive = false,
-			guiActiveEditor = false
-		)]
-		public void RotateCounterclockwise()
-		{
-			doRotateCounterclockwise();
-		}
-
-		[KSPAction(
-			guiName = "#DCKROT_rotate_to_snap",
-			requireFullControl = true
-		)]
-		public void RotateToSnap(KSPActionParam param)
-		{
-			ModuleBaseRotate tgt = actionTarget();
-			if (tgt)
-				tgt.doRotateToSnap();
-		}
-
-		[KSPEvent(
-			guiName = "#DCKROT_rotate_to_snap",
-			guiActive = false,
-			guiActiveEditor = false
-		)]
-		public void RotateToSnap()
-		{
-			doRotateToSnap();
-		}
-
 		// things to be set up by stagedSetup()
 		// the active module of the couple is the farthest from the root part
 		// the proxy module of the couple is the closest to the root part
@@ -1259,22 +1259,22 @@ namespace DockRotate
 
 		public override void doRotateClockwise()
 		{
-			if (canStartRotation()) {
-				float s = rotationStep;
-				if (reverseRotation)
-					s = -s;
-				activeRotationModule.enqueueRotation(s, rotationSpeed);
-			}
+			if (!canStartRotation())
+				return;
+			float s = rotationStep;
+			if (reverseRotation)
+				s = -s;
+			activeRotationModule.enqueueRotation(s, rotationSpeed);
 		}
 
 		public override void doRotateCounterclockwise()
 		{
-			if (canStartRotation()) {
-				float s = -rotationStep;
-				if (reverseRotation)
-					s = -s;
-				activeRotationModule.enqueueRotation(s, rotationSpeed);
-			}
+			if (!canStartRotation())
+				return;
+			float s = -rotationStep;
+			if (reverseRotation)
+				s = -s;
+			activeRotationModule.enqueueRotation(s, rotationSpeed);
 		}
 
 		public override void doRotateToSnap()
