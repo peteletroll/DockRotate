@@ -484,7 +484,8 @@ namespace DockRotate
 		)]
 		public void RotateClockwise()
 		{
-			doRotateClockwise();
+			if (canStartRotation())
+				doRotateClockwise();
 		}
 
 		[KSPAction(
@@ -505,7 +506,8 @@ namespace DockRotate
 		)]
 		public void RotateCounterclockwise()
 		{
-			doRotateCounterclockwise();
+			if (canStartRotation())
+				doRotateCounterclockwise();
 		}
 
 		[KSPAction(
@@ -526,7 +528,8 @@ namespace DockRotate
 		)]
 		public void RotateToSnap()
 		{
-			doRotateToSnap();
+			if (canStartRotation())
+				doRotateToSnap();
 		}
 
 #if DEBUG
@@ -1259,8 +1262,6 @@ namespace DockRotate
 
 		public override void doRotateClockwise()
 		{
-			if (!canStartRotation())
-				return;
 			float s = rotationStep;
 			if (reverseRotation)
 				s = -s;
@@ -1269,8 +1270,6 @@ namespace DockRotate
 
 		public override void doRotateCounterclockwise()
 		{
-			if (!canStartRotation())
-				return;
 			float s = -rotationStep;
 			if (reverseRotation)
 				s = -s;
@@ -1279,8 +1278,6 @@ namespace DockRotate
 
 		public override void doRotateToSnap()
 		{
-			if (!canStartRotation())
-				return;
 			activeRotationModule.enqueueRotationToSnap(rotationStep, rotationSpeed);
 		}
 
