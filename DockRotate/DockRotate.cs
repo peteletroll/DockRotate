@@ -1320,7 +1320,7 @@ namespace DockRotate
 			}
 
 			if (rotatingJoint) {
-				lprint(rotatingJoint == part.attachJoint ? "parent joint:" : "same vessel joint:"); 
+				lprint(rotatingJoint == part.attachJoint ? "parent joint:" : "same vessel joint:");
 				rotatingJoint.dump();
 			}
 
@@ -1519,9 +1519,9 @@ namespace DockRotate
 			*/
 
 			lprint("  Tgt: " + j.targetPosition.desc() + ", " + j.targetRotation.desc());
-			// lprint("  TgtPosP: " + Tp(j.targetPosition, T(j), T(part))); - FIXME
+			// lprint("  TgtPosP: " + Tp(j.targetPosition, T(j), T(part)));
 
-			/* FIXME
+			/*
 			lprint("  AnchorsP: " + Tp(j.anchor, T(j), T(part))
 				+ " -> " + Tp(j.connectedAnchor, T(j.connectedBody), T(part)));
 			*/
