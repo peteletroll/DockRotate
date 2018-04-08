@@ -611,25 +611,23 @@ namespace DockRotate
 			GameEvents.onVesselGoOffRails.Remove(OnVesselGoOffRails);
 		}
 
-		protected static char[] guiListSep = { '.' };
-
-		protected static string[] guiList = {
+		protected static string[,] guiList = {
 			// F: is a KSPField;
 			// E: is a KSPEvent;
 			// e: show in editor;
 			// R: hide when rotating;
 			// D: show only with debugMode activated
 			// A: show with advanced tweakables
-			"angleInfo.F",
-			"nodeRole.F",
-			"smartAutoStruts.FA",
-			"rotationStep.Fe",
-			"rotationSpeed.Fe",
-			"reverseRotation.Fe",
-			"RotateClockwise.E",
-			"RotateCounterclockwise.E",
-			"RotateToSnap.E",
-			"ToggleAutoStrutDisplay.E"
+			{ "angleInfo", "F" },
+			{ "nodeRole", "F" },
+			{ "smartAutoStruts", "FA" },
+			{ "rotationStep", "Fe" },
+			{ "rotationSpeed", "Fe" },
+			{ "reverseRotation", "Fe" },
+			{ "RotateClockwise", "E" },
+			{ "RotateCounterclockwise", "E" },
+			{ "RotateToSnap", "E" },
+			{ "ToggleAutoStrutDisplay", "E" }
 		};
 
 		protected void checkGuiActive()
@@ -655,14 +653,8 @@ namespace DockRotate
 			Fields["nodeStatus"].guiActive = nodeStatus.Length > 0;
 
 			for (i = 0; i < guiList.Length; i++) {
-				string[] spec = guiList[i].Split(guiListSep);
-				if (spec.Length != 2) {
-					lprint("bad guiList entry " + guiList[i]);
-					continue;
-				}
-
-				string name = spec[0];
-				string flags = spec[1];
+				string name = guiList[i, 0];
+				string flags = guiList[i, 1];
 
 				bool editorGui = flags.IndexOf('e') >= 0;
 
@@ -693,12 +685,11 @@ namespace DockRotate
 						}
 					}
 				} else {
-					lprint("bad guiList flags " + guiList[i]);
+					lprint("bad guiList flags " + flags);
 					continue;
 				}
 			}
 		}
-
 
 		public override void OnStart(StartState state)
 		{
