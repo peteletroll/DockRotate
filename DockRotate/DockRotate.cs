@@ -652,7 +652,8 @@ namespace DockRotate
 
 			Fields["nodeStatus"].guiActive = nodeStatus.Length > 0;
 
-			for (i = 0; i < guiList.Length; i++) {
+			int l = guiList.GetLength(0);
+			for (i = 0; i < l; i++) {
 				string name = guiList[i, 0];
 				string flags = guiList[i, 1];
 
