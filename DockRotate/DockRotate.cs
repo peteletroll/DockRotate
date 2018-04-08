@@ -931,12 +931,18 @@ namespace DockRotate
 
 		public override void doRotateClockwise()
 		{
-			// FIXME: do something here
+			float s = rotationStep;
+			if (reverseRotation)
+				s = -s;
+			enqueueRotation(s, rotationSpeed);
 		}
 
 		public override void doRotateCounterclockwise()
 		{
-			// FIXME: do something here
+			float s = rotationStep;
+			if (reverseRotation)
+				s = -s;
+			enqueueRotation(s, rotationSpeed);
 		}
 
 		public override void doRotateToSnap()
