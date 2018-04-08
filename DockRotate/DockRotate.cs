@@ -575,6 +575,7 @@ namespace DockRotate
 		protected bool onRails;
 
 		public PartJoint rotatingJoint;
+		public Part rotatingPart;
 		public string nodeRole = "Init";
 		protected Vector3 partNodePos; // node position, relative to part
 		public Vector3 partNodeAxis; // node rotation axis, relative to part, reference Vector3.forward
@@ -752,12 +753,12 @@ namespace DockRotate
 				rotCur.tgt += angle;
 				action = "updated";
 			} else {
-				rotCur = new RotationAnimation(part, partNodePos, partNodeAxis, rotatingJoint, 0, angle, speed);
+				rotCur = new RotationAnimation(rotatingPart, partNodePos, partNodeAxis, rotatingJoint, 0, angle, speed);
 				rotCur.smartAutoStruts = smartAutoStruts;
 				action = "added";
 			}
 			lprint(String.Format("{0}: enqueueRotation({1:F4}\u00b0, {2}\u00b0/s), {3}",
-				part.desc(), angle, speed, action));
+				rotatingPart.desc(), angle, speed, action));
 		}
 
 		protected virtual void advanceRotation(float deltat)
@@ -813,7 +814,6 @@ namespace DockRotate
 		public string rotatingNodeName = "";
 
 		public AttachNode rotatingNode;
-		public Part rotatingPart;
 		public Part otherPart;
 		public Vector3 otherPartUp;
 
@@ -895,7 +895,7 @@ namespace DockRotate
 					AttachNode otherNode = rotatingNode != null ? rotatingNode.FindOpposingNode() : null;
 					if (rotatingNode != null && otherNode != null) {
 						partNodePos = rotatingNode.position;
-						partNodeAxis = rotatingNode.orientation;
+						partNodeAxis = -rotatingNode.orientation;
 
 						partNodeUp = part.up(partNodeAxis);
 
@@ -907,11 +907,17 @@ namespace DockRotate
 						} else if (other.parent == part) {
 							otherPart = other;
 							rotatingPart = other;
+							partNodePos = partNodePos.STd(part, rotatingPart);
 							nodeRole = "Proxy";
 						}
 					}
-					if (rotatingPart)
-						rotatingJoint = part.attachJoint;
+					if (rotatingPart) {
+						rotatingJoint = rotatingPart.attachJoint;
+						partNodePos = partNodePos.STp(part, rotatingPart);
+						partNodeAxis = partNodeAxis.STd(part, rotatingPart);
+						if (rotatingPart != this)
+							partNodeAxis = -partNodeAxis;
+					}
 					if (otherPart)
 						otherPartUp = otherPart.up(partNodeAxis.STd(part, otherPart));
 					break;
@@ -939,7 +945,7 @@ namespace DockRotate
 
 		public override void doRotateCounterclockwise()
 		{
-			float s = rotationStep;
+			float s = -rotationStep;
 			if (reverseRotation)
 				s = -s;
 			enqueueRotation(s, rotationSpeed);
@@ -1018,6 +1024,7 @@ namespace DockRotate
 					rotationSpeed = Mathf.Abs(rotationSpeed);
 
 					dockingNode = null;
+					rotatingPart = null;
 					rotatingJoint = null;
 					activeRotationModule = proxyRotationModule = null;
 					nodeStatus = "";
@@ -1060,7 +1067,10 @@ namespace DockRotate
 							nodeRole = "Active";
 						}
 					}
+					if (activeRotationModule)
+						rotatingPart = activeRotationModule.part;
 					break;
+
 
 				case 2:
 					if (activeRotationModule == this) {
@@ -1303,6 +1313,7 @@ namespace DockRotate
 
 		protected override void dumpPart() {
 			lprint("--- DUMP " + part.desc() + " ---");
+			lprint("rotPart: " + rotatingPart.desc());
 			/*
 			lprint("mass: " + part.mass);
 			lprint("parent: " + descPart(part.parent));
