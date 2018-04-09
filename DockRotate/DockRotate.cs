@@ -975,7 +975,10 @@ namespace DockRotate
 			AttachNode[] nodes = part.FindAttachNodes("");
 			for (int i = 0; i < nodes.Length; i++) {
 				AttachNode n = nodes[i];
-				lprint("  node [" + i + "] \"" + n.id + "\", size " + n.size);
+				lprint("  node [" + i + "] \"" + n.id + "\""
+					+ ", size " + n.size
+					+ ", type " + n.nodeType
+					+ ", method " + n.attachMethod);
 				lprint("    dirV: " + n.orientation.STd(part, vessel.rootPart));
 				_dumpv("dir", n.orientation, n.originalOrientation);
 				_dumpv("sec", n.secondaryAxis, n.originalSecondaryAxis);
