@@ -976,7 +976,7 @@ namespace DockRotate
 			for (int i = 0; i < nodes.Length; i++) {
 				AttachNode n = nodes[i];
 				lprint("  node [" + i + "] \"" + n.id + "\", size " + n.size);
-				lprint("    dirV: " + n.orientation.Td(n.T(), vessel.rootPart.T()));
+				lprint("    dirV: " + n.orientation.STd(part, vessel.rootPart));
 				_dumpv("dir", n.orientation, n.originalOrientation);
 				_dumpv("sec", n.secondaryAxis, n.originalSecondaryAxis);
 				_dumpv("pos", n.position, n.originalPosition);
@@ -1629,11 +1629,6 @@ namespace DockRotate
 		public static Transform T(this ModuleDockingNode m)
 		{
 			return m.nodeTransform;
-		}
-
-		public static Transform T(this AttachNode n)
-		{
-			return n.nodeTransform;
 		}
 
 		/******** Reference change utilities - static ********/
