@@ -986,7 +986,7 @@ namespace DockRotate
 					+ ", size " + n.size
 					+ ", type " + n.nodeType
 					+ ", method " + n.attachMethod);
-				lprint("    dirV: " + n.orientation.STd(part, vessel.rootPart));
+				lprint("    dirV: " + n.orientation.STd(part, vessel.rootPart).desc());
 				_dumpv("dir", n.orientation, n.originalOrientation);
 				_dumpv("sec", n.secondaryAxis, n.originalSecondaryAxis);
 				_dumpv("pos", n.position, n.originalPosition);
