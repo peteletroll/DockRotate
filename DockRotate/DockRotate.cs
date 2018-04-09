@@ -560,6 +560,8 @@ namespace DockRotate
 
 		public abstract void doRotateToSnap();
 
+		public abstract bool useSmartAutoStruts();
+
 		protected abstract float rotationAngle(bool dynamic);
 
 		protected abstract float dynamicDelta();
@@ -754,7 +756,7 @@ namespace DockRotate
 				action = "updated";
 			} else {
 				rotCur = new RotationAnimation(rotatingPart, partNodePos, partNodeAxis, rotatingJoint, 0, angle, speed);
-				rotCur.smartAutoStruts = smartAutoStruts;
+				rotCur.smartAutoStruts = useSmartAutoStruts();
 				action = "added";
 			}
 			lprint(String.Format("{0}: enqueueRotation({1:F4}\u00b0, {2}\u00b0/s), {3}",
@@ -957,6 +959,11 @@ namespace DockRotate
 			// FIXME: do something here
 		}
 
+		public override bool useSmartAutoStruts()
+		{
+			return smartAutoStruts;
+		}
+
 		protected override RotationAnimation currentRotation()
 		{
 			return rotCur;
@@ -1145,6 +1152,12 @@ namespace DockRotate
 			return activeRotationModule.rotatingJoint.joints.Count;
 		}
 
+		public override bool useSmartAutoStruts()
+		{
+			return (activeRotationModule && activeRotationModule.smartAutoStruts)
+				|| (proxyRotationModule && proxyRotationModule.smartAutoStruts);
+		}
+
 		protected override float rotationAngle(bool dynamic)
 		{
 			if (!activeRotationModule || !proxyRotationModule)
@@ -1241,8 +1254,6 @@ namespace DockRotate
 				return;
 			}
 			base.enqueueRotation(angle, speed);
-			if (rotCur != null)
-				rotCur.smartAutoStruts = activeRotationModule.smartAutoStruts || proxyRotationModule.smartAutoStruts;
 		}
 
 		private void enqueueRotationToSnap(float snap, float speed)
