@@ -54,6 +54,6 @@ echo generating release $zip
 	cd $tmp &&
 	zip -r $zip GameData
 ) || exit 1
-echo done.
+echo done, `du -h $zip | cut -f 1`.
 echo
 
