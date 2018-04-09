@@ -883,7 +883,8 @@ namespace DockRotate
 					break;
 
 				case 1:
-					rotatingNode = part.FindAttachNode(rotatingNodeName);
+					rotatingNode = part.physicalSignificance == Part.PhysicalSignificance.FULL ?
+						part.FindAttachNode(rotatingNodeName) : null;
 					if (rotatingNode == null) {
 						lprint(part.desc() + " has no node named \"" + rotatingNodeName + "\"");
 						AttachNode[] nodes = part.FindAttachNodes("");
