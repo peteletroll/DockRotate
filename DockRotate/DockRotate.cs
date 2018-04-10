@@ -759,8 +759,8 @@ namespace DockRotate
 				rotCur.smartAutoStruts = useSmartAutoStruts();
 				action = "added";
 			}
-			lprint(String.Format("{0}: enqueueRotation({1:F4}\u00b0, {2}\u00b0/s), {3}",
-				rotatingPart.desc(), angle, speed, action));
+			lprint(String.Format("{0}: enqueueRotation({1}, {2:F4}\u00b0, {3}\u00b0/s), {4}",
+				rotatingPart.desc(), partNodeAxis.desc(), angle, speed, action));
 		}
 
 		protected virtual void advanceRotation(float deltat)
