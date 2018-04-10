@@ -909,21 +909,16 @@ namespace DockRotate
 							otherPart = other;
 							rotatingPart = part;
 							nodeRole = "Active";
-							partNodeAxis = -partNodeAxis;
 						} else if (other.parent == part) {
 							otherPart = other;
 							rotatingPart = other;
-							partNodePos = partNodePos.STd(part, rotatingPart);
+							partNodePos = partNodePos.STp(part, rotatingPart);
+							partNodeAxis = -partNodeAxis.STd(part, rotatingPart);
 							nodeRole = "Proxy";
 						}
 					}
-					if (rotatingPart) {
+					if (rotatingPart)
 						rotatingJoint = rotatingPart.attachJoint;
-						partNodePos = partNodePos.STp(part, rotatingPart);
-						partNodeAxis = partNodeAxis.STd(part, rotatingPart);
-						if (rotatingPart != this)
-							partNodeAxis = -partNodeAxis;
-					}
 					if (otherPart)
 						otherPartUp = otherPart.up(partNodeAxis.STd(part, otherPart));
 					break;
