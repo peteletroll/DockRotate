@@ -166,8 +166,10 @@ namespace DockRotate
 			if (sound != null)
 				sound.Play();
 
+			/*
 			lprint(String.Format("{0}: started {1:F4}\u00b0 at {2}\u00b0/s",
 				part.desc(), tgt, maxvel));
+			*/
 		}
 
 		private void onStep(float deltat)
@@ -898,7 +900,7 @@ namespace DockRotate
 					AttachNode otherNode = rotatingNode != null ? rotatingNode.FindOpposingNode() : null;
 					if (rotatingNode != null && otherNode != null) {
 						partNodePos = rotatingNode.position;
-						partNodeAxis = -rotatingNode.orientation;
+						partNodeAxis = rotatingNode.orientation;
 
 						partNodeUp = part.up(partNodeAxis);
 
@@ -907,6 +909,7 @@ namespace DockRotate
 							otherPart = other;
 							rotatingPart = part;
 							nodeRole = "Active";
+							partNodeAxis = -partNodeAxis;
 						} else if (other.parent == part) {
 							otherPart = other;
 							rotatingPart = other;
