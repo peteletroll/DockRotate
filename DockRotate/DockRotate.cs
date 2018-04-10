@@ -978,6 +978,8 @@ namespace DockRotate
 		{
 			lprint("--- DUMP " + part.desc() + " ---");
 			lprint("rotPart: " + rotatingPart.desc());
+			lprint("rotAxis: " + partNodeAxis.desc());
+			lprint("rotAxisV: " + partNodeAxis.STd(rotatingPart, vessel.rootPart).desc());
 			lprint("other: " + otherPart.desc());
 			AttachNode[] nodes = part.FindAttachNodes("");
 			for (int i = 0; i < nodes.Length; i++) {
