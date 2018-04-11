@@ -1654,7 +1654,6 @@ namespace DockRotate
 
 		public static Vector3 STp(this Vector3 v, Part from, Part to)
 		{
-			// untested yet
 			Vector3 vv = from.orgPos + from.orgRot * v;
 			return to.orgRot.inverse() * (vv - to.orgPos);
 		}
