@@ -887,6 +887,8 @@ namespace DockRotate
 					break;
 
 				case 1:
+					if (part.FindModuleImplementing<ModuleDockRotate>())
+						break;
 					rotatingNode = part.physicalSignificance == Part.PhysicalSignificance.FULL ?
 						part.FindAttachNode(rotatingNodeName) : null;
 					if (rotatingNode == null) {
