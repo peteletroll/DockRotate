@@ -1,11 +1,12 @@
 * better handling of docking port state changes
 	* especially to fix adjusting multiple docking ports
 
-* update \_propagate() to use STd() and STp()
-
 * refactor checkGuiActive() to remove the guiList[] logic
 
-* split ModuleDockRotate into ModuleBaseRotate + ModuleDockRotate
-
-* write ModuleNodeRotate
+* ModuleNodeRotate checks before release:
+	* check dynamic rotation orientation
+	* check static rotation orientation
+	* check rotation angle orientation
+	* check dynamic delta orientation
+	* write some docs and example cfg
 
