@@ -640,10 +640,11 @@ namespace DockRotate
 			int i;
 
 			if (currentRotation() != null) {
-				angleInfo = String.Format("{0:+0.00;-0.00;0.00}\u00b0",
-					rotationAngle(true));
+				angleInfo = String.Format("{0:+0.00;-0.00;0.00}\u00b0 ({1:+0.00;-0.00;0.00}\u00b0/s)",
+					rotationAngle(true),
+					currentRotation().vel);
 			} else {
-				angleInfo = String.Format("{0:+0.00;-0.00;0.00}\u00b0 ({1:+0.0000;-0.0000;0.0000}\u00b0)",
+				angleInfo = String.Format("{0:+0.00;-0.00;0.00}\u00b0 ({1:+0.0000;-0.0000;0.0000}\u00b0\u0394)",
 					rotationAngle(false),
 					dynamicDelta());
 			}
@@ -980,7 +981,6 @@ namespace DockRotate
 			lprint("--- DUMP " + part.desc() + " ---");
 			lprint("rotPart: " + activePart.desc());
 			lprint("rotAxis: " + partNodeAxis.ddesc(activePart));
-			lprint("rotAxisV: " + partNodeAxis.STd(activePart, vessel.rootPart).desc()); // FIXME: delete this when ddesc() is tested
 			lprint("rotUp: " + partNodeUp.ddesc(activePart));
 			lprint("other: " + proxyPart.desc());
 			AttachNode[] nodes = part.FindAttachNodes("");
