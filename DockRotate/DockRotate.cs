@@ -6,7 +6,7 @@ namespace DockRotate
 {
 	public class RotationAnimation
 	{
-		private Part part, otherPart;
+		private Part activePart, proxyPart;
 		private Vector3 node, axis;
 		private PartJoint joint;
 		public bool smartAutoStruts = false;
@@ -55,12 +55,12 @@ namespace DockRotate
 
 		public RotationAnimation(Part part, Vector3 node, Vector3 axis, PartJoint joint, float pos, float tgt, float maxvel)
 		{
-			this.part = part;
+			this.activePart = part;
 			this.node = node;
 			this.axis = axis;
 			this.joint = joint;
 
-			this.otherPart = joint.Host == part ? joint.Target : joint.Host;
+			this.proxyPart = joint.Host == part ? joint.Target : joint.Host;
 			this.vesselId = part.vessel.id;
 			this.startParent = part.parent;
 
@@ -103,7 +103,7 @@ namespace DockRotate
 
 		public void advance(float deltat)
 		{
-			if (part.parent != startParent)
+			if (activePart.parent != startParent)
 				abort(true, "changed parent");
 			if (finished)
 				return;
@@ -144,7 +144,7 @@ namespace DockRotate
 			if (smartAutoStruts) {
 				releaseCrossAutoStruts();
 			} else {
-				part.vessel.releaseAllAutoStruts();
+				activePart.vessel.releaseAllAutoStruts();
 			}
 			int c = joint.joints.Count;
 			rji = new RotJointInfo[c];
@@ -154,7 +154,7 @@ namespace DockRotate
 				rji[i].localToJoint = j.localToJoint();
 				rji[i].jointToLocal = rji[i].localToJoint.inverse();
 				rji[i].jointAxis = axis.Td(
-					part.T(),
+					activePart.T(),
 					joint.joints[i].T());
 				rji[i].startTgtRotation = j.targetRotation;
 				rji[i].startTgtPosition = j.targetPosition;
@@ -194,7 +194,7 @@ namespace DockRotate
 
 			// first rough attempt for electricity consumption
 			if (deltat > 0) {
-				double el = part.RequestResource("ElectricCharge", 1.0 * deltat);
+				double el = activePart.RequestResource("ElectricCharge", 1.0 * deltat);
 				if (el <= 0.0)
 					abort(false, "no electric charge");
 			}
@@ -223,7 +223,7 @@ namespace DockRotate
 					// staticize joint target anchors
 					// ModuleDockRotate m = rotationModule.proxyRotationModule;
 					// Vector3 tgtAxis = m.partNodeAxis.Td(m.part.T(), m.part.rb.T());
-					Vector3 tgtAxis = -axis.STd(part, otherPart).Td(otherPart.T(), otherPart.rb.T());
+					Vector3 tgtAxis = -axis.STd(activePart, proxyPart).Td(proxyPart.T(), proxyPart.rb.T());
 					Quaternion tgtRot = Quaternion.AngleAxis(pos, tgtAxis);
 					j.connectedAnchor = tgtRot * j.connectedAnchor;
 					j.targetPosition = rji[i].startTgtPosition;
@@ -233,7 +233,7 @@ namespace DockRotate
 				lprint("securing autostruts on vessel " + vesselId);
 				joint.Host.vessel.secureAllAutoStruts();
 			}
-			lprint(part.desc() + ": rotation stopped");
+			lprint(activePart.desc() + ": rotation stopped");
 			staticizeRotation();
 		}
 
@@ -249,7 +249,7 @@ namespace DockRotate
 					return;
 				}
 
-				sound = part.gameObject.AddComponent<AudioSource>();
+				sound = activePart.gameObject.AddComponent<AudioSource>();
 				sound.clip = clip;
 				sound.volume = 0;
 				sound.pitch = 0;
@@ -261,7 +261,7 @@ namespace DockRotate
 
 				pitchAlteration = UnityEngine.Random.Range(0.9f, 1.1f);
 
-				lprint(part.desc() + ": added sound");
+				lprint(activePart.desc() + ": added sound");
 			} catch (Exception e) {
 				sound = null;
 				lprint("sound: " + e.Message);
@@ -270,19 +270,19 @@ namespace DockRotate
 
 		private void staticizeRotation()
 		{
-			if (joint != part.attachJoint) {
-				lprint(part.desc() + ": skip staticize, same vessel joint");
+			if (joint != activePart.attachJoint) {
+				lprint(activePart.desc() + ": skip staticize, same vessel joint");
 				return;
 			}
 			float angle = tgt;
-			Vector3 nodeAxis = -axis.STd(part, part.vessel.rootPart);
+			Vector3 nodeAxis = -axis.STd(activePart, activePart.vessel.rootPart);
 			Quaternion nodeRot = Quaternion.AngleAxis(angle, nodeAxis);
-			_propagate(part, nodeRot);
+			_propagate(activePart, nodeRot);
 		}
 
 		private void _propagate(Part p, Quaternion rot)
 		{
-			Vector3 vNode = node.STp(part, part.vessel.rootPart);
+			Vector3 vNode = node.STp(activePart, activePart.vessel.rootPart);
 			p.orgPos = rot * (p.orgPos - vNode) + vNode;
 			p.orgRot = rot * p.orgRot;
 
@@ -292,16 +292,16 @@ namespace DockRotate
 
 		public void releaseCrossAutoStruts()
 		{
-			PartSet rotParts = part.allPartsFromHere();
-			List<ModuleDockingNode> dockingNodes = part.vessel.FindPartModulesImplementing<ModuleDockingNode>();
+			PartSet rotParts = activePart.allPartsFromHere();
+			List<ModuleDockingNode> dockingNodes = activePart.vessel.FindPartModulesImplementing<ModuleDockingNode>();
 
 			int count = 0;
 			PartJoint[] allJoints = UnityEngine.Object.FindObjectsOfType<PartJoint>();
 			for (int ii = 0; ii < allJoints.Length; ii++) {
 				PartJoint j = allJoints[ii];
-				if (!j.Host || j.Host.vessel != part.vessel)
+				if (!j.Host || j.Host.vessel != activePart.vessel)
 					continue;
-				if (!j.Target || j.Target.vessel != part.vessel)
+				if (!j.Target || j.Target.vessel != activePart.vessel)
 					continue;
 				if (j == j.Host.attachJoint)
 					continue;
