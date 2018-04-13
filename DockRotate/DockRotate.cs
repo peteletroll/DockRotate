@@ -579,7 +579,7 @@ namespace DockRotate
 		protected bool onRails;
 
 		public PartJoint rotatingJoint;
-		public Part rotatingPart;
+		public Part activePart;
 		public string nodeRole = "Init";
 		protected Vector3 partNodePos; // node position, relative to part
 		public Vector3 partNodeAxis; // node rotation axis, relative to part, reference Vector3.forward
@@ -757,12 +757,12 @@ namespace DockRotate
 				rotCur.tgt += angle;
 				action = "updated";
 			} else {
-				rotCur = new RotationAnimation(rotatingPart, partNodePos, partNodeAxis, rotatingJoint, 0, angle, speed);
+				rotCur = new RotationAnimation(activePart, partNodePos, partNodeAxis, rotatingJoint, 0, angle, speed);
 				rotCur.smartAutoStruts = useSmartAutoStruts();
 				action = "added";
 			}
 			lprint(String.Format("{0}: enqueueRotation({1}, {2:F4}\u00b0, {3}\u00b0/s), {4}",
-				rotatingPart.desc(), partNodeAxis.desc(), angle, speed, action));
+				activePart.desc(), partNodeAxis.desc(), angle, speed, action));
 		}
 
 		protected virtual void advanceRotation(float deltat)
@@ -818,7 +818,7 @@ namespace DockRotate
 		public string rotatingNodeName = "";
 
 		public AttachNode rotatingNode;
-		public Part otherPart;
+		public Part proxyPart;
 		public Vector3 otherPartUp;
 
 		protected override int countJoints()
@@ -828,14 +828,14 @@ namespace DockRotate
 
 		protected override float rotationAngle(bool dynamic)
 		{
-			if (!rotatingPart || !otherPart)
+			if (!activePart || !proxyPart)
 				return float.NaN;
 
 			Vector3 a = partNodeAxis;
 			Vector3 v1 = partNodeUp;
 			Vector3 v2 = dynamic ?
-				otherPartUp.Td(otherPart.T(), rotatingPart.T()) :
-				otherPartUp.STd(otherPart, rotatingPart);
+				otherPartUp.Td(proxyPart.T(), activePart.T()) :
+				otherPartUp.STd(proxyPart, activePart);
 			v2 = Vector3.ProjectOnPlane(v2, a).normalized;
 
 			float angle = Vector3.Angle(v1, v2);
@@ -847,13 +847,13 @@ namespace DockRotate
 		protected override float dynamicDelta()
 		// = dynamic - static
 		{
-			if (!otherPart)
+			if (!proxyPart)
 				return float.NaN;
 
 			Vector3 a = partNodeAxis;
-			Vector3 vd = otherPartUp.Td(otherPart.T(), rotatingPart.T());
+			Vector3 vd = otherPartUp.Td(proxyPart.T(), activePart.T());
 			vd = Vector3.ProjectOnPlane(vd, a).normalized;
-			Vector3 vs = otherPartUp.STd(otherPart, rotatingPart);
+			Vector3 vs = otherPartUp.STd(proxyPart, activePart);
 			vs = Vector3.ProjectOnPlane(vs, a).normalized;
 
 			float angle = Vector3.Angle(vs, vd);
@@ -876,8 +876,8 @@ namespace DockRotate
 					rotationStep = Mathf.Abs(rotationStep);
 					rotationSpeed = Mathf.Abs(rotationSpeed);
 
-					otherPart = null;
-					rotatingPart = null;
+					proxyPart = null;
+					activePart = null;
 					rotatingJoint = null;
 					partNodePos = partNodeAxis = partNodeUp = otherPartUp = new Vector3(9.9f, 9.9f, 9.9f);
 
@@ -908,29 +908,29 @@ namespace DockRotate
 
 						Part other = rotatingNode.attachedPart;
 						if (part.parent == other) {
-							otherPart = other;
-							rotatingPart = part;
+							proxyPart = other;
+							activePart = part;
 							nodeRole = "Active";
 						} else if (other.parent == part) {
-							otherPart = part;
-							rotatingPart = other;
-							partNodePos = partNodePos.STp(part, rotatingPart);
-							partNodeAxis = -partNodeAxis.STd(part, rotatingPart);
-							partNodeUp = rotatingPart.up(partNodeAxis);
+							proxyPart = part;
+							activePart = other;
+							partNodePos = partNodePos.STp(part, activePart);
+							partNodeAxis = -partNodeAxis.STd(part, activePart);
+							partNodeUp = activePart.up(partNodeAxis);
 							nodeRole = "Proxy";
 						}
 					}
-					if (rotatingPart)
-						rotatingJoint = rotatingPart.attachJoint;
-					if (otherPart)
-						otherPartUp = otherPart.up(partNodeAxis.STd(part, otherPart));
+					if (activePart)
+						rotatingJoint = activePart.attachJoint;
+					if (proxyPart)
+						otherPartUp = proxyPart.up(partNodeAxis.STd(part, proxyPart));
 					break;
 
 				case 2:
 					if (rotatingJoint) {
 						lprint(part.desc()
 							+ ": on "
-							+ (rotatingPart == part ? "itself" : rotatingPart.desc()));
+							+ (activePart == part ? "itself" : activePart.desc()));
 					}
 					break;
 
@@ -978,11 +978,11 @@ namespace DockRotate
 		protected override void dumpPart()
 		{
 			lprint("--- DUMP " + part.desc() + " ---");
-			lprint("rotPart: " + rotatingPart.desc());
-			lprint("rotAxis: " + partNodeAxis.ddesc(rotatingPart));
-			lprint("rotAxisV: " + partNodeAxis.STd(rotatingPart, vessel.rootPart).desc()); // FIXME: delete this when ddesc() is tested
-			lprint("rotUp: " + partNodeUp.ddesc(rotatingPart));
-			lprint("other: " + otherPart.desc());
+			lprint("rotPart: " + activePart.desc());
+			lprint("rotAxis: " + partNodeAxis.ddesc(activePart));
+			lprint("rotAxisV: " + partNodeAxis.STd(activePart, vessel.rootPart).desc()); // FIXME: delete this when ddesc() is tested
+			lprint("rotUp: " + partNodeUp.ddesc(activePart));
+			lprint("other: " + proxyPart.desc());
 			AttachNode[] nodes = part.FindAttachNodes("");
 			for (int i = 0; i < nodes.Length; i++) {
 				AttachNode n = nodes[i];
@@ -1039,7 +1039,7 @@ namespace DockRotate
 					rotationSpeed = Mathf.Abs(rotationSpeed);
 
 					dockingNode = null;
-					rotatingPart = null;
+					activePart = null;
 					rotatingJoint = null;
 					activeRotationModule = proxyRotationModule = null;
 					nodeStatus = "";
@@ -1083,7 +1083,7 @@ namespace DockRotate
 						}
 					}
 					if (activeRotationModule)
-						rotatingPart = activeRotationModule.part;
+						activePart = activeRotationModule.part;
 					break;
 
 
@@ -1332,7 +1332,7 @@ namespace DockRotate
 
 		protected override void dumpPart() {
 			lprint("--- DUMP " + part.desc() + " ---");
-			lprint("rotPart: " + rotatingPart.desc());
+			lprint("rotPart: " + activePart.desc());
 			/*
 			lprint("mass: " + part.mass);
 			lprint("parent: " + descPart(part.parent));
