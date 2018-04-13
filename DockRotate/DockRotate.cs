@@ -1580,6 +1580,28 @@ namespace DockRotate
 				+ ")";
 		}
 
+		public static string ddesc(this Vector3 v, Part p)
+		{
+			string ret = v.desc();
+			if (p && p.vessel.rootPart) {
+				ret += " VSL" + v.Td(p.T(), p.vessel.rootPart.T()).desc();
+			} else {
+				ret += " (no vessel)";
+			}
+			return ret;
+		}
+
+		public static string pdesc(this Vector3 v, Part p)
+		{
+			string ret = v.desc();
+			if (p && p.vessel.rootPart) {
+				ret += " VSL" + v.Tp(p.T(), p.vessel.rootPart.T()).desc();
+			} else {
+				ret += " (no vessel)";
+			}
+			return ret;
+		}
+
 		/******** Quaternion utilities ********/
 
 		public static Quaternion inverse(this Quaternion q)
