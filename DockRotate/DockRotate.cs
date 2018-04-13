@@ -766,6 +766,21 @@ namespace DockRotate
 				activePart.desc(), partNodeAxis.desc(), angle, speed, action));
 		}
 
+		protected void enqueueRotationToSnap(float snap, float speed)
+		{
+			snap = Mathf.Abs(snap);
+			if (snap < 0.5)
+				return;
+
+			float a = rotCur == null ? rotationAngle(false) : rotCur.tgt;
+			if (float.IsNaN(a))
+				return;
+			float f = snap * Mathf.Floor(a / snap + 0.5f);
+			lprint(String.Format("{0}: snap {1:F4} to {2:F4} ({3:F4})",
+				part.desc(), a, f, f - a));
+			enqueueRotation(f - a, rotationSpeed);
+		}
+
 		protected virtual void advanceRotation(float deltat)
 		{
 			if (rotCur == null)
@@ -958,7 +973,7 @@ namespace DockRotate
 
 		public override void doRotateToSnap()
 		{
-			// FIXME: do something here
+			enqueueRotationToSnap(rotationStep, rotationSpeed);
 		}
 
 		public override bool useSmartAutoStruts()
@@ -1258,21 +1273,6 @@ namespace DockRotate
 				return;
 			}
 			base.enqueueRotation(angle, speed);
-		}
-
-		private void enqueueRotationToSnap(float snap, float speed)
-		{
-			snap = Mathf.Abs(snap);
-			if (snap < 0.5)
-				return;
-
-			float a = rotCur == null ? rotationAngle(false) : rotCur.tgt;
-			if (float.IsNaN(a))
-				return;
-			float f = snap * Mathf.Floor(a / snap + 0.5f);
-			lprint(String.Format("{0}: snap {1:F4} to {2:F4} ({3:F4})",
-				part.desc(), a, f, f - a));
-			enqueueRotation(f - a, rotationSpeed);
 		}
 
 		protected override void advanceRotation(float deltat)
