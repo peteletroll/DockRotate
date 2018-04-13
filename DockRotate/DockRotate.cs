@@ -916,6 +916,7 @@ namespace DockRotate
 							rotatingPart = other;
 							partNodePos = partNodePos.STp(part, rotatingPart);
 							partNodeAxis = -partNodeAxis.STd(part, rotatingPart);
+							partNodeUp = rotatingPart.up(partNodeAxis);
 							nodeRole = "Proxy";
 						}
 					}
