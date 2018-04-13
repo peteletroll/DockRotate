@@ -834,8 +834,8 @@ namespace DockRotate
 			Vector3 a = partNodeAxis;
 			Vector3 v1 = partNodeUp;
 			Vector3 v2 = dynamic ?
-				otherPartUp.Td(otherPart.T(), part.T()) :
-				otherPartUp.STd(otherPart, part);
+				otherPartUp.Td(otherPart.T(), rotatingPart.T()) :
+				otherPartUp.STd(otherPart, rotatingPart);
 			v2 = Vector3.ProjectOnPlane(v2, a).normalized;
 
 			float angle = Vector3.Angle(v1, v2);
@@ -912,7 +912,7 @@ namespace DockRotate
 							rotatingPart = part;
 							nodeRole = "Active";
 						} else if (other.parent == part) {
-							otherPart = other;
+							otherPart = part;
 							rotatingPart = other;
 							partNodePos = partNodePos.STp(part, rotatingPart);
 							partNodeAxis = -partNodeAxis.STd(part, rotatingPart);
