@@ -828,7 +828,7 @@ namespace DockRotate
 
 		protected override float rotationAngle(bool dynamic)
 		{
-			if (!otherPart)
+			if (!rotatingPart || !otherPart)
 				return float.NaN;
 
 			Vector3 a = partNodeAxis;
@@ -851,9 +851,9 @@ namespace DockRotate
 				return float.NaN;
 
 			Vector3 a = partNodeAxis;
-			Vector3 vd = otherPartUp.Td(otherPart.T(), part.T());
+			Vector3 vd = otherPartUp.Td(otherPart.T(), rotatingPart.T());
 			vd = Vector3.ProjectOnPlane(vd, a).normalized;
-			Vector3 vs = otherPartUp.STd(otherPart, part);
+			Vector3 vs = otherPartUp.STd(otherPart, rotatingPart);
 			vs = Vector3.ProjectOnPlane(vs, a).normalized;
 
 			float angle = Vector3.Angle(vs, vd);
