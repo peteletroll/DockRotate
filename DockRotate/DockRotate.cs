@@ -24,7 +24,7 @@ namespace DockRotate
 		private struct RotJointInfo
 		{
 			public Quaternion localToJoint, jointToLocal;
-			public Vector3 jointAxis;
+			public Vector3 jointAxis, jointNode;
 			public Quaternion startTgtRotation;
 			public Vector3 startTgtPosition;
 		}
@@ -44,7 +44,7 @@ namespace DockRotate
 
 		/*
 
-		Notes for generalizing for NodeRotate:
+		Notes for generalizing to NodeRotate:
 		A RotationAnimation must contain:
 		- a rotating part (current DockRotate active part)
 		- a rotating point (current ModuleDockRotate.partNodePos)
@@ -156,6 +156,9 @@ namespace DockRotate
 				rji[i].jointAxis = axis.Td(
 					activePart.T(),
 					joint.joints[i].T());
+				rji[i].jointNode = node.Tp(
+					activePart.T(),
+					joint.joints[i].T());
 				rji[i].startTgtRotation = j.targetRotation;
 				rji[i].startTgtPosition = j.targetPosition;
 
@@ -176,11 +179,13 @@ namespace DockRotate
 		{
 			for (int i = 0; i < joint.joints.Count; i++) {
 				ConfigurableJoint j = joint.joints[i];
+				RotJointInfo ji = rji[i];
 				Quaternion jRot = currentRotation(i);
-				Quaternion pRot = Quaternion.AngleAxis(pos, rji[i].jointAxis);
+				Quaternion pRot = Quaternion.AngleAxis(pos, ji.jointAxis);
 				if (j) {
 					j.targetRotation = jRot;
-					j.targetPosition = rji[i].startTgtPosition + rji[i].jointToLocal * (pRot * j.anchor - j.anchor);
+					Vector3 pRef = j.anchor;
+					j.targetPosition = ji.startTgtPosition + ji.jointToLocal * (pRot * pRef - pRef); // this doesn't work when Active
 
 					// energy += j.currentTorque.magnitude * Mathf.Abs(vel) * deltat;
 				}
@@ -221,12 +226,10 @@ namespace DockRotate
 					j.targetRotation = rji[i].startTgtRotation;
 
 					// staticize joint target anchors
-					// ModuleDockRotate m = rotationModule.proxyRotationModule;
-					// Vector3 tgtAxis = m.partNodeAxis.Td(m.part.T(), m.part.rb.T());
 					Vector3 tgtAxis = -axis.STd(activePart, proxyPart).Td(proxyPart.T(), proxyPart.rb.T());
 					Quaternion tgtRot = Quaternion.AngleAxis(pos, tgtAxis);
 					j.connectedAnchor = tgtRot * j.connectedAnchor;
-					j.targetPosition = rji[i].startTgtPosition;
+					j.targetPosition = rji[i].startTgtPosition; // this doesn't work when Proxy
 				}
 			}
 			if (decCount() <= 0) {
@@ -912,7 +915,7 @@ namespace DockRotate
 						AttachNode[] nodes = part.FindAttachNodes("");
 						string nodeList = part.desc() + " available nodes:";
 						for (int i = 0; i < nodes.Length; i++)
-							nodeList += " " + nodes[i].id;
+							nodeList += " \"" + nodes[i].id + "\"";
 						lprint(nodeList);
 					}
 					AttachNode otherNode = rotatingNode != null ? rotatingNode.FindOpposingNode() : null;
@@ -924,12 +927,12 @@ namespace DockRotate
 
 						Part other = rotatingNode.attachedPart;
 						if (part.parent == other) {
-							proxyPart = other;
 							activePart = part;
+							proxyPart = other;
 							nodeRole = "Active";
 						} else if (other.parent == part) {
-							proxyPart = part;
 							activePart = other;
+							proxyPart = part;
 							partNodePos = partNodePos.STp(part, activePart);
 							partNodeAxis = -partNodeAxis.STd(part, activePart);
 							partNodeUp = activePart.up(partNodeAxis);
@@ -996,6 +999,7 @@ namespace DockRotate
 			lprint("--- DUMP " + part.desc() + " ---");
 			lprint("rotPart: " + activePart.desc());
 			lprint("rotAxis: " + partNodeAxis.ddesc(activePart));
+			lprint("rotPos: " + partNodePos.ddesc(activePart));
 			lprint("rotUp: " + partNodeUp.ddesc(activePart));
 			lprint("other: " + proxyPart.desc());
 			AttachNode[] nodes = part.FindAttachNodes("");
