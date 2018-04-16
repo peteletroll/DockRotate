@@ -185,6 +185,8 @@ namespace DockRotate
 				if (j) {
 					j.targetRotation = jRot;
 					Vector3 pRef = j.anchor;
+					// Vector3 pRef = ji.jointToLocal * ji.jointNode; // this doesn't work
+					// Vector3 pRef = j.anchor- ji.jointToLocal * ji.jointNode; // this doesn't work
 					j.targetPosition = ji.startTgtPosition + ji.jointToLocal * (pRot * pRef - pRef); // this doesn't work when Active
 
 					// energy += j.currentTorque.magnitude * Mathf.Abs(vel) * deltat;
