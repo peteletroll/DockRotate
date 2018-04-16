@@ -24,7 +24,7 @@ Forum page: https://forum.kerbalspaceprogram.com/index.php?/topic/170484-dockrot
 
 ( ** ) DockRotate can be compatible with Kerbal Joint Reinforcement. KJR configuration must be updated.
 
-# NodeRotate
+# NodeRotate (not released yet, still fixing bugs...)
 
 This module can be used to turn (almost) any node in (almost) any part into a rotating joint.
 
