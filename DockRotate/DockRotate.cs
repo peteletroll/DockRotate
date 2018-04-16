@@ -1438,25 +1438,16 @@ namespace DockRotate
 
 		public static string desc(this PartJoint j)
 		{
-			string from = (j.Host == j.Child ? j.Host.desc() : j.Host.desc() + "/" + j.Child.desc());
-			string to = (j.Target == j.Parent ? j.Target.desc() : j.Target.desc() + "/" + j.Parent.desc());
+			string from = j.Host.desc() + "/" + (j.Child == j.Host ? "=" : j.Child.desc());
+			string to = j.Target.desc() + "/" + (j.Parent == j.Target ? "=" : j.Parent.desc());
 			return from + " -> " + to;
 		}
 
 		public static void dump(this PartJoint j)
 		{
-			// lprint("Joint Parent: " + descPart(joint.Parent));
-
-			/*
-			lprint("jChild: " + j.Child.desc());
-			lprint("jHost: " + j.Host.desc());
-			lprint("jTarget: " + j.Target.desc());
-			*/
-
-			/*
-			lprint("jAxis: " + j.Axis);
-			lprint("jSecAxis: " + j.SecAxis);
-			*/
+			lprint("PartJoint " + j.desc());
+			lprint("jAxes: " + j.Axis.desc() + " " + j.SecAxis.desc());
+			lprint("jAnchors: " + j.HostAnchor.desc() + " " + j.TgtAnchor.desc());
 
 			for (int i = 0; i < j.joints.Count; i++) {
 				lprint("ConfigurableJoint[" + i + "]:");
