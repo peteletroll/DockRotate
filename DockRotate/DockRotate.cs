@@ -184,9 +184,10 @@ namespace DockRotate
 				Quaternion pRot = Quaternion.AngleAxis(pos, ji.jointAxis);
 				if (j) {
 					j.targetRotation = jRot;
-					Vector3 pRef = j.anchor;
-					// Vector3 pRef = ji.jointToLocal * ji.jointNode; // this doesn't work
-					// Vector3 pRef = j.anchor- ji.jointToLocal * ji.jointNode; // this doesn't work
+					Vector3 pRef;
+					pRef = j.anchor;
+					// pRef = ji.jointToLocal * ji.jointNode; // this doesn't work
+					// pRef = j.anchor- ji.jointToLocal * ji.jointNode; // this doesn't work
 					j.targetPosition = ji.startTgtPosition + ji.jointToLocal * (pRot * pRef - pRef); // this doesn't work when Active
 
 					// energy += j.currentTorque.magnitude * Mathf.Abs(vel) * deltat;
@@ -929,16 +930,16 @@ namespace DockRotate
 
 						Part other = rotatingNode.attachedPart;
 						if (part.parent == other) {
+							nodeRole = "Active";
 							activePart = part;
 							proxyPart = other;
-							nodeRole = "Active";
 						} else if (other.parent == part) {
+							nodeRole = "Proxy";
 							activePart = other;
 							proxyPart = part;
 							partNodePos = partNodePos.STp(part, activePart);
 							partNodeAxis = -partNodeAxis.STd(part, activePart);
 							partNodeUp = activePart.up(partNodeAxis);
-							nodeRole = "Proxy";
 						}
 					}
 					if (activePart)
@@ -1001,17 +1002,19 @@ namespace DockRotate
 			lprint("--- DUMP " + part.desc() + " ---");
 			lprint("rotPart: " + activePart.desc());
 			lprint("rotAxis: " + partNodeAxis.ddesc(activePart));
-			lprint("rotPos: " + partNodePos.ddesc(activePart));
+			lprint("rotPos: " + partNodePos.pdesc(activePart));
 			lprint("rotUp: " + partNodeUp.ddesc(activePart));
 			lprint("other: " + proxyPart.desc());
 			AttachNode[] nodes = part.FindAttachNodes("");
 			for (int i = 0; i < nodes.Length; i++) {
 				AttachNode n = nodes[i];
-				lprint("  node [" + i + "] \"" + n.id + "\""
+				if (rotatingNode != null && rotatingNode.id != n.id)
+					continue;
+				lprint("  node [" + i + "/" + nodes.Length + "] \"" + n.id + "\""
 					+ ", size " + n.size
 					+ ", type " + n.nodeType
 					+ ", method " + n.attachMethod);
-				lprint("    dirV: " + n.orientation.STd(part, vessel.rootPart).desc());
+				// lprint("    dirV: " + n.orientation.STd(part, vessel.rootPart).desc());
 				_dumpv("dir", n.orientation, n.originalOrientation);
 				_dumpv("sec", n.secondaryAxis, n.originalSecondaryAxis);
 				_dumpv("pos", n.position, n.originalPosition);
