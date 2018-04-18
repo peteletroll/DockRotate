@@ -185,10 +185,11 @@ namespace DockRotate
 				if (j) {
 					j.targetRotation = jRot;
 					Vector3 pRef;
-					pRef = j.anchor;
+					// pRef = j.anchor; // this works on centered joints
+					pRef = j.anchor - ji.jointNode;
 					// pRef = j.anchor.Tp(activePart.rb.T(), j.T()); // this doesn't work
 					// pRef = ji.jointToLocal * ji.jointNode; // this doesn't work
-					// pRef = j.anchor- ji.jointToLocal * ji.jointNode; // this doesn't work
+					// pRef = j.anchor - ji.jointToLocal * ji.jointNode; // this doesn't work
 					lprint("anchor:" + j.anchor.desc() + " pRef:" + pRef.desc());
 					j.targetPosition = ji.startTgtPosition + ji.jointToLocal * (pRot * pRef - pRef); // this doesn't work when Active
 
