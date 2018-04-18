@@ -186,8 +186,10 @@ namespace DockRotate
 					j.targetRotation = jRot;
 					Vector3 pRef;
 					pRef = j.anchor;
+					// pRef = j.anchor.Tp(activePart.rb.T(), j.T()); // this doesn't work
 					// pRef = ji.jointToLocal * ji.jointNode; // this doesn't work
 					// pRef = j.anchor- ji.jointToLocal * ji.jointNode; // this doesn't work
+					lprint("anchor:" + j.anchor.desc() + " pRef:" + pRef.desc());
 					j.targetPosition = ji.startTgtPosition + ji.jointToLocal * (pRot * pRef - pRef); // this doesn't work when Active
 
 					// energy += j.currentTorque.magnitude * Mathf.Abs(vel) * deltat;
@@ -267,7 +269,7 @@ namespace DockRotate
 
 				pitchAlteration = UnityEngine.Random.Range(0.9f, 1.1f);
 
-				lprint(activePart.desc() + ": added sound");
+				// lprint(activePart.desc() + ": added sound");
 			} catch (Exception e) {
 				sound = null;
 				lprint("sound: " + e.Message);
