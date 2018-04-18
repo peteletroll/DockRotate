@@ -153,12 +153,8 @@ namespace DockRotate
 
 				rji[i].localToJoint = j.localToJoint();
 				rji[i].jointToLocal = rji[i].localToJoint.inverse();
-				rji[i].jointAxis = axis.Td(
-					activePart.T(),
-					joint.joints[i].T());
-				rji[i].jointNode = node.Tp(
-					activePart.T(),
-					joint.joints[i].T());
+				rji[i].jointAxis = axis.Td(activePart.T(), j.T());
+				rji[i].jointNode = node.Tp(activePart.T(), j.T());
 				rji[i].startTgtRotation = j.targetRotation;
 				rji[i].startTgtPosition = j.targetPosition;
 
@@ -184,8 +180,7 @@ namespace DockRotate
 				Quaternion pRot = Quaternion.AngleAxis(pos, ji.jointAxis);
 				if (j) {
 					j.targetRotation = jRot;
-					Vector3 pRef;
-					pRef = j.anchor - ji.jointNode;
+					Vector3 pRef = j.anchor - ji.jointNode;
 					j.targetPosition = ji.startTgtPosition + ji.jointToLocal * (pRot * pRef - pRef);
 
 					// energy += j.currentTorque.magnitude * Mathf.Abs(vel) * deltat;
@@ -220,17 +215,21 @@ namespace DockRotate
 			for (int i = 0; i < joint.joints.Count; i++) {
 				Quaternion jointRot = Quaternion.AngleAxis(tgt, rji[i].jointAxis);
 				ConfigurableJoint j = joint.joints[i];
+				RotJointInfo ji = rji[i];
 				if (j) {
 					// staticize joint rotation
 					j.axis = jointRot * j.axis;
 					j.secondaryAxis = jointRot * j.secondaryAxis;
-					j.targetRotation = rji[i].startTgtRotation;
+					j.targetRotation = ji.startTgtRotation;
 
 					// staticize joint target anchors
 					Vector3 tgtAxis = -axis.STd(activePart, proxyPart).Td(proxyPart.T(), proxyPart.rb.T());
 					Quaternion tgtRot = Quaternion.AngleAxis(pos, tgtAxis);
-					j.connectedAnchor = tgtRot * j.connectedAnchor;
-					j.targetPosition = rji[i].startTgtPosition; // this doesn't work when Proxy
+					Vector3 pRef = Vector3.zero;
+					// pRef = j.connectedAnchor - ji.jointNode.Tp(j.T(), proxyPart.rb.T()); // FIXME: use STd() between parts
+					lprint("connAnchor:" + j.connectedAnchor.desc() + " pRef:" + pRef.desc());
+					j.connectedAnchor = tgtRot * (j.connectedAnchor - pRef) + pRef;
+					j.targetPosition = ji.startTgtPosition; // this doesn't work when Proxy
 				}
 			}
 			if (decCount() <= 0) {
