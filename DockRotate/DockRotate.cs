@@ -12,7 +12,7 @@ namespace DockRotate
 		public bool smartAutoStruts = false;
 
 		public float pos, tgt, vel;
-		private float maxvel, maxacc;
+		public float maxvel, maxacc;
 
 		private Guid vesselId;
 		private Part startParent;
@@ -759,6 +759,7 @@ namespace DockRotate
 			string action = "none";
 			if (rotCur != null) {
 				rotCur.tgt += angle;
+				rotCur.maxvel = speed;
 				action = "updated";
 			} else {
 				rotCur = new RotationAnimation(activePart, partNodePos, partNodeAxis, rotatingJoint, 0, angle, speed);
