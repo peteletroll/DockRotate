@@ -226,10 +226,9 @@ namespace DockRotate
 					Vector3 tgtAxis = -axis.STd(activePart, proxyPart).Td(proxyPart.T(), proxyPart.rb.T());
 					Quaternion tgtRot = Quaternion.AngleAxis(pos, tgtAxis);
 					Vector3 pRef = Vector3.zero;
-					// pRef = j.connectedAnchor - ji.jointNode.Tp(j.T(), proxyPart.rb.T()); // FIXME: use STd() between parts
-					lprint("connAnchor:" + j.connectedAnchor.desc() + " pRef:" + pRef.desc());
+					pRef = ji.jointNode.Tp(j.T(), activePart.rb.T()).STp(activePart, proxyPart).Tp(proxyPart.T(), proxyPart.rb.T());
 					j.connectedAnchor = tgtRot * (j.connectedAnchor - pRef) + pRef;
-					j.targetPosition = ji.startTgtPosition; // this doesn't work when Proxy
+					j.targetPosition = ji.startTgtPosition;
 				}
 			}
 			if (decCount() <= 0) {
