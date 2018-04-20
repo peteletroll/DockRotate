@@ -881,6 +881,20 @@ namespace DockRotate
 			return (axisAngle > 90) ? -angle : angle;
 		}
 
+		public override string GetModuleDisplayName()
+		{
+			return "Rotating Node"; // FIXME: localization
+		}
+
+		private string info = "";
+
+		public override string GetInfo()
+		{
+			if (info.Length <= 0)
+				info = String.Format("The part connected to \"{0}\" node can rotate", rotatingNodeName); // FIXME: localization
+			return info;
+		}
+
 		protected override void stagedSetup()
 		{
 			if (onRails || !part || !vessel)
@@ -1044,6 +1058,16 @@ namespace DockRotate
 		private Part lastSameVesselDockPart;
 		public ModuleDockRotate activeRotationModule;
 		public ModuleDockRotate proxyRotationModule;
+
+		public override string GetModuleDisplayName()
+		{
+			return "Rotating Port"; // FIXME: localization
+		}
+
+		public override string GetInfo()
+		{
+			return "This port can rotate when connected to another port of the same size"; // FIXME: localization
+		}
 
 		protected override void stagedSetup()
 		{
