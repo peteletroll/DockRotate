@@ -1107,7 +1107,6 @@ namespace DockRotate
 						activePart = activeRotationModule.part;
 					break;
 
-
 				case 2:
 					if (activeRotationModule == this) {
 						proxyRotationModule.activeRotationModule = this;
