@@ -22,8 +22,15 @@ namespace DockRotate
 		public AudioSource sound;
 		public float pitchAlteration;
 
+		private class VesselRotInfo
+		{
+			public int rotCount = 0;
+			public List<RotationAnimation> jointStaticizationQueue = new List<RotationAnimation>();
+		}
+
 		private struct RotJointInfo
 		{
+			public ConfigurableJoint joint;
 			public Quaternion localToJoint, jointToLocal;
 			public Vector3 jointAxis, jointNode;
 			public Quaternion startTgtRotation;
@@ -36,7 +43,7 @@ namespace DockRotate
 		private const float accelTime = 2.0f;
 		private const float stopMargin = 1.5f;
 
-		private static Dictionary<Guid, int> vesselRotCount = new Dictionary<Guid, int>();
+		private static Dictionary<Guid, VesselRotInfo> vesselRotInfo = new Dictionary<Guid, VesselRotInfo>();
 
 		private static bool lprint(string msg)
 		{
@@ -62,33 +69,36 @@ namespace DockRotate
 			this.maxacc = maxvel / accelTime;
 		}
 
+		private VesselRotInfo vesselInfo(Guid vesselId)
+		{
+			if (vesselRotInfo.ContainsKey(vesselId))
+				return vesselRotInfo[vesselId];
+			return vesselRotInfo[vesselId] = new VesselRotInfo();
+		}
+
 		private int incCount()
 		{
-			if (!vesselRotCount.ContainsKey(vesselId))
-				vesselRotCount[vesselId] = 0;
-			int ret = vesselRotCount[vesselId];
+			int ret = vesselInfo(vesselId).rotCount;
 			if (ret < 0) {
 				lprint("WARNING: vesselRotCount[" + vesselId + "] = " + ret + " in incCount()");
-				ret = vesselRotCount[vesselId] = 0;
+				ret = vesselRotInfo[vesselId].rotCount = 0;
 			}
-			return vesselRotCount[vesselId] = ++ret;
+			return vesselInfo(vesselId).rotCount = ++ret;
 		}
 
 		private int decCount()
 		{
-			if (!vesselRotCount.ContainsKey(vesselId))
-				vesselRotCount[vesselId] = 0;
-			int ret = --vesselRotCount[vesselId];
+			int ret = --vesselInfo(vesselId).rotCount;
 			if (ret < 0) {
 				lprint("WARNING: vesselRotCount[" + vesselId + "] = " + ret + " in decCount()");
-				ret = vesselRotCount[vesselId] = 0;
+				ret = vesselInfo(vesselId).rotCount = 0;
 			}
 			return ret;
 		}
 
 		public static void resetCount(Vessel v)
 		{
-			vesselRotCount.Remove(v.id);
+			vesselRotInfo.Remove(v.id);
 		}
 
 		public void advance(float deltat)
@@ -140,7 +150,7 @@ namespace DockRotate
 			rji = new RotJointInfo[c];
 			for (int i = 0; i < c; i++) {
 				ConfigurableJoint j = joint.joints[i];
-
+				rji[i].joint = j;
 				rji[i].localToJoint = j.localToJoint();
 				rji[i].jointToLocal = rji[i].localToJoint.inverse();
 				rji[i].jointAxis = axis.Td(activePart.T(), j.T());
@@ -202,28 +212,19 @@ namespace DockRotate
 			pos = tgt;
 			onStep(0);
 
-			staticizeRotation();
-
-			for (int i = 0; i < joint.joints.Count; i++) {
-				Quaternion jointRot = Quaternion.AngleAxis(tgt, rji[i].jointAxis);
-				ConfigurableJoint j = joint.joints[i];
-				RotJointInfo ji = rji[i];
-				if (j) {
-					// staticize joint rotation
-					j.axis = jointRot * j.axis;
-					j.secondaryAxis = jointRot * j.secondaryAxis;
-					j.targetRotation = ji.startTgtRotation;
-
-					// staticize joint target anchors
-					Vector3 tgtAxis = -axis.STd(activePart, proxyPart).Td(proxyPart.T(), proxyPart.rb.T());
-					Quaternion tgtRot = Quaternion.AngleAxis(pos, tgtAxis);
-					Vector3 pRef = Vector3.zero;
-					pRef = ji.jointNode.Tp(j.T(), activePart.rb.T()).STp(activePart, proxyPart).Tp(proxyPart.T(), proxyPart.rb.T());
-					j.connectedAnchor = tgtRot * (j.connectedAnchor - pRef) + pRef;
-					j.targetPosition = ji.startTgtPosition;
-				}
+			if (staticizeOrgInfo()) {
+				staticizeJoints();
+			} else {
+				vesselInfo(vesselId).jointStaticizationQueue.Add(this);
 			}
+
 			if (decCount() <= 0) {
+				VesselRotInfo vi = vesselInfo(vesselId);
+				for (int i = 0; i < vi.jointStaticizationQueue.Count; i++) {
+					lprint(activePart.desc() + ": delayed joint staticization");
+					vi.jointStaticizationQueue[i].staticizeJoints();
+				}
+				vi.jointStaticizationQueue.Clear();
 				lprint("securing autostruts on vessel " + vesselId);
 				joint.Host.vessel.secureAllAutoStruts();
 			}
@@ -261,16 +262,42 @@ namespace DockRotate
 			}
 		}
 
-		private void staticizeRotation()
+		private void staticizeJoints()
+		{
+			for (int i = 0; i < joint.joints.Count; i++) {
+				Quaternion jointRot = Quaternion.AngleAxis(tgt, rji[i].jointAxis);
+				ConfigurableJoint j = joint.joints[i];
+				RotJointInfo ji = rji[i];
+				if (j) {
+					// staticize joint rotation
+					j.axis = jointRot * j.axis;
+					j.secondaryAxis = jointRot * j.secondaryAxis;
+					j.targetRotation = ji.startTgtRotation;
+
+					// staticize joint target anchors
+					// this can only work after all staticizeOrgInfo() are done, hence jointStaticizationQueue
+					Vector3 newLocalConnectedAnchor = j.anchor + ji.startTgtPosition;
+					j.connectedAnchor = newLocalConnectedAnchor
+						.Tp(j.T(), activePart.T())
+						.STp(activePart, proxyPart)
+						.Tp(proxyPart.T(), proxyPart.rb.T());
+					// lprint("CONN " + newLocalConnectedAnchor.desc() + " -> " + j.connectedAnchor.desc());
+					j.targetPosition = ji.startTgtPosition;
+				}
+			}
+		}
+
+		private bool staticizeOrgInfo()
 		{
 			if (joint != activePart.attachJoint) {
 				lprint(activePart.desc() + ": skip staticize, same vessel joint");
-				return;
+				return false;
 			}
 			float angle = tgt;
 			Vector3 nodeAxis = -axis.STd(activePart, activePart.vessel.rootPart);
 			Quaternion nodeRot = Quaternion.AngleAxis(angle, nodeAxis);
 			_propagate(activePart, nodeRot);
+			return true;
 		}
 
 		private void _propagate(Part p, Quaternion rot)
