@@ -850,11 +850,7 @@ namespace DockRotate
 				otherPartUp.Td(proxyPart.T(), activePart.T()) :
 				otherPartUp.STd(proxyPart, activePart);
 			v2 = Vector3.ProjectOnPlane(v2, a).normalized;
-
-			float angle = Vector3.Angle(v1, v2);
-			float axisAngle = Vector3.Angle(a, Vector3.Cross(v2, v1));
-
-			return (axisAngle > 90) ? angle : -angle;
+			return a.axisSignedAngle(v1, v2);
 		}
 
 		protected override float dynamicDelta()
@@ -868,11 +864,7 @@ namespace DockRotate
 			vd = Vector3.ProjectOnPlane(vd, a).normalized;
 			Vector3 vs = otherPartUp.STd(proxyPart, activePart);
 			vs = Vector3.ProjectOnPlane(vs, a).normalized;
-
-			float angle = Vector3.Angle(vs, vd);
-			float axisAngle = Vector3.Angle(a, Vector3.Cross(vs, vd));
-
-			return (axisAngle > 90) ? -angle : angle;
+			return a.axisSignedAngle(vs, vd);
 		}
 
 		public override string GetModuleDisplayName()
@@ -1215,11 +1207,7 @@ namespace DockRotate
 				proxyRotationModule.partNodeUp.Td(proxyRotationModule.part.T(), activeRotationModule.part.T()) :
 				proxyRotationModule.partNodeUp.STd(proxyRotationModule.part, activeRotationModule.part);
 			v2 = Vector3.ProjectOnPlane(v2, a).normalized;
-
-			float angle = Vector3.Angle(v1, v2);
-			float axisAngle = Vector3.Angle(a, Vector3.Cross(v2, v1));
-
-			return (axisAngle > 90) ? angle : -angle;
+			return a.axisSignedAngle(v1, v2);
 		}
 
 		protected override float dynamicDelta()
@@ -1233,11 +1221,7 @@ namespace DockRotate
 			vd = Vector3.ProjectOnPlane(vd, a).normalized;
 			Vector3 vs = proxyRotationModule.partNodeUp.STd(proxyRotationModule.part, activeRotationModule.part);
 			vs = Vector3.ProjectOnPlane(vs, a).normalized;
-
-			float angle = Vector3.Angle(vs, vd);
-			float axisAngle = Vector3.Angle(a, Vector3.Cross(vs, vd));
-
-			return (axisAngle > 90) ? -angle : angle;
+			return a.axisSignedAngle(vs, vd);
 		}
 
 		public override string neededResetMsg()
@@ -1590,6 +1574,13 @@ namespace DockRotate
 		}
 
 		/******** Vector3 utilities ********/
+
+		public static float axisSignedAngle(this Vector3 axis, Vector3 v1, Vector3 v2)
+		{
+			float angle = Vector3.Angle(v1, v2);
+			float s = Vector3.Dot(axis, Vector3.Cross(v1, v2));
+			return (s < 0) ? -angle : angle;
+		}
 
 		public static string desc(this Vector3 v)
 		{
