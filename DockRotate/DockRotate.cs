@@ -43,17 +43,6 @@ namespace DockRotate
 			return ModuleBaseRotate.lprint(msg);
 		}
 
-		/*
-
-		Notes for generalizing to NodeRotate:
-		A RotationAnimation must contain:
-		- a rotating part (current DockRotate active part)
-		- a rotating point (current ModuleDockRotate.partNodePos)
-		- a rotating axis (current ModuleDockRotate.partNodeAxis)
-		- a rotating joint (not necessarily Part.attachJoint, there's same vessel docking too)
-
-		*/
-
 		public RotationAnimation(Part part, Vector3 node, Vector3 axis, PartJoint joint, float pos, float tgt, float maxvel)
 		{
 			this.activePart = part;
