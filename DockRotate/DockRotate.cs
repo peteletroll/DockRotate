@@ -849,7 +849,6 @@ namespace DockRotate
 			Vector3 v2 = dynamic ?
 				otherPartUp.Td(proxyPart.T(), activePart.T()) :
 				otherPartUp.STd(proxyPart, activePart);
-			v2 = Vector3.ProjectOnPlane(v2, a).normalized;
 			return a.axisSignedAngle(v1, v2);
 		}
 
@@ -861,9 +860,7 @@ namespace DockRotate
 
 			Vector3 a = partNodeAxis;
 			Vector3 vd = otherPartUp.Td(proxyPart.T(), activePart.T());
-			vd = Vector3.ProjectOnPlane(vd, a).normalized;
 			Vector3 vs = otherPartUp.STd(proxyPart, activePart);
-			vs = Vector3.ProjectOnPlane(vs, a).normalized;
 			return a.axisSignedAngle(vs, vd);
 		}
 
@@ -1206,7 +1203,6 @@ namespace DockRotate
 			Vector3 v2 = dynamic ?
 				proxyRotationModule.partNodeUp.Td(proxyRotationModule.part.T(), activeRotationModule.part.T()) :
 				proxyRotationModule.partNodeUp.STd(proxyRotationModule.part, activeRotationModule.part);
-			v2 = Vector3.ProjectOnPlane(v2, a).normalized;
 			return a.axisSignedAngle(v1, v2);
 		}
 
@@ -1218,9 +1214,7 @@ namespace DockRotate
 
 			Vector3 a = activeRotationModule.partNodeAxis;
 			Vector3 vd = proxyRotationModule.partNodeUp.Td(proxyRotationModule.part.T(), activeRotationModule.part.T());
-			vd = Vector3.ProjectOnPlane(vd, a).normalized;
 			Vector3 vs = proxyRotationModule.partNodeUp.STd(proxyRotationModule.part, activeRotationModule.part);
-			vs = Vector3.ProjectOnPlane(vs, a).normalized;
 			return a.axisSignedAngle(vs, vd);
 		}
 
@@ -1300,6 +1294,8 @@ namespace DockRotate
 
 		public override void doRotateClockwise()
 		{
+			if (!activeRotationModule)
+				return;
 			float s = rotationStep;
 			if (reverseRotation)
 				s = -s;
@@ -1308,6 +1304,8 @@ namespace DockRotate
 
 		public override void doRotateCounterclockwise()
 		{
+			if (!activeRotationModule)
+				return;
 			float s = -rotationStep;
 			if (reverseRotation)
 				s = -s;
@@ -1316,6 +1314,8 @@ namespace DockRotate
 
 		public override void doRotateToSnap()
 		{
+			if (!activeRotationModule)
+				return;
 			activeRotationModule.enqueueRotationToSnap(rotationStep, rotationSpeed);
 		}
 
@@ -1577,6 +1577,8 @@ namespace DockRotate
 
 		public static float axisSignedAngle(this Vector3 axis, Vector3 v1, Vector3 v2)
 		{
+			v1 = Vector3.ProjectOnPlane(v1, axis).normalized;
+			v2 = Vector3.ProjectOnPlane(v2, axis).normalized;
 			float angle = Vector3.Angle(v1, v2);
 			float s = Vector3.Dot(axis, Vector3.Cross(v1, v2));
 			return (s < 0) ? -angle : angle;
