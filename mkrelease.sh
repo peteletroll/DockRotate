@@ -13,7 +13,19 @@ then
 	exit 1
 fi
 
-json_pp < Resources/$name.version > /dev/null || exit 1
+jsonversion=Resources/DockRotate.version
+jqfilter='.VERSION | (.MAJOR|tostring) + "." + (.MINOR|tostring) + "." + (.PATCH|tostring) + "." + (.BUILD|tostring)'
+jversion=`jq -r "$jqfilter" $jsonversion`
+if [ $? -ne 0 ]
+then
+	echo "ABORTING: JSON syntax error in $jsonversion" 1>&2
+	exit 1
+fi
+if [ "$version" != "$jversion" ]
+then
+	echo "ABORTING: DLL version is $version, JSON version is $jversion" 1>&2
+	exit 1
+fi
 
 tmp=`mktemp -d` || exit 1
 trap "rm -rf $tmp" EXIT
