@@ -202,6 +202,8 @@ namespace DockRotate
 			pos = tgt;
 			onStep(0);
 
+			staticizeRotation();
+
 			for (int i = 0; i < joint.joints.Count; i++) {
 				Quaternion jointRot = Quaternion.AngleAxis(tgt, rji[i].jointAxis);
 				ConfigurableJoint j = joint.joints[i];
@@ -226,7 +228,6 @@ namespace DockRotate
 				joint.Host.vessel.secureAllAutoStruts();
 			}
 			lprint(activePart.desc() + ": rotation stopped");
-			staticizeRotation();
 		}
 
 		public void setupSound()
