@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using KSP.Localization;
 
 namespace DockRotate
 {
@@ -587,6 +588,10 @@ namespace DockRotate
 		public Vector3 partNodeAxis; // node rotation axis, relative to part, reference Vector3.forward
 		protected Vector3 partNodeUp; // node vector for measuring angle, relative to part
 
+		// localized info cache
+		protected string displayName = "";
+		protected string displayInfo = "";
+
 		public void OnVesselGoOnRails(Vessel v)
 		{
 			if (v != vessel)
@@ -883,16 +888,16 @@ namespace DockRotate
 
 		public override string GetModuleDisplayName()
 		{
-			return "Rotating Node"; // FIXME: localization
+			if (displayName.Length <= 0)
+				displayName = Localizer.Format("#DCKROT_node_displayname");
+			return displayName;
 		}
-
-		private string info = "";
 
 		public override string GetInfo()
 		{
-			if (info.Length <= 0)
-				info = String.Format("The part connected to \"{0}\" node can rotate", rotatingNodeName); // FIXME: localization
-			return info;
+			if (displayInfo.Length <= 0)
+				displayInfo = Localizer.Format("#DCKROT_node_info", rotatingNodeName);
+			return displayInfo;
 		}
 
 		protected override void stagedSetup()
@@ -1061,12 +1066,16 @@ namespace DockRotate
 
 		public override string GetModuleDisplayName()
 		{
-			return "Rotating Port"; // FIXME: localization
+			if (displayName.Length <= 0)
+				displayName = Localizer.Format("#DCKROT_port_displayname");
+			return displayName;
 		}
 
 		public override string GetInfo()
 		{
-			return "This port can rotate when connected to another port of the same size"; // FIXME: localization
+			if (displayInfo.Length <= 0)
+				displayInfo = Localizer.Format("#DCKROT_port_info");
+			return displayInfo;
 		}
 
 		protected override void stagedSetup()
