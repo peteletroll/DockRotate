@@ -13,6 +13,15 @@ then
 	exit 1
 fi
 
+
+if echo '[]' | jq . > /dev/null
+then
+	true
+else
+	echo "ABORTING: jq not working" 1>&2
+	exit 1
+fi
+
 jsonversion=Resources/DockRotate.version
 jqfilter='.VERSION | (.MAJOR|tostring) + "." + (.MINOR|tostring) + "." + (.PATCH|tostring) + "." + (.BUILD|tostring)'
 jversion=`jq -r "$jqfilter" $jsonversion`
