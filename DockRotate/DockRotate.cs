@@ -296,18 +296,18 @@ namespace DockRotate
 			float angle = tgt;
 			Vector3 nodeAxis = -axis.STd(activePart, activePart.vessel.rootPart);
 			Quaternion nodeRot = Quaternion.AngleAxis(angle, nodeAxis);
-			_propagate(activePart, nodeRot);
+			Vector3 nodePos = node.STp(activePart, activePart.vessel.rootPart);
+			_propagate(activePart, nodeRot, nodePos);
 			return true;
 		}
 
-		private void _propagate(Part p, Quaternion rot)
+		private void _propagate(Part p, Quaternion rot, Vector3 pos)
 		{
-			Vector3 vNode = node.STp(activePart, activePart.vessel.rootPart);
-			p.orgPos = rot * (p.orgPos - vNode) + vNode;
+			p.orgPos = rot * (p.orgPos - pos) + pos;
 			p.orgRot = rot * p.orgRot;
 
 			for (int i = 0; i < p.children.Count; i++)
-				_propagate(p.children[i], rot);
+				_propagate(p.children[i], rot, pos);
 		}
 
 		public void releaseCrossAutoStruts()
