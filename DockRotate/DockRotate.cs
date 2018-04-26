@@ -207,6 +207,7 @@ namespace DockRotate
 			if (sound != null) {
 				sound.Stop();
 				AudioSource.Destroy(sound);
+				sound = null;
 			}
 
 			pos = tgt;
@@ -375,6 +376,7 @@ namespace DockRotate
 			if (sound != null) {
 				sound.Stop();
 				AudioSource.Destroy(sound);
+				sound = null;
 			}
 
 			tgt = pos;
@@ -1532,17 +1534,6 @@ namespace DockRotate
 			joint.xMotion = f;
 			joint.yMotion = f;
 			joint.zMotion = f;
-		}
-
-		public static void disable(this ConfigurableJoint joint)
-		{
-			joint.reconfigureForRotation();
-			JointDrive d = joint.angularXDrive;
-			d.positionSpring = 0;
-			d.positionDamper = 0;
-			d.maximumForce = 1e20f;
-			joint.angularXDrive = d;
-			joint.angularYZDrive = d;
 		}
 
 		public static void dump(this ConfigurableJoint j)
