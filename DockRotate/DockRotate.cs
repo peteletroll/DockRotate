@@ -1488,7 +1488,7 @@ namespace DockRotate
 
 			for (int i = 0; i < j.joints.Count; i++) {
 				lprint("ConfigurableJoint[" + i + "]:");
-				j.joints[i].dump();
+				j.joints[i].dump(j.Host);
 			}
 		}
 
