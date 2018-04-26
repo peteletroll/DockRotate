@@ -81,19 +81,19 @@ namespace DockRotate
 			int ret = vesselInfo(vesselId).rotCount;
 			if (ret < 0) {
 				lprint("WARNING: vesselRotCount[" + vesselId + "] = " + ret + " in incCount()");
-				ret = vesselRotInfo[vesselId].rotCount = 0;
+				ret = 0;
 			}
 			return vesselInfo(vesselId).rotCount = ++ret;
 		}
 
 		private int decCount()
 		{
-			int ret = --vesselInfo(vesselId).rotCount;
-			if (ret < 0) {
+			int ret = vesselInfo(vesselId).rotCount;
+			if (ret <= 0) {
 				lprint("WARNING: vesselRotCount[" + vesselId + "] = " + ret + " in decCount()");
-				ret = vesselInfo(vesselId).rotCount = 0;
+				ret = 1;
 			}
-			return ret;
+			return vesselInfo(vesselId).rotCount = --ret;
 		}
 
 		public static void resetCount(Vessel v)
