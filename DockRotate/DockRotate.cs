@@ -1536,14 +1536,24 @@ namespace DockRotate
 			joint.zMotion = f;
 		}
 
-		public static void dump(this ConfigurableJoint j)
+		public static void dump(this ConfigurableJoint j, Part p = null)
 		{
 			// Quaternion localToJoint = j.localToJoint();
+
+			if (p && p.vessel) {
+				p = p.vessel.rootPart;
+			} else {
+				p = null;
+			}
 
 			lprint("  Link: " + j.gameObject + " to " + j.connectedBody);
 			// lprint("  autoConf: " + j.autoConfigureConnectedAnchor);
 			// lprint("  swap: " + j.swapBodies);
 			lprint("  Axes: " + j.axis.desc() + ", " + j.secondaryAxis.desc());
+			if (p)
+				lprint("  AxesV: " + j.axis.Td(T(j), T(p)).desc()
+					+ ", " + j.secondaryAxis.Td(T(j), T(p)).desc());
+
 			// lprint("  localToJoint: " + localToJoint.desc());
 			lprint("  Anchors: " + j.anchor.desc()
 				+ " -> " + j.connectedAnchor.desc()
