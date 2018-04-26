@@ -63,7 +63,7 @@ done
 
 cp ~/KSP/KSP_linux/GameData/ModuleManager.*.dll $dir/.. || exit 1
 
-cp $dll README.md LICENSE.md Resources/* $dir || exit 1
+cp -r $dll README.md LICENSE.md Resources/* $dir || exit 1
 
 cp $debugdll $dir/${dllname%.dll}.debugdll
 
