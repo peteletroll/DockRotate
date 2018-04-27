@@ -30,3 +30,5 @@ This module can be used to turn (almost) any node in (almost) any part into a ro
 
 NodeRotate is intended for modders who want to create new rotating parts. There's an example NodeRotate.cfg file in the distribution, see there for details.
 
+Forum user Psycho\_zs contributed a couple of motors based on the original BZ-52 Radial Attachment Point. You can find them in VAB/SPH in the Utility section.
+

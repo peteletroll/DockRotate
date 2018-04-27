@@ -3,5 +3,3 @@
 
 * refactor checkGuiActive() to remove the guiList[] logic
 
-* include Psycho\_zs' NodeRotate parts
-
