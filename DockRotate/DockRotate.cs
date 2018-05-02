@@ -669,8 +669,6 @@ namespace DockRotate
 			// F: is a KSPField;
 			// E: is a KSPEvent;
 			// e: show in editor;
-			// R: hide when rotating;
-			// D: show only with debugMode activated
 			// A: show with advanced tweakables
 			{ "angleInfo", "F" },
 			{ "nodeRole", "F" },
@@ -732,8 +730,6 @@ namespace DockRotate
 				} else if (flags.IndexOf('E') >= 0) {
 					BaseEvent ev = Events[name];
 					if (ev != null) {
-						if (flags.IndexOf('R') >= 0 && currentRotation() != null)
-							thisGuiActive = false;
 						ev.guiActive = thisGuiActive;
 						ev.guiActiveEditor = thisGuiActive && editorGui;
 						if (name == "ToggleAutoStrutDisplay") {
