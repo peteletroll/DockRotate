@@ -34,7 +34,7 @@ namespace DockRotate
 
 			float newvel = vel;
 
-			if (goingRightWay && Mathf.Abs(vel) <= maxvel && Math.Abs(tgt - pos) > brakingSpace) {
+			if (goingRightWay && Mathf.Abs(vel) <= maxvel && Mathf.Abs(tgt - pos) > brakingSpace) {
 				// driving
 				newvel += deltat * Mathf.Sign(tgt - pos) * maxacc;
 				newvel = Mathf.Clamp(newvel, -maxvel, maxvel);
