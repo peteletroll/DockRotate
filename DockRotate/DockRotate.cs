@@ -342,7 +342,12 @@ namespace DockRotate
 		public void releaseCrossAutoStruts()
 		{
 			PartSet rotParts = activePart.allPartsFromHere();
-			List<ModuleDockingNode> dockingNodes = activePart.vessel.FindPartModulesImplementing<ModuleDockingNode>();
+
+			List<ModuleDockingNode> allDockingNodes = activePart.vessel.FindPartModulesImplementing<ModuleDockingNode>();
+			List<ModuleDockingNode> sameVesselDockingNodes = new List<ModuleDockingNode>();
+			for (int i = 0; i < allDockingNodes.Count; i++)
+				if (allDockingNodes[i].sameVesselDockJoint)
+					sameVesselDockingNodes.Add(allDockingNodes[i]);
 
 			int count = 0;
 			PartJoint[] allJoints = UnityEngine.Object.FindObjectsOfType<PartJoint>();
@@ -359,11 +364,11 @@ namespace DockRotate
 				if (rotParts.contains(j.Host) == rotParts.contains(j.Target))
 					continue;
 
-				bool isSameVesselJoint = false;
-				for (int i = 0; !isSameVesselJoint && i < dockingNodes.Count; i++)
-					if (j == dockingNodes[i].sameVesselDockJoint)
-						isSameVesselJoint = true;
-				if (isSameVesselJoint)
+				bool isSameVesselDockingJoint = false;
+				for (int i = 0; !isSameVesselDockingJoint && i < sameVesselDockingNodes.Count; i++)
+					if (j == sameVesselDockingNodes[i].sameVesselDockJoint)
+						isSameVesselDockingJoint = true;
+				if (isSameVesselDockingJoint)
 					continue;
 
 				lprint("releasing [" + ++count + "] " + j.desc());
