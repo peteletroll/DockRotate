@@ -5,15 +5,18 @@ using KSP.Localization;
 
 namespace DockRotate
 {
-	public class RotationAnimation
+	public class SmoothMotion
+	{
+		public float pos, tgt, vel;
+		public float maxvel, maxacc;
+	}
+
+	public class RotationAnimation: SmoothMotion
 	{
 		private Part activePart, proxyPart;
 		private Vector3 node, axis;
 		private PartJoint joint;
 		public bool smartAutoStruts = false;
-
-		public float pos, tgt, vel;
-		public float maxvel, maxacc;
 
 		private Guid vesselId;
 		private Part startParent;
