@@ -9,6 +9,11 @@ namespace DockRotate
 	{
 		public float pos, tgt, vel;
 		public float maxvel, maxacc;
+
+		public bool started = false, finished = false;
+
+		public const float accelTime = 2.0f;
+		public const float stopMargin = 1.5f;
 	}
 
 	public class RotationAnimation: SmoothMotion
@@ -40,11 +45,6 @@ namespace DockRotate
 			public Vector3 startTgtPosition;
 		}
 		private RotJointInfo[] rji;
-
-		private bool started = false, finished = false;
-
-		private const float accelTime = 2.0f;
-		private const float stopMargin = 1.5f;
 
 		private static Dictionary<Guid, VesselRotInfo> vesselRotInfo = new Dictionary<Guid, VesselRotInfo>();
 
