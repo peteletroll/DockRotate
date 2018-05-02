@@ -5,15 +5,68 @@ using KSP.Localization;
 
 namespace DockRotate
 {
-	public class SmoothMotion
+	public abstract class SmoothMotion
 	{
 		public float pos, tgt, vel;
-		public float maxvel, maxacc;
+		public float maxvel = 1.0f;
+
+		private float maxacc = 1.0f;
 
 		public bool started = false, finished = false;
 
-		public const float accelTime = 2.0f;
-		public const float stopMargin = 1.5f;
+		private const float accelTime = 2.0f;
+		private const float stopMargin = 1.5f;
+
+		protected abstract void onStart();
+		protected abstract void onStep(float deltat);
+		protected abstract void onStop();
+
+		public virtual void advance(float deltat)
+		{
+			if (finished)
+				return;
+
+			maxacc = maxvel / accelTime;
+
+			bool goingRightWay = (tgt - pos) * vel >= 0;
+			float brakingTime = Mathf.Abs(vel) / maxacc + 2 * stopMargin * deltat;
+			float brakingSpace = Mathf.Abs(vel) / 2 * brakingTime;
+
+			float newvel = vel;
+
+			if (goingRightWay && Mathf.Abs(vel) <= maxvel && Math.Abs(tgt - pos) > brakingSpace) {
+				// driving
+				newvel += deltat * Mathf.Sign(tgt - pos) * maxacc;
+				newvel = Mathf.Clamp(newvel, -maxvel, maxvel);
+			} else {
+				// braking
+				newvel -= deltat * Mathf.Sign(vel) * maxacc;
+			}
+
+			if (!started) {
+				onStart();
+				started = true;
+			}
+
+			vel = newvel;
+			pos += deltat * vel;
+
+			onStep(deltat);
+
+			if (!finished && done(deltat)) {
+				onStop();
+			}
+		}
+
+		protected bool done(float deltat)
+		{
+			if (finished)
+				return true;
+			if (Mathf.Abs(vel) < stopMargin * deltat * maxacc
+				&& Mathf.Abs(tgt - pos) < deltat * deltat * maxacc)
+				finished = true;
+			return finished;
+		}
 	}
 
 	public class RotationAnimation: SmoothMotion
@@ -69,7 +122,6 @@ namespace DockRotate
 			this.maxvel = maxvel;
 
 			this.vel = 0;
-			this.maxacc = maxvel / accelTime;
 		}
 
 		private VesselRotInfo vesselInfo(Guid vesselId)
@@ -104,44 +156,17 @@ namespace DockRotate
 			vesselRotInfo.Remove(v.id);
 		}
 
-		public void advance(float deltat)
+		public override void advance(float deltat)
 		{
 			if (activePart.parent != startParent)
 				abort(true, "changed parent");
 			if (finished)
 				return;
 
-			bool goingRightWay = (tgt - pos) * vel >= 0;
-			float brakingTime = Mathf.Abs(vel) / maxacc + 2 * stopMargin * deltat;
-			float brakingSpace = Mathf.Abs(vel) / 2 * brakingTime;
-
-			float newvel = vel;
-
-			if (goingRightWay && Mathf.Abs(vel) <= maxvel && Math.Abs(tgt - pos) > brakingSpace) {
-				// driving
-				newvel += deltat * Mathf.Sign(tgt - pos) * maxacc;
-				newvel = Mathf.Clamp(newvel, -maxvel, maxvel);
-			} else {
-				// braking
-				newvel -= deltat * Mathf.Sign(vel) * maxacc;
-			}
-
-			if (!started) {
-				onStart();
-				started = true;
-			}
-
-			vel = newvel;
-			pos += deltat * vel;
-
-			onStep(deltat);
-
-			if (!finished && done(deltat)) {
-				onStop();
-			}
+			base.advance(deltat);
 		}
 
-		private void onStart()
+		protected override void onStart()
 		{
 			incCount();
 			if (smartAutoStruts) {
@@ -174,7 +199,7 @@ namespace DockRotate
 			*/
 		}
 
-		private void onStep(float deltat)
+		protected override void onStep(float deltat)
 		{
 			for (int i = 0; i < joint.joints.Count; i++) {
 				ConfigurableJoint j = joint.joints[i];
@@ -204,7 +229,7 @@ namespace DockRotate
 			}
 		}
 
-		private void onStop()
+		protected override void onStop()
 		{
 			// lprint("stop rot axis " + currentRotation(0).desc());
 			if (sound != null) {
@@ -359,16 +384,6 @@ namespace DockRotate
 
 		public bool done()
 		{
-			return finished;
-		}
-
-		private bool done(float deltat)
-		{
-			if (finished)
-				return true;
-			if (Mathf.Abs(vel) < stopMargin * deltat * maxacc
-				&& Mathf.Abs(tgt - pos) < deltat * deltat * maxacc)
-				finished = true;
 			return finished;
 		}
 
