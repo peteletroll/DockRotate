@@ -63,8 +63,11 @@ namespace DockRotate
 			if (finished)
 				return true;
 			if (Mathf.Abs(vel) < stopMargin * deltat * maxacc
-				&& Mathf.Abs(tgt - pos) < deltat * deltat * maxacc)
+				&& Mathf.Abs(tgt - pos) < deltat * deltat * maxacc) {
 				finished = true;
+				pos = tgt;
+			}
+
 			return finished;
 		}
 
@@ -243,7 +246,6 @@ namespace DockRotate
 				sound = null;
 			}
 
-			pos = tgt;
 			onStep(0);
 
 			if (staticizeOrgInfo()) {
