@@ -180,7 +180,7 @@ namespace DockRotate
 		{
 			incCount();
 			if (smartAutoStruts) {
-				releaseCrossAutoStruts();
+				activePart.releaseCrossAutoStruts();
 			} else {
 				activePart.vessel.releaseAllAutoStruts();
 			}
@@ -346,43 +346,6 @@ namespace DockRotate
 
 			for (int i = 0; i < p.children.Count; i++)
 				_propagate(p.children[i], rot, pos);
-		}
-
-		public void releaseCrossAutoStruts()
-		{
-			PartSet rotParts = activePart.allPartsFromHere();
-
-			List<ModuleDockingNode> allDockingNodes = activePart.vessel.FindPartModulesImplementing<ModuleDockingNode>();
-			List<ModuleDockingNode> sameVesselDockingNodes = new List<ModuleDockingNode>();
-			for (int i = 0; i < allDockingNodes.Count; i++)
-				if (allDockingNodes[i].sameVesselDockJoint)
-					sameVesselDockingNodes.Add(allDockingNodes[i]);
-
-			int count = 0;
-			PartJoint[] allJoints = UnityEngine.Object.FindObjectsOfType<PartJoint>();
-			for (int ii = 0; ii < allJoints.Length; ii++) {
-				PartJoint j = allJoints[ii];
-				if (!j.Host || j.Host.vessel != activePart.vessel)
-					continue;
-				if (!j.Target || j.Target.vessel != activePart.vessel)
-					continue;
-				if (j == j.Host.attachJoint)
-					continue;
-				if (j == j.Target.attachJoint)
-					continue;
-				if (rotParts.contains(j.Host) == rotParts.contains(j.Target))
-					continue;
-
-				bool isSameVesselDockingJoint = false;
-				for (int i = 0; !isSameVesselDockingJoint && i < sameVesselDockingNodes.Count; i++)
-					if (j == sameVesselDockingNodes[i].sameVesselDockJoint)
-						isSameVesselDockingJoint = true;
-				if (isSameVesselDockingJoint)
-					continue;
-
-				lprint("releasing [" + ++count + "] " + j.desc());
-				j.DestroyJoint();
-			}
 		}
 
 		private Quaternion currentRotation(int i)
@@ -1482,6 +1445,43 @@ namespace DockRotate
 			Vector3 up1 = Vector3.ProjectOnPlane(Vector3.up, axis);
 			Vector3 up2 = Vector3.ProjectOnPlane(Vector3.forward, axis);
 			return (up1.magnitude > up2.magnitude ? up1 : up2).normalized;
+		}
+
+		public static void releaseCrossAutoStruts(this Part part)
+		{
+			PartSet rotParts = part.allPartsFromHere();
+
+			List<ModuleDockingNode> allDockingNodes = part.vessel.FindPartModulesImplementing<ModuleDockingNode>();
+			List<ModuleDockingNode> sameVesselDockingNodes = new List<ModuleDockingNode>();
+			for (int i = 0; i < allDockingNodes.Count; i++)
+				if (allDockingNodes[i].sameVesselDockJoint)
+					sameVesselDockingNodes.Add(allDockingNodes[i]);
+
+			int count = 0;
+			PartJoint[] allJoints = UnityEngine.Object.FindObjectsOfType<PartJoint>();
+			for (int ii = 0; ii < allJoints.Length; ii++) {
+				PartJoint j = allJoints[ii];
+				if (!j.Host || j.Host.vessel != part.vessel)
+					continue;
+				if (!j.Target || j.Target.vessel != part.vessel)
+					continue;
+				if (j == j.Host.attachJoint)
+					continue;
+				if (j == j.Target.attachJoint)
+					continue;
+				if (rotParts.contains(j.Host) == rotParts.contains(j.Target))
+					continue;
+
+				bool isSameVesselDockingJoint = false;
+				for (int i = 0; !isSameVesselDockingJoint && i < sameVesselDockingNodes.Count; i++)
+					if (j == sameVesselDockingNodes[i].sameVesselDockJoint)
+						isSameVesselDockingJoint = true;
+				if (isSameVesselDockingJoint)
+					continue;
+
+				lprint("releasing [" + ++count + "] " + j.desc());
+				j.DestroyJoint();
+			}
 		}
 
 		/******** ModuleDockingMode utilities ********/
