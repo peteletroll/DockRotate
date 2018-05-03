@@ -8,8 +8,8 @@ namespace DockRotate
 	public abstract class SmoothMotion
 	{
 		public float pos, tgt, vel;
-		public float maxvel = 1.0f;
 
+		public float maxvel = 1.0f;
 		private float maxacc = 1.0f;
 
 		public bool started = false, finished = false;
@@ -65,6 +65,11 @@ namespace DockRotate
 			if (Mathf.Abs(vel) < stopMargin * deltat * maxacc
 				&& Mathf.Abs(tgt - pos) < deltat * deltat * maxacc)
 				finished = true;
+			return finished;
+		}
+
+		public bool done()
+		{
 			return finished;
 		}
 	}
@@ -385,11 +390,6 @@ namespace DockRotate
 				* rji[i].localToJoint;
 
 			return rji[i].startTgtRotation * rot;
-		}
-
-		public bool done()
-		{
-			return finished;
 		}
 
 		public void abort(bool hard, string msg)
