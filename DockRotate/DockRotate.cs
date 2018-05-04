@@ -410,7 +410,7 @@ namespace DockRotate
 		}
 	}
 
-	public abstract class ModuleBaseRotate: PartModule
+	public abstract class ModuleBaseRotate: PartModule, IJointLockState
 	{
 		[UI_Toggle()]
 		[KSPField(
@@ -828,6 +828,11 @@ namespace DockRotate
 			if (vessel && vessel.parts.Count != vesselPartCount)
 				return "part count changed";
 			return "";
+		}
+
+		bool IJointLockState.IsJointUnlocked()
+		{
+			return false;
 		}
 
 		/******** Debugging stuff ********/
