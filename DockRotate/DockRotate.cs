@@ -584,6 +584,8 @@ namespace DockRotate
 
 		protected abstract int countJoints();
 
+		public abstract bool IsJointUnlocked();
+
 		protected int vesselPartCount;
 
 		protected RotationAnimation rotCur = null;
@@ -830,11 +832,6 @@ namespace DockRotate
 			return "";
 		}
 
-		bool IJointLockState.IsJointUnlocked()
-		{
-			return false;
-		}
-
 		/******** Debugging stuff ********/
 
 		public static bool lprint(string msg)
@@ -1010,6 +1007,12 @@ namespace DockRotate
 		protected override bool canStartRotation()
 		{
 			return base.canStartRotation() && rotatingJoint;
+		}
+
+		public override bool IsJointUnlocked()
+		{
+			lprint(part.desc() + ".IsJointUnlocked()");
+			return false;
 		}
 
 		protected override void dumpPart()
@@ -1358,6 +1361,12 @@ namespace DockRotate
 			if (ret)
 				lprint(part.desc() + ": forwards to " + ret.part.desc());
 			return ret;
+		}
+
+		public override bool IsJointUnlocked()
+		{
+			lprint(part.desc() + ".IsJointUnlocked()");
+			return false;
 		}
 
 		/******** Debugging stuff ********/
