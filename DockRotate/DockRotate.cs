@@ -182,7 +182,8 @@ namespace DockRotate
 			if (smartAutoStruts) {
 				activePart.releaseCrossAutoStruts();
 			} else {
-				activePart.vessel.releaseAllAutoStruts();
+				// not needed with new IsJointUnlocked() logic
+				// activePart.vessel.releaseAllAutoStruts();
 			}
 			int c = joint.joints.Count;
 			rji = new RotJointInfo[c];
@@ -263,8 +264,12 @@ namespace DockRotate
 					vi.jointStaticizationQueue[i].staticizeJoints();
 				}
 				vi.jointStaticizationQueue.Clear();
-				lprint("securing autostruts on vessel " + vesselId);
-				joint.Host.vessel.secureAllAutoStruts();
+				if (smartAutoStruts) {
+					lprint("securing autostruts on vessel " + vesselId);
+					joint.Host.vessel.secureAllAutoStruts();
+				} else {
+					// no action needed with IsJountUnlocked() logic
+				}
 			}
 			lprint(activePart.desc() + ": rotation stopped");
 		}
@@ -599,7 +604,7 @@ namespace DockRotate
 				bool wasRotating = _rotCur != null;
 				_rotCur = value;
 				bool isRotating = _rotCur != null;
-				if (isRotating != wasRotating) {
+				if (isRotating != wasRotating && !useSmartAutoStruts()) {
 					lprint(part.desc() + " triggered CycleAllAutoStruts()");
 					vessel.CycleAllAutoStrut();
 				}
