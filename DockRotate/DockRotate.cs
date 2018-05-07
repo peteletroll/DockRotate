@@ -592,7 +592,11 @@ namespace DockRotate
 
 		protected int vesselPartCount;
 
-		protected RotationAnimation rotCur = null;
+		private RotationAnimation _rotCur = null;
+		protected RotationAnimation rotCur { 
+			get => _rotCur;
+			set => _rotCur = value;
+		}
 
 		protected bool onRails;
 
