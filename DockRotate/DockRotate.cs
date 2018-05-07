@@ -594,8 +594,16 @@ namespace DockRotate
 
 		private RotationAnimation _rotCur = null;
 		protected RotationAnimation rotCur { 
-			get => _rotCur;
-			set => _rotCur = value;
+			get { return _rotCur; }
+			set {
+				bool wasRotating = _rotCur != null;
+				_rotCur = value;
+				bool isRotating = _rotCur != null;
+				if (isRotating != wasRotating) {
+					lprint(part.desc() + " triggered CycleAllAutoStruts()");
+					vessel.CycleAllAutoStrut();
+				}
+			}
 		}
 
 		protected bool onRails;
