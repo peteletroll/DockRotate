@@ -876,12 +876,9 @@ namespace DockRotate
 
 		public override bool IsJointUnlocked()
 		{
-			if (rotCur != null) {
-				lprint(part.desc() + ".IsJointUnlocked() is true");
-				return true;
-			}
-			lprint(part.desc() + ".IsJointUnlocked() is false");
-			return false;
+			bool ret = rotCur != null;
+			lprint(part.desc() + ".IsJointUnlocked() is " + ret);
+			return ret;
 		}
 
 		protected override float rotationAngle(bool dynamic)
@@ -1234,12 +1231,9 @@ namespace DockRotate
 
 		public override bool IsJointUnlocked()
 		{
-			if (activeRotationModule && activeRotationModule.rotCur != null) {
-				lprint(part.desc() + ".IsJointUnlocked() is true");
-				return true;
-			}
-			lprint(part.desc() + ".IsJointUnlocked() is false");
-			return false;
+			bool ret = activeRotationModule && activeRotationModule.rotCur != null;
+			lprint(part.desc() + ".IsJointUnlocked() is " + ret);
+			return ret;
 		}
 
 		public override bool useSmartAutoStruts()
