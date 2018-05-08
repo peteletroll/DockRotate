@@ -161,7 +161,7 @@ namespace DockRotate
 			return vesselInfo(vesselId).rotCount = --ret;
 		}
 
-		public static void resetCount(Vessel v)
+		public static void resetVesselInfo(Vessel v)
 		{
 			vesselRotInfo.Remove(v.id);
 		}
@@ -760,7 +760,7 @@ namespace DockRotate
 			}
 			if (reset && msg.Length > 0)
 				lprint(part.desc() + " resets vessel: " + msg);
-			RotationAnimation.resetCount(vessel);
+			RotationAnimation.resetVesselInfo(vessel);
 		}
 
 		protected virtual ModuleBaseRotate actionTarget()
