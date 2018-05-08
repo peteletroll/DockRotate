@@ -1148,7 +1148,7 @@ namespace DockRotate
 							rotatingJoint = svj;
 							nodeRole = "ActiveSame";
 						}
-					} else if (isActive()) {
+					} else if (isDockedToParent()) {
 						proxyRotationModule = part.parent.FindModuleImplementing<ModuleDockRotate>();
 						if (proxyRotationModule) {
 							activeRotationModule = this;
@@ -1187,7 +1187,7 @@ namespace DockRotate
 			setupStageCounter++;
 		}
 
-		private bool isActive() // must be used only after setup stage 0
+		private bool isDockedToParent() // must be used only after setup stage 0
 		{
 			if (!part || !part.parent)
 				return false;
