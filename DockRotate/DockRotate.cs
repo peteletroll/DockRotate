@@ -594,7 +594,7 @@ namespace DockRotate
 		protected int vesselPartCount;
 
 		private RotationAnimation _rotCur = null;
-		protected RotationAnimation rotCur { 
+		protected RotationAnimation rotCur {
 			get { return _rotCur; }
 			set {
 				bool wasRotating = _rotCur != null;
