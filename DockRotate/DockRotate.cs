@@ -55,12 +55,11 @@ namespace DockRotate
 
 			onStep(deltat);
 
-			if (!finished && done(deltat)) {
+			if (!finished && checkFinished(deltat))
 				onStop();
-			}
 		}
 
-		protected bool done(float deltat)
+		protected bool checkFinished(float deltat)
 		{
 			if (finished)
 				return true;
