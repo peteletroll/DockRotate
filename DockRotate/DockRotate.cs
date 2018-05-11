@@ -80,16 +80,22 @@ namespace DockRotate
 
 	public class VesselRotInfo
 	{
+		public Guid id;
 		public int rotCount = 0;
 		public List<RotationAnimation> jointStaticizationQueue = new List<RotationAnimation>();
 
 		private static Dictionary<Guid, VesselRotInfo> vesselInfo = new Dictionary<Guid, VesselRotInfo>();
 
-		public static VesselRotInfo getInfo(Guid vesselId)
+		private VesselRotInfo(Guid id)
 		{
-			if (vesselInfo.ContainsKey(vesselId))
-				return vesselInfo[vesselId];
-			return vesselInfo[vesselId] = new VesselRotInfo();
+			this.id = id;
+		}
+
+		public static VesselRotInfo getInfo(Guid id)
+		{
+			if (vesselInfo.ContainsKey(id))
+				return vesselInfo[id];
+			return vesselInfo[id] = new VesselRotInfo(id);
 		}
 
 		public static void resetInfo(Guid id)
