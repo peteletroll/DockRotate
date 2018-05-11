@@ -78,6 +78,26 @@ namespace DockRotate
 		}
 	}
 
+	public class VesselRotInfo
+	{
+		public int rotCount = 0;
+		public List<RotationAnimation> jointStaticizationQueue = new List<RotationAnimation>();
+
+		private static Dictionary<Guid, VesselRotInfo> vesselInfo = new Dictionary<Guid, VesselRotInfo>();
+
+		public static VesselRotInfo getInfo(Guid vesselId)
+		{
+			if (vesselInfo.ContainsKey(vesselId))
+				return vesselInfo[vesselId];
+			return vesselInfo[vesselId] = new VesselRotInfo();
+		}
+
+		public static void resetInfo(Guid id)
+		{
+			vesselInfo.Remove(id);
+		}
+	}
+
 	public class RotationAnimation: SmoothMotion
 	{
 		private Part activePart, proxyPart;
@@ -92,12 +112,6 @@ namespace DockRotate
 		public AudioSource sound;
 		public float pitchAlteration;
 
-		private class VesselRotInfo
-		{
-			public int rotCount = 0;
-			public List<RotationAnimation> jointStaticizationQueue = new List<RotationAnimation>();
-		}
-
 		private struct RotJointInfo
 		{
 			public ConfigurableJoint joint;
@@ -107,8 +121,6 @@ namespace DockRotate
 			public Vector3 startTgtPosition;
 		}
 		private RotJointInfo[] rji;
-
-		private static Dictionary<Guid, VesselRotInfo> vesselRotInfo = new Dictionary<Guid, VesselRotInfo>();
 
 		private static bool lprint(string msg)
 		{
@@ -133,36 +145,24 @@ namespace DockRotate
 			this.vel = 0;
 		}
 
-		private VesselRotInfo vesselInfo(Guid vesselId)
-		{
-			if (vesselRotInfo.ContainsKey(vesselId))
-				return vesselRotInfo[vesselId];
-			return vesselRotInfo[vesselId] = new VesselRotInfo();
-		}
-
 		private int incCount()
 		{
-			int ret = vesselInfo(vesselId).rotCount;
+			int ret = VesselRotInfo.getInfo(vesselId).rotCount;
 			if (ret < 0) {
 				lprint("WARNING: vesselRotCount[" + vesselId + "] = " + ret + " in incCount()");
 				ret = 0;
 			}
-			return vesselInfo(vesselId).rotCount = ++ret;
+			return VesselRotInfo.getInfo(vesselId).rotCount = ++ret;
 		}
 
 		private int decCount()
 		{
-			int ret = vesselInfo(vesselId).rotCount;
+			int ret = VesselRotInfo.getInfo(vesselId).rotCount;
 			if (ret <= 0) {
 				lprint("WARNING: vesselRotCount[" + vesselId + "] = " + ret + " in decCount()");
 				ret = 1;
 			}
-			return vesselInfo(vesselId).rotCount = --ret;
-		}
-
-		public static void resetVesselInfo(Vessel v)
-		{
-			vesselRotInfo.Remove(v.id);
+			return VesselRotInfo.getInfo(vesselId).rotCount = --ret;
 		}
 
 		public override void advance(float deltat)
@@ -253,11 +253,11 @@ namespace DockRotate
 			if (staticizeOrgInfo()) {
 				staticizeJoints();
 			} else {
-				vesselInfo(vesselId).jointStaticizationQueue.Add(this);
+				VesselRotInfo.getInfo(vesselId).jointStaticizationQueue.Add(this);
 			}
 
 			if (decCount() <= 0) {
-				VesselRotInfo vi = vesselInfo(vesselId);
+				VesselRotInfo vi = VesselRotInfo.getInfo(vesselId);
 				for (int i = 0; i < vi.jointStaticizationQueue.Count; i++) {
 					lprint(activePart.desc() + ": delayed joint staticization");
 					vi.jointStaticizationQueue[i].staticizeJoints();
@@ -759,7 +759,7 @@ namespace DockRotate
 			}
 			if (reset && msg.Length > 0)
 				lprint(part.desc() + " resets vessel: " + msg);
-			RotationAnimation.resetVesselInfo(vessel);
+			VesselRotInfo.resetInfo(vessel.id);
 		}
 
 		protected virtual ModuleBaseRotate actionTarget()
