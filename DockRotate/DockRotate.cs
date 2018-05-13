@@ -121,6 +121,7 @@ namespace DockRotate
 		private struct RotJointInfo
 		{
 			public ConfigurableJoint joint;
+			public JointManager jm;
 			public Quaternion localToJoint, jointToLocal;
 			public Vector3 jointAxis, jointNode;
 			public Quaternion startTgtRotation;
@@ -195,6 +196,7 @@ namespace DockRotate
 			for (int i = 0; i < c; i++) {
 				ConfigurableJoint j = joint.joints[i];
 				rji[i].joint = j;
+				rji[i].jm = new JointManager(j);
 				rji[i].localToJoint = j.localToJoint();
 				rji[i].jointToLocal = rji[i].localToJoint.inverse();
 				rji[i].jointAxis = axis.Td(activePart.T(), j.T());
@@ -1427,6 +1429,56 @@ namespace DockRotate
 			}
 
 			lprint("--------------------");
+		}
+	}
+
+	public class JointManager
+	{
+		// local space:
+		// origin is j.anchor;
+		// right is j.axis (right)
+		// up is j.secondaryAxis
+
+		// joint space:
+		// defined by j.transform
+
+		private ConfigurableJoint j;
+		private Quaternion localToJoint, jointToLocal;
+
+		public JointManager(ConfigurableJoint j)
+		{
+			this.j = j;
+			init();
+		}
+
+		private void init()
+		{
+			localToJoint = j.localToJoint();
+			jointToLocal = localToJoint.inverse();
+		}
+
+		// untested yet
+		public Vector3 L2Jd(Vector3 v)
+		{
+			return localToJoint * v;
+		}
+
+		// untested yet
+		public Vector3 J2Ld(Vector3 v)
+		{
+			return jointToLocal * v;
+		}
+
+		// untested yet
+		public Vector3 L2Jp(Vector3 v)
+		{
+			return localToJoint * v + j.anchor;
+		}
+
+		// untested yet
+		public Vector3 J2Lp(Vector3 v)
+		{
+			return jointToLocal * (v - j.anchor);
 		}
 	}
 
