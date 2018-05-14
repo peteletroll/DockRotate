@@ -122,7 +122,7 @@ namespace DockRotate
 		{
 			public ConfigurableJoint joint;
 			public JointManager jm;
-			public Quaternion localToJoint, jointToLocal;
+			public Quaternion jointToLocal, localToJoint;
 			public Vector3 jointAxis, jointNode;
 			public Quaternion startTgtRotation;
 			public Vector3 startTgtPosition;
@@ -197,8 +197,8 @@ namespace DockRotate
 				ConfigurableJoint j = joint.joints[i];
 				rji[i].joint = j;
 				rji[i].jm = new JointManager(j);
-				rji[i].localToJoint = j.localToJoint();
-				rji[i].jointToLocal = rji[i].localToJoint.inverse();
+				rji[i].jointToLocal = j.jointToLocal();
+				rji[i].localToJoint = rji[i].jointToLocal.inverse();
 				rji[i].jointAxis = axis.Td(activePart.T(), j.T());
 				rji[i].jointNode = node.Tp(activePart.T(), j.T());
 				rji[i].startTgtRotation = j.targetRotation;
@@ -227,7 +227,7 @@ namespace DockRotate
 				if (j) {
 					j.targetRotation = jRot;
 					Vector3 pRef = j.anchor - ji.jointNode;
-					j.targetPosition = ji.startTgtPosition + ji.jointToLocal * (pRot * pRef - pRef);
+					j.targetPosition = ji.startTgtPosition + ji.localToJoint * (pRot * pRef - pRef);
 
 					// energy += j.currentTorque.magnitude * Mathf.Abs(vel) * deltat;
 				}
@@ -364,9 +364,9 @@ namespace DockRotate
 		{
 			Quaternion newJointRotation = Quaternion.AngleAxis(pos, rji[i].jointAxis);
 
-			Quaternion rot = rji[i].jointToLocal
+			Quaternion rot = rji[i].localToJoint
 				* newJointRotation * rji[i].startTgtRotation
-				* rji[i].localToJoint;
+				* rji[i].jointToLocal;
 
 			return rji[i].startTgtRotation * rot;
 		}
@@ -1434,12 +1434,12 @@ namespace DockRotate
 
 	public class JointManager
 	{
-		// local space:
+		// joint space:
 		// origin is j.anchor;
 		// right is j.axis (right)
 		// up is j.secondaryAxis
 
-		// joint space:
+		// local space:
 		// defined by j.transform
 
 		private ConfigurableJoint j;
@@ -1453,8 +1453,8 @@ namespace DockRotate
 
 		private void init()
 		{
-			localToJoint = j.localToJoint();
-			jointToLocal = localToJoint.inverse();
+			jointToLocal = j.jointToLocal();
+			localToJoint = localToJoint.inverse();
 		}
 
 		// untested yet
@@ -1472,13 +1472,13 @@ namespace DockRotate
 		// untested yet
 		public Vector3 L2Jp(Vector3 v)
 		{
-			return localToJoint * v + j.anchor;
+			return localToJoint * (v - j.anchor);
 		}
 
 		// untested yet
 		public Vector3 J2Lp(Vector3 v)
 		{
-			return jointToLocal * (v - j.anchor);
+			return jointToLocal * v + j.anchor;
 		}
 	}
 
@@ -1607,14 +1607,14 @@ namespace DockRotate
 
 		/******** ConfigurableJoint utilities ********/
 
-		public static Quaternion localToJoint(this ConfigurableJoint j)
+		public static Quaternion jointToLocal(this ConfigurableJoint j)
 		{
 			// the returned rotation turns Vector3.right (1, 0, 0) to axis
 			// and Vector3.up (0, 1, 0) to secondaryAxis
 
-			// localToJoint() * v means:
+			// jointToLocal() * v means:
 			// vector v expressed in local coordinates defined by (axis, secondaryAxis)
-			// result is same vector in joint transform space
+			// result is same vector in joint transform space (local space)
 
 			Vector3 right = j.axis.normalized;
 			Vector3 forward = Vector3.Cross(j.axis, j.secondaryAxis).normalized;
