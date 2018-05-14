@@ -314,9 +314,9 @@ namespace DockRotate
 			for (int i = 0; i < joint.joints.Count; i++) {
 				Quaternion jointRot = Quaternion.AngleAxis(tgt, rji[i].localAxis);
 				ConfigurableJoint j = joint.joints[i];
-				RotJointInfo ji = rji[i];
 				if (j) {
 					// staticize joint rotation
+					RotJointInfo ji = rji[i];
 					j.axis = jointRot * j.axis;
 					j.secondaryAxis = jointRot * j.secondaryAxis;
 					j.targetRotation = ji.startTgtRotation;
@@ -1431,16 +1431,17 @@ namespace DockRotate
 
 	public class JointManager
 	{
+		// local space:
+		// defined by j.transform.
+
 		// joint space:
 		// origin is j.anchor;
 		// right is j.axis (right)
 		// up is j.secondaryAxis
-
-		// local space:
-		// defined by j.transform
+		// anchor, axis and secondaryAxis are defined in local space.
 
 		private ConfigurableJoint j;
-		public Quaternion localToJoint, jointToLocal;
+		public Quaternion localToJoint, jointToLocal; // FIXME: this must become private
 
 		public JointManager(ConfigurableJoint j)
 		{
@@ -1450,8 +1451,20 @@ namespace DockRotate
 
 		private void init()
 		{
-			jointToLocal = j.jointToLocal();
-			localToJoint = localToJoint.inverse();
+
+			// the jointToLocal rotation turns Vector3.right (1, 0, 0) to axis
+			// and Vector3.up (0, 1, 0) to secondaryAxis
+
+			// jointToLocal * v means:
+			// vector v expressed in local coordinates defined by (axis, secondaryAxis)
+			// result is same vector in joint transform space (local space)
+
+			Vector3 right = j.axis.normalized;
+			Vector3 forward = Vector3.Cross(j.axis, j.secondaryAxis).normalized;
+			Vector3 up = Vector3.Cross(forward, right).normalized;
+			jointToLocal = Quaternion.LookRotation(forward, up);
+
+			localToJoint = jointToLocal.inverse();
 		}
 
 		// untested yet
@@ -1603,21 +1616,6 @@ namespace DockRotate
 		}
 
 		/******** ConfigurableJoint utilities ********/
-
-		public static Quaternion jointToLocal(this ConfigurableJoint j)
-		{
-			// the returned rotation turns Vector3.right (1, 0, 0) to axis
-			// and Vector3.up (0, 1, 0) to secondaryAxis
-
-			// jointToLocal() * v means:
-			// vector v expressed in local coordinates defined by (axis, secondaryAxis)
-			// result is same vector in joint transform space (local space)
-
-			Vector3 right = j.axis.normalized;
-			Vector3 forward = Vector3.Cross(j.axis, j.secondaryAxis).normalized;
-			Vector3 up = Vector3.Cross(forward, right).normalized;
-			return Quaternion.LookRotation(forward, up);
-		}
 
 		public static string desc(this JointDrive drive)
 		{
