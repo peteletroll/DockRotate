@@ -123,7 +123,7 @@ namespace DockRotate
 			public ConfigurableJoint joint;
 			public JointManager jm;
 			public Quaternion jointToLocal, localToJoint;
-			public Vector3 jointAxis, jointNode;
+			public Vector3 localAxis, localNode;
 			public Quaternion startTgtRotation;
 			public Vector3 startTgtPosition;
 		}
@@ -199,8 +199,8 @@ namespace DockRotate
 				rji[i].jm = new JointManager(j);
 				rji[i].jointToLocal = j.jointToLocal();
 				rji[i].localToJoint = rji[i].jointToLocal.inverse();
-				rji[i].jointAxis = axis.Td(activePart.T(), j.T());
-				rji[i].jointNode = node.Tp(activePart.T(), j.T());
+				rji[i].localAxis = axis.Td(activePart.T(), j.T());
+				rji[i].localNode = node.Tp(activePart.T(), j.T());
 				rji[i].startTgtRotation = j.targetRotation;
 				rji[i].startTgtPosition = j.targetPosition;
 
@@ -223,10 +223,10 @@ namespace DockRotate
 				ConfigurableJoint j = joint.joints[i];
 				RotJointInfo ji = rji[i];
 				Quaternion jRot = currentRotation(i);
-				Quaternion pRot = Quaternion.AngleAxis(pos, ji.jointAxis);
+				Quaternion pRot = Quaternion.AngleAxis(pos, ji.localAxis);
 				if (j) {
 					j.targetRotation = jRot;
-					Vector3 pRef = j.anchor - ji.jointNode;
+					Vector3 pRef = j.anchor - ji.localNode;
 					j.targetPosition = ji.startTgtPosition + ji.localToJoint * (pRot * pRef - pRef);
 
 					// energy += j.currentTorque.magnitude * Mathf.Abs(vel) * deltat;
@@ -315,7 +315,7 @@ namespace DockRotate
 		private void staticizeJoints()
 		{
 			for (int i = 0; i < joint.joints.Count; i++) {
-				Quaternion jointRot = Quaternion.AngleAxis(tgt, rji[i].jointAxis);
+				Quaternion jointRot = Quaternion.AngleAxis(tgt, rji[i].localAxis);
 				ConfigurableJoint j = joint.joints[i];
 				RotJointInfo ji = rji[i];
 				if (j) {
@@ -362,7 +362,7 @@ namespace DockRotate
 
 		private Quaternion currentRotation(int i)
 		{
-			Quaternion newJointRotation = Quaternion.AngleAxis(pos, rji[i].jointAxis);
+			Quaternion newJointRotation = Quaternion.AngleAxis(pos, rji[i].localAxis);
 
 			Quaternion rot = rji[i].localToJoint
 				* newJointRotation * rji[i].startTgtRotation
