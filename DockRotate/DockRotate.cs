@@ -123,8 +123,6 @@ namespace DockRotate
 			public ConfigurableJoint joint;
 			public JointManager jm;
 			public Vector3 localAxis, localNode;
-			public Quaternion startTgtRotation;
-			public Vector3 startTgtPosition;
 		}
 		private RotJointInfo[] rji;
 
@@ -198,8 +196,6 @@ namespace DockRotate
 				rji[i].jm = new JointManager(j);
 				rji[i].localAxis = axis.Td(activePart.T(), j.T());
 				rji[i].localNode = node.Tp(activePart.T(), j.T());
-				rji[i].startTgtRotation = j.targetRotation;
-				rji[i].startTgtPosition = j.targetPosition;
 
 				j.reconfigureForRotation();
 			}
@@ -224,7 +220,7 @@ namespace DockRotate
 				if (j) {
 					j.targetRotation = jRot;
 					Vector3 pRef = j.anchor - ji.localNode;
-					j.targetPosition = ji.startTgtPosition + ji.jm.localToJoint * (pRot * pRef - pRef);
+					j.targetPosition = ji.jm.tgtPos0 + ji.jm.localToJoint * (pRot * pRef - pRef);
 
 					// energy += j.currentTorque.magnitude * Mathf.Abs(vel) * deltat;
 				}
@@ -319,17 +315,17 @@ namespace DockRotate
 					RotJointInfo ji = rji[i];
 					j.axis = jointRot * j.axis;
 					j.secondaryAxis = jointRot * j.secondaryAxis;
-					j.targetRotation = ji.startTgtRotation;
+					j.targetRotation = ji.jm.tgtRot0;
 
 					// staticize joint target anchors
 					// this can only work after all staticizeOrgInfo() are done, hence jointStaticizationQueue
-					Vector3 newLocalConnectedAnchor = j.anchor + ji.startTgtPosition;
+					Vector3 newLocalConnectedAnchor = j.anchor + ji.jm.tgtPos0;
 					j.connectedAnchor = newLocalConnectedAnchor
 						.Tp(j.T(), activePart.T())
 						.STp(activePart, proxyPart)
 						.Tp(proxyPart.T(), proxyPart.rb.T());
 					// lprint("CONN " + newLocalConnectedAnchor.desc() + " -> " + j.connectedAnchor.desc());
-					j.targetPosition = ji.startTgtPosition;
+					j.targetPosition = ji.jm.tgtPos0;
 				}
 			}
 		}
@@ -362,10 +358,10 @@ namespace DockRotate
 			Quaternion newJointRotation = Quaternion.AngleAxis(pos, rji[i].localAxis);
 
 			Quaternion rot = rji[i].jm.localToJoint
-				* newJointRotation * rji[i].startTgtRotation
+				* newJointRotation * rji[i].jm.tgtRot0
 				* rji[i].jm.jointToLocal;
 
-			return rji[i].startTgtRotation * rot;
+			return rji[i].jm.tgtRot0 * rot;
 		}
 
 		public void abort(bool hard, string msg)
@@ -1442,6 +1438,8 @@ namespace DockRotate
 
 		private ConfigurableJoint j;
 		public Quaternion localToJoint, jointToLocal; // FIXME: this must become private
+		public Quaternion tgtRot0;
+		public Vector3 tgtPos0;
 
 		public JointManager(ConfigurableJoint j)
 		{
@@ -1465,6 +1463,9 @@ namespace DockRotate
 			jointToLocal = Quaternion.LookRotation(forward, up);
 
 			localToJoint = jointToLocal.inverse();
+
+			tgtPos0 = j.targetPosition;
+			tgtRot0 = j.targetRotation;
 		}
 
 		// untested yet
