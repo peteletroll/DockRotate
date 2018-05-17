@@ -217,13 +217,11 @@ namespace DockRotate
 				if (j) {
 					RotJointInfo ji = rji[i];
 
-					Vector3 jointAxis = ji.jm.L2Jd(ji.localAxis);
-					Quaternion jointRotation = Quaternion.AngleAxis(pos, jointAxis);
-					j.targetRotation = ji.jm.tgtRot0 * jointRotation;
+					Quaternion jointRotation = Quaternion.AngleAxis(pos, ji.jm.L2Jd(ji.localAxis));
+					Vector3 jointNode = ji.jm.L2Jp(ji.localNode);
 
-					Quaternion pRot = Quaternion.AngleAxis(pos, ji.localAxis);
-					Vector3 pRef = j.anchor - ji.localNode;
-					j.targetPosition = ji.jm.tgtPos0 + ji.jm.localToJoint * (pRot * pRef - pRef);
+					j.targetRotation = ji.jm.tgtRot0 * jointRotation;
+					j.targetPosition = jointRotation * (ji.jm.tgtPos0 - jointNode) + jointNode;
 
 					// energy += j.currentTorque.magnitude * Mathf.Abs(vel) * deltat;
 				}
