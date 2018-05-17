@@ -216,7 +216,13 @@ namespace DockRotate
 				ConfigurableJoint j = joint.joints[i];
 				if (j) {
 					RotJointInfo ji = rji[i];
-					Quaternion jRot = currentRotation(i);
+
+					Quaternion newJointRotation = Quaternion.AngleAxis(pos, rji[i].localAxis);
+					Quaternion rot = rji[i].jm.localToJoint
+						* newJointRotation * rji[i].jm.tgtRot0
+						* rji[i].jm.jointToLocal;
+					Quaternion jRot = rji[i].jm.tgtRot0 * rot;
+
 					Quaternion pRot = Quaternion.AngleAxis(pos, ji.localAxis);
 					j.targetRotation = jRot;
 					Vector3 pRef = j.anchor - ji.localNode;
@@ -351,17 +357,6 @@ namespace DockRotate
 
 			for (int i = 0; i < p.children.Count; i++)
 				_propagate(p.children[i], rot, pos);
-		}
-
-		private Quaternion currentRotation(int i)
-		{
-			Quaternion newJointRotation = Quaternion.AngleAxis(pos, rji[i].localAxis);
-
-			Quaternion rot = rji[i].jm.localToJoint
-				* newJointRotation * rji[i].jm.tgtRot0
-				* rji[i].jm.jointToLocal;
-
-			return rji[i].jm.tgtRot0 * rot;
 		}
 
 		public void abort(bool hard, string msg)
