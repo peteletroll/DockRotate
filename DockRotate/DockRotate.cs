@@ -217,13 +217,11 @@ namespace DockRotate
 				if (j) {
 					RotJointInfo ji = rji[i];
 
+					Vector3 jointAxis = ji.jm.L2Jd(ji.localAxis);
+					Quaternion jointRotation = Quaternion.AngleAxis(pos, jointAxis);
+					j.targetRotation = ji.jm.tgtRot0 * jointRotation;
+
 					Quaternion pRot = Quaternion.AngleAxis(pos, ji.localAxis);
-
-					Quaternion rot = ji.jm.localToJoint
-						* pRot * ji.jm.tgtRot0
-						* ji.jm.jointToLocal;
-					j.targetRotation = ji.jm.tgtRot0 * rot;
-
 					Vector3 pRef = j.anchor - ji.localNode;
 					j.targetPosition = ji.jm.tgtPos0 + ji.jm.localToJoint * (pRot * pRef - pRef);
 
@@ -1462,7 +1460,6 @@ namespace DockRotate
 			tgtRot0 = j.targetRotation;
 		}
 
-		// untested yet
 		public Vector3 L2Jd(Vector3 v)
 		{
 			return localToJoint * v;
