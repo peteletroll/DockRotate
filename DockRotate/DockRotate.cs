@@ -214,10 +214,10 @@ namespace DockRotate
 		{
 			for (int i = 0; i < joint.joints.Count; i++) {
 				ConfigurableJoint j = joint.joints[i];
-				RotJointInfo ji = rji[i];
-				Quaternion jRot = currentRotation(i);
-				Quaternion pRot = Quaternion.AngleAxis(pos, ji.localAxis);
 				if (j) {
+					RotJointInfo ji = rji[i];
+					Quaternion jRot = currentRotation(i);
+					Quaternion pRot = Quaternion.AngleAxis(pos, ji.localAxis);
 					j.targetRotation = jRot;
 					Vector3 pRef = j.anchor - ji.localNode;
 					j.targetPosition = ji.jm.tgtPos0 + ji.jm.localToJoint * (pRot * pRef - pRef);
