@@ -151,22 +151,24 @@ namespace DockRotate
 
 		private int incCount()
 		{
-			int ret = VesselRotInfo.getInfo(vesselId).rotCount;
+			VesselRotInfo vi = VesselRotInfo.getInfo(vesselId);
+			int ret = vi.rotCount;
 			if (ret < 0) {
 				lprint("WARNING: vesselRotCount[" + vesselId + "] = " + ret + " in incCount()");
 				ret = 0;
 			}
-			return VesselRotInfo.getInfo(vesselId).rotCount = ++ret;
+			return vi.rotCount = ++ret;
 		}
 
 		private int decCount()
 		{
-			int ret = VesselRotInfo.getInfo(vesselId).rotCount;
+			VesselRotInfo vi = VesselRotInfo.getInfo(vesselId);
+			int ret = vi.rotCount;
 			if (ret <= 0) {
 				lprint("WARNING: vesselRotCount[" + vesselId + "] = " + ret + " in decCount()");
 				ret = 1;
 			}
-			return VesselRotInfo.getInfo(vesselId).rotCount = --ret;
+			return vi.rotCount = --ret;
 		}
 
 		public override void advance(float deltat)
