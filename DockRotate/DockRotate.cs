@@ -309,23 +309,23 @@ namespace DockRotate
 		private void staticizeJoints()
 		{
 			for (int i = 0; i < joint.joints.Count; i++) {
-				Quaternion jointRot = Quaternion.AngleAxis(tgt, rji[i].localAxis);
 				ConfigurableJoint j = joint.joints[i];
 				if (j) {
-					// staticize joint rotation
 					RotJointInfo ji = rji[i];
+
+					// staticize joint rotation
+					Quaternion jointRot = Quaternion.AngleAxis(tgt, ji.localAxis);
 					j.axis = jointRot * j.axis;
 					j.secondaryAxis = jointRot * j.secondaryAxis;
 					j.targetRotation = ji.jm.tgtRot0;
 
-					// staticize joint target anchors
+					// staticize joint target anchor
 					// this can only work after all staticizeOrgInfo() are done, hence jointStaticizationQueue
 					Vector3 newLocalConnectedAnchor = j.anchor + ji.jm.tgtPos0;
 					j.connectedAnchor = newLocalConnectedAnchor
 						.Tp(j.T(), activePart.T())
 						.STp(activePart, proxyPart)
 						.Tp(proxyPart.T(), proxyPart.rb.T());
-					// lprint("CONN " + newLocalConnectedAnchor.desc() + " -> " + j.connectedAnchor.desc());
 					j.targetPosition = ji.jm.tgtPos0;
 				}
 			}
