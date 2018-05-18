@@ -1423,12 +1423,12 @@ namespace DockRotate
 
 		// joint space:
 		// origin is j.anchor;
-		// right is j.axis (right)
-		// up is j.secondaryAxis (up)
+		// right is j.axis
+		// up is j.secondaryAxis
 		// anchor, axis and secondaryAxis are defined in local space.
 
 		private ConfigurableJoint j;
-		public Quaternion localToJoint, jointToLocal; // FIXME: this must become private
+		private Quaternion localToJoint, jointToLocal;
 		public Quaternion tgtRot0;
 		public Vector3 tgtPos0;
 
