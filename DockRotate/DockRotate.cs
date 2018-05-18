@@ -219,7 +219,7 @@ namespace DockRotate
 				if (j) {
 					RotJointInfo ji = rji[i];
 
-					Quaternion jointRotation = Quaternion.AngleAxis(pos, ji.jm.L2Jd(ji.localAxis));
+					Quaternion jointRotation = ji.jm.L2Jd(ji.localAxis).rotation(pos);
 					Vector3 jointNode = ji.jm.L2Jp(ji.localNode);
 
 					j.targetRotation = ji.jm.tgtRot0 * jointRotation;
@@ -316,7 +316,7 @@ namespace DockRotate
 					RotJointInfo ji = rji[i];
 
 					// staticize joint rotation
-					Quaternion jointRot = Quaternion.AngleAxis(tgt, ji.localAxis);
+					Quaternion jointRot = ji.localAxis.rotation(tgt);
 					j.axis = jointRot * j.axis;
 					j.secondaryAxis = jointRot * j.secondaryAxis;
 					j.targetRotation = ji.jm.tgtRot0;
@@ -342,7 +342,7 @@ namespace DockRotate
 			}
 			float angle = tgt;
 			Vector3 nodeAxis = -axis.STd(activePart, activePart.vessel.rootPart);
-			Quaternion nodeRot = Quaternion.AngleAxis(angle, nodeAxis);
+			Quaternion nodeRot = nodeAxis.rotation(angle);
 			Vector3 nodePos = node.STp(activePart, activePart.vessel.rootPart);
 			_propagate(activePart, nodeRot, nodePos);
 			return true;
@@ -1700,6 +1700,11 @@ namespace DockRotate
 		}
 
 		/******** Vector3 utilities ********/
+
+		public static Quaternion rotation(this Vector3 axis, float angle)
+		{
+			return Quaternion.AngleAxis(angle, axis);
+		}
 
 		public static float axisSignedAngle(this Vector3 axis, Vector3 v1, Vector3 v2)
 		{
