@@ -321,12 +321,13 @@ namespace DockRotate
 
 					// staticize joint target anchor
 					// this can only work after all staticizeOrgInfo() are done, hence jointStaticizationQueue
-					Vector3 newLocalConnectedAnchor = j.anchor + ji.jm.tgtPos0;
-					j.connectedAnchor = newLocalConnectedAnchor
+					j.connectedAnchor = ji.jm.J2Lp(ji.jm.tgtPos0)
 						.Tp(j.T(), activePart.T())
 						.STp(activePart, proxyPart)
 						.Tp(proxyPart.T(), proxyPart.rb.T());
 					j.targetPosition = ji.jm.tgtPos0;
+
+					ji.jm.refresh();
 				}
 			}
 		}
@@ -1434,10 +1435,10 @@ namespace DockRotate
 		public JointManager(ConfigurableJoint j)
 		{
 			this.j = j;
-			init();
+			refresh();
 		}
 
-		private void init()
+		public void refresh()
 		{
 
 			// the jointToLocal rotation turns Vector3.right (1, 0, 0) to axis
@@ -1474,7 +1475,6 @@ namespace DockRotate
 			return localToJoint * (v - j.anchor);
 		}
 
-		// untested yet
 		public Vector3 J2Lp(Vector3 v)
 		{
 			return jointToLocal * v + j.anchor;
