@@ -1717,10 +1717,7 @@ namespace DockRotate
 
 		public static string desc(this Vector3 v)
 		{
-			return "(" + v.x.ToString("F2")
-				+ ", " + v.y.ToString("F2")
-				+ ", " + v.z.ToString("F2")
-				+ ")";
+			return v.ToString("F2");
 		}
 
 		public static string ddesc(this Vector3 v, Part p)
