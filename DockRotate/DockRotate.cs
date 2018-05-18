@@ -1424,7 +1424,7 @@ namespace DockRotate
 		// joint space:
 		// origin is j.anchor;
 		// right is j.axis (right)
-		// up is j.secondaryAxis
+		// up is j.secondaryAxis (up)
 		// anchor, axis and secondaryAxis are defined in local space.
 
 		private ConfigurableJoint j;
@@ -1440,7 +1440,6 @@ namespace DockRotate
 
 		public void refresh()
 		{
-
 			// the jointToLocal rotation turns Vector3.right (1, 0, 0) to axis
 			// and Vector3.up (0, 1, 0) to secondaryAxis
 
@@ -1464,7 +1463,6 @@ namespace DockRotate
 			return localToJoint * v;
 		}
 
-		// untested yet
 		public Vector3 J2Ld(Vector3 v)
 		{
 			return jointToLocal * v;
