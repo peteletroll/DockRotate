@@ -1469,7 +1469,6 @@ namespace DockRotate
 			return jointToLocal * v;
 		}
 
-		// untested yet
 		public Vector3 L2Jp(Vector3 v)
 		{
 			return localToJoint * (v - j.anchor);
