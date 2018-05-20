@@ -1446,8 +1446,8 @@ namespace DockRotate
 			// and Vector3.up (0, 1, 0) to secondaryAxis
 
 			// jointToLocal * v means:
-			// vector v expressed in local coordinates defined by (axis, secondaryAxis)
-			// result is same vector in joint transform space (local space)
+			// vector v expressed in joint space
+			// result is same vector in local space
 
 			Vector3 right = j.axis.normalized;
 			Vector3 forward = Vector3.Cross(j.axis, j.secondaryAxis).normalized;
