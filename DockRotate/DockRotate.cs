@@ -1785,11 +1785,6 @@ namespace DockRotate
 			return to.InverseTransformPoint(from.TransformPoint(v));
 		}
 
-		public static Transform T(this Vessel v)
-		{
-			return v.rootPart.transform;
-		}
-
 		public static Transform T(this Part p)
 		{
 			return p.transform;
