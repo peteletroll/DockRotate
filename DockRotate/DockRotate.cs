@@ -195,14 +195,14 @@ namespace DockRotate
 			rji = new RotJointInfo[c];
 			for (int i = 0; i < c; i++) {
 				ConfigurableJoint j = joint.joints[i];
-				RotJointInfo ri = rji[i];
-				ri.joint = j;
-				ri.jm = new JointManager(j);
-				ri.localAxis = axis.Td(activePart.T(), j.T());
-				ri.localNode = node.Tp(activePart.T(), j.T());
-				ri.connectedBodyAxis = axis.STd(activePart, proxyPart)
+				RotJointInfo ji = rji[i];
+				ji.joint = j;
+				ji.jm = new JointManager(j);
+				ji.localAxis = axis.Td(activePart.T(), j.T());
+				ji.localNode = node.Tp(activePart.T(), j.T());
+				ji.connectedBodyAxis = axis.STd(activePart, proxyPart)
 					.Td(proxyPart.T(), proxyPart.rb.T());
-				ri.connectedBodyNode = node.STp(activePart, proxyPart)
+				ji.connectedBodyNode = node.STp(activePart, proxyPart)
 					.Tp(proxyPart.T(), proxyPart.rb.T());
 				j.reconfigureForRotation();
 			}
