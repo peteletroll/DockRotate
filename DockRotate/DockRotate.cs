@@ -82,7 +82,6 @@ namespace DockRotate
 	{
 		public Guid id;
 		public int rotCount = 0;
-		public List<RotationAnimation> jointStaticizationQueue = new List<RotationAnimation>();
 
 		private static Dictionary<Guid, VesselRotInfo> vesselInfo = new Dictionary<Guid, VesselRotInfo>();
 
@@ -270,19 +269,10 @@ namespace DockRotate
 
 			onStep(0);
 
-			if (staticizeOrgInfo()) {
-				staticizeJoints();
-			} else {
-				VesselRotInfo.getInfo(vesselId).jointStaticizationQueue.Add(this);
-			}
+			staticizeOrgInfo();
+			staticizeJoints();
 
 			if (decCount() <= 0) {
-				VesselRotInfo vi = VesselRotInfo.getInfo(vesselId);
-				for (int i = 0; i < vi.jointStaticizationQueue.Count; i++) {
-					lprint(activePart.desc() + ": delayed joint staticization");
-					vi.jointStaticizationQueue[i].staticizeJoints();
-				}
-				vi.jointStaticizationQueue.Clear();
 				if (smartAutoStruts) {
 					lprint("securing autostruts on vessel " + vesselId);
 					joint.Host.vessel.secureAllAutoStruts();
