@@ -189,7 +189,8 @@ namespace DockRotate
 				activePart.releaseCrossAutoStruts();
 			} else {
 				// not needed with new IsJointUnlocked() logic
-				// activePart.vessel.releaseAllAutoStruts();
+				// but IsJointUnlocked() logic is bugged now :-(
+				activePart.vessel.releaseAllAutoStruts();
 			}
 			int c = joint.joints.Count;
 			rji = new RotJointInfo[c];
@@ -280,6 +281,8 @@ namespace DockRotate
 					joint.Host.vessel.secureAllAutoStruts();
 				} else {
 					// no action needed with IsJountUnlocked() logic
+					// but IsJountUnlocked() logic is bugged now
+					joint.Host.vessel.secureAllAutoStruts();
 				}
 			}
 			lprint(activePart.desc() + ": rotation stopped");
