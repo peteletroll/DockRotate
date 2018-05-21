@@ -340,19 +340,9 @@ namespace DockRotate
 					j.targetRotation = ji.jm.tgtRot0;
 
 					Quaternion connectedBodyRot = ji.connectedBodyAxis.rotation(-tgt);
-					Vector3 newConnectedAnchor = connectedBodyRot * (j.connectedAnchor - ji.connectedBodyNode)
+					j.connectedAnchor = connectedBodyRot * (j.connectedAnchor - ji.connectedBodyNode)
 						+ ji.connectedBodyNode;
-
-					// staticize joint target anchor
-					// this can only work after all staticizeOrgInfo() are done, hence jointStaticizationQueue
-					j.connectedAnchor = ji.jm.J2Lp(ji.jm.tgtPos0)
-						.Tp(j.T(), activePart.T())
-						.STp(activePart, proxyPart)
-						.Tp(proxyPart.T(), proxyPart.rb.T());
 					j.targetPosition = ji.jm.tgtPos0;
-
-					lprint("staticizeJoints() connectedAnchor error: "
-						+ (newConnectedAnchor - j.connectedAnchor).desc());
 
 					ji.jm.refresh();
 				}
