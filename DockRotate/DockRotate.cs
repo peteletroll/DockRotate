@@ -198,12 +198,15 @@ namespace DockRotate
 				RotJointInfo ji = rji[i];
 				ji.joint = j;
 				ji.jm = new JointManager(j);
+
 				ji.localAxis = axis.Td(activePart.T(), j.T());
 				ji.localNode = node.Tp(activePart.T(), j.T());
+
 				ji.connectedBodyAxis = axis.STd(activePart, proxyPart)
 					.Td(proxyPart.T(), proxyPart.rb.T());
 				ji.connectedBodyNode = node.STp(activePart, proxyPart)
 					.Tp(proxyPart.T(), proxyPart.rb.T());
+
 				j.reconfigureForRotation();
 			}
 
