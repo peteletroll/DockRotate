@@ -123,6 +123,7 @@ namespace DockRotate
 			public ConfigurableJoint joint;
 			public JointManager jm;
 			public Vector3 localAxis, localNode;
+			public Vector3 jointAxis, jointNode;
 			public Vector3 connectedBodyAxis, connectedBodyNode;
 		}
 		private RotJointInfo[] rji;
@@ -203,6 +204,9 @@ namespace DockRotate
 				ji.localAxis = axis.Td(activePart.T(), j.T());
 				ji.localNode = node.Tp(activePart.T(), j.T());
 
+				ji.jointAxis = ji.jm.L2Jd(ji.localAxis);
+				ji.jointNode = ji.jm.L2Jp(ji.localNode);
+
 				ji.connectedBodyAxis = axis.STd(activePart, proxyPart)
 					.Td(proxyPart.T(), proxyPart.rb.T());
 				ji.connectedBodyNode = node.STp(activePart, proxyPart)
@@ -228,11 +232,10 @@ namespace DockRotate
 				if (j) {
 					RotJointInfo ji = rji[i];
 
-					Quaternion jointRotation = ji.jm.L2Jd(ji.localAxis).rotation(pos);
-					Vector3 jointNode = ji.jm.L2Jp(ji.localNode);
+					Quaternion jointRotation = ji.jointAxis.rotation(pos);
 
 					j.targetRotation = ji.jm.tgtRot0 * jointRotation;
-					j.targetPosition = jointRotation * (ji.jm.tgtPos0 - jointNode) + jointNode;
+					j.targetPosition = jointRotation * (ji.jm.tgtPos0 - ji.jointNode) + ji.jointNode;
 
 					// energy += j.currentTorque.magnitude * Mathf.Abs(vel) * deltat;
 				}
