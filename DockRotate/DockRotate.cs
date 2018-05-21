@@ -197,7 +197,9 @@ namespace DockRotate
 			rji = new RotJointInfo[c];
 			for (int i = 0; i < c; i++) {
 				ConfigurableJoint j = joint.joints[i];
-				RotJointInfo ji = rji[i];
+
+				RotJointInfo ji;
+
 				ji.joint = j;
 				ji.jm = new JointManager(j);
 
@@ -211,6 +213,8 @@ namespace DockRotate
 					.Td(proxyPart.T(), proxyPart.rb.T());
 				ji.connectedBodyNode = node.STp(activePart, proxyPart)
 					.Tp(proxyPart.T(), proxyPart.rb.T());
+
+				rji[i] = ji;
 
 				j.reconfigureForRotation();
 			}
