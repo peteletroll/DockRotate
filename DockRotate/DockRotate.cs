@@ -123,6 +123,7 @@ namespace DockRotate
 			public ConfigurableJoint joint;
 			public JointManager jm;
 			public Vector3 localAxis, localNode;
+			public Vector3 connectedBodyAxis, connectedBodyNode;
 		}
 		private RotJointInfo[] rji;
 
@@ -194,11 +195,15 @@ namespace DockRotate
 			rji = new RotJointInfo[c];
 			for (int i = 0; i < c; i++) {
 				ConfigurableJoint j = joint.joints[i];
-				rji[i].joint = j;
-				rji[i].jm = new JointManager(j);
-				rji[i].localAxis = axis.Td(activePart.T(), j.T());
-				rji[i].localNode = node.Tp(activePart.T(), j.T());
-
+				RotJointInfo ri = rji[i];
+				ri.joint = j;
+				ri.jm = new JointManager(j);
+				ri.localAxis = axis.Td(activePart.T(), j.T());
+				ri.localNode = node.Tp(activePart.T(), j.T());
+				ri.connectedBodyAxis = axis.STd(activePart, proxyPart)
+					.Td(proxyPart.T(), proxyPart.rb.T());
+				ri.connectedBodyNode = node.STp(activePart, proxyPart)
+					.Tp(proxyPart.T(), proxyPart.rb.T());
 				j.reconfigureForRotation();
 			}
 
@@ -321,6 +326,10 @@ namespace DockRotate
 					j.secondaryAxis = jointRot * j.secondaryAxis;
 					j.targetRotation = ji.jm.tgtRot0;
 
+					Quaternion connectedBodyRot = ji.connectedBodyAxis.rotation(-tgt);
+					Vector3 newConnectedAnchor = connectedBodyRot * (j.connectedAnchor - ji.connectedBodyNode)
+						+ ji.connectedBodyNode;
+
 					// staticize joint target anchor
 					// this can only work after all staticizeOrgInfo() are done, hence jointStaticizationQueue
 					j.connectedAnchor = ji.jm.J2Lp(ji.jm.tgtPos0)
@@ -328,6 +337,9 @@ namespace DockRotate
 						.STp(activePart, proxyPart)
 						.Tp(proxyPart.T(), proxyPart.rb.T());
 					j.targetPosition = ji.jm.tgtPos0;
+
+					lprint("staticizeJoints() connectedAnchor error: "
+						+ (newConnectedAnchor - j.connectedAnchor).desc());
 
 					ji.jm.refresh();
 				}
