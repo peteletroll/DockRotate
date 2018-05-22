@@ -5,4 +5,4 @@
   (found KSP bug)
 
 * refactor ConfigurableJoint operations in a dedicated class
-
+  (in progress, see JointManager class)
