@@ -581,7 +581,7 @@ namespace DockRotate
 
 		protected abstract float rotationAngle(bool dynamic);
 
-		protected abstract float dynamicDelta();
+		protected abstract float dynamicDeltaAngle();
 
 		protected abstract void dumpPart();
 
@@ -677,7 +677,7 @@ namespace DockRotate
 			} else {
 				angleInfo = String.Format("{0:+0.00;-0.00;0.00}\u00b0 ({1:+0.0000;-0.0000;0.0000}\u00b0\u0394)",
 					rotationAngle(false),
-					dynamicDelta());
+					dynamicDeltaAngle());
 			}
 
 			bool newGuiActive = canStartRotation();
@@ -891,7 +891,7 @@ namespace DockRotate
 			return a.axisSignedAngle(v1, v2);
 		}
 
-		protected override float dynamicDelta()
+		protected override float dynamicDeltaAngle()
 		// = dynamic - static
 		{
 			if (!proxyPart)
@@ -1257,7 +1257,7 @@ namespace DockRotate
 			return a.axisSignedAngle(v1, v2);
 		}
 
-		protected override float dynamicDelta()
+		protected override float dynamicDeltaAngle()
 		// = dynamic - static
 		{
 			if (!activeRotationModule || !proxyRotationModule)
