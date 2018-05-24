@@ -1161,9 +1161,11 @@ namespace DockRotate
 
 				case 2:
 					if (activeRotationModule == this) {
-						proxyRotationModule.activeRotationModule = this;
-						proxyRotationModule.proxyRotationModule = proxyRotationModule;
 						proxyRotationModule.nodeRole = "Proxy";
+						proxyRotationModule.activeRotationModule = activeRotationModule;
+						proxyRotationModule.activePart = activePart;
+						proxyRotationModule.proxyRotationModule = proxyRotationModule;
+						proxyRotationModule.proxyPart = proxyPart;
 					}
 					break;
 
