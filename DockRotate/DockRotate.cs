@@ -608,7 +608,7 @@ namespace DockRotate
 		protected bool onRails;
 
 		public PartJoint rotatingJoint;
-		public Part activePart;
+		public Part activePart, proxyPart;
 		public string nodeRole = "Init";
 		protected Vector3 partNodePos; // node position, relative to part
 		public Vector3 partNodeAxis; // node rotation axis, relative to part, reference Vector3.forward
@@ -864,7 +864,6 @@ namespace DockRotate
 		public string rotatingNodeName = "";
 
 		public AttachNode rotatingNode;
-		public Part proxyPart;
 		public Vector3 otherPartUp;
 
 		protected override int countJoints()
@@ -1111,7 +1110,7 @@ namespace DockRotate
 					rotationSpeed = Mathf.Abs(rotationSpeed);
 
 					dockingNode = null;
-					activePart = null;
+					activePart = proxyPart = null;
 					rotatingJoint = null;
 					activeRotationModule = proxyRotationModule = null;
 					nodeStatus = "";
@@ -1154,8 +1153,10 @@ namespace DockRotate
 							nodeRole = "Active";
 						}
 					}
-					if (activeRotationModule)
+					if (activeRotationModule) {
 						activePart = activeRotationModule.part;
+						proxyPart = proxyRotationModule.part;
+					}
 					break;
 
 				case 2:
@@ -1168,6 +1169,7 @@ namespace DockRotate
 
 				case 3:
 					if (activeRotationModule == this) {
+						proxyPart = proxyRotationModule.part;
 						lprint(activeRotationModule.part.desc()
 							+ ": on " + proxyRotationModule.part.desc());
 					}
