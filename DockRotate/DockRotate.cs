@@ -7,8 +7,8 @@ namespace DockRotate
 {
 	public abstract class SmoothMotion
 	{
-		public float pos { set; get; }
-		public float vel { set; get; }
+		public float pos;
+		public float vel;
 		public float tgt;
 
 		public float maxvel = 1.0f;
