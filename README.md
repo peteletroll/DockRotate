@@ -26,7 +26,7 @@ Forum page: https://forum.kerbalspaceprogram.com/index.php?/topic/170484-dockrot
 
 # NodeRotate
 
-This module can be used to turn (almost) any node in (almost) any part into a rotating joint.
+This module can be used to turn any connection node of any physically significant part into a rotating joint.
 
 NodeRotate is intended for modders who want to create new rotating parts. There's an example NodeRotate.cfg file in the distribution, see there for details.
 
