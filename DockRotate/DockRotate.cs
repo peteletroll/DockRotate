@@ -611,7 +611,7 @@ namespace DockRotate
 		public Part activePart, proxyPart;
 		public string nodeRole = "Init";
 		protected Vector3 partNodePos; // node position, relative to part
-		public Vector3 partNodeAxis; // node rotation axis, relative to part, reference Vector3.forward
+		public Vector3 partNodeAxis; // node rotation axis, relative to part
 		protected Vector3 partNodeUp; // node vector for measuring angle, relative to part
 
 		// localized info cache
