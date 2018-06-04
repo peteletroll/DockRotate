@@ -1458,6 +1458,8 @@ namespace DockRotate
 			// vector v expressed in joint space
 			// result is same vector in local space
 
+			// source: https://answers.unity.com/questions/278147/how-to-use-target-rotation-on-a-configurable-joint.html
+
 			Vector3 right = j.axis.normalized;
 			Vector3 forward = Vector3.Cross(j.axis, j.secondaryAxis).normalized;
 			Vector3 up = Vector3.Cross(forward, right).normalized;
