@@ -1392,7 +1392,8 @@ namespace DockRotate
 
 		/******** Debugging stuff ********/
 
-		protected override void dumpPart() {
+		protected override void dumpPart()
+		{
 			lprint("--- DUMP " + part.desc() + " ---");
 			lprint("rotPart: " + activePart.desc());
 			/*
@@ -1416,6 +1417,7 @@ namespace DockRotate
 				*/
 
 				lprint("partNodeAxisV: " + partNodeAxis.STd(part, vessel.rootPart).desc());
+				lprint("GetFwdVector(): " + dockingNode.GetFwdVector().desc());
 			}
 
 			if (rotatingJoint) {
