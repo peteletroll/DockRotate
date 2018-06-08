@@ -218,9 +218,7 @@ namespace DockRotate
 				j.reconfigureForRotation();
 			}
 
-			setupSound();
-			if (sound != null)
-				sound.Play();
+			startSound();
 
 			/*
 			lprint(String.Format("{0}: started {1:F4}\u00b0 at {2}\u00b0/s",
@@ -261,11 +259,8 @@ namespace DockRotate
 		protected override void onStop()
 		{
 			// lprint("stop rot axis " + currentRotation(0).desc());
-			if (sound != null) {
-				sound.Stop();
-				AudioSource.Destroy(sound);
-				sound = null;
-			}
+
+			stopSound();
 
 			onStep(0);
 
@@ -285,7 +280,7 @@ namespace DockRotate
 			lprint(activePart.desc() + ": rotation stopped");
 		}
 
-		public void setupSound()
+		public void startSound()
 		{
 			if (sound)
 				return;
@@ -309,10 +304,21 @@ namespace DockRotate
 
 				pitchAlteration = UnityEngine.Random.Range(0.9f, 1.1f);
 
+				sound.Play();
+
 				// lprint(activePart.desc() + ": added sound");
 			} catch (Exception e) {
 				sound = null;
 				lprint("sound: " + e.Message);
+			}
+		}
+
+		public void stopSound()
+		{
+			if (sound != null) {
+				sound.Stop();
+				AudioSource.Destroy(sound);
+				sound = null;
 			}
 		}
 
@@ -366,11 +372,7 @@ namespace DockRotate
 		{
 			lprint((hard ? "HARD " : "") + "ABORTING: " + msg);
 
-			if (sound != null) {
-				sound.Stop();
-				AudioSource.Destroy(sound);
-				sound = null;
-			}
+			stopSound();
 
 			tgt = pos;
 			vel = 0;
