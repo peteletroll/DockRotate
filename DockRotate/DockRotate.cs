@@ -150,26 +150,16 @@ namespace DockRotate
 			this.vel = 0;
 		}
 
-		private int incCount()
+		private int changeCount(int delta)
 		{
 			VesselRotInfo vi = VesselRotInfo.getInfo(vesselId);
-			int ret = vi.rotCount;
+			int ret = vi.rotCount + delta;
 			if (ret < 0) {
-				lprint("WARNING: vesselRotCount[" + vesselId + "] = " + ret + " in incCount()");
+				lprint("WARNING: vesselRotCount[" + vesselId + "] = " + ret + " in changeCount(" + delta + ")");
 				ret = 0;
 			}
-			return vi.rotCount = ++ret;
-		}
+			return vi.rotCount = ret;
 
-		private int decCount()
-		{
-			VesselRotInfo vi = VesselRotInfo.getInfo(vesselId);
-			int ret = vi.rotCount;
-			if (ret <= 0) {
-				lprint("WARNING: vesselRotCount[" + vesselId + "] = " + ret + " in decCount()");
-				ret = 1;
-			}
-			return vi.rotCount = --ret;
 		}
 
 		public override void advance(float deltat)
@@ -184,7 +174,7 @@ namespace DockRotate
 
 		protected override void onStart()
 		{
-			incCount();
+			changeCount(+1);
 			if (smartAutoStruts) {
 				activePart.releaseCrossAutoStruts();
 			} else {
@@ -267,7 +257,7 @@ namespace DockRotate
 			staticizeOrgInfo();
 			staticizeJoints();
 
-			if (decCount() <= 0) {
+			if (changeCount(-1) <= 0) {
 				if (smartAutoStruts) {
 					lprint("securing autostruts on vessel " + vesselId);
 					joint.Host.vessel.secureAllAutoStruts();
