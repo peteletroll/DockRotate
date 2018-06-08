@@ -585,7 +585,12 @@ namespace DockRotate
 
 		protected abstract int countJoints();
 
-		public abstract bool IsJointUnlocked();
+		public bool IsJointUnlocked()
+		{
+			bool ret = currentRotation() != null;
+			lprint(part.desc() + ".IsJointUnlocked() is " + ret);
+			return ret;
+		}
 
 		protected int vesselPartCount;
 
@@ -867,13 +872,6 @@ namespace DockRotate
 		protected override int countJoints()
 		{
 			return rotatingJoint ? rotatingJoint.joints.Count : 0;
-		}
-
-		public override bool IsJointUnlocked()
-		{
-			bool ret = rotCur != null;
-			lprint(part.desc() + ".IsJointUnlocked() is " + ret);
-			return ret;
 		}
 
 		protected override float rotationAngle(bool dynamic)
@@ -1227,13 +1225,6 @@ namespace DockRotate
 			if (!activeRotationModule.rotatingJoint)
 				return 0;
 			return activeRotationModule.rotatingJoint.joints.Count;
-		}
-
-		public override bool IsJointUnlocked()
-		{
-			bool ret = activeRotationModule && activeRotationModule.rotCur != null;
-			lprint(part.desc() + ".IsJointUnlocked() is " + ret);
-			return ret;
 		}
 
 		public override bool useSmartAutoStruts()
