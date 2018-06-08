@@ -158,8 +158,8 @@ namespace DockRotate
 				lprint("WARNING: vesselRotCount[" + vesselId + "] = " + ret + " in changeCount(" + delta + ")");
 				ret = 0;
 			}
+			// lprint("vesselRotCount is now " + ret);
 			return vi.rotCount = ret;
-
 		}
 
 		public override void advance(float deltat)
@@ -588,7 +588,7 @@ namespace DockRotate
 		public bool IsJointUnlocked()
 		{
 			bool ret = currentRotation() != null;
-			lprint(part.desc() + ".IsJointUnlocked() is " + ret);
+			// lprint(part.desc() + ".IsJointUnlocked() is " + ret);
 			return ret;
 		}
 
