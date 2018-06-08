@@ -232,11 +232,7 @@ namespace DockRotate
 				}
 			}
 
-			if (sound != null) {
-				float p = Mathf.Sqrt(Mathf.Abs(vel / maxvel));
-				sound.volume = p * GameSettings.SHIP_VOLUME;
-				sound.pitch = p * pitchAlteration;
-			}
+			stepSound();
 
 			// first rough attempt for electricity consumption
 			if (deltat > 0) {
@@ -300,6 +296,15 @@ namespace DockRotate
 			} catch (Exception e) {
 				sound = null;
 				lprint("sound: " + e.Message);
+			}
+		}
+
+		public void stepSound()
+		{
+			if (sound != null) {
+				float p = Mathf.Sqrt(Mathf.Abs(vel / maxvel));
+				sound.volume = p * GameSettings.SHIP_VOLUME;
+				sound.pitch = p * pitchAlteration;
 			}
 		}
 
