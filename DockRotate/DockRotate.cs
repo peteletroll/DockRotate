@@ -59,7 +59,7 @@ namespace DockRotate
 				onStop();
 		}
 
-		protected bool checkFinished(float deltat)
+		private bool checkFinished(float deltat)
 		{
 			if (finished)
 				return true;
