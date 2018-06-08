@@ -190,7 +190,8 @@ namespace DockRotate
 				RotJointInfo ji;
 
 				ji.joint = j;
-				ji.jm = new JointManager(j);
+				ji.jm = new JointManager();
+				ji.jm.setup(j);
 
 				ji.localAxis = axis.Td(activePart.T(), j.T());
 				ji.localNode = node.Tp(activePart.T(), j.T());
@@ -335,7 +336,7 @@ namespace DockRotate
 						+ ji.connectedBodyNode;
 					j.targetPosition = ji.jm.tgtPos0;
 
-					ji.jm.refresh();
+					ji.jm.setup(j);
 				}
 			}
 		}
@@ -1426,7 +1427,7 @@ namespace DockRotate
 		}
 	}
 
-	public class JointManager
+	public struct JointManager
 	{
 		// local space:
 		// defined by j.transform.
@@ -1442,13 +1443,7 @@ namespace DockRotate
 		public Quaternion tgtRot0;
 		public Vector3 tgtPos0;
 
-		public JointManager(ConfigurableJoint j)
-		{
-			this.j = j;
-			refresh();
-		}
-
-		public void refresh()
+		public void setup(ConfigurableJoint j)
 		{
 			// the jointToLocal rotation turns Vector3.right (1, 0, 0) to axis
 			// and Vector3.up (0, 1, 0) to secondaryAxis
@@ -1458,6 +1453,8 @@ namespace DockRotate
 			// result is same vector in local space
 
 			// source: https://answers.unity.com/questions/278147/how-to-use-target-rotation-on-a-configurable-joint.html
+
+			this.j = j;
 
 			Vector3 right = j.axis.normalized;
 			Vector3 forward = Vector3.Cross(j.axis, j.secondaryAxis).normalized;
