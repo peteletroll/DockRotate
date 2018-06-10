@@ -1077,6 +1077,17 @@ namespace DockRotate
 		public ModuleDockRotate activeRotationModule;
 		public ModuleDockRotate proxyRotationModule;
 
+		[KSPEvent(
+			guiName = "#DCKROT_redock",
+			guiActive = false,
+			guiActiveEditor = false
+		)]
+		public void ReDock()
+		{
+			if (dockingNode)
+				dockingNode.state = "Ready";
+		}
+
 		public override string GetModuleDisplayName()
 		{
 			if (displayName.Length <= 0)
@@ -1377,6 +1388,16 @@ namespace DockRotate
 			if (ret)
 				lprint(part.desc() + ": forwards to " + ret.part.desc());
 			return ret;
+		}
+
+		public override void OnUpdate()
+		{
+			base.OnUpdate();
+			BaseEvent ev = Events["ReDock"];
+			if (ev != null) {
+				ev.guiActive = dockingNode
+					&& dockingNode.state == "Disengage";
+			}
 		}
 
 		/******** Debugging stuff ********/
