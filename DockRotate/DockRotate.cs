@@ -1077,6 +1077,7 @@ namespace DockRotate
 		public ModuleDockRotate activeRotationModule;
 		public ModuleDockRotate proxyRotationModule;
 
+#if DEBUG
 		[KSPEvent(
 			guiName = "#DCKROT_redock",
 			guiActive = false,
@@ -1087,6 +1088,7 @@ namespace DockRotate
 			if (dockingNode)
 				dockingNode.state = "Ready";
 		}
+#endif
 
 		public override string GetModuleDisplayName()
 		{
