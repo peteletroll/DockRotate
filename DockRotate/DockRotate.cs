@@ -846,7 +846,7 @@ namespace DockRotate
 		public virtual string neededResetMsg()
 		{
 			if (vessel && vessel.parts.Count != vesselPartCount)
-				return "part count changed";
+				return "part count changed from " + vesselPartCount + " to " + vessel.parts.Count;
 			return "";
 		}
 
@@ -1294,20 +1294,20 @@ namespace DockRotate
 				string newNodeState = dockingNode.state;
 				ModuleDockingNode other = dockingNode.otherNode();
 
-				lprint(part.desc() + ": from " + lastNodeState
+				string changeDesc = "from " + lastNodeState
 					+ " to " + newNodeState
-					+ " with " + (other ? other.part.desc() : "none"));
+					+ " with " + (other ? other.part.desc() : "none");
 
 				lastNodeState = newNodeState;
 
 				if (other && other.vessel == vessel) {
 					if (rotCur != null) {
-						lprint(part.desc() + ": same vessel, not stopping");
+						lprint(part.desc() + " " + changeDesc + ": same vessel, not stopping");
 					} else {
-						return "docking port state changed on same vessel";
+						return "docking port state changed on same vessel " + changeDesc;
 					}
 				} else {
-					string ret = "docking port state changed";
+					string ret = "docking port state changed " + changeDesc;
 					if (rotCur != null)
 						rotCur.abort(false, ret);
 					return ret;
