@@ -1210,7 +1210,7 @@ namespace DockRotate
 				&& dockingNode.nodeType == parentNode.nodeType
 				&& hasGoodState(dockingNode) && hasGoodState(parentNode)
 				&& (partNodePos - parentRotate.partNodePos.Tp(parentRotate.part.T(), part.T())).magnitude < 1.0f
-				&& Vector3.Angle(partNodeAxis, Vector3.back.Td(parentNode.T(), part.T())) < 3;
+				&& Vector3.Angle(partNodeAxis, Vector3.back.Td(parentNode.T(), part.parent.T()).STd(part.parent, part)) < 3;
 
 			// lprint("isActive(" + descPart(part) + ") = " + ret);
 
