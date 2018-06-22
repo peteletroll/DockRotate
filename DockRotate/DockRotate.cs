@@ -318,6 +318,12 @@ namespace DockRotate
 			}
 		}
 
+		public void forceStaticize()
+		{
+			staticizeOrgInfo();
+			staticizeJoints();
+		}
+
 		private void staticizeJoints()
 		{
 			for (int i = 0; i < joint.joints.Count; i++) {
@@ -625,6 +631,13 @@ namespace DockRotate
 		{
 			if (v != vessel)
 				return;
+
+			if (rotCur != null) {
+				rotCur.abort(true, "go on rails");
+				rotCur.forceStaticize();
+				rotCur = null;
+			}
+
 			onRails = true;
 			resetVessel("go on rails");
 		}
