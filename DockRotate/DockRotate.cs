@@ -631,15 +631,7 @@ namespace DockRotate
 		{
 			if (v != vessel)
 				return;
-
-			if (rotCur != null) {
-				rotCur.abort(true, "go on rails");
-				rotCur.forceStaticize();
-				rotCur = null;
-			}
-
-			onRails = true;
-			resetVessel("go on rails");
+			stopCurrentRotation("go on rails");
 		}
 
 		public void OnVesselGoOffRails(Vessel v)
@@ -853,6 +845,15 @@ namespace DockRotate
 			}
 
 			rotCur.advance(deltat);
+		}
+
+		protected void stopCurrentRotation(string msg)
+		{
+			if (rotCur != null) {
+				rotCur.abort(true, msg);
+				rotCur.forceStaticize();
+				rotCur = null;
+			}
 		}
 
 		protected abstract RotationAnimation currentRotation();
