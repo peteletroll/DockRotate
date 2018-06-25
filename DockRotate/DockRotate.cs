@@ -646,12 +646,14 @@ namespace DockRotate
 		{
 			// called right before docking
 			lprint(part.desc() + ": RightBeforeDocking()");
+			stopCurrentRotation("docking");
 		}
 
 		public void RightBeforeUndocking(Part p)
 		{
 			// called right before undocking
 			lprint(part.desc() + ": RightBeforeUndocking()");
+			stopCurrentRotation("undocking");
 		}
 
 		public override void OnAwake()
