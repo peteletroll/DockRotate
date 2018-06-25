@@ -778,21 +778,23 @@ namespace DockRotate
 
 		protected int setupStageCounter = 0;
 
-		protected abstract void stagedSetup();
+		protected abstract void stagedSetup(bool verbose);
 
 		protected void resetVessel(string msg)
 		{
-			bool reset = false;
+			if (!vessel)
+				return;
+			int resetCount = 0;
 			List<ModuleBaseRotate> rotationModules = vessel.FindPartModulesImplementing<ModuleBaseRotate>();
 			for (int i = 0; i < rotationModules.Count; i++) {
 				ModuleBaseRotate m = rotationModules[i];
 				if (m.setupStageCounter != 0) {
-					reset = true;
+					resetCount++;
 					m.setupStageCounter = 0;
 				}
 			}
-			if (reset && msg.Length > 0)
-				lprint(part.desc() + " resets vessel: " + msg);
+			if (resetCount > 0 && msg.Length > 0)
+				lprint(part.desc() + " resets vessel [" + resetCount + "]: " + msg);
 			VesselRotInfo.resetInfo(vessel.id);
 		}
 
@@ -850,6 +852,7 @@ namespace DockRotate
 		{
 			if (rotCur == null)
 				return;
+
 			if (rotCur.done()) {
 				rotCur = null;
 				return;
@@ -865,6 +868,7 @@ namespace DockRotate
 				rotCur.forceStaticize();
 				rotCur = null;
 			}
+			resetVessel(msg);
 		}
 
 		protected abstract RotationAnimation currentRotation();
@@ -881,7 +885,7 @@ namespace DockRotate
 			if (rotCur != null)
 				advanceRotation(Time.fixedDeltaTime);
 
-			stagedSetup();
+			stagedSetup(false);
 		}
 
 		public virtual string neededResetMsg()
@@ -954,7 +958,7 @@ namespace DockRotate
 			return displayInfo;
 		}
 
-		protected override void stagedSetup()
+		protected override void stagedSetup(bool verbose)
 		{
 			if (onRails || !part || !vessel)
 				return;
@@ -1019,7 +1023,7 @@ namespace DockRotate
 					break;
 
 				case 2:
-					if (rotatingJoint) {
+					if (verbose && rotatingJoint) {
 						lprint(part.desc()
 							+ ": on "
 							+ (activePart == part ? "itself" : activePart.desc()));
@@ -1145,7 +1149,7 @@ namespace DockRotate
 			return displayInfo;
 		}
 
-		protected override void stagedSetup()
+		protected override void stagedSetup(bool verbose)
 		{
 			if (onRails || !part || !vessel)
 				return;
@@ -1220,7 +1224,7 @@ namespace DockRotate
 					break;
 
 				case 3:
-					if (activeRotationModule == this) {
+					if (verbose && activeRotationModule == this) {
 						proxyPart = proxyRotationModule.part;
 						lprint(activeRotationModule.part.desc()
 							+ ": on " + proxyRotationModule.part.desc());
