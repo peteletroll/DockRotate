@@ -656,6 +656,13 @@ namespace DockRotate
 			stopCurrentRotation("undocking");
 		}
 
+		public void RightBeforeDecoupling(Part p)
+		{
+			// called right before decoupling
+			lprint (part.desc() + ": RightBeforeDecoupling()");
+			stopCurrentRotation("decoupling");
+		}
+
 		public override void OnAwake()
 		{
 			// lprint((part ? part.desc() : "<no part>") + ".OnAwake()");
@@ -664,6 +671,7 @@ namespace DockRotate
 			GameEvents.onVesselGoOffRails.Add(OnVesselGoOffRails);
 			GameEvents.onVesselDocking.Add(RightBeforeDocking);
 			GameEvents.onPartUndock.Add(RightBeforeUndocking);
+			GameEvents.onPartDeCouple.Add(RightBeforeDecoupling);
 		}
 
 		public void OnDestroy()
@@ -673,6 +681,7 @@ namespace DockRotate
 			GameEvents.onVesselGoOffRails.Remove(OnVesselGoOffRails);
 			GameEvents.onVesselDocking.Remove(RightBeforeDocking);
 			GameEvents.onPartUndock.Remove(RightBeforeUndocking);
+			GameEvents.onPartDeCouple.Remove(RightBeforeDecoupling);
 		}
 
 		protected static string[,] guiList = {
