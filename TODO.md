@@ -1,6 +1,9 @@
 * better handling of docking port state changes
 	* especially to fix adjusting multiple docking ports
 
+* try using GameEvents.onVesselStandardModification to check
+  for vessel structure changes
+
 * experiment with IJointLockState.IsJointUnlocked()
   (found KSP bug)
 
