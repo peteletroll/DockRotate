@@ -650,12 +650,26 @@ namespace DockRotate
 			resetVessel("go off rails");
 		}
 
+		public void RightBeforeDocking(uint v1, uint v2)
+		{
+			// called right before docking
+			lprint(part.desc() + ": RightBeforeDocking()");
+		}
+
+		public void RightBeforeUndocking(Part p)
+		{
+			// called right before undocking
+			lprint(part.desc() + ": RightBeforeUndocking()");
+		}
+
 		public override void OnAwake()
 		{
 			// lprint((part ? part.desc() : "<no part>") + ".OnAwake()");
 			base.OnAwake();
 			GameEvents.onVesselGoOnRails.Add(OnVesselGoOnRails);
 			GameEvents.onVesselGoOffRails.Add(OnVesselGoOffRails);
+			GameEvents.onVesselDocking.Add(RightBeforeDocking);
+			GameEvents.onPartUndock.Add(RightBeforeUndocking);
 		}
 
 		public void OnDestroy()
@@ -663,6 +677,8 @@ namespace DockRotate
 			// lprint((part ? part.desc() : "<no part>") + ".OnDestroy()");
 			GameEvents.onVesselGoOnRails.Remove(OnVesselGoOnRails);
 			GameEvents.onVesselGoOffRails.Remove(OnVesselGoOffRails);
+			GameEvents.onVesselDocking.Remove(RightBeforeDocking);
+			GameEvents.onPartUndock.Remove(RightBeforeUndocking);
 		}
 
 		protected static string[,] guiList = {
