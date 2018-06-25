@@ -642,6 +642,14 @@ namespace DockRotate
 			resetVessel("go off rails");
 		}
 
+		public void RightBeforeVesselModification(Vessel v)
+		{
+			// FIXME: verify if this gets called before vessel changes
+			if (v != part.vessel)
+				return;
+			lprint (part.desc () + ": RightBeforeVesselModification()");
+		}
+
 		public void RightBeforeDocking(uint v1, uint v2)
 		{
 			// called right before docking
@@ -659,7 +667,7 @@ namespace DockRotate
 		public void RightBeforeDecoupling(Part p)
 		{
 			// called right before decoupling
-			lprint (part.desc() + ": RightBeforeDecoupling()");
+			lprint(part.desc() + ": RightBeforeDecoupling()");
 			stopCurrentRotation("decoupling");
 		}
 
@@ -672,6 +680,7 @@ namespace DockRotate
 			GameEvents.onVesselDocking.Add(RightBeforeDocking);
 			GameEvents.onPartUndock.Add(RightBeforeUndocking);
 			GameEvents.onPartDeCouple.Add(RightBeforeDecoupling);
+			GameEvents.onVesselStandardModification.Add(RightBeforeVesselModification);
 		}
 
 		public void OnDestroy()
@@ -682,6 +691,7 @@ namespace DockRotate
 			GameEvents.onVesselDocking.Remove(RightBeforeDocking);
 			GameEvents.onPartUndock.Remove(RightBeforeUndocking);
 			GameEvents.onPartDeCouple.Remove(RightBeforeDecoupling);
+			GameEvents.onVesselStandardModification.Remove(RightBeforeVesselModification);
 		}
 
 		protected static string[,] guiList = {
