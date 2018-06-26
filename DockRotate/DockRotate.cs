@@ -642,38 +642,23 @@ namespace DockRotate
 			resetVessel("go off rails");
 		}
 
-		public void RightBeforePacking(Part p)
+		public void RightBeforeStructureChangeIds(uint i1, uint i2)
 		{
-			// called right before docking
-			lprint(part.desc() + ": PACKING");
+			RightBeforeStructureChangePart(part);
 		}
 
-		public void RightBeforeDocking(uint v1, uint v2)
+		public void RightBeforeStructureChangeAction(GameEvents.FromToAction<Part, Part> action)
 		{
-			// called right before docking
-			lprint(part.desc() + ": RightBeforeDocking()");
-			stopCurrentRotation("docking");
+			RightBeforeStructureChangePart(action.from);
+			RightBeforeStructureChangePart(action.to);
 		}
 
-		public void RightBeforeUndocking(Part p)
+		public void RightBeforeStructureChangePart(Part p)
 		{
-			// called right before undocking
-			lprint(part.desc() + ": RightBeforeUndocking()");
-			stopCurrentRotation("undocking");
-		}
-
-		public void RightBeforeCoupling(GameEvents.FromToAction<Part, Part> action)
-		{
-			// called right before coupling
-			lprint(part.desc() + ": RightBeforeCoupling()");
-			stopCurrentRotation("coupling");
-		}
-
-		public void RightBeforeDecoupling(Part p)
-		{
-			// called right before decoupling
-			lprint(part.desc() + ": RightBeforeDecoupling()");
-			stopCurrentRotation("decoupling");
+			if (p.vessel != vessel)
+				return;
+			lprint(part.desc() + ": RightBeforeStructureChange(" + part.desc() + ")");
+			stopCurrentRotation("structure change");
 		}
 
 		public override void OnAwake()
@@ -682,11 +667,10 @@ namespace DockRotate
 			base.OnAwake();
 			GameEvents.onVesselGoOnRails.Add(OnVesselGoOnRails);
 			GameEvents.onVesselGoOffRails.Add(OnVesselGoOffRails);
-			GameEvents.onVesselDocking.Add(RightBeforeDocking);
-			GameEvents.onPartUndock.Add(RightBeforeUndocking);
-			GameEvents.onPartCouple.Add(RightBeforeCoupling);
-			GameEvents.onPartDeCouple.Add(RightBeforeDecoupling);
-			GameEvents.onPartPack.Add(RightBeforePacking);
+			GameEvents.onVesselDocking.Add(RightBeforeStructureChangeIds);
+			GameEvents.onPartUndock.Add(RightBeforeStructureChangePart);
+			GameEvents.onPartCouple.Add(RightBeforeStructureChangeAction);
+			GameEvents.onPartDeCouple.Add(RightBeforeStructureChangePart);
 		}
 
 		public void OnDestroy()
@@ -694,11 +678,10 @@ namespace DockRotate
 			// lprint((part ? part.desc() : "<no part>") + ".OnDestroy()");
 			GameEvents.onVesselGoOnRails.Remove(OnVesselGoOnRails);
 			GameEvents.onVesselGoOffRails.Remove(OnVesselGoOffRails);
-			GameEvents.onVesselDocking.Remove(RightBeforeDocking);
-			GameEvents.onPartUndock.Remove(RightBeforeUndocking);
-			GameEvents.onPartCouple.Remove(RightBeforeCoupling);
-			GameEvents.onPartDeCouple.Remove(RightBeforeDecoupling);
-			GameEvents.onPartPack.Remove(RightBeforePacking);
+			GameEvents.onVesselDocking.Remove(RightBeforeStructureChangeIds);
+			GameEvents.onPartUndock.Remove(RightBeforeStructureChangePart);
+			GameEvents.onPartCouple.Remove(RightBeforeStructureChangeAction);
+			GameEvents.onPartDeCouple.Remove(RightBeforeStructureChangePart);
 		}
 
 		protected static string[,] guiList = {
