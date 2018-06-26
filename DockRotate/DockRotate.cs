@@ -642,6 +642,12 @@ namespace DockRotate
 			resetVessel("go off rails");
 		}
 
+		public void RightBeforePacking(Part p)
+		{
+			// called right before docking
+			lprint(part.desc() + ": PACKING");
+		}
+
 		public void RightBeforeDocking(uint v1, uint v2)
 		{
 			// called right before docking
@@ -654,6 +660,13 @@ namespace DockRotate
 			// called right before undocking
 			lprint(part.desc() + ": RightBeforeUndocking()");
 			stopCurrentRotation("undocking");
+		}
+
+		public void RightBeforeCoupling(GameEvents.FromToAction<Part, Part> action)
+		{
+			// called right before coupling
+			lprint(part.desc() + ": RightBeforeCoupling()");
+			stopCurrentRotation("coupling");
 		}
 
 		public void RightBeforeDecoupling(Part p)
@@ -671,7 +684,9 @@ namespace DockRotate
 			GameEvents.onVesselGoOffRails.Add(OnVesselGoOffRails);
 			GameEvents.onVesselDocking.Add(RightBeforeDocking);
 			GameEvents.onPartUndock.Add(RightBeforeUndocking);
+			GameEvents.onPartCouple.Add(RightBeforeCoupling);
 			GameEvents.onPartDeCouple.Add(RightBeforeDecoupling);
+			GameEvents.onPartPack.Add(RightBeforePacking);
 		}
 
 		public void OnDestroy()
@@ -681,7 +696,9 @@ namespace DockRotate
 			GameEvents.onVesselGoOffRails.Remove(OnVesselGoOffRails);
 			GameEvents.onVesselDocking.Remove(RightBeforeDocking);
 			GameEvents.onPartUndock.Remove(RightBeforeUndocking);
+			GameEvents.onPartCouple.Remove(RightBeforeCoupling);
 			GameEvents.onPartDeCouple.Remove(RightBeforeDecoupling);
+			GameEvents.onPartPack.Remove(RightBeforePacking);
 		}
 
 		protected static string[,] guiList = {
