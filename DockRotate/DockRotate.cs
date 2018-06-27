@@ -1157,7 +1157,6 @@ namespace DockRotate
 			rotationStep = Mathf.Abs(rotationStep);
 			rotationSpeed = Mathf.Abs(rotationSpeed);
 
-			dockingNode = null;
 			activePart = proxyPart = null;
 			rotatingJoint = null;
 			activeRotationModule = proxyRotationModule = null;
@@ -1170,6 +1169,7 @@ namespace DockRotate
 			lastSameVesselDockPart = null;
 
 			dockingNode = part.FindModuleImplementing<ModuleDockingNode>();
+
 			if (dockingNode) {
 				partNodePos = Vector3.zero.Tp(dockingNode.T(), part.T());
 				partNodeAxis = Vector3.forward.Td(dockingNode.T(), part.T());
