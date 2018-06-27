@@ -1244,7 +1244,7 @@ namespace DockRotate
 			setupStageCounter++;
 		}
 
-		private bool isDockedToParent() // must be used only after setup stage 0
+		private bool isDockedToParent() // must be used only after basicSetup() on both ports
 		{
 			if (!part || !part.parent)
 				return false;
