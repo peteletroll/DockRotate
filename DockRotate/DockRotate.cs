@@ -631,6 +631,7 @@ namespace DockRotate
 		{
 			if (v != vessel)
 				return;
+			onRails = true;
 			stopCurrentRotation("go on rails");
 		}
 
