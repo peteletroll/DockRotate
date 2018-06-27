@@ -645,16 +645,16 @@ namespace DockRotate
 
 		public void RightBeforeStructureChangeIds(uint i1, uint i2)
 		{
-			RightBeforeStructureChangePart(part);
+			RightBeforeStructureChange(part);
 		}
 
 		public void RightBeforeStructureChangeAction(GameEvents.FromToAction<Part, Part> action)
 		{
-			RightBeforeStructureChangePart(action.from);
-			RightBeforeStructureChangePart(action.to);
+			RightBeforeStructureChange(action.from);
+			RightBeforeStructureChange(action.to);
 		}
 
-		public void RightBeforeStructureChangePart(Part p)
+		public void RightBeforeStructureChange(Part p)
 		{
 			if (p.vessel != vessel)
 				return;
@@ -669,9 +669,9 @@ namespace DockRotate
 			GameEvents.onVesselGoOnRails.Add(OnVesselGoOnRails);
 			GameEvents.onVesselGoOffRails.Add(OnVesselGoOffRails);
 			GameEvents.onVesselDocking.Add(RightBeforeStructureChangeIds);
-			GameEvents.onPartUndock.Add(RightBeforeStructureChangePart);
+			GameEvents.onPartUndock.Add(RightBeforeStructureChange);
 			GameEvents.onPartCouple.Add(RightBeforeStructureChangeAction);
-			GameEvents.onPartDeCouple.Add(RightBeforeStructureChangePart);
+			GameEvents.onPartDeCouple.Add(RightBeforeStructureChange);
 		}
 
 		public void OnDestroy()
@@ -680,9 +680,9 @@ namespace DockRotate
 			GameEvents.onVesselGoOnRails.Remove(OnVesselGoOnRails);
 			GameEvents.onVesselGoOffRails.Remove(OnVesselGoOffRails);
 			GameEvents.onVesselDocking.Remove(RightBeforeStructureChangeIds);
-			GameEvents.onPartUndock.Remove(RightBeforeStructureChangePart);
+			GameEvents.onPartUndock.Remove(RightBeforeStructureChange);
 			GameEvents.onPartCouple.Remove(RightBeforeStructureChangeAction);
-			GameEvents.onPartDeCouple.Remove(RightBeforeStructureChangePart);
+			GameEvents.onPartDeCouple.Remove(RightBeforeStructureChange);
 		}
 
 		protected static string[,] guiList = {
