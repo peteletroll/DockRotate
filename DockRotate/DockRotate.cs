@@ -1224,9 +1224,6 @@ namespace DockRotate
 						proxyRotationModule.activePart = activePart;
 						proxyRotationModule.proxyRotationModule = proxyRotationModule;
 						proxyRotationModule.proxyPart = proxyPart;
-					}
-
-					if (activeRotationModule == this) {
 						proxyPart = proxyRotationModule.part;
 						if (verbose)
 							lprint(activeRotationModule.part.desc()
