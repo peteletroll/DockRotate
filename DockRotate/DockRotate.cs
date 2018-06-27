@@ -575,6 +575,8 @@ namespace DockRotate
 		}
 #endif
 
+		protected static Vector3 undefV3 = new Vector3(9.9f, 9.9f, 9.9f);
+
 		public abstract void doRotateClockwise();
 
 		public abstract void doRotateCounterclockwise();
@@ -973,19 +975,17 @@ namespace DockRotate
 					rotationStep = Mathf.Abs(rotationStep);
 					rotationSpeed = Mathf.Abs(rotationSpeed);
 
-					proxyPart = null;
-					activePart = null;
 					rotatingJoint = null;
-					partNodePos = partNodeAxis = partNodeUp = otherPartUp = new Vector3(9.9f, 9.9f, 9.9f);
+					activePart = proxyPart = null;
+					partNodePos = partNodeAxis = partNodeUp = otherPartUp = undefV3;
 
 					nodeRole = "None";
 
 					vesselPartCount = vessel ? vessel.parts.Count : -1;
-					break;
 
-				case 1:
 					if (part.FindModuleImplementing<ModuleDockRotate>())
 						break;
+
 					rotatingNode = part.physicalSignificance == Part.PhysicalSignificance.FULL ?
 						part.FindAttachNode(rotatingNodeName) : null;
 					if (rotatingNode == null) {
@@ -995,35 +995,37 @@ namespace DockRotate
 						for (int i = 0; i < nodes.Length; i++)
 							nodeList += " \"" + nodes[i].id + "\"";
 						lprint(nodeList);
+						break;
 					}
-					AttachNode otherNode = rotatingNode != null ? rotatingNode.FindOpposingNode() : null;
-					if (rotatingNode != null && otherNode != null) {
-						partNodePos = rotatingNode.position;
-						partNodeAxis = rotatingNode.orientation;
 
-						partNodeUp = part.up(partNodeAxis);
+					AttachNode otherNode = rotatingNode.FindOpposingNode();
+					if (otherNode == null)
+						break;
 
-						Part other = rotatingNode.attachedPart;
-						if (part.parent == other) {
-							nodeRole = "Active";
-							activePart = part;
-							proxyPart = other;
-						} else if (other.parent == part) {
-							nodeRole = "Proxy";
-							activePart = other;
-							proxyPart = part;
-							partNodePos = partNodePos.STp(part, activePart);
-							partNodeAxis = -partNodeAxis.STd(part, activePart);
-							partNodeUp = activePart.up(partNodeAxis);
-						}
+					partNodePos = rotatingNode.position;
+					partNodeAxis = rotatingNode.orientation;
+
+					partNodeUp = part.up(partNodeAxis);
+
+					Part other = rotatingNode.attachedPart;
+					if (part.parent == other) {
+						nodeRole = "Active";
+						activePart = part;
+						proxyPart = other;
+					} else if (other.parent == part) {
+						nodeRole = "Proxy";
+						activePart = other;
+						proxyPart = part;
+						partNodePos = partNodePos.STp(part, activePart);
+						partNodeAxis = -partNodeAxis.STd(part, activePart);
+						partNodeUp = activePart.up(partNodeAxis);
 					}
+
 					if (activePart)
 						rotatingJoint = activePart.attachJoint;
 					if (proxyPart)
 						otherPartUp = proxyPart.up(partNodeAxis.STd(part, proxyPart));
-					break;
 
-				case 2:
 					if (verbose && rotatingJoint) {
 						lprint(part.desc()
 							+ ": on "
@@ -1170,7 +1172,7 @@ namespace DockRotate
 					activeRotationModule = proxyRotationModule = null;
 					nodeStatus = "";
 					nodeRole = "None";
-					partNodePos = partNodeAxis = partNodeUp = new Vector3(9.9f, 9.9f, 9.9f);
+					partNodePos = partNodeAxis = partNodeUp = undefV3;
 
 					vesselPartCount = vessel ? vessel.parts.Count : -1;
 					lastNodeState = "-";
