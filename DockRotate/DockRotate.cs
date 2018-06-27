@@ -1192,9 +1192,7 @@ namespace DockRotate
 
 				case 0:
 					basicSetup();
-					break;
 
-				case 1:
 					if (!dockingNode)
 						break;
 
@@ -1219,9 +1217,7 @@ namespace DockRotate
 						activePart = activeRotationModule.part;
 						proxyPart = proxyRotationModule.part;
 					}
-					break;
 
-				case 2:
 					if (activeRotationModule == this) {
 						proxyRotationModule.nodeRole = "Proxy";
 						proxyRotationModule.activeRotationModule = activeRotationModule;
@@ -1229,18 +1225,14 @@ namespace DockRotate
 						proxyRotationModule.proxyRotationModule = proxyRotationModule;
 						proxyRotationModule.proxyPart = proxyPart;
 					}
-					break;
 
-				case 3:
 					if (activeRotationModule == this) {
 						proxyPart = proxyRotationModule.part;
 						if (verbose)
 							lprint(activeRotationModule.part.desc()
 								+ ": on " + proxyRotationModule.part.desc());
 					}
-					break;
 
-				case 4:
 					if (dockingNode.snapRotation && dockingNode.snapOffset > 0
 						&& activeRotationModule == this
 						&& (rotationEnabled || proxyRotationModule.rotationEnabled)) {
@@ -1259,6 +1251,8 @@ namespace DockRotate
 
 			ModuleDockingNode parentNode = part.parent.FindModuleImplementing<ModuleDockingNode>();
 			ModuleDockRotate parentRotate = part.parent.FindModuleImplementing<ModuleDockRotate>();
+			if (parentRotate)
+				parentRotate.basicSetup();
 
 			bool ret = dockingNode && parentNode && parentRotate
 				&& dockingNode.nodeType == parentNode.nodeType
