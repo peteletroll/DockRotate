@@ -1227,10 +1227,11 @@ namespace DockRotate
 					break;
 
 				case 3:
-					if (verbose && activeRotationModule == this) {
+					if (activeRotationModule == this) {
 						proxyPart = proxyRotationModule.part;
-						lprint(activeRotationModule.part.desc()
-							+ ": on " + proxyRotationModule.part.desc());
+						if (verbose)
+							lprint(activeRotationModule.part.desc()
+								+ ": on " + proxyRotationModule.part.desc());
 					}
 					break;
 
