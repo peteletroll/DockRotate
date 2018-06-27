@@ -1152,6 +1152,34 @@ namespace DockRotate
 			return displayInfo;
 		}
 
+		private void basicSetup()
+		{
+			rotationStep = Mathf.Abs(rotationStep);
+			rotationSpeed = Mathf.Abs(rotationSpeed);
+
+			dockingNode = null;
+			activePart = proxyPart = null;
+			rotatingJoint = null;
+			activeRotationModule = proxyRotationModule = null;
+			nodeStatus = "";
+			nodeRole = "None";
+			partNodePos = partNodeAxis = partNodeUp = undefV3;
+
+			vesselPartCount = vessel ? vessel.parts.Count : -1;
+			lastNodeState = "-";
+			lastSameVesselDockPart = null;
+
+			dockingNode = part.FindModuleImplementing<ModuleDockingNode>();
+			if (dockingNode) {
+				partNodePos = Vector3.zero.Tp(dockingNode.T(), part.T());
+				partNodeAxis = Vector3.forward.Td(dockingNode.T(), part.T());
+				partNodeUp = Vector3.up.Td(dockingNode.T(), part.T());
+				lastNodeState = dockingNode.state;
+				if (dockingNode.sameVesselDockJoint)
+					lastSameVesselDockPart = dockingNode.sameVesselDockJoint.Target;
+			}
+		}
+
 		protected override void stagedSetup(bool verbose)
 		{
 			if (onRails || !part || !vessel)
@@ -1163,30 +1191,7 @@ namespace DockRotate
 			switch (setupStageCounter) {
 
 				case 0:
-					rotationStep = Mathf.Abs(rotationStep);
-					rotationSpeed = Mathf.Abs(rotationSpeed);
-
-					dockingNode = null;
-					activePart = proxyPart = null;
-					rotatingJoint = null;
-					activeRotationModule = proxyRotationModule = null;
-					nodeStatus = "";
-					nodeRole = "None";
-					partNodePos = partNodeAxis = partNodeUp = undefV3;
-
-					vesselPartCount = vessel ? vessel.parts.Count : -1;
-					lastNodeState = "-";
-					lastSameVesselDockPart = null;
-
-					dockingNode = part.FindModuleImplementing<ModuleDockingNode>();
-					if (dockingNode) {
-						partNodePos = Vector3.zero.Tp(dockingNode.T(), part.T());
-						partNodeAxis = Vector3.forward.Td(dockingNode.T(), part.T());
-						partNodeUp = Vector3.up.Td(dockingNode.T(), part.T());
-						lastNodeState = dockingNode.state;
-						if (dockingNode.sameVesselDockJoint)
-							lastSameVesselDockPart = dockingNode.sameVesselDockJoint.Target;
-					}
+					basicSetup();
 					break;
 
 				case 1:
