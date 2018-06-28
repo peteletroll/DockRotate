@@ -600,8 +600,6 @@ namespace DockRotate
 			return ret;
 		}
 
-		protected int vesselPartCount;
-
 		private RotationAnimation _rotCur = null;
 		protected RotationAnimation rotCur {
 			get { return _rotCur; }
@@ -920,8 +918,6 @@ namespace DockRotate
 
 		public virtual string neededResetMsg()
 		{
-			if (vessel && vessel.parts.Count != vesselPartCount)
-				return "part count changed from " + vesselPartCount + " to " + vessel.parts.Count;
 			return "";
 		}
 
@@ -1001,8 +997,6 @@ namespace DockRotate
 			partNodePos = partNodeAxis = partNodeUp = otherPartUp = undefV3;
 
 			nodeRole = "None";
-
-			vesselPartCount = vessel ? vessel.parts.Count : -1;
 
 			if (part.FindModuleImplementing<ModuleDockRotate>())
 				return;
@@ -1194,7 +1188,6 @@ namespace DockRotate
 			nodeRole = "None";
 			partNodePos = partNodeAxis = partNodeUp = undefV3;
 
-			vesselPartCount = vessel ? vessel.parts.Count : -1;
 			lastNodeState = "-";
 			lastSameVesselDockPart = null;
 
