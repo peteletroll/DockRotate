@@ -643,28 +643,33 @@ namespace DockRotate
 			setupVessel("go off rails");
 		}
 
-		public void RightBeforeStructureChangeIds(uint i1, uint i2)
+		public void RightBeforeStructureChangeIds(uint id1, uint id2)
 		{
+			lprint("RightBeforeStructureChangeIds(" + id1 + ", " + id2 + ")");
 			RightBeforeStructureChange(part);
 		}
 
 		public void RightBeforeStructureChangeAction(GameEvents.FromToAction<Part, Part> action)
 		{
+			lprint("RightBeforeStructureChangeAction() [from]");
 			RightBeforeStructureChange(action.from);
+			lprint("RightBeforeStructureChangeAction() [to]");
 			RightBeforeStructureChange(action.to);
 		}
 
 		public void RightBeforeStructureChange(Part p)
 		{
-			if (p.vessel != vessel)
-				return;
-			lprint(part.desc() + ": RightBeforeStructureChange(" + part.desc() + ")");
-			stopCurrentRotation("structure change");
+			if (p.vessel == vessel) {
+				lprint(part.desc() + ": RightBeforeStructureChange(" + part.desc() + ")");
+				stopCurrentRotation("structure change");
+			}
 		}
 
-		public void RightAfterStructureChangeAction (GameEvents.FromToAction<Part, Part> action)
+		public void RightAfterStructureChangeAction(GameEvents.FromToAction<Part, Part> action)
 		{
+			lprint("RightAfterStructureChangeAction() [from]");
 			RightAfterStructureChange(action.from);
+			lprint("RightAfterStructureChangeAction() [to]");
 			RightAfterStructureChange(action.to);
 		}
 
@@ -672,7 +677,7 @@ namespace DockRotate
 		{
 			if (p.vessel != vessel)
 				return;
-			lprint(part.desc() + ": RightAfterStructureChange(" + part.desc() + ")");
+			lprint(part.desc() + ": .RightAfterStructureChange(" + p.desc() + ")");
 			setup(false);
 		}
 
@@ -913,7 +918,7 @@ namespace DockRotate
 			if (rotCur != null)
 				advanceRotation(Time.fixedDeltaTime);
 
-			stagedSetup(false);
+			stagedSetup(true);
 		}
 
 		public virtual string neededResetMsg()
