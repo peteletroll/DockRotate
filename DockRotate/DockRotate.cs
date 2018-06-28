@@ -965,6 +965,9 @@ namespace DockRotate
 
 		protected override void setup(bool verbose)
 		{
+			if (onRails || !part || !vessel)
+				return;
+
 			rotationStep = Mathf.Abs(rotationStep);
 			rotationSpeed = Mathf.Abs(rotationSpeed);
 
@@ -1028,9 +1031,6 @@ namespace DockRotate
 
 		protected override void stagedSetup(bool verbose)
 		{
-			if (onRails || !part || !vessel)
-				return;
-
 			if (rotCur != null)
 				return;
 
@@ -1187,6 +1187,9 @@ namespace DockRotate
 
 		protected override void setup(bool verbose)
 		{
+			if (onRails || !part || !vessel)
+				return;
+
 			basicSetup();
 
 			if (!dockingNode)
@@ -1235,9 +1238,6 @@ namespace DockRotate
 
 		protected override void stagedSetup(bool verbose)
 		{
-			if (onRails || !part || !vessel)
-				return;
-
 			if (rotCur != null)
 				return;
 
