@@ -781,6 +781,8 @@ namespace DockRotate
 
 		protected int setupStageCounter = 0;
 
+		protected abstract void setup(bool verbose);
+
 		protected abstract void stagedSetup(bool verbose);
 
 		protected void resetVessel(string msg)
@@ -961,6 +963,69 @@ namespace DockRotate
 			return displayInfo;
 		}
 
+		protected override void setup(bool verbose)
+		{
+			rotationStep = Mathf.Abs(rotationStep);
+			rotationSpeed = Mathf.Abs(rotationSpeed);
+
+			rotatingJoint = null;
+			activePart = proxyPart = null;
+			partNodePos = partNodeAxis = partNodeUp = otherPartUp = undefV3;
+
+			nodeRole = "None";
+
+			vesselPartCount = vessel ? vessel.parts.Count : -1;
+
+			if (part.FindModuleImplementing<ModuleDockRotate>())
+				return;
+
+			rotatingNode = part.physicalSignificance == Part.PhysicalSignificance.FULL ?
+				part.FindAttachNode(rotatingNodeName) : null;
+			if (rotatingNode == null) {
+				lprint(part.desc() + " has no node named \"" + rotatingNodeName + "\"");
+				AttachNode[] nodes = part.FindAttachNodes("");
+				string nodeList = part.desc() + " available nodes:";
+				for (int i = 0; i < nodes.Length; i++)
+					nodeList += " \"" + nodes[i].id + "\"";
+				lprint(nodeList);
+				return;
+			}
+
+			AttachNode otherNode = rotatingNode.FindOpposingNode();
+			if (otherNode == null)
+				return;
+
+			partNodePos = rotatingNode.position;
+			partNodeAxis = rotatingNode.orientation;
+
+			partNodeUp = part.up(partNodeAxis);
+
+			Part other = rotatingNode.attachedPart;
+			if (part.parent == other) {
+				nodeRole = "Active";
+				activePart = part;
+				proxyPart = other;
+			} else if (other.parent == part) {
+				nodeRole = "Proxy";
+				activePart = other;
+				proxyPart = part;
+				partNodePos = partNodePos.STp(part, activePart);
+				partNodeAxis = -partNodeAxis.STd(part, activePart);
+				partNodeUp = activePart.up(partNodeAxis);
+			}
+
+			if (activePart)
+				rotatingJoint = activePart.attachJoint;
+			if (proxyPart)
+				otherPartUp = proxyPart.up(partNodeAxis.STd(part, proxyPart));
+
+			if (verbose && rotatingJoint) {
+				lprint(part.desc()
+					+ ": on "
+					+ (activePart == part ? "itself" : activePart.desc()));
+			}
+		}
+
 		protected override void stagedSetup(bool verbose)
 		{
 			if (onRails || !part || !vessel)
@@ -970,69 +1035,9 @@ namespace DockRotate
 				return;
 
 			switch (setupStageCounter) {
-
 				case 0:
-					rotationStep = Mathf.Abs(rotationStep);
-					rotationSpeed = Mathf.Abs(rotationSpeed);
-
-					rotatingJoint = null;
-					activePart = proxyPart = null;
-					partNodePos = partNodeAxis = partNodeUp = otherPartUp = undefV3;
-
-					nodeRole = "None";
-
-					vesselPartCount = vessel ? vessel.parts.Count : -1;
-
-					if (part.FindModuleImplementing<ModuleDockRotate>())
-						break;
-
-					rotatingNode = part.physicalSignificance == Part.PhysicalSignificance.FULL ?
-						part.FindAttachNode(rotatingNodeName) : null;
-					if (rotatingNode == null) {
-						lprint(part.desc() + " has no node named \"" + rotatingNodeName + "\"");
-						AttachNode[] nodes = part.FindAttachNodes("");
-						string nodeList = part.desc() + " available nodes:";
-						for (int i = 0; i < nodes.Length; i++)
-							nodeList += " \"" + nodes[i].id + "\"";
-						lprint(nodeList);
-						break;
-					}
-
-					AttachNode otherNode = rotatingNode.FindOpposingNode();
-					if (otherNode == null)
-						break;
-
-					partNodePos = rotatingNode.position;
-					partNodeAxis = rotatingNode.orientation;
-
-					partNodeUp = part.up(partNodeAxis);
-
-					Part other = rotatingNode.attachedPart;
-					if (part.parent == other) {
-						nodeRole = "Active";
-						activePart = part;
-						proxyPart = other;
-					} else if (other.parent == part) {
-						nodeRole = "Proxy";
-						activePart = other;
-						proxyPart = part;
-						partNodePos = partNodePos.STp(part, activePart);
-						partNodeAxis = -partNodeAxis.STd(part, activePart);
-						partNodeUp = activePart.up(partNodeAxis);
-					}
-
-					if (activePart)
-						rotatingJoint = activePart.attachJoint;
-					if (proxyPart)
-						otherPartUp = proxyPart.up(partNodeAxis.STd(part, proxyPart));
-
-					if (verbose && rotatingJoint) {
-						lprint(part.desc()
-							+ ": on "
-							+ (activePart == part ? "itself" : activePart.desc()));
-					}
+					setup(verbose);
 					break;
-
 			}
 
 			setupStageCounter++;
@@ -1180,6 +1185,54 @@ namespace DockRotate
 			}
 		}
 
+		protected override void setup(bool verbose)
+		{
+			basicSetup();
+
+			if (!dockingNode)
+				return;
+
+			PartJoint svj = dockingNode.sameVesselDockJoint;
+			if (svj) {
+				ModuleDockRotate otherModule = svj.Target.FindModuleImplementing<ModuleDockRotate>();
+				if (otherModule) {
+					activeRotationModule = this;
+					proxyRotationModule = otherModule;
+					rotatingJoint = svj;
+					nodeRole = "ActiveSame";
+				}
+			} else if (isDockedToParent()) {
+				proxyRotationModule = part.parent.FindModuleImplementing<ModuleDockRotate>();
+				if (proxyRotationModule) {
+					activeRotationModule = this;
+					rotatingJoint = part.attachJoint;
+					nodeRole = "Active";
+				}
+			}
+			if (activeRotationModule) {
+				activePart = activeRotationModule.part;
+				proxyPart = proxyRotationModule.part;
+			}
+
+			if (activeRotationModule == this) {
+				proxyRotationModule.nodeRole = "Proxy";
+				proxyRotationModule.activeRotationModule = activeRotationModule;
+				proxyRotationModule.activePart = activePart;
+				proxyRotationModule.proxyRotationModule = proxyRotationModule;
+				proxyRotationModule.proxyPart = proxyPart;
+				proxyPart = proxyRotationModule.part;
+				if (verbose)
+					lprint(activeRotationModule.part.desc()
+						+ ": on " + proxyRotationModule.part.desc());
+			}
+
+			if (dockingNode.snapRotation && dockingNode.snapOffset > 0
+				&& activeRotationModule == this
+				&& (rotationEnabled || proxyRotationModule.rotationEnabled)) {
+				enqueueRotationToSnap(dockingNode.snapOffset, rotationSpeed);
+			}
+		}
+
 		protected override void stagedSetup(bool verbose)
 		{
 			if (onRails || !part || !vessel)
@@ -1189,52 +1242,8 @@ namespace DockRotate
 				return;
 
 			switch (setupStageCounter) {
-
 				case 0:
-					basicSetup();
-
-					if (!dockingNode)
-						break;
-
-					PartJoint svj = dockingNode.sameVesselDockJoint;
-					if (svj) {
-						ModuleDockRotate otherModule = svj.Target.FindModuleImplementing<ModuleDockRotate>();
-						if (otherModule) {
-							activeRotationModule = this;
-							proxyRotationModule = otherModule;
-							rotatingJoint = svj;
-							nodeRole = "ActiveSame";
-						}
-					} else if (isDockedToParent()) {
-						proxyRotationModule = part.parent.FindModuleImplementing<ModuleDockRotate>();
-						if (proxyRotationModule) {
-							activeRotationModule = this;
-							rotatingJoint = part.attachJoint;
-							nodeRole = "Active";
-						}
-					}
-					if (activeRotationModule) {
-						activePart = activeRotationModule.part;
-						proxyPart = proxyRotationModule.part;
-					}
-
-					if (activeRotationModule == this) {
-						proxyRotationModule.nodeRole = "Proxy";
-						proxyRotationModule.activeRotationModule = activeRotationModule;
-						proxyRotationModule.activePart = activePart;
-						proxyRotationModule.proxyRotationModule = proxyRotationModule;
-						proxyRotationModule.proxyPart = proxyPart;
-						proxyPart = proxyRotationModule.part;
-						if (verbose)
-							lprint(activeRotationModule.part.desc()
-								+ ": on " + proxyRotationModule.part.desc());
-					}
-
-					if (dockingNode.snapRotation && dockingNode.snapOffset > 0
-						&& activeRotationModule == this
-						&& (rotationEnabled || proxyRotationModule.rotationEnabled)) {
-						enqueueRotationToSnap(dockingNode.snapOffset, rotationSpeed);
-					}
+					setup(verbose);
 					break;
 			}
 
