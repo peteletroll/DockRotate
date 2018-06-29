@@ -678,7 +678,7 @@ namespace DockRotate
 				return;
 			lprint(part.desc() + ": RightBeforeStructureChangePart(" + part.desc() + ")");
 			if (p.vessel == vessel) {
-				stopCurrentRotation("structure change");
+				RightBeforeStructureChange();
 			}
 		}
 
