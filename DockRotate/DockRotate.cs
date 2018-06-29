@@ -1217,8 +1217,17 @@ namespace DockRotate
 			return displayInfo;
 		}
 
+		private int lastBasicSetupFrame = -1;
+
 		private void basicSetup()
 		{
+			int now = Time.frameCount;
+			if (lastBasicSetupFrame == now) {
+				lprint(part.desc() + ": skip repeated basicSetup() at " + now);
+				return;
+			}
+			lastBasicSetupFrame = now;
+
 			rotationStep = Mathf.Abs(rotationStep);
 			rotationSpeed = Mathf.Abs(rotationSpeed);
 
