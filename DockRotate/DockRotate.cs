@@ -1244,11 +1244,12 @@ namespace DockRotate
 
 		private int lastBasicSetupFrame = -1;
 
-		private void basicSetup()
+		private void basicSetup(bool verbose)
 		{
 			int now = Time.frameCount;
 			if (lastBasicSetupFrame == now) {
-				lprint(part.desc() + ": skip repeated basicSetup()");
+				if (verbose)
+					lprint(part.desc() + ": skip repeated basicSetup()");
 				return;
 			}
 			lastBasicSetupFrame = now;
@@ -1277,7 +1278,7 @@ namespace DockRotate
 			if (onRails || !part || !vessel)
 				return;
 
-			basicSetup();
+			basicSetup(verbose);
 
 			if (!dockingNode)
 				return;
@@ -1291,7 +1292,7 @@ namespace DockRotate
 					rotatingJoint = svj;
 					nodeRole = "ActiveSame";
 				}
-			} else if (isDockedToParent()) {
+			} else if (isDockedToParent(verbose)) {
 				proxyRotationModule = part.parent.FindModuleImplementing<ModuleDockRotate>();
 				if (proxyRotationModule) {
 					activeRotationModule = this;
@@ -1337,7 +1338,7 @@ namespace DockRotate
 			setupStageCounter++;
 		}
 
-		private bool isDockedToParent() // must be used only after basicSetup() on both ports
+		private bool isDockedToParent(bool verbose) // must be used only after basicSetup()
 		{
 			if (!part || !part.parent)
 				return false;
@@ -1345,7 +1346,7 @@ namespace DockRotate
 			ModuleDockingNode parentNode = part.parent.FindModuleImplementing<ModuleDockingNode>();
 			ModuleDockRotate parentRotate = part.parent.FindModuleImplementing<ModuleDockRotate>();
 			if (parentRotate)
-				parentRotate.basicSetup();
+				parentRotate.basicSetup(verbose);
 
 			bool ret = dockingNode && parentNode && parentRotate
 				&& dockingNode.nodeType == parentNode.nodeType
