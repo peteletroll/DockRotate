@@ -966,7 +966,7 @@ namespace DockRotate
 
 		public static bool lprint(string msg)
 		{
-			print("[DockRotate]: " + msg);
+			print("[DockRotate:" + Time.frameCount + "]: " + msg);
 			return true;
 		}
 	}
@@ -1223,7 +1223,7 @@ namespace DockRotate
 		{
 			int now = Time.frameCount;
 			if (lastBasicSetupFrame == now) {
-				lprint(part.desc() + ": skip repeated basicSetup() at " + now);
+				lprint(part.desc() + ": skip repeated basicSetup()");
 				return;
 			}
 			lastBasicSetupFrame = now;
