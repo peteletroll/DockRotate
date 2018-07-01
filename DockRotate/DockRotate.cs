@@ -634,6 +634,7 @@ namespace DockRotate
 				return;
 			onRails = true;
 			stopCurrentRotation("go on rails");
+			VesselRotInfo.resetInfo(vessel.id);
 		}
 
 		public void OnVesselGoOffRails(Vessel v)
@@ -644,6 +645,7 @@ namespace DockRotate
 				lprint(part.desc() + ": OnVesselGoOffRails(" + v.persistentId + ") [" + vessel.persistentId + "]");
 			if (v != vessel)
 				return;
+			VesselRotInfo.resetInfo(vessel.id);
 			onRails = false;
 			setup(false);
 		}
