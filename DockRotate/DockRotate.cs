@@ -1212,8 +1212,6 @@ namespace DockRotate
 		// the proxy module of the couple is the closest to the root part
 
 		private ModuleDockingNode dockingNode;
-		private string lastNodeState = "Init";
-		private Part lastSameVesselDockPart;
 		public ModuleDockRotate activeRotationModule;
 		public ModuleDockRotate proxyRotationModule;
 
@@ -1265,18 +1263,12 @@ namespace DockRotate
 			nodeRole = "None";
 			partNodePos = partNodeAxis = partNodeUp = undefV3;
 
-			lastNodeState = "-";
-			lastSameVesselDockPart = null;
-
 			dockingNode = part.FindModuleImplementing<ModuleDockingNode>();
 
 			if (dockingNode) {
 				partNodePos = Vector3.zero.Tp(dockingNode.T(), part.T());
 				partNodeAxis = Vector3.forward.Td(dockingNode.T(), part.T());
 				partNodeUp = Vector3.up.Td(dockingNode.T(), part.T());
-				lastNodeState = dockingNode.state;
-				if (dockingNode.sameVesselDockJoint)
-					lastSameVesselDockPart = dockingNode.sameVesselDockJoint.Target;
 			}
 		}
 
@@ -1438,37 +1430,6 @@ namespace DockRotate
 				* Acquire (dockee)
 
 			*/
-
-			if (dockingNode && dockingNode.state != lastNodeState) {
-				string newNodeState = dockingNode.state;
-				ModuleDockingNode other = dockingNode.otherNode();
-
-				string changeDesc = "from " + lastNodeState
-					+ " to " + newNodeState
-					+ " with " + (other ? other.part.desc() : "none");
-
-				lastNodeState = newNodeState;
-
-				if (other && other.vessel == vessel) {
-					if (rotCur != null) {
-						lprint(part.desc() + " " + changeDesc + ": same vessel, not stopping");
-					} else {
-						return "docking port state changed on same vessel " + changeDesc;
-					}
-				} else {
-					string ret = "docking port state changed " + changeDesc;
-					if (rotCur != null)
-						rotCur.abort(false, ret);
-					return ret;
-				}
-			}
-
-			Part svdp = (dockingNode && dockingNode.sameVesselDockJoint) ?
-				dockingNode.sameVesselDockJoint.Target : null;
-			if (dockingNode && rotCur == null && svdp != lastSameVesselDockPart) {
-				lastSameVesselDockPart = svdp;
-				return "changed same vessel joint";
-			}
 
 			return "";
 		}
