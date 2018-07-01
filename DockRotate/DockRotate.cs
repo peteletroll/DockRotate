@@ -649,13 +649,16 @@ namespace DockRotate
 			setup(false);
 		}
 
+		private bool verboseEvents = false;
+
 		public void RightBeforeStructureChangeIds(uint id1, uint id2)
 		{
 			if (!vessel)
 				return;
 			uint id = vessel.persistentId;
-			lprint(part.desc() + ": RightBeforeStructureChangeIds("
-				+ id1 + ", " + id2 + ") [" + id + "]");
+			if (verboseEvents)
+				lprint(part.desc() + ": RightBeforeStructureChangeIds("
+					+ id1 + ", " + id2 + ") [" + id + "]");
 			if (id1 == id || id2 == id) {
 				RightBeforeStructureChange();
 			}
@@ -665,8 +668,9 @@ namespace DockRotate
 		{
 			if (!vessel)
 				return;
-			lprint(part.desc() + ": RightBeforeStructureChangeAction("
-				+ action.from.desc() + ", " + action.to.desc() + ")");
+			if (verboseEvents)
+				lprint(part.desc() + ": RightBeforeStructureChangeAction("
+					+ action.from.desc() + ", " + action.to.desc() + ")");
 			if (action.from.vessel == vessel || action.to.vessel == vessel) {
 				RightBeforeStructureChange();
 			}
@@ -676,7 +680,8 @@ namespace DockRotate
 		{
 			if (!vessel)
 				return;
-			lprint(part.desc() + ": RightBeforeStructureChangePart(" + part.desc() + ")");
+			if (verboseEvents)
+				lprint(part.desc() + ": RightBeforeStructureChangePart(" + part.desc() + ")");
 			if (p.vessel == vessel) {
 				RightBeforeStructureChange();
 			}
@@ -684,8 +689,8 @@ namespace DockRotate
 
 		public void RightBeforeStructureChange()
 		{
-			lprint(part.desc() + ": RightBeforeStructureChange()");
-			lprint(part.desc() + " --- CHANGING ---");
+			if (verboseEvents)
+				lprint(part.desc() + ": RightBeforeStructureChange()");
 			stopCurrentRotation("structure change");
 		}
 
@@ -693,8 +698,9 @@ namespace DockRotate
 		{
 			if (!vessel)
 				return;
-			lprint(part.desc() + ": RightAfterStructureChangeAction("
-				+ action.from.desc() + ", " + action.to.desc() + ")");
+			if (verboseEvents)
+				lprint(part.desc() + ": RightAfterStructureChangeAction("
+					+ action.from.desc() + ", " + action.to.desc() + ")");
 			if (action.from.vessel == vessel || action.to.vessel == vessel) {
 				RightAfterStructureChange();
 			}
@@ -704,7 +710,8 @@ namespace DockRotate
 		{
 			if (!vessel)
 				return;
-			lprint(part.desc() + ": RightAfterStructureChangePart(" + p.desc() + ")");
+			if (verboseEvents)
+				lprint(part.desc() + ": RightAfterStructureChangePart(" + p.desc() + ")");
 			if (p.vessel == vessel) {
 				RightAfterStructureChange();
 			}
@@ -712,8 +719,8 @@ namespace DockRotate
 
 		private void RightAfterStructureChange()
 		{
-			lprint(part.desc() + ": RightAfterStructureChange()");
-			lprint(part.desc() + " --- CHANGED ---");
+			if (verboseEvents)
+				lprint(part.desc() + ": RightAfterStructureChange()");
 			setup(false);
 		}
 
@@ -721,10 +728,11 @@ namespace DockRotate
 		{
 			if (!vessel)
 				return;
-			lprint(part.desc() + ": RightAfterSameVesselDock("
-				+ action.from.part.desc() + ", " + action.to.part.desc() + ")");
+			if (verboseEvents)
+				lprint(part.desc() + ": RightAfterSameVesselDock("
+					+ action.from.part.desc() + ", " + action.to.part.desc() + ")");
 			if (action.to.part == part || action.from.part == part) {
-				setup(true);
+				setup(false);
 			}
 		}
 
@@ -732,10 +740,11 @@ namespace DockRotate
 		{
 			if (!vessel)
 				return;
-			lprint(part.desc() + ": RightAfterSameVesselUndock("
-				+ action.from.part.desc() + ", " + action.to.part.desc() + ")");
+			if (verboseEvents)
+				lprint(part.desc() + ": RightAfterSameVesselUndock("
+					+ action.from.part.desc() + ", " + action.to.part.desc() + ")");
 			if (action.to.part == part || action.from.part == part) {
-				setup(true);
+				setup(false);
 			}
 		}
 
@@ -872,20 +881,6 @@ namespace DockRotate
 		}
 
 		protected abstract void setup(bool verbose);
-
-		protected void setupVessel(string msg)
-		{
-			if (!vessel)
-				return;
-			int resetCount = 0;
-			List<ModuleBaseRotate> rotationModules = vessel.FindPartModulesImplementing<ModuleBaseRotate>();
-			for (int i = 0; i < rotationModules.Count; i++) {
-				resetCount++;
-			}
-			if (resetCount > 0 && msg.Length > 0)
-				lprint(part.desc() + " resets vessel [" + resetCount + "]: " + msg);
-			VesselRotInfo.resetInfo(vessel.id);
-		}
 
 		protected virtual ModuleBaseRotate actionTarget()
 		{
@@ -1305,31 +1300,38 @@ namespace DockRotate
 
 		private bool isDockedToParent(bool verbose) // must be used only after basicSetup()
 		{
-			if (!part || !part.parent)
+			if (verbose)
+				lprint(part.desc() + ": isDockedToParent()");
+
+			if (!part || !part.parent) {
+				if (verbose)
+					lprint(part.desc() + ": isDockedToParent() finds no parent");
 				return false;
+			}
 
 			ModuleDockingNode parentNode = part.parent.FindModuleImplementing<ModuleDockingNode>();
 			ModuleDockRotate parentRotate = part.parent.FindModuleImplementing<ModuleDockRotate>();
 			if (parentRotate)
 				parentRotate.basicSetup(verbose);
 
-			bool ret = dockingNode && parentNode && parentRotate
-				&& dockingNode.nodeType == parentNode.nodeType
-				&& hasGoodState(dockingNode) && hasGoodState(parentNode)
-				&& (partNodePos - parentRotate.partNodePos.Tp(parentRotate.part.T(), part.T())).magnitude < 1.0f
-				&& Vector3.Angle(partNodeAxis, Vector3.back.Td(parentNode.T(), part.parent.T()).STd(part.parent, part)) < 3;
-
-			// lprint("isActive(" + descPart(part) + ") = " + ret);
-
-			return ret;
-		}
-
-		private bool hasGoodState(ModuleDockingNode node)
-		{
-			if (!node || node.state == null)
+			if (!dockingNode || !parentNode || !parentRotate) {
+				if (verbose)
+					lprint(part.desc() + ": isDockedToParent() has missing modules");
 				return false;
-			string s = node.state;
-			bool ret = s.StartsWith("Docked") || s == "PreAttached";
+			}
+
+			float nodeDist = (partNodePos - parentRotate.partNodePos.Tp(parentRotate.part.T(), part.T())).magnitude;
+			float nodeAngle = Vector3.Angle(partNodeAxis, Vector3.back.Td(parentNode.T(), part.parent.T()).STd(part.parent, part));
+			if (verbose)
+				lprint(part.desc() + ": isDockedToParent(): dist " + nodeDist + ", angle " + nodeAngle
+					+ ", types " + dockingNode.nodeType + "/" + parentNode.nodeType);
+
+			bool ret = dockingNode.nodeType == parentNode.nodeType
+				&& nodeDist < 1.0f && nodeAngle < 5;
+
+			if (verbose)
+				lprint(part.desc() + ": isDockedToParent() returns " + ret);
+
 			return ret;
 		}
 
