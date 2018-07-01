@@ -871,11 +871,7 @@ namespace DockRotate
 			checkGuiActive();
 		}
 
-		protected int setupStageCounter = 0;
-
 		protected abstract void setup(bool verbose);
-
-		protected abstract void stagedSetup(bool verbose);
 
 		protected void setupVessel(string msg)
 		{
@@ -884,11 +880,7 @@ namespace DockRotate
 			int resetCount = 0;
 			List<ModuleBaseRotate> rotationModules = vessel.FindPartModulesImplementing<ModuleBaseRotate>();
 			for (int i = 0; i < rotationModules.Count; i++) {
-				ModuleBaseRotate m = rotationModules[i];
-				if (m.setupStageCounter != 0) {
-					resetCount++;
-					m.setupStageCounter = 0;
-				}
+				resetCount++;
 			}
 			if (resetCount > 0 && msg.Length > 0)
 				lprint(part.desc() + " resets vessel [" + resetCount + "]: " + msg);
@@ -976,8 +968,6 @@ namespace DockRotate
 
 			if (rotCur != null)
 				advanceRotation(Time.fixedDeltaTime);
-
-			stagedSetup(true);
 		}
 
 		/******** Debugging stuff ********/
@@ -1105,20 +1095,6 @@ namespace DockRotate
 					+ ": on "
 					+ (activePart == part ? "itself" : activePart.desc()));
 			}
-		}
-
-		protected override void stagedSetup(bool verbose)
-		{
-			if (rotCur != null)
-				return;
-
-			switch (setupStageCounter) {
-				case 0:
-					setup(verbose);
-					break;
-			}
-
-			setupStageCounter++;
 		}
 
 		public override void doRotateClockwise()
@@ -1325,20 +1301,6 @@ namespace DockRotate
 				&& (rotationEnabled || proxyRotationModule.rotationEnabled)) {
 				enqueueRotationToSnap(dockingNode.snapOffset, rotationSpeed);
 			}
-		}
-
-		protected override void stagedSetup(bool verbose)
-		{
-			if (rotCur != null)
-				return;
-
-			switch (setupStageCounter) {
-				case 0:
-					setup(verbose);
-					break;
-			}
-
-			setupStageCounter++;
 		}
 
 		private bool isDockedToParent(bool verbose) // must be used only after basicSetup()
