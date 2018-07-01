@@ -974,19 +974,10 @@ namespace DockRotate
 			if (HighLogic.LoadedScene != GameScenes.FLIGHT)
 				return;
 
-			string resetMsg = neededResetMsg();
-			if (resetMsg.Length > 0)
-				setupVessel(resetMsg);
-
 			if (rotCur != null)
 				advanceRotation(Time.fixedDeltaTime);
 
 			stagedSetup(true);
-		}
-
-		public virtual string neededResetMsg()
-		{
-			return "";
 		}
 
 		/******** Debugging stuff ********/
@@ -1207,9 +1198,21 @@ namespace DockRotate
 
 	public class ModuleDockRotate: ModuleBaseRotate
 	{
-		// things to be set up by stagedSetup()
-		// the active module of the couple is the farthest from the root part
-		// the proxy module of the couple is the closest to the root part
+		/*
+
+			the active module of the couple is the farthest from the root part
+			the proxy module of the couple is the closest to the root part
+
+			docking node states:
+
+			* PreAttached
+			* Docked (docker/same vessel/dockee) - (docker) and (same vessel) are coupled with (dockee)
+			* Ready
+			* Disengage
+			* Acquire
+			* Acquire (dockee)
+
+		*/
 
 		private ModuleDockingNode dockingNode;
 		public ModuleDockRotate activeRotationModule;
@@ -1411,28 +1414,6 @@ namespace DockRotate
 			Vector3 vd = proxyRotationModule.partNodeUp.Td(proxyRotationModule.part.T(), activeRotationModule.part.T());
 			Vector3 vs = proxyRotationModule.partNodeUp.STd(proxyRotationModule.part, activeRotationModule.part);
 			return a.axisSignedAngle(vs, vd);
-		}
-
-		public override string neededResetMsg()
-		{
-			string msg = base.neededResetMsg();
-			if (msg.Length > 0)
-				return msg;
-
-			/*
-
-				docking node states:
-
-				* PreAttached
-				* Docked (docker/same vessel/dockee) - (docker) and (same vessel) are coupled with (dockee)
-				* Ready
-				* Disengage
-				* Acquire
-				* Acquire (dockee)
-
-			*/
-
-			return "";
 		}
 
 		protected override void enqueueRotation(float angle, float speed)
