@@ -627,11 +627,14 @@ namespace DockRotate
 		protected string displayName = "";
 		protected string displayInfo = "";
 
+		private bool verboseEvents = false;
+
 		public void OnVesselGoOnRails(Vessel v)
 		{
 			if (!vessel)
 				return;
-			lprint(part.desc() + ": OnVesselGoOnRails(" + v.persistentId + ") [" + vessel.persistentId + "]");
+			if (verboseEvents)
+				lprint(part.desc() + ": OnVesselGoOnRails(" + v.persistentId + ") [" + vessel.persistentId + "]");
 			if (v != vessel)
 				return;
 			onRails = true;
@@ -642,14 +645,13 @@ namespace DockRotate
 		{
 			if (!vessel)
 				return;
-			lprint(part.desc() + ": OnVesselGoOffRails(" + v.persistentId + ") [" + vessel.persistentId + "]");
+			if (verboseEvents)
+				lprint(part.desc() + ": OnVesselGoOffRails(" + v.persistentId + ") [" + vessel.persistentId + "]");
 			if (v != vessel)
 				return;
 			onRails = false;
 			setup(false);
 		}
-
-		private bool verboseEvents = false;
 
 		public void RightBeforeStructureChangeIds(uint id1, uint id2)
 		{
