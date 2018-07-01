@@ -111,7 +111,6 @@ namespace DockRotate
 		public bool smartAutoStruts = false;
 
 		private Guid vesselId;
-		private Part startParent;
 
 		public static string soundFile = "DockRotate/DockRotateMotor";
 		public AudioSource sound;
@@ -141,7 +140,6 @@ namespace DockRotate
 
 			this.proxyPart = joint.Host == part ? joint.Target : joint.Host;
 			this.vesselId = part.vessel.id;
-			this.startParent = part.parent;
 
 			this.pos = pos;
 			this.tgt = tgt;
@@ -164,11 +162,8 @@ namespace DockRotate
 
 		public override void advance(float deltat)
 		{
-			if (activePart.parent != startParent)
-				abort(true, "changed parent");
 			if (finished)
 				return;
-
 			base.advance(deltat);
 		}
 
