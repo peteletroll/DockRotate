@@ -234,7 +234,7 @@ namespace DockRotate
 			if (deltat > 0) {
 				double el = activePart.RequestResource("ElectricCharge", 1.0 * deltat);
 				if (el <= 0.0)
-					abort(false, "no electric charge");
+					abort("no electric charge");
 			}
 		}
 
@@ -365,16 +365,12 @@ namespace DockRotate
 				_propagate(p.children[i], rot, pos);
 		}
 
-		public void abort(bool hard, string msg)
+		public void abort(string msg)
 		{
-			lprint((hard ? "HARD " : "") + "ABORTING: " + msg);
-
+			lprint("ABORTING: " + msg);
 			stopSound();
-
 			tgt = pos;
 			vel = 0;
-			if (hard)
-				finished = true;
 		}
 	}
 
@@ -962,7 +958,7 @@ namespace DockRotate
 		protected void stopCurrentRotation(string msg)
 		{
 			if (rotCur != null) {
-				rotCur.abort(true, msg);
+				rotCur.abort(msg);
 				rotCur.forceStaticize();
 				rotCur = null;
 			}
@@ -1409,9 +1405,7 @@ namespace DockRotate
 
 			if (activeRotationModule && activeRotationModule != this) {
 				lprint("advanceRotation() called on wrong module, aborting");
-				if (rotCur != null)
-					rotCur.abort(false, "wrong module");
-				return;
+				rotCur = null;
 			}
 		}
 
