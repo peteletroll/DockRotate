@@ -489,8 +489,13 @@ namespace DockRotate
 		public void RotateClockwise(KSPActionParam param)
 		{
 			ModuleBaseRotate tgt = actionTarget();
-			if (tgt)
-				tgt.doRotateClockwise();
+			if (tgt) {
+				if (modifierPressed()) {
+					tgt.doRotateCounterclockwise();
+				} else {
+					tgt.doRotateClockwise();
+				}
+			}
 		}
 
 		[KSPEvent(
@@ -511,8 +516,13 @@ namespace DockRotate
 		public void RotateCounterclockwise(KSPActionParam param)
 		{
 			ModuleBaseRotate tgt = actionTarget();
-			if (tgt)
-				tgt.doRotateCounterclockwise();
+			if (tgt) {
+				if (modifierPressed()) {
+					tgt.doRotateClockwise();
+				} else {
+					tgt.doRotateCounterclockwise();
+				}
+			}
 		}
 
 		[KSPEvent(
@@ -587,6 +597,11 @@ namespace DockRotate
 		protected abstract void dumpPart();
 
 		protected abstract int countJoints();
+
+		protected bool modifierPressed()
+		{
+			return GameSettings.MODIFIER_KEY.GetKey();
+		}
 
 		public bool IsJointUnlocked()
 		{
