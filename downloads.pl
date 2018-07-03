@@ -17,6 +17,8 @@ foreach my $r (reverse @$j) {
 	foreach my $a (@{$r->{assets}}) {
 		my $c = $a->{download_count};
 		my $d = $a->{updated_at};
+		$d =~ s/[A-Z]/ /gs;
+		$d =~ s/\s+$//;
 		printf "%6d %s %s\n", $c, $d, $a->{name};
 		$total += $c;
 	}
