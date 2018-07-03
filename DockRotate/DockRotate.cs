@@ -911,7 +911,7 @@ namespace DockRotate
 				&& vessel.CurrentControlLevel == Vessel.ControlLevel.FULL;
 		}
 
-		protected virtual void enqueueRotation(float angle, float speed)
+		protected virtual void enqueueRotation(float angle, float speed, float startSpeed = 0.0f)
 		{
 			if (!rotatingJoint)
 				return;
@@ -926,11 +926,12 @@ namespace DockRotate
 				action = "updated";
 			} else {
 				rotCur = new RotationAnimation(activePart, partNodePos, partNodeAxis, rotatingJoint, 0, angle, speed);
+				rotCur.vel = startSpeed;
 				rotCur.smartAutoStruts = useSmartAutoStruts();
 				action = "added";
 			}
-			lprint(String.Format("{0}: enqueueRotation({1}, {2:F4}\u00b0, {3}\u00b0/s), {4}",
-				activePart.desc(), partNodeAxis.desc(), angle, speed, action));
+			lprint(String.Format("{0}: enqueueRotation({1}, {2:F4}\u00b0, {3}\u00b0/s, {4}\u00b0/s), {5}",
+				activePart.desc(), partNodeAxis.desc(), rotCur.tgt, rotCur.maxvel, rotCur.vel, action));
 		}
 
 		protected float angleToSnap(float snap)
@@ -965,10 +966,11 @@ namespace DockRotate
 
 		protected void stopCurrentRotation(string msg, bool keepVelocity)
 		{
-			resumeRotationAngle = 0.0f;
 			if (rotCur != null) {
-				resumeRotationAngle = rotCur.tgt - rotCur.pos;
+				resumeRotationAngle += rotCur.tgt - rotCur.pos;
 				resumeRotationVelocity = keepVelocity ? rotCur.vel : 0.0f;
+				lprint(part.desc() + ": storing rotation "
+					+ resumeRotationAngle + ", " + resumeRotationVelocity);
 				rotCur.abort(msg);
 				rotCur.forceStaticize();
 				rotCur = null;
@@ -982,7 +984,7 @@ namespace DockRotate
 			if (resumeRotationAngle != 0.0f) {
 				lprint(part.desc() + ": resuming rotation "
 					+ resumeRotationAngle + ", " + resumeRotationVelocity);
-				enqueueRotation(resumeRotationAngle, rotationSpeed);
+				enqueueRotation(resumeRotationAngle, rotationSpeed, resumeRotationVelocity);
 				RotationAnimation r = currentRotation();
 				if (r != null)
 					r.vel = resumeRotationVelocity;
@@ -1330,6 +1332,8 @@ namespace DockRotate
 			if (dockingNode.snapRotation && dockingNode.snapOffset > 0
 				&& activeRotationModule == this
 				&& (rotationEnabled || proxyRotationModule.rotationEnabled)) {
+				// FIXME: this must set resumeRotationAngle
+				//        and not use enqueueRotationToSnap()
 				enqueueRotationToSnap(dockingNode.snapOffset, rotationSpeed);
 			}
 		}
@@ -1416,12 +1420,12 @@ namespace DockRotate
 			return a.axisSignedAngle(vs, vd);
 		}
 
-		protected override void enqueueRotation(float angle, float speed)
+		protected override void enqueueRotation(float angle, float speed, float startSpeed = 0.0f)
 		{
 			if (activeRotationModule == this) {
-				base.enqueueRotation(angle, speed);
+				base.enqueueRotation(angle, speed, startSpeed);
 			} else if (activeRotationModule && activeRotationModule.activeRotationModule == activeRotationModule) {
-				activeRotationModule.enqueueRotation(angle, speed);
+				activeRotationModule.enqueueRotation(angle, speed, startSpeed);
 			} else {
 				lprint("enqueueRotation() called on wrong module, ignoring");
 			}
@@ -1431,7 +1435,7 @@ namespace DockRotate
 		{
 			base.advanceRotation(deltat);
 
-			if (activeRotationModule && activeRotationModule != this) {
+			if (activeRotationModule != this) {
 				lprint("advanceRotation() called on wrong module, aborting");
 				rotCur = null;
 			}
