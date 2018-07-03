@@ -977,10 +977,14 @@ namespace DockRotate
 
 		protected abstract RotationAnimation currentRotation();
 
+		protected abstract void checkResumeRotation();
+
 		public void FixedUpdate()
 		{
 			if (HighLogic.LoadedScene != GameScenes.FLIGHT)
 				return;
+
+			checkResumeRotation();
 
 			if (rotCur != null)
 				advanceRotation(Time.fixedDeltaTime);
@@ -1047,6 +1051,19 @@ namespace DockRotate
 			if (displayInfo.Length <= 0)
 				displayInfo = Localizer.Format("#DCKROT_node_info", rotatingNodeName);
 			return displayInfo;
+		}
+
+		protected override void checkResumeRotation()
+		{
+			if (resumeRotationAngle != 0.0f) {
+				lprint(part.desc() + ": resuming rotation "
+					+ resumeRotationAngle + ", " + resumeRotationVelocity);
+				enqueueRotation(resumeRotationAngle, rotationSpeed);
+				RotationAnimation r = currentRotation();
+				if (r != null)
+					r.vel = resumeRotationVelocity;
+				resumeRotationAngle = resumeRotationVelocity = 0.0f;
+			}
 		}
 
 		protected override void setup(bool verbose)
@@ -1265,6 +1282,19 @@ namespace DockRotate
 				partNodePos = Vector3.zero.Tp(dockingNode.T(), part.T());
 				partNodeAxis = Vector3.forward.Td(dockingNode.T(), part.T());
 				partNodeUp = Vector3.up.Td(dockingNode.T(), part.T());
+			}
+		}
+
+		protected override void checkResumeRotation()
+		{
+			if (resumeRotationAngle != 0.0f) {
+				lprint(part.desc() + ": resuming rotation "
+					+ resumeRotationAngle + ", " + resumeRotationVelocity);
+				activeRotationModule.enqueueRotation(resumeRotationAngle, rotationSpeed);
+				RotationAnimation r = currentRotation ();
+				if (r != null)
+					r.vel = resumeRotationVelocity;
+				resumeRotationAngle = resumeRotationVelocity = 0.0f;
 			}
 		}
 
