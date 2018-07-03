@@ -1433,11 +1433,13 @@ namespace DockRotate
 
 		protected override void enqueueRotation(float angle, float speed)
 		{
-			if (activeRotationModule != this) {
+			if (activeRotationModule == this) {
+				base.enqueueRotation(angle, speed);
+			} else if (activeRotationModule && activeRotationModule.activeRotationModule == activeRotationModule) {
+				activeRotationModule.enqueueRotation(angle, speed);
+			} else {
 				lprint("enqueueRotation() called on wrong module, ignoring");
-				return;
 			}
-			base.enqueueRotation(angle, speed);
 		}
 
 		protected override void advanceRotation(float deltat)
