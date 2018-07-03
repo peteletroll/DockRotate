@@ -635,10 +635,10 @@ namespace DockRotate
 
 		private bool verboseEvents = false;
 
-		[KSPField (isPersistant = true)]
+		[KSPField(isPersistant = true)]
 		public float resumeRotationAngle = 0.0f;
 
-		[KSPField (isPersistant = true)]
+		[KSPField(isPersistant = true)]
 		public float resumeRotationVelocity = 0.0f;
 
 		public void OnVesselGoOnRails(Vessel v)
@@ -650,7 +650,7 @@ namespace DockRotate
 			if (v != vessel)
 				return;
 			onRails = true;
-			stopCurrentRotation("go on rails");
+			stopCurrentRotation("go on rails", true);
 			VesselRotInfo.resetInfo(vessel.id);
 		}
 
@@ -707,7 +707,7 @@ namespace DockRotate
 		{
 			if (verboseEvents)
 				lprint(part.desc() + ": RightBeforeStructureChange()");
-			stopCurrentRotation("structure change");
+			stopCurrentRotation("structure change", true);
 		}
 
 		public void RightAfterStructureChangeAction(GameEvents.FromToAction<Part, Part> action)
@@ -933,19 +933,21 @@ namespace DockRotate
 				activePart.desc(), partNodeAxis.desc(), angle, speed, action));
 		}
 
-		protected void enqueueRotationToSnap(float snap, float speed)
+		protected float angleToSnap(float snap)
 		{
 			snap = Mathf.Abs(snap);
-			if (snap < 0.5)
-				return;
-
+			if (snap < 0.5f)
+				return 0.0f;
 			float a = rotCur == null ? rotationAngle(false) : rotCur.tgt;
 			if (float.IsNaN(a))
-				return;
+				return 0.0f;
 			float f = snap * Mathf.Floor(a / snap + 0.5f);
-			lprint(String.Format("{0}: snap {1:F4} to {2:F4} ({3:F4})",
-				part.desc(), a, f, f - a));
-			enqueueRotation(f - a, rotationSpeed);
+			return f - a;
+		}
+
+		protected void enqueueRotationToSnap(float snap, float speed)
+		{
+			enqueueRotation(angleToSnap(snap), rotationSpeed);
 		}
 
 		protected virtual void advanceRotation(float deltat)
@@ -961,12 +963,12 @@ namespace DockRotate
 			rotCur.advance(deltat);
 		}
 
-		protected void stopCurrentRotation(string msg)
+		protected void stopCurrentRotation(string msg, bool keepVelocity)
 		{
 			resumeRotationAngle = 0.0f;
 			if (rotCur != null) {
 				resumeRotationAngle = rotCur.tgt - rotCur.pos;
-				resumeRotationVelocity = rotCur.vel;
+				resumeRotationVelocity = keepVelocity ? rotCur.vel : 0.0f;
 				rotCur.abort(msg);
 				rotCur.forceStaticize();
 				rotCur = null;
