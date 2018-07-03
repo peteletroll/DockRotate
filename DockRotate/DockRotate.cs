@@ -635,6 +635,12 @@ namespace DockRotate
 
 		private bool verboseEvents = false;
 
+		[KSPField (isPersistant = true)]
+		public float resumeRotationAngle = 0.0f;
+
+		[KSPField (isPersistant = true)]
+		public float resumeRotationVelocity = 0.0f;
+
 		public void OnVesselGoOnRails(Vessel v)
 		{
 			if (!vessel)
@@ -957,7 +963,10 @@ namespace DockRotate
 
 		protected void stopCurrentRotation(string msg)
 		{
+			resumeRotationAngle = 0.0f;
 			if (rotCur != null) {
+				resumeRotationAngle = rotCur.tgt - rotCur.pos;
+				resumeRotationVelocity = rotCur.vel;
 				rotCur.abort(msg);
 				rotCur.forceStaticize();
 				rotCur = null;
