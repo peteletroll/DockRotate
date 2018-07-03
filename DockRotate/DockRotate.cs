@@ -1444,7 +1444,7 @@ namespace DockRotate
 			float s = rotationStep;
 			if (reverseRotation)
 				s = -s;
-			activeRotationModule.enqueueRotation(s, rotationSpeed);
+			enqueueRotation(s, rotationSpeed);
 		}
 
 		public override void doRotateCounterclockwise()
@@ -1454,7 +1454,7 @@ namespace DockRotate
 			float s = -rotationStep;
 			if (reverseRotation)
 				s = -s;
-			activeRotationModule.enqueueRotation(s, rotationSpeed);
+			enqueueRotation(s, rotationSpeed);
 		}
 
 		public override void doRotateToSnap()
