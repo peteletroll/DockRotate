@@ -486,7 +486,7 @@ namespace DockRotate
 		{
 			ModuleBaseRotate tgt = actionTarget();
 			if (tgt) {
-				if (modifierPressed()) {
+				if (rotationReverseKey()) {
 					tgt.doRotateCounterclockwise();
 				} else {
 					tgt.doRotateClockwise();
@@ -513,7 +513,7 @@ namespace DockRotate
 		{
 			ModuleBaseRotate tgt = actionTarget();
 			if (tgt) {
-				if (modifierPressed()) {
+				if (rotationReverseKey()) {
 					tgt.doRotateClockwise();
 				} else {
 					tgt.doRotateCounterclockwise();
@@ -594,7 +594,7 @@ namespace DockRotate
 
 		protected abstract int countJoints();
 
-		protected bool modifierPressed()
+		protected bool rotationReverseKey()
 		{
 			return GameSettings.MODIFIER_KEY.GetKey();
 		}
