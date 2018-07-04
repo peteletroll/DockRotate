@@ -973,7 +973,12 @@ namespace DockRotate
 		protected void freezeCurrentRotation(string msg, bool keepSpeed)
 		{
 			if (rotCur != null) {
-				frozenRotation = rotCur.frozenState(keepSpeed);
+				Vector3 r = rotCur.frozenState(keepSpeed);
+				if (frozenRotation[0] != 0.0f) {
+					lprint(part.desc() + ": adding previous frozen rotation " + frozenRotation);
+					r[0] += frozenRotation[0];
+				}
+				frozenRotation = r;
 				lprint(part.desc() + ": storing rotation " + frozenRotation);
 				rotCur.abort(msg);
 				rotCur.forceStaticize();
