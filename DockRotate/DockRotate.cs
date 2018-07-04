@@ -148,7 +148,7 @@ namespace DockRotate
 			this.vel = 0;
 		}
 
-		public Vector3 resumeState(bool keepSpeed)
+		public Vector3 frozenState(bool keepSpeed)
 		{
 			return new Vector3(
 				tgt - pos,
@@ -645,7 +645,7 @@ namespace DockRotate
 		private bool verboseEvents = false;
 
 		[KSPField(isPersistant = true)]
-		public Vector3 resumeRotationState = Vector3.zero;
+		public Vector3 frozenRotation = Vector3.zero;
 
 		public void OnVesselGoOnRails(Vessel v)
 		{
@@ -656,7 +656,7 @@ namespace DockRotate
 			if (v != vessel)
 				return;
 			onRails = true;
-			stopCurrentRotation("go on rails", true);
+			freezeCurrentRotation("go on rails", true);
 			VesselRotInfo.resetInfo(vessel.id);
 		}
 
@@ -713,7 +713,7 @@ namespace DockRotate
 		{
 			if (verboseEvents)
 				lprint(part.desc() + ": RightBeforeStructureChange()");
-			stopCurrentRotation("structure change", true);
+			freezeCurrentRotation("structure change", true);
 		}
 
 		public void RightAfterStructureChangeAction(GameEvents.FromToAction<Part, Part> action)
@@ -970,11 +970,11 @@ namespace DockRotate
 			rotCur.advance(deltat);
 		}
 
-		protected void stopCurrentRotation(string msg, bool keepSpeed)
+		protected void freezeCurrentRotation(string msg, bool keepSpeed)
 		{
 			if (rotCur != null) {
-				resumeRotationState = rotCur.resumeState(keepSpeed);
-				lprint(part.desc() + ": storing rotation " + resumeRotationState);
+				frozenRotation = rotCur.frozenState(keepSpeed);
+				lprint(part.desc() + ": storing rotation " + frozenRotation);
 				rotCur.abort(msg);
 				rotCur.forceStaticize();
 				rotCur = null;
@@ -983,11 +983,11 @@ namespace DockRotate
 
 		protected abstract RotationAnimation currentRotation();
 
-		protected void checkResumeRotation()
+		protected void checkFrozenRotation()
 		{
-			if (resumeRotationState[0] != 0.0f) {
-				Vector3 s = resumeRotationState;
-				resumeRotationState = Vector3.zero;
+			if (frozenRotation[0] != 0.0f) {
+				Vector3 s = frozenRotation;
+				frozenRotation = Vector3.zero;
 				lprint(part.desc() + ": resuming rotation " + s);
 				enqueueRotation(s[0], s[1], s[2]);
 				RotationAnimation r = currentRotation();
@@ -999,7 +999,7 @@ namespace DockRotate
 			if (HighLogic.LoadedScene != GameScenes.FLIGHT)
 				return;
 
-			checkResumeRotation();
+			checkFrozenRotation();
 
 			if (rotCur != null)
 				advanceRotation(Time.fixedDeltaTime);
@@ -1332,7 +1332,7 @@ namespace DockRotate
 			if (dockingNode.snapRotation && dockingNode.snapOffset > 0
 				&& activeRotationModule == this
 				&& (rotationEnabled || proxyRotationModule.rotationEnabled)) {
-				// FIXME: this must set resumeRotationAngle
+				// FIXME: this must set frozenRotation
 				//        and not use enqueueRotationToSnap()
 				enqueueRotationToSnap(dockingNode.snapOffset, rotationSpeed);
 			}
