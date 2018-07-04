@@ -1,5 +1,6 @@
 *.userprefs
 *.dll
+*.swp
 bin/
 obj/
 tmp/
