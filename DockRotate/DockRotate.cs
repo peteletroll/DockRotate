@@ -148,6 +148,15 @@ namespace DockRotate
 			this.vel = 0;
 		}
 
+		public Vector3 resumeState(bool keepSpeed)
+		{
+			return new Vector3(
+				tgt - pos,
+				maxvel,
+				keepSpeed ? vel : 0.0f
+			);
+		}
+
 		private int changeCount(int delta)
 		{
 			VesselRotInfo vi = VesselRotInfo.getInfo(vesselId);
@@ -636,10 +645,7 @@ namespace DockRotate
 		private bool verboseEvents = false;
 
 		[KSPField(isPersistant = true)]
-		public float resumeRotationAngle = 0.0f;
-
-		[KSPField(isPersistant = true)]
-		public float resumeRotationVelocity = 0.0f;
+		public Vector3 resumeRotationState = Vector3.zero;
 
 		public void OnVesselGoOnRails(Vessel v)
 		{
@@ -964,13 +970,11 @@ namespace DockRotate
 			rotCur.advance(deltat);
 		}
 
-		protected void stopCurrentRotation(string msg, bool keepVelocity)
+		protected void stopCurrentRotation(string msg, bool keepSpeed)
 		{
 			if (rotCur != null) {
-				resumeRotationAngle += rotCur.tgt - rotCur.pos;
-				resumeRotationVelocity = keepVelocity ? rotCur.vel : 0.0f;
-				lprint(part.desc() + ": storing rotation "
-					+ resumeRotationAngle + ", " + resumeRotationVelocity);
+				resumeRotationState = rotCur.resumeState(keepSpeed);
+				lprint(part.desc() + ": storing rotation " + resumeRotationState);
 				rotCur.abort(msg);
 				rotCur.forceStaticize();
 				rotCur = null;
@@ -981,14 +985,12 @@ namespace DockRotate
 
 		protected void checkResumeRotation()
 		{
-			if (resumeRotationAngle != 0.0f) {
-				lprint(part.desc() + ": resuming rotation "
-					+ resumeRotationAngle + ", " + resumeRotationVelocity);
-				enqueueRotation(resumeRotationAngle, rotationSpeed, resumeRotationVelocity);
+			if (resumeRotationState[0] != 0.0f) {
+				Vector3 s = resumeRotationState;
+				resumeRotationState = Vector3.zero;
+				lprint(part.desc() + ": resuming rotation " + s);
+				enqueueRotation(s[0], s[1], s[2]);
 				RotationAnimation r = currentRotation();
-				if (r != null)
-					r.vel = resumeRotationVelocity;
-				resumeRotationAngle = resumeRotationVelocity = 0.0f;
 			}
 		}
 
@@ -1014,9 +1016,7 @@ namespace DockRotate
 
 	public class ModuleNodeRotate: ModuleBaseRotate
 	{
-		[KSPField(
-			isPersistant = true
-		)]
+		[KSPField(isPersistant = true)]
 		public string rotatingNodeName = "";
 
 		public AttachNode rotatingNode;
