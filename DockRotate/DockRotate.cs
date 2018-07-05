@@ -148,15 +148,6 @@ namespace DockRotate
 			this.vel = 0;
 		}
 
-		public Vector3 frozenState(bool keepSpeed)
-		{
-			return new Vector3(
-				tgt - pos,
-				maxvel,
-				keepSpeed ? vel : 0.0f
-			);
-		}
-
 		private int changeCount(int delta)
 		{
 			VesselRotInfo vi = VesselRotInfo.getInfo(vesselId);
@@ -917,6 +908,19 @@ namespace DockRotate
 				&& vessel.CurrentControlLevel == Vessel.ControlLevel.FULL;
 		}
 
+		protected void enqueueFrozenRotation(float angle, float speed, float startSpeed = 0.0f)
+		{
+			Vector3 prev = frozenRotation;
+			if (frozenRotation[0] == 0.0f) {
+				frozenRotation[0] = angle;
+				frozenRotation[1] = speed;
+				frozenRotation[2] = startSpeed;
+			} else {
+				frozenRotation[0] += angle;
+			}
+			lprint(part.desc() + ": frozen rotation " + prev + " -> " + frozenRotation);
+		}
+
 		protected virtual void enqueueRotation(float angle, float speed, float startSpeed = 0.0f)
 		{
 			if (!rotatingJoint)
@@ -973,13 +977,7 @@ namespace DockRotate
 		protected void freezeCurrentRotation(string msg, bool keepSpeed)
 		{
 			if (rotCur != null) {
-				Vector3 r = rotCur.frozenState(keepSpeed);
-				if (frozenRotation[0] != 0.0f) {
-					lprint(part.desc() + ": adding previous frozen rotation " + frozenRotation);
-					r[0] += frozenRotation[0];
-				}
-				frozenRotation = r;
-				lprint(part.desc() + ": storing rotation " + frozenRotation);
+				enqueueFrozenRotation(rotCur.tgt - rotCur.pos, rotCur.maxvel, keepSpeed ? rotCur.vel : 0.0f);
 				rotCur.abort(msg);
 				rotCur.forceStaticize();
 				rotCur = null;
@@ -1337,9 +1335,7 @@ namespace DockRotate
 			if (dockingNode.snapRotation && dockingNode.snapOffset > 0
 				&& activeRotationModule == this
 				&& (rotationEnabled || proxyRotationModule.rotationEnabled)) {
-				// FIXME: this must set frozenRotation
-				//        and not use enqueueRotationToSnap()
-				enqueueRotationToSnap(dockingNode.snapOffset, rotationSpeed);
+				enqueueFrozenRotation(angleToSnap(dockingNode.snapOffset), rotationSpeed);
 			}
 		}
 
