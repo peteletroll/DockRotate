@@ -315,6 +315,7 @@ namespace DockRotate
 
 		public void forceStaticize()
 		{
+			lprint("forceStaticize() at " + tgt + "\u00b0");
 			staticizeOrgInfo();
 			staticizeJoints();
 		}
@@ -646,9 +647,9 @@ namespace DockRotate
 				lprint(part.desc() + ": OnVesselGoOnRails(" + v.persistentId + ") [" + vessel.persistentId + "]");
 			if (v != vessel)
 				return;
+			freezeCurrentRotation("go on rails", false);
+			// VesselRotInfo.resetInfo(vessel.id);
 			onRails = true;
-			freezeCurrentRotation("go on rails", true);
-			VesselRotInfo.resetInfo(vessel.id);
 		}
 
 		public void OnVesselGoOffRails(Vessel v)
@@ -659,7 +660,7 @@ namespace DockRotate
 				lprint(part.desc() + ": OnVesselGoOffRails(" + v.persistentId + ") [" + vessel.persistentId + "]");
 			if (v != vessel)
 				return;
-			VesselRotInfo.resetInfo(vessel.id);
+			// VesselRotInfo.resetInfo(vessel.id);
 			onRails = false;
 			setup(false);
 		}
@@ -988,12 +989,11 @@ namespace DockRotate
 
 		protected void checkFrozenRotation()
 		{
-			if (frozenRotation[0] != 0.0f) {
-				Vector3 s = frozenRotation;
-				frozenRotation = Vector3.zero;
-				lprint(part.desc() + ": resuming rotation " + s);
-				enqueueRotation(s[0], s[1], s[2]);
-				RotationAnimation r = currentRotation();
+			Vector3 fr = frozenRotation;
+			frozenRotation = Vector3.zero;
+			if (fr[0] != 0.0f) {
+				lprint(part.desc() + ": resuming rotation " + fr);
+				enqueueRotation(fr[0], fr[1], fr[2]);
 			}
 		}
 
