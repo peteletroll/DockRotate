@@ -322,18 +322,19 @@ namespace DockRotate
 
 		private void staticizeJoints()
 		{
+			float angle = tgt;
 			for (int i = 0; i < joint.joints.Count; i++) {
 				ConfigurableJoint j = joint.joints[i];
 				if (j) {
 					RotJointInfo ji = rji[i];
 
 					// staticize joint rotation
-					Quaternion jointRot = ji.localAxis.rotation(tgt);
+					Quaternion jointRot = ji.localAxis.rotation(angle);
 					j.axis = jointRot * j.axis;
 					j.secondaryAxis = jointRot * j.secondaryAxis;
 					j.targetRotation = ji.jm.tgtRot0;
 
-					Quaternion connectedBodyRot = ji.connectedBodyAxis.rotation(-tgt);
+					Quaternion connectedBodyRot = ji.connectedBodyAxis.rotation(-angle);
 					j.connectedAnchor = connectedBodyRot * (j.connectedAnchor - ji.connectedBodyNode)
 						+ ji.connectedBodyNode;
 					j.targetPosition = ji.jm.tgtPos0;
@@ -999,7 +1000,7 @@ namespace DockRotate
 
 		public void FixedUpdate()
 		{
-			if (HighLogic.LoadedScene != GameScenes.FLIGHT)
+			if (onRails || HighLogic.LoadedScene != GameScenes.FLIGHT)
 				return;
 
 			checkFrozenRotation();
