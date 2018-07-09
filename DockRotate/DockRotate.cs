@@ -1099,6 +1099,7 @@ namespace DockRotate
 				return;
 			}
 
+			// FIXME: this should probably go
 			AttachNode otherNode = rotatingNode.FindOpposingNode();
 			if (otherNode == null)
 				return;
