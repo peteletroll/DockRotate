@@ -635,7 +635,7 @@ namespace DockRotate
 		protected string displayName = "";
 		protected string displayInfo = "";
 
-		private bool verboseEvents = false;
+		protected bool verboseEvents = false;
 
 		[KSPField(isPersistant = true)]
 		public Vector3 frozenRotation = Vector3.zero;
@@ -1070,9 +1070,31 @@ namespace DockRotate
 			return displayInfo;
 		}
 
+		private int lastConfigDump = 0;
+
 		public void RightBeforeVesselSave(GameEvents.FromToAction<ProtoVessel, ConfigNode> action)
 		{
-			lprint(part.desc() + ": RightBeforeVesselSave()");
+			int now = Time.frameCount;
+			if (lastConfigDump == now)
+				return;
+			lastConfigDump = now;
+
+			if (verboseEvents)
+				lprint(part.desc() + ": RightBeforeVesselSave()");
+			AttachNode node = part.physicalSignificance == Part.PhysicalSignificance.FULL ?
+				part.FindAttachNode(rotatingNodeName) : null;
+			if (node == null)
+				return;
+			Part other = node.attachedPart;
+			if (!other)
+				return;
+			lprint(part.desc() + ": connected to " + other.desc());
+			if (action.to != null)
+				lprint(action.to.ToString());
+			if (other.physicalSignificance != Part.PhysicalSignificance.FULL) {
+				lprint(part.desc() + ": connected to physicsless part");
+				other.physicalSignificance = Part.PhysicalSignificance.FULL;
+			}
 		}
 
 		public override void OnAwake()
@@ -1127,6 +1149,8 @@ namespace DockRotate
 			partNodeUp = part.up(partNodeAxis);
 
 			Part other = rotatingNode.attachedPart;
+			if (other)
+				other.physicalSignificance = Part.PhysicalSignificance.FULL;
 			if (part.parent == other) {
 				nodeRole = "Active";
 				activePart = part;
