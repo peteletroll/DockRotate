@@ -784,7 +784,7 @@ namespace DockRotate
 			GameEvents.onSameVesselUndock.Add(RightAfterSameVesselUndock);
 		}
 
-		public void OnDestroy()
+		public virtual void OnDestroy()
 		{
 			GameEvents.onVesselGoOnRails.Remove(OnVesselGoOnRails);
 			GameEvents.onVesselGoOffRails.Remove(OnVesselGoOffRails);
@@ -1068,6 +1068,23 @@ namespace DockRotate
 			if (displayInfo.Length <= 0)
 				displayInfo = Localizer.Format("#DCKROT_node_info", rotatingNodeName);
 			return displayInfo;
+		}
+
+		public void RightBeforeVesselSave(GameEvents.FromToAction<ProtoVessel, ConfigNode> action)
+		{
+			lprint(part.desc() + ": RightBeforeVesselSave()");
+		}
+
+		public override void OnAwake()
+		{
+			GameEvents.onProtoVesselSave.Add(RightBeforeVesselSave);
+			base.OnAwake();
+		}
+
+		public override void OnDestroy()
+		{
+			GameEvents.onProtoVesselSave.Remove(RightBeforeVesselSave);
+			base.OnDestroy();
 		}
 
 		protected override void setup(bool verbose)
