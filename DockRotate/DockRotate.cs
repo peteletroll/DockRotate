@@ -1149,8 +1149,11 @@ namespace DockRotate
 			partNodeUp = part.up(partNodeAxis);
 
 			Part other = rotatingNode.attachedPart;
-			if (other)
+			if (other && other.physicalSignificance != Part.PhysicalSignificance.FULL) {
+				lprint(part.desc() + ": fixing physics for " + other.desc());
 				other.physicalSignificance = Part.PhysicalSignificance.FULL;
+			}
+
 			if (part.parent == other) {
 				nodeRole = "Active";
 				activePart = part;
