@@ -1081,7 +1081,7 @@ namespace DockRotate
 
 			if (verboseEvents)
 				lprint(part.desc() + ": RightBeforeVesselSave()");
-			AttachNode node = part.physicalSignificance == Part.PhysicalSignificance.FULL ?
+			AttachNode node = part.PhysicsSignificance == 0 ?
 				part.FindAttachNode(rotatingNodeName) : null;
 			if (node == null)
 				return;
@@ -1091,9 +1091,9 @@ namespace DockRotate
 			lprint(part.desc() + ": connected to " + other.desc());
 			if (action.to != null)
 				lprint(action.to.ToString());
-			if (other.physicalSignificance != Part.PhysicalSignificance.FULL) {
-				lprint(part.desc() + ": connected to physicsless part");
-				other.physicalSignificance = Part.PhysicalSignificance.FULL;
+			if (other.PhysicsSignificance != 0) {
+				lprint(part.desc() + ": fixing physics for " + other.desc());
+				other.PhysicsSignificance = 0;
 			}
 		}
 
@@ -1126,7 +1126,7 @@ namespace DockRotate
 			if (part.FindModuleImplementing<ModuleDockRotate>())
 				return;
 
-			rotatingNode = part.physicalSignificance == Part.PhysicalSignificance.FULL ?
+			rotatingNode = part.PhysicsSignificance == 0 ?
 				part.FindAttachNode(rotatingNodeName) : null;
 			if (rotatingNode == null) {
 				lprint(part.desc() + " has no node named \"" + rotatingNodeName + "\"");
@@ -1140,7 +1140,7 @@ namespace DockRotate
 
 			// FIXME: this should probably go
 			AttachNode otherNode = rotatingNode.FindOpposingNode();
-			if (otherNode == null)
+			if (false && otherNode == null)
 				return;
 
 			partNodePos = rotatingNode.position;
@@ -1149,9 +1149,9 @@ namespace DockRotate
 			partNodeUp = part.up(partNodeAxis);
 
 			Part other = rotatingNode.attachedPart;
-			if (other && other.physicalSignificance != Part.PhysicalSignificance.FULL) {
+			if (other && other.PhysicsSignificance != 0) {
 				lprint(part.desc() + ": fixing physics for " + other.desc());
-				other.physicalSignificance = Part.PhysicalSignificance.FULL;
+				other.PhysicsSignificance = 0;
 			}
 
 			if (part.parent == other) {
