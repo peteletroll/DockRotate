@@ -59,6 +59,17 @@ namespace DockRotate
 				onStop();
 		}
 
+		public bool clampAngle()
+		{
+			if (tgt < 180f || tgt > 180f) {
+				float newzero = 360f * Mathf.Floor(tgt / 360f + 0.5f);
+				tgt -= newzero;
+				pos -= newzero;
+				return true;
+			}
+			return false;
+		}
+
 		private bool checkFinished(float deltat)
 		{
 			if (finished)
@@ -942,6 +953,7 @@ namespace DockRotate
 				rotCur.smartAutoStruts = useSmartAutoStruts();
 				action = "added";
 			}
+			rotCur.clampAngle();
 			lprint(String.Format("{0}: enqueueRotation({1}, {2:F4}\u00b0, {3}\u00b0/s, {4}\u00b0/s), {5}",
 				activePart.desc(), partNodeAxis.desc(), rotCur.tgt, rotCur.maxvel, rotCur.vel, action));
 		}
