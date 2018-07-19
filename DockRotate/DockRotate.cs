@@ -953,7 +953,8 @@ namespace DockRotate
 				rotCur.smartAutoStruts = useSmartAutoStruts();
 				action = "added";
 			}
-			rotCur.clampAngle();
+			if (rotCur.clampAngle())
+				lprint(part.desc() + ": rotation target clamped");
 			lprint(String.Format("{0}: enqueueRotation({1}, {2:F4}\u00b0, {3}\u00b0/s, {4}\u00b0/s), {5}",
 				activePart.desc(), partNodeAxis.desc(), rotCur.tgt, rotCur.maxvel, rotCur.vel, action));
 		}
