@@ -1225,7 +1225,7 @@ namespace DockRotate
 
 		protected override bool canStartRotation()
 		{
-			return base.canStartRotation() && rotatingJoint;
+			return rotatingJoint && base.canStartRotation();
 		}
 
 		protected override void dumpPart()
@@ -1437,7 +1437,7 @@ namespace DockRotate
 
 		protected override bool canStartRotation()
 		{
-			return base.canStartRotation() && activeRotationModule;
+			return activeRotationModule && base.canStartRotation();
 		}
 
 		protected override int countJoints()
