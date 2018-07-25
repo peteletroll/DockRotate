@@ -20,6 +20,8 @@ Global
 		$1.scope = text/plain
 		$1.FileWidth = 80
 		$1.TabsToSpaces = True
+		$1.TabWidth = 8
+		$1.IndentWidth = 8
 		$0.TextStylePolicy = $2
 		$2.EolMarker = Unix
 		$2.scope = text/x-csharp
