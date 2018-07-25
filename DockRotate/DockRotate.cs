@@ -1427,7 +1427,7 @@ namespace DockRotate
 					+ ", types " + dockingNode.nodeType + "/" + parentNode.nodeType);
 
 			bool ret = dockingNode.nodeType == parentNode.nodeType
-				&& nodeDist < 1.0f && nodeAngle < 5;
+				&& nodeDist < 0.3f && nodeAngle < 5.0f;
 
 			if (verbose)
 				lprint(part.desc() + ": isDockedToParent() returns " + ret);
