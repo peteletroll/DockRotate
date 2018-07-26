@@ -848,11 +848,9 @@ namespace DockRotate
 			bool newGuiActive = canStartRotation();
 
 			nodeStatus = "";
-
 			int nJoints = countJoints();
 			nodeStatus = nodeRole + " [" + nJoints + "]";
-
-			Fields["nodeStatus"].guiActive = nodeStatus.Length > 0;
+			Fields["nodeStatus"].guiActive = newGuiActive && nodeStatus.Length > 0;
 
 			int l = guiList.GetLength(0);
 			for (i = 0; i < l; i++) {
