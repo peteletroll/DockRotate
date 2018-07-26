@@ -1104,10 +1104,7 @@ namespace DockRotate
 			lprint(part.desc() + ": connected to " + other.desc());
 			if (action.to != null)
 				lprint(action.to.ToString());
-			if (other.PhysicsSignificance != 0) {
-				lprint(part.desc() + ": fixing physics for " + other.desc());
-				other.PhysicsSignificance = 0;
-			}
+			other.forcePhysics();
 		}
 
 		public override void OnAwake()
@@ -1162,10 +1159,8 @@ namespace DockRotate
 			partNodeUp = part.up(partNodeAxis);
 
 			Part other = rotatingNode.attachedPart;
-			if (other && other.PhysicsSignificance != 0) {
-				lprint(part.desc() + ": fixing physics for " + other.desc());
-				other.PhysicsSignificance = 0;
-			}
+			if (other)
+				other.forcePhysics();
 
 			if (part.parent == other) {
 				nodeRole = "Active";
@@ -1747,6 +1742,18 @@ namespace DockRotate
 
 				lprint("releasing [" + ++count + "] " + j.desc());
 				j.DestroyJoint();
+			}
+		}
+
+		public static void forcePhysics(this Part part)
+		{
+			if (part.PhysicsSignificance != 0) {
+				lprint(part.desc() + ": fixing PhysicsSignificance");
+				part.PhysicsSignificance = 0;
+			}
+			if (part.physicalSignificance != Part.PhysicalSignificance.FULL) {
+				lprint(part.desc() + ": fixing PhysicalSignificance");
+				part.physicalSignificance = Part.PhysicalSignificance.FULL;
 			}
 		}
 
