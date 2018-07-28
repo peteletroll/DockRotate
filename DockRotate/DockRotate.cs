@@ -1750,7 +1750,7 @@ namespace DockRotate
 				part.PhysicsSignificance = 0;
 			}
 			if (part.physicalSignificance != Part.PhysicalSignificance.FULL) {
-				lprint(part.desc() + ": fixing PhysicalSignificance");
+				lprint(part.desc() + ": fixing physicalSignificance");
 				part.physicalSignificance = Part.PhysicalSignificance.FULL;
 			}
 		}
