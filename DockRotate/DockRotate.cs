@@ -833,12 +833,11 @@ namespace DockRotate
 
 		protected void checkGuiActive()
 		{
-			int i;
-
-			if (currentRotation() != null) {
+			RotationAnimation cr = currentRotation();
+			if (cr != null) {
 				angleInfo = String.Format("{0:+0.00;-0.00;0.00}\u00b0 ({1:+0.00;-0.00;0.00}\u00b0/s)",
 					rotationAngle(true),
-					currentRotation().vel);
+					cr.vel);
 			} else {
 				angleInfo = String.Format("{0:+0.00;-0.00;0.00}\u00b0 ({1:+0.0000;-0.0000;0.0000}\u00b0\u0394)",
 					rotationAngle(false),
@@ -853,7 +852,7 @@ namespace DockRotate
 			Fields["nodeStatus"].guiActive = newGuiActive && nodeStatus.Length > 0;
 
 			int l = guiList.GetLength(0);
-			for (i = 0; i < l; i++) {
+			for (int i = 0; i < l; i++) {
 				string name = guiList[i, 0];
 				string flags = guiList[i, 1];
 
