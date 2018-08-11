@@ -4,57 +4,86 @@ name=DockRotate
 
 ksphome=~/KSP/KSP_linux
 
+force=0
+while getopts f opt
+do
+	case $opt in
+	f)
+		force=1
+		;;
+	*)
+		exit 1
+		;;
+	esac
+done
+shift `expr $OPTIND - 1`
+
 cd `dirname $0` || exit 1
 
 # [assembly: AssemblyVersion ("1.3.1.1")]
 
-version=`sed -n 's/.*\<AssemblyVersion\>.*"\([^"]\+\)".*/\1/p' DockRotate/Properties/AssemblyInfo.cs`
-if [ "$version" = "" ]
-then
-	echo "ABORTING: can't find assembly version number" 1>&2
-	exit 1
-fi
+(
 
-kspversion=`cat "$ksphome/readme.txt" | awk 'NR <= 30 && NF == 2 && $1 == "Version" { print $2 }'`
-if [ "$kspversion" = "" ]
-then
-	echo "ABORTING: can't find KSP version number" 1>&2
-	exit 1
-fi
+	version=`sed -n 's/.*\<AssemblyVersion\>.*"\([^"]\+\)".*/\1/p' DockRotate/Properties/AssemblyInfo.cs`
+	if [ "$version" = "" ]
+	then
+		echo "ABORTING: can't find assembly version number" 1>&2
+		exit 1
+	fi
 
-if echo '[]' | jq . > /dev/null
-then
-	true
-else
-	echo "ABORTING: jq not working" 1>&2
-	exit 1
-fi
+	kspversion=`cat "$ksphome/readme.txt" | awk 'NR <= 30 && NF == 2 && $1 == "Version" { print $2 }'`
+	if [ "$kspversion" = "" ]
+	then
+		echo "ABORTING: can't find KSP version number" 1>&2
+		exit 1
+	fi
 
-jsonversion=Resources/DockRotate.version
-jqfilter='.VERSION | (.MAJOR|tostring) + "." + (.MINOR|tostring) + "." + (.PATCH|tostring) + "." + (.BUILD|tostring)'
-jversion=`jq -r "$jqfilter" $jsonversion`
+	if echo '[]' | jq . > /dev/null
+	then
+		true
+	else
+		echo "ABORTING: jq not working" 1>&2
+		exit 1
+	fi
+
+	jsonversion=Resources/DockRotate.version
+	jqfilter='.VERSION | (.MAJOR|tostring) + "." + (.MINOR|tostring) + "." + (.PATCH|tostring) + "." + (.BUILD|tostring)'
+	jversion=`jq -r "$jqfilter" $jsonversion`
+	if [ $? -ne 0 ]
+	then
+		echo "ABORTING: JSON syntax error in $jsonversion" 1>&2
+		exit 1
+	fi
+	if [ "$version" != "$jversion" ]
+	then
+		echo "ABORTING: DLL version is $version, JSON version is $jversion" 1>&2
+		exit 1
+	fi
+
+	jqfilter='.KSP_VERSION | (.MAJOR|tostring) + "." + (.MINOR|tostring) + "." + (.PATCH|tostring)'
+	jversion=`jq -r "$jqfilter" $jsonversion`
+	if [ $? -ne 0 ]
+	then
+		echo "ABORTING: JSON syntax error in $jsonversion" 1>&2
+		exit 1
+	fi
+	if [ "$kspversion" != "$jversion" ]
+	then
+		echo "ABORTING: KSP version is $kspversion, JSON version is $jversion" 1>&2
+		exit 1
+	fi
+
+)
+
 if [ $? -ne 0 ]
 then
-	echo "ABORTING: JSON syntax error in $jsonversion" 1>&2
-	exit 1
-fi
-if [ "$version" != "$jversion" ]
-then
-	echo "ABORTING: DLL version is $version, JSON version is $jversion" 1>&2
-	exit 1
-fi
-
-jqfilter='.KSP_VERSION | (.MAJOR|tostring) + "." + (.MINOR|tostring) + "." + (.PATCH|tostring)'
-jversion=`jq -r "$jqfilter" $jsonversion`
-if [ $? -ne 0 ]
-then
-	echo "ABORTING: JSON syntax error in $jsonversion" 1>&2
-	exit 1
-fi
-if [ "$kspversion" != "$jversion" ]
-then
-	echo "ABORTING: KSP version is $kspversion, JSON version is $jversion" 1>&2
-	exit 1
+	if [ $force -ne 0 ]
+	then
+		echo "RESUMING: -f option activated, forcing zip creation" 1>&2
+	else
+		echo "ABORTING: use -f to force zip creation" 1>&2
+		exit 1
+	fi
 fi
 
 tmp=`mktemp -d` || exit 1
