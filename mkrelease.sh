@@ -21,15 +21,16 @@ shift `expr $OPTIND - 1`
 cd `dirname $0` || exit 1
 
 # [assembly: AssemblyVersion ("1.3.1.1")]
+version=`sed -n 's/.*\<AssemblyVersion\>.*"\([^"]\+\)".*/\1/p' DockRotate/Properties/AssemblyInfo.cs`
+if [ "$version" = "" ]
+then
+	echo "ABORTING: can't find assembly version number" 1>&2
+	exit 1
+fi
+
+zip=/tmp/$name-$version.zip
 
 (
-
-	version=`sed -n 's/.*\<AssemblyVersion\>.*"\([^"]\+\)".*/\1/p' DockRotate/Properties/AssemblyInfo.cs`
-	if [ "$version" = "" ]
-	then
-		echo "ABORTING: can't find assembly version number" 1>&2
-		exit 1
-	fi
 
 	kspversion=`cat "$ksphome/readme.txt" | awk 'NR <= 30 && NF == 2 && $1 == "Version" { print $2 }'`
 	if [ "$kspversion" = "" ]
@@ -80,6 +81,7 @@ then
 	if [ $force -ne 0 ]
 	then
 		echo "RESUMING: -f option activated, forcing zip creation" 1>&2
+		zip=$zip-forced
 	else
 		echo "ABORTING: use -f to force zip creation" 1>&2
 		exit 1
@@ -117,7 +119,6 @@ cp -r $dll README.md LICENSE.md Resources/* $dir || exit 1
 
 cp $debugdll $dir/${dllname%.dll}.debugdll
 
-zip=/tmp/$name-$version.zip
 rm -f $zip
 echo
 echo generating release $zip
