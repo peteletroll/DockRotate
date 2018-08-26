@@ -1744,6 +1744,10 @@ namespace DockRotate
 
 		public static void forcePhysics(this Part part)
 		{
+			if (part.PhysicsSignificance != 0 || part.physicalSignificance != Part.PhysicalSignificance.FULL) {
+				lprint(part.desc() + ": calling PromoteToPhysicalPart()");
+				part.PromoteToPhysicalPart();
+			}
 			if (part.PhysicsSignificance != 0) {
 				lprint(part.desc() + ": fixing PhysicsSignificance");
 				part.PhysicsSignificance = 0;
