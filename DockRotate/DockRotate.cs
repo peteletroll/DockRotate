@@ -1080,42 +1080,6 @@ namespace DockRotate
 			return displayInfo;
 		}
 
-		private int lastConfigDump = 0;
-
-		public void RightBeforeVesselSave(GameEvents.FromToAction<ProtoVessel, ConfigNode> action)
-		{
-			int now = Time.frameCount;
-			if (lastConfigDump == now)
-				return;
-			lastConfigDump = now;
-
-			if (verboseEvents)
-				lprint(part.desc() + ": RightBeforeVesselSave()");
-			AttachNode node = part.PhysicsSignificance == 0 ?
-				part.FindAttachNode(rotatingNodeName) : null;
-			if (node == null)
-				return;
-			Part other = node.attachedPart;
-			if (!other)
-				return;
-			lprint(part.desc() + ": connected to " + other.desc());
-			if (action.to != null)
-				lprint(action.to.ToString());
-			other.forcePhysics();
-		}
-
-		public override void OnAwake()
-		{
-			GameEvents.onProtoVesselSave.Add(RightBeforeVesselSave);
-			base.OnAwake();
-		}
-
-		public override void OnDestroy()
-		{
-			GameEvents.onProtoVesselSave.Remove(RightBeforeVesselSave);
-			base.OnDestroy();
-		}
-
 		protected override void setup(bool verbose)
 		{
 			if (onRails || !part || !vessel)
@@ -1747,14 +1711,6 @@ namespace DockRotate
 			if (part.PhysicsSignificance != 0 || part.physicalSignificance != Part.PhysicalSignificance.FULL) {
 				lprint(part.desc() + ": calling PromoteToPhysicalPart()");
 				part.PromoteToPhysicalPart();
-			}
-			if (part.PhysicsSignificance != 0) {
-				lprint(part.desc() + ": fixing PhysicsSignificance");
-				part.PhysicsSignificance = 0;
-			}
-			if (part.physicalSignificance != Part.PhysicalSignificance.FULL) {
-				lprint(part.desc() + ": fixing physicalSignificance");
-				part.physicalSignificance = Part.PhysicalSignificance.FULL;
 			}
 		}
 
