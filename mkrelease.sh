@@ -28,6 +28,25 @@ then
 	exit 1
 fi
 
+dll=DockRotate/bin/Release/DockRotate.dll
+debugdll=DockRotate/bin/Debug/DockRotate.dll
+
+dllname=`basename $dll`
+
+foundnewer=0
+for f in `find . -name \*.cs`
+do
+	for d in $dll $debugdll
+	do
+		if [ $f -nt $d ]
+		then
+			echo "ABORTING: $f is newer than $d" 1>&2
+			foundnewer=1
+		fi
+	done
+done
+[ $foundnewer -eq 0 ] || exit 1
+
 zip=/tmp/$name-$version.zip
 
 (
@@ -93,25 +112,6 @@ trap "rm -rf $tmp" EXIT
 
 dir=$tmp/GameData/$name
 mkdir -p $dir || exit 1
-
-dll=DockRotate/bin/Release/DockRotate.dll
-debugdll=DockRotate/bin/Debug/DockRotate.dll
-
-dllname=`basename $dll`
-
-foundnewer=0
-for f in `find . -name \*.cs`
-do
-	for d in $dll $debugdll
-	do
-		if [ $f -nt $d ]
-		then
-			echo "ABORTING: $f is newer than $d" 1>&2
-			foundnewer=1
-		fi
-	done
-done
-[ $foundnewer -eq 0 ] || exit 1
 
 cp "$ksphome"/GameData/ModuleManager.*.dll $dir/.. || exit 1
 
