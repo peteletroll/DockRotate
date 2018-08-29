@@ -1080,6 +1080,40 @@ namespace DockRotate
 			return displayInfo;
 		}
 
+		private int lastVesselSave = 0;
+
+		public void RightBeforeVesselSave(GameEvents.FromToAction<ProtoVessel, ConfigNode> action)
+		{
+			int now = Time.frameCount;
+			if (lastVesselSave == now)
+				return;
+			lastVesselSave = now;
+
+			if (true || verboseEvents)
+				lprint(part.desc() + ": RightBeforeVesselSave()");
+			AttachNode node = part.PhysicsSignificance == 0 ?
+				part.FindAttachNode(rotatingNodeName) : null;
+			if (node == null)
+				return;
+			Part other = node.attachedPart;
+			if (!other)
+				return;
+			lprint(part.desc() + ": connected to " + other.desc());
+			other.forcePhysics();
+		}
+
+		public override void OnAwake()
+		{
+			GameEvents.onProtoVesselSave.Add(RightBeforeVesselSave);
+			base.OnAwake();
+		}
+
+		public override void OnDestroy()
+		{
+			GameEvents.onProtoVesselSave.Remove(RightBeforeVesselSave);
+			base.OnDestroy();
+		}
+
 		protected override void setup(bool verbose)
 		{
 			if (onRails || !part || !vessel)
