@@ -18,7 +18,9 @@ foreach my $r (reverse @$j) {
 		my $c = $a->{download_count};
 		my $d = $a->{updated_at};
 		$d =~ s/[A-Z]/ /gs;
+		$d =~ s/^\s+//;
 		$d =~ s/\s+$//;
+		$d =~ s/\s+/ /g;
 		printf "%6d %s %s\n", $c, $d, $a->{name};
 		$total += $c;
 	}
