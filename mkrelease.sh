@@ -100,7 +100,7 @@ then
 	if [ $force -ne 0 ]
 	then
 		echo "RESUMING: -f option activated, forcing zip creation" 1>&2
-		zip=$zip-forced
+		zip=${zip%.zip}-forced.zip
 	else
 		echo "ABORTING: use -f to force zip creation" 1>&2
 		exit 1
@@ -124,7 +124,7 @@ echo
 echo generating release $zip
 (
 	cd $tmp &&
-	zip -r $zip GameData
+	zip -vr $zip GameData
 ) || exit 1
 echo done, `du -h $zip | cut -f 1`.
 echo
