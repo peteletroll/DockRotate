@@ -1000,9 +1000,9 @@ namespace DockRotate
 
 		protected void checkFrozenRotation()
 		{
-			Vector3 fr = frozenRotation;
-			frozenRotation = Vector3.zero;
-			if (fr[0] != 0.0f) {
+			if (frozenRotation[0] != 0.0f) {
+				Vector3 fr = frozenRotation;
+				frozenRotation = Vector3.zero;
 				lprint(part.desc() + ": resuming rotation " + fr);
 				enqueueRotation(fr[0], fr[1], fr[2]);
 			}
