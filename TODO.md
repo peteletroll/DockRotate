@@ -1,5 +1,7 @@
-* better handling of docking port state changes
-	* especially to fix adjusting multiple docking ports
+* experiment with continuous rotation
+	* find event for going on rails via map view vessel switch
+
+* handle multiple docking alignment better
 
 * experiment with IJointLockState.IsJointUnlocked()
   (found KSP bug)
