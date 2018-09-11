@@ -10,6 +10,7 @@ namespace DockRotate
 		public float pos;
 		public float vel;
 		public float tgt;
+		public bool braking = false;
 
 		public float maxvel = 1.0f;
 		private float maxacc = 1.0f;
@@ -79,12 +80,12 @@ namespace DockRotate
 				finished = true;
 				pos = tgt;
 			}
-
 			return finished;
 		}
 
 		public void brake()
 		{
+			braking = true;
 			float brakingTime = Mathf.Abs(vel) / maxacc;
 			float brakingSpace = vel / 2 * brakingTime;
 			tgt = pos + brakingSpace;
@@ -619,6 +620,11 @@ namespace DockRotate
 			return GameSettings.MODIFIER_KEY.GetKey();
 		}
 
+		protected bool brakeRotationKey()
+		{
+			return GameSettings.BRAKES.GetKeyDown();
+		}
+
 		public bool IsJointUnlocked()
 		{
 			bool ret = currentRotation() != null;
@@ -1022,8 +1028,11 @@ namespace DockRotate
 
 			checkFrozenRotation();
 
-			if (rotCur != null)
+			if (rotCur != null) {
+				if (brakeRotationKey())
+					rotCur.brake();
 				advanceRotation(Time.fixedDeltaTime);
+			}
 		}
 
 		/******** Debugging stuff ********/
