@@ -83,6 +83,13 @@ namespace DockRotate
 			return finished;
 		}
 
+		public void brake()
+		{
+			float brakingTime = Mathf.Abs(vel) / maxacc;
+			float brakingSpace = vel / 2 * brakingTime;
+			tgt = pos + brakingSpace;
+		}
+
 		public bool done()
 		{
 			return finished;
