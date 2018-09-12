@@ -622,7 +622,8 @@ namespace DockRotate
 
 		protected bool brakeRotationKey()
 		{
-			return GameSettings.BRAKES.GetKeyDown();
+			return GameSettings.MODIFIER_KEY.GetKey()
+				&& GameSettings.BRAKES.GetKeyDown();
 		}
 
 		public bool IsJointUnlocked()
