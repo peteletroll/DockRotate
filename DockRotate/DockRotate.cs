@@ -575,6 +575,27 @@ namespace DockRotate
 				doRotateToSnap();
 		}
 
+		[KSPAction(
+			guiName = "#DCKROT_stop_rotation",
+			requireFullControl = true
+		)]
+		public void StopRotation(KSPActionParam param)
+		{
+			ModuleBaseRotate tgt = actionTarget();
+			if (tgt)
+				tgt.doStopRotation();
+		}
+
+		[KSPEvent(
+			guiName = "#DCKROT_stop_rotation",
+			guiActive = false,
+			guiActiveEditor = false
+		)]
+		public void StopRotation()
+		{
+				doStopRotation();
+		}
+
 #if DEBUG
 		[KSPEvent(
 			guiName = "Dump",
@@ -614,6 +635,13 @@ namespace DockRotate
 		protected abstract void dumpPart();
 
 		protected abstract int countJoints();
+
+		public void doStopRotation()
+		{
+			RotationAnimation r = currentRotation();
+			if (r != null)
+				r.brake();
+		}
 
 		protected bool rotationReverseKey()
 		{
@@ -833,6 +861,7 @@ namespace DockRotate
 			// E: is a KSPEvent;
 			// e: show in editor;
 			// A: show with advanced tweakables
+			// r: show only when rotating
 			{ "angleInfo", "F" },
 			{ "nodeRole", "F" },
 			{ "smartAutoStruts", "FA" },
@@ -842,6 +871,7 @@ namespace DockRotate
 			{ "RotateClockwise", "E" },
 			{ "RotateCounterclockwise", "E" },
 			{ "RotateToSnap", "E" },
+			{ "StopRotation", "Er" },
 			{ "ToggleAutoStrutDisplay", "E" }
 		};
 
@@ -875,6 +905,9 @@ namespace DockRotate
 				bool thisGuiActive = newGuiActive;
 				if (flags.IndexOf('A') >= 0)
 					thisGuiActive = thisGuiActive && GameSettings.ADVANCED_TWEAKABLES;
+
+				if (flags.IndexOf('r') >= 0)
+					thisGuiActive = thisGuiActive && currentRotation() != null;
 
 				if (flags.IndexOf('F') >= 0) {
 					BaseField fld = Fields[name];
