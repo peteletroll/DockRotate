@@ -10,7 +10,7 @@ namespace DockRotate
 		public float pos;
 		public float vel;
 		public float tgt;
-		public bool braking = false;
+		public bool keepgoing = false;
 
 		public float maxvel = 1.0f;
 		private float maxacc = 1.0f;
@@ -42,8 +42,14 @@ namespace DockRotate
 				newvel += deltat * Mathf.Sign(tgt - pos) * maxacc;
 				newvel = Mathf.Clamp(newvel, -maxvel, maxvel);
 			} else {
-				// braking
-				newvel -= deltat * Mathf.Sign(vel) * maxacc;
+				if (goingRightWay && keepgoing && vel != 0.0f) {
+					float newtgt = tgt + 2 * Mathf.Sign(vel) * brakingSpace;
+					ModuleBaseRotate.lprint("KEEP GOING " + tgt + " -> " + newtgt);
+					tgt = newtgt;
+				} else {
+					// braking
+					newvel -= deltat * Mathf.Sign(vel) * maxacc;
+				}
 			}
 
 			if (!started) {
@@ -85,7 +91,7 @@ namespace DockRotate
 
 		public void brake()
 		{
-			braking = true;
+			keepgoing = false;
 			float brakingTime = Mathf.Abs(vel) / maxacc;
 			float brakingSpace = vel / 2 * brakingTime;
 			tgt = pos + brakingSpace;
