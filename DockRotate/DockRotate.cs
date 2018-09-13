@@ -624,7 +624,7 @@ namespace DockRotate
 		}
 #endif
 
-		const float CONTINUOUS = 99999.0f;
+		protected const float CONTINUOUS = 99999.0f;
 
 		protected static Vector3 undefV3 = new Vector3(9.9f, 9.9f, 9.9f);
 
@@ -1002,7 +1002,7 @@ namespace DockRotate
 			} else {
 				action = "added";
 				bool keepgoing = false;
-				if (Mathf.Abs(angle) >= CONTINUOUS) {
+				if (Mathf.Abs(angle) >= CONTINUOUS - 0.5f) {
 					angle = Mathf.Clamp(angle, -180f, 180f);
 					keepgoing = true;
 					action = "added continuous";
@@ -1251,6 +1251,8 @@ namespace DockRotate
 		public override void doRotateClockwise()
 		{
 			float s = rotationStep;
+			if (s <= 0.5f)
+				s = CONTINUOUS;
 			if (reverseRotation)
 				s = -s;
 			enqueueRotation(s, rotationSpeed);
@@ -1259,6 +1261,8 @@ namespace DockRotate
 		public override void doRotateCounterclockwise()
 		{
 			float s = -rotationStep;
+			if (s >= -0.5f)
+				s = -CONTINUOUS;
 			if (reverseRotation)
 				s = -s;
 			enqueueRotation(s, rotationSpeed);
@@ -1562,6 +1566,8 @@ namespace DockRotate
 			if (!activeRotationModule)
 				return;
 			float s = rotationStep;
+			if (s <= 0.5f)
+				s = CONTINUOUS;
 			if (reverseRotation)
 				s = -s;
 			enqueueRotation(s, rotationSpeed);
@@ -1572,6 +1578,8 @@ namespace DockRotate
 			if (!activeRotationModule)
 				return;
 			float s = -rotationStep;
+			if (s >= -0.5f)
+				s = -CONTINUOUS;
 			if (reverseRotation)
 				s = -s;
 			enqueueRotation(s, rotationSpeed);
