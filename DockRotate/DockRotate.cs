@@ -996,9 +996,13 @@ namespace DockRotate
 
 			string action = "none";
 			if (rotCur != null) {
-				rotCur.tgt += angle;
-				rotCur.maxvel = speed;
-				action = "updated";
+				if (!rotCur.keepgoing) {
+					rotCur.tgt += angle;
+					rotCur.maxvel = speed;
+					action = "updated";
+				} else {
+					lprint(part.desc() + ": leaving continuous rotation alone");
+				}
 			} else {
 				action = "added";
 				bool keepgoing = false;
