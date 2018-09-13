@@ -43,7 +43,7 @@ namespace DockRotate
 				newvel = Mathf.Clamp(newvel, -maxvel, maxvel);
 			} else {
 				if (goingRightWay && keepgoing && vel != 0.0f) {
-					float newtgt = tgt + 2 * Mathf.Sign(vel) * brakingSpace;
+					float newtgt = tgt + 180.0f * Mathf.Sign(vel);
 					ModuleBaseRotate.lprint("KEEP GOING " + tgt + " -> " + newtgt);
 					tgt = newtgt;
 				} else {
