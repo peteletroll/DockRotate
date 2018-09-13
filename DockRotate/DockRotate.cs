@@ -1054,7 +1054,10 @@ namespace DockRotate
 		protected void freezeCurrentRotation(string msg, bool keepSpeed)
 		{
 			if (rotCur != null) {
-				enqueueFrozenRotation(rotCur.tgt - rotCur.pos, rotCur.maxvel, keepSpeed ? rotCur.vel : 0.0f);
+				float angle = rotCur.tgt - rotCur.pos;
+				if (rotCur.keepgoing)
+					angle = Mathf.Sign(angle) * CONTINUOUS;
+				enqueueFrozenRotation(angle, rotCur.maxvel, keepSpeed ? rotCur.vel : 0.0f);
 				rotCur.abort(msg);
 				rotCur.forceStaticize();
 				rotCur = null;
