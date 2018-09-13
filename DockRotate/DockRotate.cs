@@ -506,6 +506,27 @@ namespace DockRotate
 		public String nodeStatus = "";
 
 		[KSPAction(
+			guiName = "#DCKROT_stop_rotation",
+			requireFullControl = true
+		)]
+		public void StopRotation(KSPActionParam param)
+		{
+			ModuleBaseRotate tgt = actionTarget();
+			if (tgt)
+				tgt.doStopRotation();
+		}
+
+		[KSPEvent(
+			guiName = "#DCKROT_stop_rotation",
+			guiActive = false,
+			guiActiveEditor = false
+		)]
+		public void StopRotation()
+		{
+			doStopRotation();
+		}
+
+		[KSPAction(
 			guiName = "#DCKROT_rotate_clockwise",
 			requireFullControl = true
 		)]
@@ -579,27 +600,6 @@ namespace DockRotate
 		{
 			if (canStartRotation())
 				doRotateToSnap();
-		}
-
-		[KSPAction(
-			guiName = "#DCKROT_stop_rotation",
-			requireFullControl = true
-		)]
-		public void StopRotation(KSPActionParam param)
-		{
-			ModuleBaseRotate tgt = actionTarget();
-			if (tgt)
-				tgt.doStopRotation();
-		}
-
-		[KSPEvent(
-			guiName = "#DCKROT_stop_rotation",
-			guiActive = false,
-			guiActiveEditor = false
-		)]
-		public void StopRotation()
-		{
-				doStopRotation();
 		}
 
 #if DEBUG
