@@ -624,6 +624,8 @@ namespace DockRotate
 		}
 #endif
 
+		const float CONTINUOUS = 99999.0f;
+
 		protected static Vector3 undefV3 = new Vector3(9.9f, 9.9f, 9.9f);
 
 		public abstract void doRotateClockwise();
@@ -998,10 +1000,18 @@ namespace DockRotate
 				rotCur.maxvel = speed;
 				action = "updated";
 			} else {
+				action = "added";
+				bool keepgoing = false;
+				if (Mathf.Abs(angle) >= CONTINUOUS) {
+					angle = Mathf.Clamp(angle, -180f, 180f);
+					keepgoing = true;
+					action = "added continuous";
+				}
+
 				rotCur = new RotationAnimation(activePart, partNodePos, partNodeAxis, rotatingJoint, 0, angle, speed);
 				rotCur.vel = startSpeed;
+				rotCur.keepgoing = keepgoing;
 				rotCur.smartAutoStruts = useSmartAutoStruts();
-				action = "added";
 			}
 			if (rotCur.clampAngle())
 				lprint(activePart.desc() + ": rotation target clamped");
