@@ -1033,6 +1033,8 @@ namespace DockRotate
 
 		protected void enqueueRotationToSnap(float snap, float speed)
 		{
+			if (snap < 0.5f)
+				snap = 15.0f;
 			enqueueRotation(angleToSnap(snap), rotationSpeed);
 		}
 
