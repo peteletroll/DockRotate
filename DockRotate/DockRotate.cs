@@ -137,6 +137,8 @@ namespace DockRotate
 
 		private Guid vesselId;
 
+		public float timeref = 0.0f;
+
 		public static string soundFile = "DockRotate/DockRotateMotor";
 		public AudioSource sound;
 		public float pitchAlteration;
@@ -189,6 +191,7 @@ namespace DockRotate
 		{
 			if (finished)
 				return;
+			timeref += deltat;
 			base.advance(deltat);
 		}
 
@@ -1091,6 +1094,12 @@ namespace DockRotate
 				if (brakeRotationKey())
 					rotCur.brake();
 				advanceRotation(Time.fixedDeltaTime);
+
+				if (rotCur.timeref > 1.0f) {
+					lprint("ROTATION TIMESTEP");
+					rotCur.timeref = 0.0f;
+					freezeCurrentRotation("timestamp", true);
+				}
 			}
 		}
 
