@@ -999,12 +999,12 @@ namespace DockRotate
 
 			string action = "none";
 			if (rotCur != null) {
-				if (!rotCur.keepgoing) {
+				if (rotCur.keepgoing) {
+					lprint(part.desc() + ": leaving continuous rotation alone");
+				} else {
 					rotCur.tgt += angle;
 					rotCur.maxvel = speed;
 					action = "updated";
-				} else {
-					lprint(part.desc() + ": leaving continuous rotation alone");
 				}
 			} else {
 				action = "added";
@@ -1094,12 +1094,6 @@ namespace DockRotate
 				if (brakeRotationKey())
 					rotCur.brake();
 				advanceRotation(Time.fixedDeltaTime);
-
-				if (rotCur.timeref > 1.0f) {
-					lprint("ROTATION TIMESTEP");
-					rotCur.timeref = 0.0f;
-					freezeCurrentRotation("timestamp", true);
-				}
 			}
 		}
 
