@@ -10,7 +10,9 @@ namespace DockRotate
 		public float pos;
 		public float vel;
 		public float tgt;
-		public bool keepgoing = false;
+
+		[KSPField(isPersistant = true)]
+		public int continuousRotation = 0;
 
 		public float maxvel = 1.0f;
 		private float maxacc = 1.0f;
@@ -42,7 +44,7 @@ namespace DockRotate
 				newvel += deltat * Mathf.Sign(tgt - pos) * maxacc;
 				newvel = Mathf.Clamp(newvel, -maxvel, maxvel);
 			} else {
-				if (goingRightWay && keepgoing && vel != 0.0f) {
+				if (goingRightWay && continuousRotation != 0 && vel != 0.0f) {
 					float newtgt = tgt + 180.0f * Mathf.Sign(vel);
 					ModuleBaseRotate.lprint("keep going " + tgt + " -> " + newtgt);
 					tgt = newtgt;
@@ -93,7 +95,7 @@ namespace DockRotate
 
 		public void brake()
 		{
-			keepgoing = false;
+			continuousRotation = 0;
 			float brakingTime = Mathf.Abs(vel) / maxacc;
 			float brakingSpace = vel / 2 * brakingTime;
 			tgt = pos + brakingSpace;
@@ -1001,7 +1003,7 @@ namespace DockRotate
 
 			string action = "none";
 			if (rotCur != null) {
-				if (rotCur.keepgoing) {
+				if (rotCur.continuousRotation != 0) {
 					lprint(part.desc() + ": leaving continuous rotation alone");
 				} else {
 					rotCur.tgt += angle;
@@ -1010,16 +1012,16 @@ namespace DockRotate
 				}
 			} else {
 				action = "added";
-				bool keepgoing = false;
+				int continuous = 0;
 				if (Mathf.Abs(angle) >= CONTINUOUS - 0.5f) {
 					angle = Mathf.Clamp(angle, -180f, 180f);
-					keepgoing = true;
+					continuous = (int) Mathf.Sign(angle);
 					action = "added continuous";
 				}
 
 				rotCur = new RotationAnimation(activePart, partNodePos, partNodeAxis, rotatingJoint, 0, angle, speed);
 				rotCur.vel = startSpeed;
-				rotCur.keepgoing = keepgoing;
+				rotCur.continuousRotation = continuous;
 				rotCur.smartAutoStruts = useSmartAutoStruts();
 			}
 			lprint(String.Format("{0}: enqueueRotation({1}, {2:F4}\u00b0, {3}\u00b0/s, {4}\u00b0/s), {5}",
@@ -1062,7 +1064,7 @@ namespace DockRotate
 		{
 			if (rotCur != null) {
 				float angle = rotCur.tgt - rotCur.pos;
-				if (rotCur.keepgoing)
+				if (rotCur.continuousRotation != 0)
 					angle = Mathf.Sign(angle) * CONTINUOUS;
 				enqueueFrozenRotation(angle, rotCur.maxvel, keepSpeed ? rotCur.vel : 0.0f);
 				rotCur.abort(msg);
