@@ -44,8 +44,9 @@ namespace DockRotate
 			} else {
 				if (goingRightWay && keepgoing && vel != 0.0f) {
 					float newtgt = tgt + 180.0f * Mathf.Sign(vel);
-					ModuleBaseRotate.lprint("KEEP GOING " + tgt + " -> " + newtgt);
+					ModuleBaseRotate.lprint("keep going " + tgt + " -> " + newtgt);
 					tgt = newtgt;
+					clampAngle();
 				} else {
 					// braking
 					newvel -= deltat * Mathf.Sign(vel) * maxacc;
@@ -70,6 +71,7 @@ namespace DockRotate
 		{
 			if (tgt < -180f || tgt > 180f) {
 				float newzero = 360f * Mathf.Floor(tgt / 360f + 0.5f);
+				ModuleBaseRotate.lprint("clampAngle(): newzero " + newzero + " from tgt " + tgt);
 				tgt -= newzero;
 				pos -= newzero;
 				return true;
@@ -1020,8 +1022,6 @@ namespace DockRotate
 				rotCur.keepgoing = keepgoing;
 				rotCur.smartAutoStruts = useSmartAutoStruts();
 			}
-			if (rotCur.clampAngle())
-				lprint(activePart.desc() + ": rotation target clamped");
 			lprint(String.Format("{0}: enqueueRotation({1}, {2:F4}\u00b0, {3}\u00b0/s, {4}\u00b0/s), {5}",
 				activePart.desc(), partNodeAxis.desc(), rotCur.tgt, rotCur.maxvel, rotCur.vel, action));
 		}
