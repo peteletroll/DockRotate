@@ -11,7 +11,6 @@ namespace DockRotate
 		public float vel;
 		public float tgt;
 
-		[KSPField(isPersistant = true)]
 		public int continuousRotation = 0;
 
 		public float maxvel = 1.0f;
@@ -44,8 +43,9 @@ namespace DockRotate
 				newvel += deltat * Mathf.Sign(tgt - pos) * maxacc;
 				newvel = Mathf.Clamp(newvel, -maxvel, maxvel);
 			} else {
-				if (goingRightWay && continuousRotation != 0 && vel != 0.0f) {
-					float newtgt = tgt + 180.0f * Mathf.Sign(vel);
+				if (goingRightWay && continuousRotation != 0) {
+					// continuous, keep going
+					float newtgt = tgt + 180.0f * continuousRotation;
 					ModuleBaseRotate.lprint("keep going " + tgt + " -> " + newtgt);
 					tgt = newtgt;
 					clampAngle();
@@ -452,6 +452,9 @@ namespace DockRotate
 			isPersistant = true
 		)]
 		public bool rotationEnabled = false;
+
+		[KSPField(isPersistant = true)]
+		public int continuousRotation = 0;
 
 		[UI_FloatRange(
 			minValue = 0,
@@ -1065,7 +1068,7 @@ namespace DockRotate
 			if (rotCur != null) {
 				float angle = rotCur.tgt - rotCur.pos;
 				if (rotCur.continuousRotation != 0)
-					angle = Mathf.Sign(angle) * CONTINUOUS;
+					angle = rotCur.continuousRotation * CONTINUOUS;
 				enqueueFrozenRotation(angle, rotCur.maxvel, keepSpeed ? rotCur.vel : 0.0f);
 				rotCur.abort(msg);
 				rotCur.forceStaticize();
@@ -1097,6 +1100,8 @@ namespace DockRotate
 					rotCur.brake();
 				advanceRotation(Time.fixedDeltaTime);
 			}
+
+			continuousRotation = rotCur != null ? rotCur.continuousRotation : 0;
 		}
 
 		/******** Debugging stuff ********/
