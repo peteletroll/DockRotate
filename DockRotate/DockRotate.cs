@@ -1102,6 +1102,8 @@ namespace DockRotate
 			}
 
 			continuousRotation = rotCur != null ? rotCur.continuousRotation : 0;
+			if (continuousRotation != 0 && rotCur == null)
+				enqueueRotation(continuousRotation * CONTINUOUS, rotationSpeed);
 		}
 
 		/******** Debugging stuff ********/
