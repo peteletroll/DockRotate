@@ -453,9 +453,6 @@ namespace DockRotate
 		)]
 		public bool rotationEnabled = false;
 
-		[KSPField(isPersistant = true)]
-		public int continuousRotation = 0;
-
 		[UI_FloatRange(
 			minValue = 0,
 			maxValue = 180,
@@ -707,6 +704,9 @@ namespace DockRotate
 		protected string displayInfo = "";
 
 		protected bool verboseEvents = false;
+
+		[KSPField(isPersistant = true)]
+		public int frozenContinuousRotation = 0;
 
 		[KSPField(isPersistant = true)]
 		public Vector3 frozenRotation = Vector3.zero;
@@ -1101,9 +1101,11 @@ namespace DockRotate
 				advanceRotation(Time.fixedDeltaTime);
 			}
 
-			continuousRotation = rotCur != null ? rotCur.continuousRotation : 0;
-			if (continuousRotation != 0 && rotCur == null)
-				enqueueRotation(continuousRotation * CONTINUOUS, rotationSpeed);
+			frozenContinuousRotation = rotCur != null ? rotCur.continuousRotation : 0;
+			if (frozenContinuousRotation != 0 && rotCur == null) {
+				lprint(part.desc() + ": restoring continuous rotation");
+				enqueueRotation(frozenContinuousRotation * CONTINUOUS, rotationSpeed);
+			}
 		}
 
 		/******** Debugging stuff ********/
