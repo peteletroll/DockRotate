@@ -1101,11 +1101,11 @@ namespace DockRotate
 				advanceRotation(Time.fixedDeltaTime);
 			}
 
-			frozenContinuousRotation = rotCur != null ? rotCur.continuousRotation : 0;
 			if (frozenContinuousRotation != 0 && rotCur == null) {
 				lprint(part.desc() + ": restoring continuous rotation");
 				enqueueRotation(frozenContinuousRotation * CONTINUOUS, rotationSpeed);
 			}
+			frozenContinuousRotation = rotCur != null ? rotCur.continuousRotation : 0;
 		}
 
 		/******** Debugging stuff ********/
