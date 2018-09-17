@@ -311,7 +311,7 @@ namespace DockRotate
 				sound.volume = 0;
 				sound.pitch = 0;
 				sound.loop = true;
-				sound.rolloffMode = AudioRolloffMode.Logarithmic;
+				sound.rolloffMode = AudioRolloffMode.Linear;
 				sound.dopplerLevel = 0f;
 				sound.maxDistance = 10;
 				sound.playOnAwake = false;
