@@ -1105,7 +1105,12 @@ namespace DockRotate
 				lprint(part.desc() + ": restoring continuous rotation");
 				enqueueRotation(frozenContinuousRotation * CONTINUOUS, rotationSpeed);
 			}
-			frozenContinuousRotation = rotCur != null ? rotCur.continuousRotation : 0;
+
+			int newfcr = rotCur != null ? rotCur.continuousRotation : 0;
+			if (newfcr != frozenContinuousRotation) {
+				lprint(part.desc() + ": frozenContinuousRotation from " + frozenContinuousRotation + " to " + newfcr);
+				frozenContinuousRotation = newfcr;
+			}
 		}
 
 		/******** Debugging stuff ********/
