@@ -895,6 +895,8 @@ namespace DockRotate
 
 		protected void checkGuiActive()
 		{
+			bool newGuiActive = canStartRotation();
+
 			RotationAnimation cr = currentRotation();
 			if (cr != null) {
 				angleInfo = String.Format("{0:+0.00;-0.00;0.00}\u00b0 ({1:+0.00;-0.00;0.00}\u00b0/s)",
@@ -905,8 +907,6 @@ namespace DockRotate
 					rotationAngle(false),
 					dynamicDeltaAngle());
 			}
-
-			bool newGuiActive = canStartRotation();
 
 			nodeStatus = "";
 			int nJoints = countJoints();
