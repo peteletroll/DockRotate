@@ -880,7 +880,6 @@ namespace DockRotate
 			// E: is a KSPEvent;
 			// e: show in editor;
 			// A: show with advanced tweakables
-			{ "angleInfo", "F" },
 			{ "nodeRole", "F" },
 			{ "rotationStep", "Fe" },
 			{ "rotationSpeed", "Fe" },
@@ -943,6 +942,9 @@ namespace DockRotate
 
 			if (inEditor)
 				return;
+
+
+
 			checkGuiActive(false);
 		}
 
@@ -952,12 +954,12 @@ namespace DockRotate
 			if (inEditor)
 				return;
 
-			bool activeGui = canStartRotation();
+			bool guiActive = canStartRotation();
 
 			nodeStatus = "";
 			int nJoints = countJoints();
 			nodeStatus = nodeRole + " [" + nJoints + "]";
-			Fields["nodeStatus"].guiActive = activeGui && nodeStatus.Length > 0;
+			Fields["nodeStatus"].guiActive = guiActive && nodeStatus.Length > 0;
 
 			RotationAnimation cr = currentRotation();
 			if (cr != null) {
@@ -969,6 +971,7 @@ namespace DockRotate
 					rotationAngle(false),
 					dynamicDeltaAngle());
 			}
+			Fields["angleInfo"].guiActive = guiActive;
 
 			Events["StopRotation"].guiActive = currentRotation() != null;
 
