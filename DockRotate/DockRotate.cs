@@ -460,7 +460,7 @@ namespace DockRotate
 		)]
 		[KSPField(
 			guiActive = true,
-			guiActiveEditor = false,
+			guiActiveEditor = true,
 			isPersistant = true,
 			guiName = "#DCKROT_rotation_step",
 			guiUnits = "\u00b0"
@@ -484,6 +484,7 @@ namespace DockRotate
 		[UI_Toggle(affectSymCounterparts = UI_Scene.None)]
 		[KSPField(
 			guiActive = true,
+			guiActiveEditor = true,
 			isPersistant = true,
 			guiName = "#DCKROT_reverse_rotation"
 		)]
@@ -902,8 +903,6 @@ namespace DockRotate
 				bool editorGui = flags.IndexOf('e') >= 0;
 
 				bool thisGuiActive = newGuiActive;
-				if (flags.IndexOf('A') >= 0)
-					thisGuiActive = thisGuiActive && GameSettings.ADVANCED_TWEAKABLES;
 
 				if (flags.IndexOf('F') >= 0) {
 					BaseField fld = Fields[name];
