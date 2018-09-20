@@ -925,7 +925,7 @@ namespace DockRotate
 					thisGuiActive = thisGuiActive && GameSettings.ADVANCED_TWEAKABLES;
 
 				if (flags.IndexOf('r') >= 0)
-					thisGuiActive = thisGuiActive && currentRotation() != null;
+					thisGuiActive = thisGuiActive && cr != null;
 
 				if (flags.IndexOf('F') >= 0) {
 					BaseField fld = Fields[name];
