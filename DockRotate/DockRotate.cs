@@ -691,6 +691,7 @@ namespace DockRotate
 		}
 
 		protected bool onRails;
+		protected bool inEditor;
 
 		public PartJoint rotatingJoint;
 		public Part activePart, proxyPart;
@@ -879,39 +880,19 @@ namespace DockRotate
 			// E: is a KSPEvent;
 			// e: show in editor;
 			// A: show with advanced tweakables
-			// r: show only when rotating
-			{ "angleInfo", "F" },
 			{ "nodeRole", "F" },
-			{ "smartAutoStruts", "FA" },
 			{ "rotationStep", "Fe" },
 			{ "rotationSpeed", "Fe" },
 			{ "reverseRotation", "Fe" },
 			{ "RotateClockwise", "E" },
 			{ "RotateCounterclockwise", "E" },
 			{ "RotateToSnap", "E" },
-			{ "StopRotation", "Er" },
 			{ "ToggleAutoStrutDisplay", "E" }
 		};
 
-		protected void checkGuiActive()
+		protected void checkGuiActive(bool isUpdate)
 		{
 			bool newGuiActive = canStartRotation();
-
-			RotationAnimation cr = currentRotation();
-			if (cr != null) {
-				angleInfo = String.Format("{0:+0.00;-0.00;0.00}\u00b0 ({1:+0.00;-0.00;0.00}\u00b0/s)",
-					rotationAngle(true),
-					cr.vel);
-			} else {
-				angleInfo = String.Format("{0:+0.00;-0.00;0.00}\u00b0 ({1:+0.0000;-0.0000;0.0000}\u00b0\u0394)",
-					rotationAngle(false),
-					dynamicDeltaAngle());
-			}
-
-			nodeStatus = "";
-			int nJoints = countJoints();
-			nodeStatus = nodeRole + " [" + nJoints + "]";
-			Fields["nodeStatus"].guiActive = newGuiActive && nodeStatus.Length > 0;
 
 			int l = guiList.GetLength(0);
 			for (int i = 0; i < l; i++) {
@@ -923,9 +904,6 @@ namespace DockRotate
 				bool thisGuiActive = newGuiActive;
 				if (flags.IndexOf('A') >= 0)
 					thisGuiActive = thisGuiActive && GameSettings.ADVANCED_TWEAKABLES;
-
-				if (flags.IndexOf('r') >= 0)
-					thisGuiActive = thisGuiActive && currentRotation() != null;
 
 				if (flags.IndexOf('F') >= 0) {
 					BaseField fld = Fields[name];
@@ -948,7 +926,7 @@ namespace DockRotate
 						}
 					}
 				} else {
-					lprint("bad guiList flags " + flags);
+					lprint("bad guiList flags for " + name + ": " + flags);
 					continue;
 				}
 			}
@@ -957,15 +935,45 @@ namespace DockRotate
 		public override void OnStart(StartState state)
 		{
 			base.OnStart(state);
-			if ((state & StartState.Editor) != 0)
+			inEditor = (state & StartState.Editor) != 0;
+
+			BaseField sa = Fields["smartAutoStruts"];
+			sa.guiActive = sa.guiActiveEditor = GameSettings.ADVANCED_TWEAKABLES;
+
+			if (inEditor)
 				return;
-			checkGuiActive();
+
+			checkGuiActive(false);
 		}
 
 		public override void OnUpdate()
 		{
 			base.OnUpdate();
-			checkGuiActive();
+			if (inEditor)
+				return;
+
+			bool guiActive = canStartRotation();
+
+			nodeStatus = "";
+			int nJoints = countJoints();
+			nodeStatus = nodeRole + " [" + nJoints + "]";
+			Fields["nodeStatus"].guiActive = guiActive && nodeStatus.Length > 0;
+
+			RotationAnimation cr = currentRotation();
+			if (cr != null) {
+				angleInfo = String.Format("{0:+0.00;-0.00;0.00}\u00b0 ({1:+0.00;-0.00;0.00}\u00b0/s)",
+					rotationAngle(true),
+					cr.vel);
+			} else {
+				angleInfo = String.Format("{0:+0.00;-0.00;0.00}\u00b0 ({1:+0.0000;-0.0000;0.0000}\u00b0\u0394)",
+					rotationAngle(false),
+					dynamicDeltaAngle());
+			}
+			Fields["angleInfo"].guiActive = guiActive;
+
+			Events["StopRotation"].guiActive = currentRotation() != null;
+
+			checkGuiActive(true);
 		}
 
 		protected abstract void setup(bool verbose);
