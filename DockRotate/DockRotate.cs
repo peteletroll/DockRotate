@@ -893,17 +893,6 @@ namespace DockRotate
 
 		protected void checkGuiActive(bool isUpdate)
 		{
-			RotationAnimation cr = currentRotation();
-			if (cr != null) {
-				angleInfo = String.Format("{0:+0.00;-0.00;0.00}\u00b0 ({1:+0.00;-0.00;0.00}\u00b0/s)",
-					rotationAngle(true),
-					cr.vel);
-			} else {
-				angleInfo = String.Format("{0:+0.00;-0.00;0.00}\u00b0 ({1:+0.0000;-0.0000;0.0000}\u00b0\u0394)",
-					rotationAngle(false),
-					dynamicDeltaAngle());
-			}
-
 			bool newGuiActive = canStartRotation();
 
 			nodeStatus = "";
@@ -967,7 +956,20 @@ namespace DockRotate
 			base.OnUpdate();
 			if (inEditor)
 				return;
+
 			Events["StopRotation"].guiActive = currentRotation() != null;
+
+			RotationAnimation cr = currentRotation();
+			if (cr != null) {
+				angleInfo = String.Format("{0:+0.00;-0.00;0.00}\u00b0 ({1:+0.00;-0.00;0.00}\u00b0/s)",
+					rotationAngle(true),
+					cr.vel);
+			} else {
+				angleInfo = String.Format("{0:+0.00;-0.00;0.00}\u00b0 ({1:+0.0000;-0.0000;0.0000}\u00b0\u0394)",
+					rotationAngle(false),
+					dynamicDeltaAngle());
+			}
+
 			checkGuiActive(true);
 		}
 
