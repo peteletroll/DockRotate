@@ -691,6 +691,7 @@ namespace DockRotate
 		}
 
 		protected bool onRails;
+		protected bool inEditor;
 
 		public PartJoint rotatingJoint;
 		public Part activePart, proxyPart;
@@ -889,11 +890,10 @@ namespace DockRotate
 			{ "RotateClockwise", "E" },
 			{ "RotateCounterclockwise", "E" },
 			{ "RotateToSnap", "E" },
-			{ "StopRotation", "Er" },
 			{ "ToggleAutoStrutDisplay", "E" }
 		};
 
-		protected void checkGuiActive()
+		protected void checkGuiActive(bool isUpdate)
 		{
 			RotationAnimation cr = currentRotation();
 			if (cr != null) {
@@ -948,7 +948,7 @@ namespace DockRotate
 						}
 					}
 				} else {
-					lprint("bad guiList flags " + flags);
+					lprint("bad guiList flags for " + name + ": " + flags);
 					continue;
 				}
 			}
@@ -957,15 +957,19 @@ namespace DockRotate
 		public override void OnStart(StartState state)
 		{
 			base.OnStart(state);
-			if ((state & StartState.Editor) != 0)
+			inEditor = (state & StartState.Editor) != 0;
+			if (inEditor)
 				return;
-			checkGuiActive();
+			checkGuiActive(false);
 		}
 
 		public override void OnUpdate()
 		{
 			base.OnUpdate();
-			checkGuiActive();
+			if (inEditor)
+				return;
+			Events["StopRotation"].guiActive = currentRotation() != null;
+			checkGuiActive(true);
 		}
 
 		protected abstract void setup(bool verbose);
