@@ -895,11 +895,6 @@ namespace DockRotate
 		{
 			bool newGuiActive = canStartRotation();
 
-			nodeStatus = "";
-			int nJoints = countJoints();
-			nodeStatus = nodeRole + " [" + nJoints + "]";
-			Fields["nodeStatus"].guiActive = newGuiActive && nodeStatus.Length > 0;
-
 			int l = guiList.GetLength(0);
 			for (int i = 0; i < l; i++) {
 				string name = guiList[i, 0];
@@ -957,7 +952,12 @@ namespace DockRotate
 			if (inEditor)
 				return;
 
-			Events["StopRotation"].guiActive = currentRotation() != null;
+			bool activeGui = canStartRotation();
+
+			nodeStatus = "";
+			int nJoints = countJoints();
+			nodeStatus = nodeRole + " [" + nJoints + "]";
+			Fields["nodeStatus"].guiActive = activeGui && nodeStatus.Length > 0;
 
 			RotationAnimation cr = currentRotation();
 			if (cr != null) {
@@ -969,6 +969,8 @@ namespace DockRotate
 					rotationAngle(false),
 					dynamicDeltaAngle());
 			}
+
+			Events["StopRotation"].guiActive = currentRotation() != null;
 
 			checkGuiActive(true);
 		}
