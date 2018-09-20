@@ -880,10 +880,8 @@ namespace DockRotate
 			// E: is a KSPEvent;
 			// e: show in editor;
 			// A: show with advanced tweakables
-			// r: show only when rotating
 			{ "angleInfo", "F" },
 			{ "nodeRole", "F" },
-			{ "smartAutoStruts", "FA" },
 			{ "rotationStep", "Fe" },
 			{ "rotationSpeed", "Fe" },
 			{ "reverseRotation", "Fe" },
@@ -924,9 +922,6 @@ namespace DockRotate
 				if (flags.IndexOf('A') >= 0)
 					thisGuiActive = thisGuiActive && GameSettings.ADVANCED_TWEAKABLES;
 
-				if (flags.IndexOf('r') >= 0)
-					thisGuiActive = thisGuiActive && cr != null;
-
 				if (flags.IndexOf('F') >= 0) {
 					BaseField fld = Fields[name];
 					if (fld != null) {
@@ -958,6 +953,10 @@ namespace DockRotate
 		{
 			base.OnStart(state);
 			inEditor = (state & StartState.Editor) != 0;
+
+			BaseField sa = Fields["smartAutoStruts"];
+			sa.guiActive = sa.guiActiveEditor = GameSettings.ADVANCED_TWEAKABLES;
+
 			if (inEditor)
 				return;
 			checkGuiActive(false);
