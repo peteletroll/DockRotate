@@ -943,8 +943,6 @@ namespace DockRotate
 			if (inEditor)
 				return;
 
-
-
 			checkGuiActive(false);
 		}
 
