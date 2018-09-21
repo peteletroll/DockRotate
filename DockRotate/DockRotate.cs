@@ -506,12 +506,14 @@ namespace DockRotate
 		)]
 		public string angleInfo;
 
+#if DEBUG
 		[KSPField(
 			guiName = "#DCKROT_status",
 			guiActive = false,
 			guiActiveEditor = false
 		)]
 		public String nodeStatus = "";
+#endif
 
 		[KSPAction(
 			guiName = "#DCKROT_stop_rotation",
@@ -939,10 +941,12 @@ namespace DockRotate
 
 			bool guiActive = canStartRotation();
 
+#if DEBUG
 			nodeStatus = "";
 			int nJoints = countJoints();
 			nodeStatus = nodeRole + " [" + nJoints + "]";
 			Fields["nodeStatus"].guiActive = guiActive && nodeStatus.Length > 0;
+#endif
 
 			RotationAnimation cr = currentRotation();
 			if (cr != null) {
@@ -1016,7 +1020,7 @@ namespace DockRotate
 				int continuous = 0;
 				if (Mathf.Abs(angle) >= CONTINUOUS - 0.5f) {
 					angle = Mathf.Clamp(angle, -180f, 180f);
-					continuous = (int) Mathf.Sign(angle);
+					continuous = (int)Mathf.Sign(angle);
 					action = "added continuous";
 				}
 
@@ -1420,9 +1424,11 @@ namespace DockRotate
 			activePart = proxyPart = null;
 			rotatingJoint = null;
 			activeRotationModule = proxyRotationModule = null;
-			nodeStatus = "";
 			nodeRole = "None";
 			partNodePos = partNodeAxis = partNodeUp = undefV3;
+#if DEBUG
+			nodeStatus = "";
+#endif
 
 			dockingNode = part.FindModuleImplementing<ModuleDockingNode>();
 
@@ -1658,7 +1664,10 @@ namespace DockRotate
 			lprint("mass: " + part.mass);
 			lprint("parent: " + descPart(part.parent));
 			*/
-			lprint("role: " + nodeRole + ", status: " + nodeStatus);
+			lprint("role: " + nodeRole);
+#if DEBUG
+			lprint("status: " + nodeStatus);
+#endif
 			lprint("org: " + part.orgPos.desc() + ", " + part.orgRot.desc());
 
 			if (dockingNode) {
