@@ -912,9 +912,6 @@ namespace DockRotate
 					BaseEvent ev = Events[name];
 					if (ev != null)
 						ev.guiActive = thisGuiActive;
-				} else {
-					lprint("bad guiList flags for " + name + ": " + flags);
-					continue;
 				}
 			}
 		}
