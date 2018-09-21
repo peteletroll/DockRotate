@@ -904,24 +904,12 @@ namespace DockRotate
 
 				if (flags.IndexOf('F') >= 0) {
 					BaseField fld = Fields[name];
-					if (fld != null) {
+					if (fld != null)
 						fld.guiActive = thisGuiActive;
-						/*
-						UI_Control uc = fld.uiControlEditor;
-						if (uc != null) {
-							uc.scene = (fld.guiActive ? UI_Scene.Flight : 0)
-								| (fld.guiActiveEditor ? UI_Scene.Editor : 0);
-						}
-						*/
-					}
 				} else if (flags.IndexOf('E') >= 0) {
 					BaseEvent ev = Events[name];
-					if (ev != null) {
+					if (ev != null)
 						ev.guiActive = thisGuiActive;
-						if (name == "ToggleAutoStrutDisplay") {
-							ev.guiName = PhysicsGlobals.AutoStrutDisplay ? "Hide Autostruts" : "Show Autostruts";
-						}
-					}
 				} else {
 					lprint("bad guiList flags for " + name + ": " + flags);
 					continue;
@@ -966,11 +954,16 @@ namespace DockRotate
 					rotationAngle(false),
 					dynamicDeltaAngle());
 			}
+
 			Fields["angleInfo"].guiActive = guiActive;
 
 			Events["StopRotation"].guiActive = currentRotation() != null;
 
 			checkGuiActive(true);
+
+#if DEBUG
+			Events["ToggleAutoStrutDisplay"].guiName = PhysicsGlobals.AutoStrutDisplay ? "Hide Autostruts" : "Show Autostruts";
+#endif
 		}
 
 		protected abstract void setup(bool verbose);
