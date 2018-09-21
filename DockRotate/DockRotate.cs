@@ -495,6 +495,7 @@ namespace DockRotate
 			guiActive = true,
 			guiActiveEditor = true,
 			isPersistant = true,
+			advancedTweakable = true,
 			guiName = "#DCKROT_smart_autostruts"
 		)]
 		public bool smartAutoStruts = false;
@@ -882,7 +883,6 @@ namespace DockRotate
 			// F: is a KSPField;
 			// E: is a KSPEvent;
 			// e: show in editor;
-			// A: show with advanced tweakables
 			{ "nodeRole", "F" },
 			{ "rotationStep", "F" },
 			{ "rotationSpeed", "F" },
@@ -923,9 +923,6 @@ namespace DockRotate
 		{
 			base.OnStart(state);
 			inEditor = (state & StartState.Editor) != 0;
-
-			BaseField sa = Fields["smartAutoStruts"];
-			sa.guiActive = sa.guiActiveEditor = GameSettings.ADVANCED_TWEAKABLES;
 
 			if (inEditor)
 				return;
