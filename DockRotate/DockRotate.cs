@@ -909,11 +909,13 @@ namespace DockRotate
 					if (fld != null) {
 						fld.guiActive = thisGuiActive;
 						fld.guiActiveEditor = thisGuiActive && editorGui;
+						/*
 						UI_Control uc = fld.uiControlEditor;
 						if (uc != null) {
 							uc.scene = (fld.guiActive ? UI_Scene.Flight : 0)
 								| (fld.guiActiveEditor ? UI_Scene.Editor : 0);
 						}
+						*/
 					}
 				} else if (flags.IndexOf('E') >= 0) {
 					BaseEvent ev = Events[name];
