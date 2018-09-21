@@ -474,7 +474,7 @@ namespace DockRotate
 		)]
 		[KSPField(
 			guiActive = true,
-			guiActiveEditor = false,
+			guiActiveEditor = true,
 			isPersistant = true,
 			guiName = "#DCKROT_rotation_speed",
 			guiUnits = "\u00b0/s"
@@ -882,9 +882,9 @@ namespace DockRotate
 			// e: show in editor;
 			// A: show with advanced tweakables
 			{ "nodeRole", "F" },
-			{ "rotationStep", "Fe" },
-			{ "rotationSpeed", "Fe" },
-			{ "reverseRotation", "Fe" },
+			{ "rotationStep", "F" },
+			{ "rotationSpeed", "F" },
+			{ "reverseRotation", "F" },
 			{ "RotateClockwise", "E" },
 			{ "RotateCounterclockwise", "E" },
 			{ "RotateToSnap", "E" },
@@ -900,15 +900,12 @@ namespace DockRotate
 				string name = guiList[i, 0];
 				string flags = guiList[i, 1];
 
-				bool editorGui = flags.IndexOf('e') >= 0;
-
 				bool thisGuiActive = newGuiActive;
 
 				if (flags.IndexOf('F') >= 0) {
 					BaseField fld = Fields[name];
 					if (fld != null) {
 						fld.guiActive = thisGuiActive;
-						fld.guiActiveEditor = thisGuiActive && editorGui;
 						/*
 						UI_Control uc = fld.uiControlEditor;
 						if (uc != null) {
@@ -921,7 +918,6 @@ namespace DockRotate
 					BaseEvent ev = Events[name];
 					if (ev != null) {
 						ev.guiActive = thisGuiActive;
-						ev.guiActiveEditor = thisGuiActive && editorGui;
 						if (name == "ToggleAutoStrutDisplay") {
 							ev.guiName = PhysicsGlobals.AutoStrutDisplay ? "Hide Autostruts" : "Show Autostruts";
 						}
