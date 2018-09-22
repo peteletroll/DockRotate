@@ -893,38 +893,59 @@ namespace DockRotate
 			{ "ToggleAutoStrutDisplay", "E" }
 		};
 
-		protected void checkGuiActive(bool isUpdate)
+		private BaseField[] fld;
+		private BaseEvent[] evt;
+
+		protected void setupGuiActive()
+		{
+			fld = null;
+			evt = null;
+
+			List<BaseField> fl = new List<BaseField>();
+			List<BaseEvent> el = new List<BaseEvent>();
+
+			for (int i = 0; i < guiList.GetLength(0); i++) {
+				string n = guiList[i, 0];
+				BaseField f = Fields[n];
+				if (f != null)
+					fl.Add(f);
+				BaseEvent e = Events[n];
+				if (e != null)
+					el.Add(e);
+			}
+
+			fld = fl.ToArray();
+			evt = el.ToArray();
+
+			lprint(part.desc() + ": " + fld.Length + " fields, " + evt.Length + " events");
+		}
+
+		private void checkGuiActive()
 		{
 			bool newGuiActive = canStartRotation();
 
-			int l = guiList.GetLength(0);
-			for (int i = 0; i < l; i++) {
-				string name = guiList[i, 0];
-				string flags = guiList[i, 1];
+			if (fld != null)
+				for (int i = 0; i < fld.Length; i++)
+					if (fld[i] != null)
+						fld[i].guiActive = newGuiActive;
 
-				bool thisGuiActive = newGuiActive;
-
-				if (flags.IndexOf('F') >= 0) {
-					BaseField fld = Fields[name];
-					if (fld != null)
-						fld.guiActive = thisGuiActive;
-				} else if (flags.IndexOf('E') >= 0) {
-					BaseEvent ev = Events[name];
-					if (ev != null)
-						ev.guiActive = thisGuiActive;
-				}
-			}
+			if (evt != null)
+				for (int i = 0; i < evt.Length; i++)
+					if (evt[i] != null)
+						evt[i].guiActive = newGuiActive;
 		}
 
 		public override void OnStart(StartState state)
 		{
 			base.OnStart(state);
-			inEditor = (state & StartState.Editor) != 0;
 
+			inEditor = (state & StartState.Editor) != 0;
 			if (inEditor)
 				return;
 
-			checkGuiActive(false);
+			setupGuiActive();
+
+			checkGuiActive();
 		}
 
 		public override void OnUpdate()
@@ -957,7 +978,7 @@ namespace DockRotate
 
 			Events["StopRotation"].guiActive = currentRotation() != null;
 
-			checkGuiActive(true);
+			checkGuiActive();
 
 #if DEBUG
 			Events["ToggleAutoStrutDisplay"].guiName = PhysicsGlobals.AutoStrutDisplay ? "Hide Autostruts" : "Show Autostruts";
@@ -1209,6 +1230,8 @@ namespace DockRotate
 			if (onRails || !part || !vessel)
 				return;
 
+			setupGuiActive();
+
 			rotationStep = Mathf.Abs(rotationStep);
 			rotationSpeed = Mathf.Abs(rotationSpeed);
 
@@ -1437,6 +1460,8 @@ namespace DockRotate
 		{
 			if (onRails || !part || !vessel)
 				return;
+
+			setupGuiActive();
 
 			basicSetup(verbose);
 
