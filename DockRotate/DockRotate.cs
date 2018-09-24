@@ -879,18 +879,15 @@ namespace DockRotate
 			GameEvents.onSameVesselUndock.Remove(RightAfterSameVesselUndock);
 		}
 
-		protected static string[,] guiList = {
-			// F: is a KSPField;
-			// E: is a KSPEvent;
-			// e: show in editor;
-			{ "nodeRole", "F" },
-			{ "rotationStep", "F" },
-			{ "rotationSpeed", "F" },
-			{ "reverseRotation", "F" },
-			{ "RotateClockwise", "E" },
-			{ "RotateCounterclockwise", "E" },
-			{ "RotateToSnap", "E" },
-			{ "ToggleAutoStrutDisplay", "E" }
+		protected static string[] guiList = {
+			"nodeRole",
+			"rotationStep",
+			"rotationSpeed",
+			"reverseRotation",
+			"RotateClockwise",
+			"RotateCounterclockwise",
+			"RotateToSnap",
+			"ToggleAutoStrutDisplay"
 		};
 
 		private BaseField[] fld;
@@ -904,8 +901,8 @@ namespace DockRotate
 			List<BaseField> fl = new List<BaseField>();
 			List<BaseEvent> el = new List<BaseEvent>();
 
-			for (int i = 0; i < guiList.GetLength(0); i++) {
-				string n = guiList[i, 0];
+			for (int i = 0; i < guiList.Length; i++) {
+				string n = guiList[i];
 				BaseField f = Fields[n];
 				if (f != null)
 					fl.Add(f);
