@@ -516,6 +516,16 @@ namespace DockRotate
 		public String nodeStatus = "";
 #endif
 
+#if DEBUG
+		[UI_Toggle()]
+		[KSPField(
+			guiName = "Verbose Events",
+			guiActive = true,
+			guiActiveEditor = false
+		)]
+#endif
+		public bool verboseEvents = false;
+
 		[KSPAction(
 			guiName = "#DCKROT_stop_rotation",
 			requireFullControl = true
@@ -708,8 +718,6 @@ namespace DockRotate
 		protected string displayName = "";
 		protected string displayInfo = "";
 
-		protected bool verboseEvents = false;
-
 		[KSPField(isPersistant = true)]
 		public int frozenContinuousRotation = 0;
 
@@ -739,7 +747,7 @@ namespace DockRotate
 				return;
 			// VesselRotInfo.resetInfo(vessel.id);
 			onRails = false;
-			setup(false);
+			setup();
 		}
 
 		public void RightBeforeStructureChangeIds(uint id1, uint id2)
@@ -812,7 +820,7 @@ namespace DockRotate
 		{
 			if (verboseEvents)
 				lprint(part.desc() + ": RightAfterStructureChange()");
-			setup(false);
+			setup();
 		}
 
 		private void RightAfterSameVesselDock(GameEvents.FromToAction<ModuleDockingNode, ModuleDockingNode> action)
@@ -823,7 +831,7 @@ namespace DockRotate
 				lprint(part.desc() + ": RightAfterSameVesselDock("
 					+ action.from.part.desc() + ", " + action.to.part.desc() + ")");
 			if (action.to.part == part || action.from.part == part) {
-				setup(false);
+				setup();
 			}
 		}
 
@@ -835,7 +843,7 @@ namespace DockRotate
 				lprint(part.desc() + ": RightAfterSameVesselUndock("
 					+ action.from.part.desc() + ", " + action.to.part.desc() + ")");
 			if (action.to.part == part || action.from.part == part) {
-				setup(false);
+				setup();
 			}
 		}
 
@@ -982,7 +990,7 @@ namespace DockRotate
 #endif
 		}
 
-		protected abstract void setup(bool verbose);
+		protected abstract void setup();
 
 		protected virtual ModuleBaseRotate actionTarget()
 		{
@@ -1197,7 +1205,7 @@ namespace DockRotate
 				return;
 			lastVesselSave = now;
 
-			if (true || verboseEvents)
+			if (verboseEvents)
 				lprint(part.desc() + ": RightBeforeVesselSave()");
 			AttachNode node = part.PhysicsSignificance == 0 ?
 				part.FindAttachNode(rotatingNodeName) : null;
@@ -1222,7 +1230,7 @@ namespace DockRotate
 			base.OnDestroy();
 		}
 
-		protected override void setup(bool verbose)
+		protected override void setup()
 		{
 			if (onRails || !part || !vessel)
 				return;
@@ -1285,7 +1293,7 @@ namespace DockRotate
 			if (proxyPart)
 				otherPartUp = proxyPart.up(partNodeAxis.STd(part, proxyPart));
 
-			if (verbose && rotatingJoint) {
+			if (verboseEvents && rotatingJoint) {
 				lprint(part.desc()
 					+ ": on "
 					+ (activePart == part ? "itself" : activePart.desc()));
@@ -1422,11 +1430,11 @@ namespace DockRotate
 
 		private int lastBasicSetupFrame = -1;
 
-		private void basicSetup(bool verbose)
+		private void basicSetup()
 		{
 			int now = Time.frameCount;
 			if (lastBasicSetupFrame == now) {
-				if (verbose)
+				if (false && verboseEvents)
 					lprint(part.desc() + ": skip repeated basicSetup()");
 				return;
 			}
@@ -1453,14 +1461,14 @@ namespace DockRotate
 			}
 		}
 
-		protected override void setup(bool verbose)
+		protected override void setup()
 		{
 			if (onRails || !part || !vessel)
 				return;
 
 			setupGuiActive();
 
-			basicSetup(verbose);
+			basicSetup();
 
 			if (!dockingNode)
 				return;
@@ -1474,7 +1482,7 @@ namespace DockRotate
 					rotatingJoint = svj;
 					nodeRole = "ActiveSame";
 				}
-			} else if (isDockedToParent(verbose)) {
+			} else if (isDockedToParent(false)) {
 				proxyRotationModule = part.parent.FindModuleImplementing<ModuleDockRotate>();
 				if (proxyRotationModule) {
 					activeRotationModule = this;
@@ -1494,7 +1502,7 @@ namespace DockRotate
 				proxyRotationModule.proxyRotationModule = proxyRotationModule;
 				proxyRotationModule.proxyPart = proxyPart;
 				proxyPart = proxyRotationModule.part;
-				if (verbose)
+				if (verboseEvents)
 					lprint(activeRotationModule.part.desc()
 						+ ": on " + proxyRotationModule.part.desc());
 			}
@@ -1520,7 +1528,7 @@ namespace DockRotate
 			ModuleDockingNode parentNode = part.parent.FindModuleImplementing<ModuleDockingNode>();
 			ModuleDockRotate parentRotate = part.parent.FindModuleImplementing<ModuleDockRotate>();
 			if (parentRotate)
-				parentRotate.basicSetup(verbose);
+				parentRotate.basicSetup();
 
 			if (!dockingNode || !parentNode || !parentRotate) {
 				if (verbose)
