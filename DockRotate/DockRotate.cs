@@ -921,7 +921,7 @@ namespace DockRotate
 
 		private void checkGuiActive()
 		{
-			bool newGuiActive = canStartRotation();
+			bool newGuiActive = FlightGlobals.ActiveVessel == vessel && canStartRotation();
 
 			if (fld != null)
 				for (int i = 0; i < fld.Length; i++)
