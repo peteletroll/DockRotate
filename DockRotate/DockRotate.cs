@@ -521,7 +521,8 @@ namespace DockRotate
 		[KSPField(
 			guiName = "Verbose Events",
 			guiActive = true,
-			guiActiveEditor = false
+			guiActiveEditor = false,
+			isPersistant = true
 		)]
 #endif
 		public bool verboseEvents = false;
@@ -758,9 +759,8 @@ namespace DockRotate
 			if (verboseEvents)
 				lprint(part.desc() + ": RightBeforeStructureChangeIds("
 					+ id1 + ", " + id2 + ") [" + id + "]");
-			if (id1 == id || id2 == id) {
+			if (id1 == id || id2 == id)
 				RightBeforeStructureChange();
-			}
 		}
 
 		public void RightBeforeStructureChangeAction(GameEvents.FromToAction<Part, Part> action)
@@ -770,9 +770,8 @@ namespace DockRotate
 			if (verboseEvents)
 				lprint(part.desc() + ": RightBeforeStructureChangeAction("
 					+ action.from.desc() + ", " + action.to.desc() + ")");
-			if (action.from.vessel == vessel || action.to.vessel == vessel) {
+			if (action.from.vessel == vessel || action.to.vessel == vessel)
 				RightBeforeStructureChange();
-			}
 		}
 
 		public void RightBeforeStructureChangePart(Part p)
@@ -781,9 +780,8 @@ namespace DockRotate
 				return;
 			if (verboseEvents)
 				lprint(part.desc() + ": RightBeforeStructureChangePart(" + part.desc() + ")");
-			if (p.vessel == vessel) {
+			if (p.vessel == vessel)
 				RightBeforeStructureChange();
-			}
 		}
 
 		public void RightBeforeStructureChange()
@@ -800,9 +798,8 @@ namespace DockRotate
 			if (verboseEvents)
 				lprint(part.desc() + ": RightAfterStructureChangeAction("
 					+ action.from.desc() + ", " + action.to.desc() + ")");
-			if (action.from.vessel == vessel || action.to.vessel == vessel) {
+			if (action.from.vessel == vessel || action.to.vessel == vessel)
 				RightAfterStructureChange();
-			}
 		}
 
 		public void RightAfterStructureChangePart(Part p)
@@ -811,9 +808,8 @@ namespace DockRotate
 				return;
 			if (verboseEvents)
 				lprint(part.desc() + ": RightAfterStructureChangePart(" + p.desc() + ")");
-			if (p.vessel == vessel) {
+			if (p.vessel == vessel)
 				RightAfterStructureChange();
-			}
 		}
 
 		private void RightAfterStructureChange()
@@ -830,9 +826,8 @@ namespace DockRotate
 			if (verboseEvents)
 				lprint(part.desc() + ": RightAfterSameVesselDock("
 					+ action.from.part.desc() + ", " + action.to.part.desc() + ")");
-			if (action.to.part == part || action.from.part == part) {
+			if (action.to.part == part || action.from.part == part)
 				setup();
-			}
 		}
 
 		private void RightAfterSameVesselUndock(GameEvents.FromToAction<ModuleDockingNode, ModuleDockingNode> action)
@@ -842,9 +837,8 @@ namespace DockRotate
 			if (verboseEvents)
 				lprint(part.desc() + ": RightAfterSameVesselUndock("
 					+ action.from.part.desc() + ", " + action.to.part.desc() + ")");
-			if (action.to.part == part || action.from.part == part) {
+			if (action.to.part == part || action.from.part == part)
 				setup();
-			}
 		}
 
 		public override void OnAwake()
