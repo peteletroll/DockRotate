@@ -720,7 +720,7 @@ namespace DockRotate
 		protected string displayInfo = "";
 
 		[KSPField(isPersistant = true)]
-		public int frozenContinuousRotation = 0;
+		public float frozenContinuousRotation = 0f;
 
 		[KSPField(isPersistant = true)]
 		public Vector3 frozenRotation = Vector3.zero;
@@ -958,7 +958,7 @@ namespace DockRotate
 #if DEBUG
 			nodeStatus = "";
 			int nJoints = countJoints();
-			nodeStatus = nodeRole + " [" + nJoints + "]";
+			nodeStatus = nodeRole + " [" + nJoints + "] " + frozenContinuousRotation;
 			Fields["nodeStatus"].guiActive = guiActive && nodeStatus.Length > 0;
 #endif
 
@@ -1117,12 +1117,12 @@ namespace DockRotate
 				advanceRotation(Time.fixedDeltaTime);
 			}
 
-			if (frozenContinuousRotation != 0 && rotCur == null) {
-				lprint(part.desc() + ": restoring continuous rotation");
-				enqueueRotation(frozenContinuousRotation * CONTINUOUS, rotationSpeed);
+			if (frozenContinuousRotation != 0f && rotCur == null) {
+				lprint(part.desc() + ": restoring continuous rotation " + frozenContinuousRotation);
+				enqueueRotation(Mathf.Sign(frozenContinuousRotation) * CONTINUOUS, Mathf.Abs(frozenContinuousRotation));
 			}
 
-			int newfcr = rotCur != null ? rotCur.continuousRotation : 0;
+			float newfcr = rotCur != null ? rotCur.continuousRotation * rotCur.maxvel : 0f;
 			if (newfcr != frozenContinuousRotation) {
 				lprint(part.desc() + ": frozenContinuousRotation from " + frozenContinuousRotation + " to " + newfcr);
 				frozenContinuousRotation = newfcr;
