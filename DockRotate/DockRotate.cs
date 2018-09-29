@@ -1598,7 +1598,8 @@ namespace DockRotate
 			} else if (activeRotationModule && activeRotationModule.activeRotationModule == activeRotationModule) {
 				activeRotationModule.enqueueRotation(angle, speed, startSpeed);
 			} else {
-				lprint("enqueueRotation() called on wrong module, ignoring");
+				lprint("enqueueRotation() called on wrong module, ignoring, active part "
+				       + (activeRotationModule ? activeRotationModule.part.desc() : "null"));
 			}
 		}
 
