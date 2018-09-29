@@ -680,7 +680,8 @@ namespace DockRotate
 
 		protected bool brakeRotationKey()
 		{
-			return GameSettings.MODIFIER_KEY.GetKey()
+			return FlightGlobals.ActiveVessel == vessel
+				&& GameSettings.MODIFIER_KEY.GetKey()
 				&& GameSettings.BRAKES.GetKeyDown();
 		}
 
