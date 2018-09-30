@@ -746,20 +746,36 @@ namespace DockRotate
 				return;
 			// VesselRotInfo.resetInfo(vessel.id);
 			onRails = false;
+			if (frozenRotation[2] != 0.0f) {
+				// rotation speed always 0 when going off rails
+				lprint(part.desc() + ": canceling frozen speed");
+				frozenRotation[2] = 0.0f;
+			}
 			setup();
 		}
 
-		private int lastVesselSave = 0;
-
-		public void RightBeforeVesselSave(GameEvents.FromToAction<ProtoVessel, ConfigNode> action)
+		public void RightBeforeModuleSave(GameEvents.FromToAction<ProtoPartModuleSnapshot, ConfigNode> action)
 		{
-			int now = Time.frameCount;
-			if (lastVesselSave == now)
+			if (!vessel || onRails)
 				return;
-			lastVesselSave = now;
+			if (action.from == null)
+				return;
+			if (action.from.moduleName != this.moduleName)
+				return;
 
 			if (verboseEvents)
 				lprint(part.desc() + ": RightBeforeVesselSave()");
+
+			freezeCurrentRotation("vessel save", true);
+
+			if (verboseEvents) {
+				if (action.to != null) {
+					lprint(action.to.ToString());
+				} else {
+					lprint(part.desc() + ": action.to is null");
+				}
+			}
+
 			/*
 			AttachNode node = part.PhysicsSignificance == 0 ?
 				part.FindAttachNode(rotatingNodeName) : null;
@@ -869,7 +885,7 @@ namespace DockRotate
 
 			GameEvents.onVesselGoOnRails.Add(OnVesselGoOnRails);
 			GameEvents.onVesselGoOffRails.Add(OnVesselGoOffRails);
-			GameEvents.onProtoVesselSave.Add(RightBeforeVesselSave);
+			GameEvents.onProtoPartModuleSnapshotSave.Add(RightBeforeModuleSave);
 
 			GameEvents.onVesselDocking.Add(RightBeforeStructureChangeIds);
 			GameEvents.onDockingComplete.Add(RightAfterStructureChangeAction);
@@ -889,7 +905,7 @@ namespace DockRotate
 		{
 			GameEvents.onVesselGoOnRails.Remove(OnVesselGoOnRails);
 			GameEvents.onVesselGoOffRails.Remove(OnVesselGoOffRails);
-			GameEvents.onProtoVesselSave.Remove(RightBeforeVesselSave);
+			GameEvents.onProtoPartModuleSnapshotSave.Remove(RightBeforeModuleSave);
 
 			GameEvents.onVesselDocking.Remove(RightBeforeStructureChangeIds);
 			GameEvents.onDockingComplete.Remove(RightAfterStructureChangeAction);
