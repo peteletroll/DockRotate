@@ -749,6 +749,30 @@ namespace DockRotate
 			setup();
 		}
 
+		private int lastVesselSave = 0;
+
+		public void RightBeforeVesselSave(GameEvents.FromToAction<ProtoVessel, ConfigNode> action)
+		{
+			int now = Time.frameCount;
+			if (lastVesselSave == now)
+				return;
+			lastVesselSave = now;
+
+			if (verboseEvents)
+				lprint(part.desc() + ": RightBeforeVesselSave()");
+			/*
+			AttachNode node = part.PhysicsSignificance == 0 ?
+				part.FindAttachNode(rotatingNodeName) : null;
+			if (node == null)
+				return;
+			Part other = node.attachedPart;
+			if (!other)
+				return;
+			lprint(part.desc() + ": connected to " + other.desc());
+			other.forcePhysics();
+			*/
+		}
+
 		public void RightBeforeStructureChangeIds(uint id1, uint id2)
 		{
 			if (!vessel)
@@ -845,6 +869,7 @@ namespace DockRotate
 
 			GameEvents.onVesselGoOnRails.Add(OnVesselGoOnRails);
 			GameEvents.onVesselGoOffRails.Add(OnVesselGoOffRails);
+			GameEvents.onProtoVesselSave.Add(RightBeforeVesselSave);
 
 			GameEvents.onVesselDocking.Add(RightBeforeStructureChangeIds);
 			GameEvents.onDockingComplete.Add(RightAfterStructureChangeAction);
@@ -864,6 +889,7 @@ namespace DockRotate
 		{
 			GameEvents.onVesselGoOnRails.Remove(OnVesselGoOnRails);
 			GameEvents.onVesselGoOffRails.Remove(OnVesselGoOffRails);
+			GameEvents.onProtoVesselSave.Remove(RightBeforeVesselSave);
 
 			GameEvents.onVesselDocking.Remove(RightBeforeStructureChangeIds);
 			GameEvents.onDockingComplete.Remove(RightAfterStructureChangeAction);
@@ -1178,40 +1204,6 @@ namespace DockRotate
 			if (displayInfo.Length <= 0)
 				displayInfo = Localizer.Format("#DCKROT_node_info", rotatingNodeName);
 			return displayInfo;
-		}
-
-		private int lastVesselSave = 0;
-
-		public void RightBeforeVesselSave(GameEvents.FromToAction<ProtoVessel, ConfigNode> action)
-		{
-			int now = Time.frameCount;
-			if (lastVesselSave == now)
-				return;
-			lastVesselSave = now;
-
-			if (verboseEvents)
-				lprint(part.desc() + ": RightBeforeVesselSave()");
-			AttachNode node = part.PhysicsSignificance == 0 ?
-				part.FindAttachNode(rotatingNodeName) : null;
-			if (node == null)
-				return;
-			Part other = node.attachedPart;
-			if (!other)
-				return;
-			lprint(part.desc() + ": connected to " + other.desc());
-			other.forcePhysics();
-		}
-
-		public override void OnAwake()
-		{
-			GameEvents.onProtoVesselSave.Add(RightBeforeVesselSave);
-			base.OnAwake();
-		}
-
-		public override void OnDestroy()
-		{
-			GameEvents.onProtoVesselSave.Remove(RightBeforeVesselSave);
-			base.OnDestroy();
 		}
 
 		protected override void setup()
