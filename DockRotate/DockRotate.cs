@@ -721,9 +721,6 @@ namespace DockRotate
 		protected string displayInfo = "";
 
 		[KSPField(isPersistant = true)]
-		public float frozenContinuousRotation = 0f;
-
-		[KSPField(isPersistant = true)]
 		public Vector3 frozenRotation = Vector3.zero;
 
 		public void OnVesselGoOnRails(Vessel v)
@@ -959,7 +956,7 @@ namespace DockRotate
 #if DEBUG
 			nodeStatus = "";
 			int nJoints = countJoints();
-			nodeStatus = nodeRole + " [" + nJoints + "] " + frozenContinuousRotation;
+			nodeStatus = nodeRole + " [" + nJoints + "]";
 			Fields["nodeStatus"].guiActive = guiActive && nodeStatus.Length > 0;
 #endif
 
@@ -1119,17 +1116,6 @@ namespace DockRotate
 				if (brakeRotationKey())
 					rotCur.brake();
 				advanceRotation(Time.fixedDeltaTime);
-			}
-
-			if (frozenContinuousRotation != 0f && rotCur == null) {
-				lprint(part.desc() + ": restoring continuous rotation " + frozenContinuousRotation);
-				enqueueRotation(Mathf.Sign(frozenContinuousRotation) * CONTINUOUS, Mathf.Abs(frozenContinuousRotation));
-			}
-
-			float newfcr = rotCur != null ? rotCur.continuousRotation * rotCur.maxvel : 0f;
-			if (newfcr != frozenContinuousRotation) {
-				lprint(part.desc() + ": frozenContinuousRotation from " + frozenContinuousRotation + " to " + newfcr);
-				frozenContinuousRotation = newfcr;
 			}
 		}
 
