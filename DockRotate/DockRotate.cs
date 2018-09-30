@@ -1097,6 +1097,9 @@ namespace DockRotate
 
 		protected void checkFrozenRotation()
 		{
+			if (onRails)
+				return;
+
 			if (frozenRotation[0] != 0.0f) {
 				Vector3 fr = frozenRotation;
 				frozenRotation = Vector3.zero;
