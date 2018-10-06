@@ -1075,9 +1075,9 @@ namespace DockRotate
 			} else {
 				action = "added";
 				int continuous = 0;
-				if (Mathf.Abs(angle) >= CONTINUOUS - 0.5f) {
+				if (Mathf.Abs(angle) >= CONTINUOUS / 2.0f) {
 					angle = Mathf.Clamp(angle, -180f, 180f);
-					continuous = (int)Mathf.Sign(angle);
+					continuous = (int) Mathf.Sign(angle);
 					action = "added continuous";
 				}
 
