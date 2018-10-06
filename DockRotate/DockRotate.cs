@@ -1055,18 +1055,18 @@ namespace DockRotate
 			lprint(part.desc() + ": frozen rotation " + prev + " -> " + frozenRotation);
 		}
 
-		protected virtual void enqueueRotation(float angle, float speed, float startSpeed = 0.0f)
+		protected virtual bool enqueueRotation(float angle, float speed, float startSpeed = 0.0f)
 		{
 			if (!rotatingJoint)
-				return;
+				return false;
 
 			if (speed < 0.5)
-				return;
+				return false;
 
 			string action = "none";
 			if (rotCur != null) {
 				if (rotCur.continuousRotation != 0) {
-					lprint(part.desc() + ": leaving continuous rotation alone");
+					lprint(part.desc() + ": leaving continuous rotation alone, return true");
 				} else {
 					rotCur.tgt += angle;
 					rotCur.maxvel = speed;
@@ -1088,6 +1088,7 @@ namespace DockRotate
 			}
 			lprint(String.Format("{0}: enqueueRotation({1}, {2:F4}\u00b0, {3}\u00b0/s, {4}\u00b0/s), {5}",
 				activePart.desc(), partNodeAxis.desc(), rotCur.tgt, rotCur.maxvel, rotCur.vel, action));
+			return true;
 		}
 
 		protected float angleToSnap(float snap)
@@ -1102,11 +1103,11 @@ namespace DockRotate
 			return f - a;
 		}
 
-		protected void enqueueRotationToSnap(float snap, float speed)
+		protected bool enqueueRotationToSnap(float snap, float speed)
 		{
 			if (snap < 0.5f)
 				snap = 15.0f;
-			enqueueRotation(angleToSnap(snap), rotationSpeed);
+			return enqueueRotation(angleToSnap(snap), rotationSpeed);
 		}
 
 		protected virtual void advanceRotation(float deltat)
@@ -1602,16 +1603,17 @@ namespace DockRotate
 			return a.axisSignedAngle(vs, vd);
 		}
 
-		protected override void enqueueRotation(float angle, float speed, float startSpeed = 0.0f)
+		protected override bool enqueueRotation(float angle, float speed, float startSpeed = 0.0f)
 		{
 			if (activeRotationModule == this) {
-				base.enqueueRotation(angle, speed, startSpeed);
+				return base.enqueueRotation(angle, speed, startSpeed);
 			} else if (activeRotationModule && activeRotationModule.activeRotationModule == activeRotationModule) {
-				activeRotationModule.enqueueRotation(angle, speed, startSpeed);
+				return activeRotationModule.enqueueRotation(angle, speed, startSpeed);
 			} else {
 				lprint("enqueueRotation() called on wrong module, ignoring, active part "
 				       + (activeRotationModule ? activeRotationModule.part.desc() : "null"));
 			}
+			return false;
 		}
 
 		protected override void advanceRotation(float deltat)
