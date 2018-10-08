@@ -1142,6 +1142,12 @@ namespace DockRotate
 			if (onRails)
 				return;
 
+			if (frozenContinuousRotation != 0f && rotCur == null) {
+				lprint(part.desc() + ": restoring continuous rotation " + frozenContinuousRotation);
+				enqueueRotation(Mathf.Sign(frozenContinuousRotation) * CONTINUOUS, Mathf.Abs(frozenContinuousRotation));
+				frozenRotation = Vector3.zero;
+			}
+
 			if (frozenRotation[0] != 0.0f) {
 				Vector3 fr = frozenRotation;
 				frozenRotation = Vector3.zero;
@@ -1161,11 +1167,6 @@ namespace DockRotate
 				if (brakeRotationKey())
 					rotCur.brake();
 				advanceRotation(Time.fixedDeltaTime);
-			}
-
-			if (frozenContinuousRotation != 0f && rotCur == null) {
-				lprint(part.desc() + ": restoring continuous rotation " + frozenContinuousRotation);
-				enqueueRotation(Mathf.Sign(frozenContinuousRotation) * CONTINUOUS, Mathf.Abs(frozenContinuousRotation));
 			}
 
 			float newfcr = rotCur != null ? rotCur.continuousRotation * rotCur.maxvel : 0f;
