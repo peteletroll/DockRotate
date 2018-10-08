@@ -1144,7 +1144,8 @@ namespace DockRotate
 
 			if (frozenContinuousRotation != 0f && rotCur == null) {
 				lprint(part.desc() + ": restoring continuous rotation " + frozenContinuousRotation);
-				enqueueRotation(Mathf.Sign(frozenContinuousRotation) * CONTINUOUS, Mathf.Abs(frozenContinuousRotation));
+				enqueueRotation(Mathf.Sign(frozenContinuousRotation) * CONTINUOUS,
+					Mathf.Abs(frozenContinuousRotation));
 				frozenRotation = Vector3.zero;
 			}
 
