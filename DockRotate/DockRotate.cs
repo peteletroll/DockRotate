@@ -767,13 +767,14 @@ namespace DockRotate
 				return;
 
 			if (verboseEvents)
-				lprint(part.desc() + ": RightBeforeVesselSave()");
+				lprint(part.desc() + ": RightBeforeModuleSave()");
 
 			freezeCurrentRotation("vessel save", true);
 
 			if (verboseEvents) {
 				if (action.to != null) {
-					lprint(action.to.ToString());
+					lprint(part.desc() + ": action.to is not null");
+					// lprint(action.to.ToString());
 				} else {
 					lprint(part.desc() + ": action.to is null");
 				}
@@ -888,7 +889,7 @@ namespace DockRotate
 
 			GameEvents.onVesselGoOnRails.Add(OnVesselGoOnRails);
 			GameEvents.onVesselGoOffRails.Add(OnVesselGoOffRails);
-			GameEvents.onProtoPartModuleSnapshotSave.Add(RightBeforeModuleSave);
+			// GameEvents.onProtoPartModuleSnapshotSave.Add(RightBeforeModuleSave);
 
 			GameEvents.onVesselDocking.Add(RightBeforeStructureChangeIds);
 			GameEvents.onDockingComplete.Add(RightAfterStructureChangeAction);
@@ -908,7 +909,7 @@ namespace DockRotate
 		{
 			GameEvents.onVesselGoOnRails.Remove(OnVesselGoOnRails);
 			GameEvents.onVesselGoOffRails.Remove(OnVesselGoOffRails);
-			GameEvents.onProtoPartModuleSnapshotSave.Remove(RightBeforeModuleSave);
+			// GameEvents.onProtoPartModuleSnapshotSave.Remove(RightBeforeModuleSave);
 
 			GameEvents.onVesselDocking.Remove(RightBeforeStructureChangeIds);
 			GameEvents.onDockingComplete.Remove(RightAfterStructureChangeAction);
