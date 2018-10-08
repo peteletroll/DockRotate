@@ -926,6 +926,7 @@ namespace DockRotate
 
 		protected static string[] guiList = {
 			"nodeRole",
+			"angleInfo",
 			"rotationStep",
 			"rotationSpeed",
 			"reverseRotation",
@@ -1015,8 +1016,6 @@ namespace DockRotate
 					rotationAngle(false),
 					dynamicDeltaAngle());
 			}
-
-			Fields["angleInfo"].guiActive = guiActive;
 
 			Events["StopRotation"].guiActive = currentRotation() != null;
 
