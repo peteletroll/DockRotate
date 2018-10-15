@@ -993,6 +993,8 @@ namespace DockRotate
 			nodeStatus = "";
 			int nJoints = countJoints();
 			nodeStatus = nodeRole + " [" + nJoints + "]";
+			if (rotCur != null)
+				nodeStatus += " tgt:" + rotCur.tgt + "\u00b0";
 			Fields["nodeStatus"].guiActive = guiActive && nodeStatus.Length > 0;
 #endif
 
