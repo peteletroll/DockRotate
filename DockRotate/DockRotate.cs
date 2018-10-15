@@ -71,8 +71,8 @@ namespace DockRotate
 
 		public bool clampAngle()
 		{
-			if (tgt < -180f || tgt > 180f) {
-				float newzero = 360f * Mathf.Floor(tgt / 360f + 0.5f);
+			if (pos < -180f || pos > 180f) {
+				float newzero = 360f * Mathf.Floor(pos / 360f + 0.5f);
 				ModuleBaseRotate.lprint("clampAngle(): newzero " + newzero + " from tgt " + tgt);
 				tgt -= newzero;
 				pos -= newzero;
