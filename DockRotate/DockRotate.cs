@@ -11,7 +11,7 @@ namespace DockRotate
 		public float vel;
 		public float tgt;
 
-		public const float CONTINUOUS = 99999.0f;
+		public const float CONTINUOUS = 999999.0f;
 
 		public float maxvel = 1.0f;
 		private float maxacc = 1.0f;
