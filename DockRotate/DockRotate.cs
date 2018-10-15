@@ -68,7 +68,7 @@ namespace DockRotate
 		{
 			if (pos < -180f || pos > 180f) {
 				float newzero = 360f * Mathf.Floor(pos / 360f + 0.5f);
-				ModuleBaseRotate.lprint("clampAngle(): newzero " + newzero + " from tgt " + tgt);
+				ModuleBaseRotate.lprint("clampAngle(): newzero " + newzero + " from pos " + pos);
 				tgt -= newzero;
 				pos -= newzero;
 				return true;
@@ -988,17 +988,17 @@ namespace DockRotate
 				return;
 
 			bool guiActive = canStartRotation();
+			RotationAnimation cr = currentRotation();
 
 #if DEBUG
 			nodeStatus = "";
 			int nJoints = countJoints();
 			nodeStatus = nodeRole + " [" + nJoints + "]";
-			if (rotCur != null)
-				nodeStatus += " tgt:" + rotCur.tgt + "\u00b0";
+			if (cr != null)
+				nodeStatus += " " + cr.pos + "\u00b0 -> "+ cr.tgt + "\u00b0";
 			Fields["nodeStatus"].guiActive = guiActive && nodeStatus.Length > 0;
 #endif
 
-			RotationAnimation cr = currentRotation();
 			if (cr != null) {
 				angleInfo = String.Format("{0:+0.00;-0.00;0.00}\u00b0 ({1:+0.00;-0.00;0.00}\u00b0/s)",
 					rotationAngle(true),
@@ -1136,6 +1136,7 @@ namespace DockRotate
 			checkFrozenRotation();
 
 			if (rotCur != null) {
+				rotCur.clampAngle();
 				if (brakeRotationKey())
 					rotCur.brake();
 				advanceRotation(Time.fixedDeltaTime);
