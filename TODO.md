@@ -1,7 +1,6 @@
-* experiment with continuous rotation
-	* find event for going on rails via map view vessel switch
+* solve continuous rotation persistance bug
 
-* move most of checkGuiActive() out of OnUpdate()
+* add engineer report for NodeRotate parts attached to physicsless parts
 
 * handle multiple docking alignment better
 
