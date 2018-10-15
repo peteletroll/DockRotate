@@ -13,8 +13,6 @@ namespace DockRotate
 
 		public const float CONTINUOUS = 99999.0f;
 
-		public int continuousRotation = 0;
-
 		public float maxvel = 1.0f;
 		private float maxacc = 1.0f;
 
@@ -48,16 +46,8 @@ namespace DockRotate
 				newvel += deltat * Mathf.Sign(tgt - pos) * maxacc;
 				newvel = Mathf.Clamp(newvel, -maxvel, maxvel);
 			} else {
-				if (goingRightWay && continuousRotation != 0) {
-					// continuous, keep going
-					float newtgt = tgt + 180.0f * continuousRotation;
-					ModuleBaseRotate.lprint("keep going " + tgt + " -> " + newtgt);
-					tgt = newtgt;
-					clampAngle();
-				} else {
-					// braking
-					newvel -= deltat * Mathf.Sign(vel) * maxacc;
-				}
+				// braking
+				newvel -= deltat * Mathf.Sign(vel) * maxacc;
 			}
 
 			if (!started) {
@@ -100,7 +90,6 @@ namespace DockRotate
 
 		public void brake()
 		{
-			continuousRotation = 0;
 			float brakingTime = Mathf.Abs(vel) / maxacc;
 			float brakingSpace = vel / 2 * brakingTime;
 			tgt = pos + brakingSpace;
@@ -724,9 +713,6 @@ namespace DockRotate
 		protected string displayInfo = "";
 
 		[KSPField(isPersistant = true)]
-		public float frozenContinuousRotation = 0f;
-
-		[KSPField(isPersistant = true)]
 		public Vector3 frozenRotation = Vector3.zero;
 
 		public void OnVesselGoOnRails(Vessel v)
@@ -1006,7 +992,7 @@ namespace DockRotate
 #if DEBUG
 			nodeStatus = "";
 			int nJoints = countJoints();
-			nodeStatus = nodeRole + " [" + nJoints + "] " + frozenContinuousRotation;
+			nodeStatus = nodeRole + " [" + nJoints + "]";
 			Fields["nodeStatus"].guiActive = guiActive && nodeStatus.Length > 0;
 #endif
 
@@ -1068,25 +1054,14 @@ namespace DockRotate
 
 			string action = "none";
 			if (rotCur != null) {
-				if (rotCur.continuousRotation != 0) {
-					lprint(part.desc() + ": leaving continuous rotation alone, return true");
-				} else {
-					rotCur.tgt += angle;
-					rotCur.maxvel = speed;
-					action = "updated";
-				}
+				rotCur.tgt += angle;
+				rotCur.maxvel = speed;
+				action = "updated";
 			} else {
-				action = "added";
-				int continuous = 0;
-				if (Mathf.Abs(angle) >= SmoothMotion.CONTINUOUS / 2.0f) {
-					continuous = (int) Mathf.Sign(angle);
-					action = "added continuous";
-				}
-
 				rotCur = new RotationAnimation(activePart, partNodePos, partNodeAxis, rotatingJoint, 0, angle, speed);
 				rotCur.vel = startSpeed;
-				rotCur.continuousRotation = continuous;
 				rotCur.smartAutoStruts = useSmartAutoStruts();
+				action = "added";
 			}
 			lprint(String.Format("{0}: enqueueRotation({1}, {2:F4}\u00b0, {3}\u00b0/s, {4}\u00b0/s), {5}",
 				activePart.desc(), partNodeAxis.desc(), rotCur.tgt, rotCur.maxvel, rotCur.vel, action));
@@ -1129,8 +1104,6 @@ namespace DockRotate
 		{
 			if (rotCur != null) {
 				float angle = rotCur.tgt - rotCur.pos;
-				if (rotCur.continuousRotation != 0)
-					angle = rotCur.continuousRotation * SmoothMotion.CONTINUOUS;
 				enqueueFrozenRotation(angle, rotCur.maxvel, keepSpeed ? rotCur.vel : 0.0f);
 				rotCur.abort(msg);
 				rotCur.forceStaticize();
@@ -1144,13 +1117,6 @@ namespace DockRotate
 		{
 			if (onRails)
 				return;
-
-			if (frozenContinuousRotation != 0f && rotCur == null) {
-				lprint(part.desc() + ": restoring continuous rotation " + frozenContinuousRotation);
-				enqueueRotation(Mathf.Sign(frozenContinuousRotation) * SmoothMotion.CONTINUOUS,
-					Mathf.Abs(frozenContinuousRotation));
-				frozenRotation = Vector3.zero;
-			}
 
 			if (frozenRotation[0] != 0.0f) {
 				Vector3 fr = frozenRotation;
@@ -1171,12 +1137,6 @@ namespace DockRotate
 				if (brakeRotationKey())
 					rotCur.brake();
 				advanceRotation(Time.fixedDeltaTime);
-			}
-
-			float newfcr = rotCur != null ? rotCur.continuousRotation * rotCur.maxvel : 0f;
-			if (newfcr != frozenContinuousRotation) {
-				lprint(part.desc() + ": frozenContinuousRotation from " + frozenContinuousRotation + " to " + newfcr);
-				frozenContinuousRotation = newfcr;
 			}
 		}
 
