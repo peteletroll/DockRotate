@@ -11,6 +11,8 @@ namespace DockRotate
 		public float vel;
 		public float tgt;
 
+		public const float CONTINUOUS = 99999.0f;
+
 		public int continuousRotation = 0;
 
 		public float maxvel = 1.0f;
@@ -646,8 +648,6 @@ namespace DockRotate
 		}
 #endif
 
-		protected const float CONTINUOUS = 99999.0f;
-
 		protected static Vector3 undefV3 = new Vector3(9.9f, 9.9f, 9.9f);
 
 		public abstract void doRotateClockwise();
@@ -1075,7 +1075,7 @@ namespace DockRotate
 			} else {
 				action = "added";
 				int continuous = 0;
-				if (Mathf.Abs(angle) >= CONTINUOUS / 2.0f) {
+				if (Mathf.Abs(angle) >= SmoothMotion.CONTINUOUS / 2.0f) {
 					angle = Mathf.Clamp(angle, -180f, 180f);
 					continuous = (int) Mathf.Sign(angle);
 					action = "added continuous";
@@ -1120,8 +1120,8 @@ namespace DockRotate
 				return;
 			}
 
-			if (Mathf.Abs(rotCur.tgt) > CONTINUOUS / 2.0f)
-				rotCur.tgt = Mathf.Sign(rotCur.tgt) * CONTINUOUS;
+			if (Mathf.Abs(rotCur.tgt) > SmoothMotion.CONTINUOUS / 2.0f)
+				rotCur.tgt = Mathf.Sign(rotCur.tgt) * SmoothMotion.CONTINUOUS;
 
 			rotCur.advance(deltat);
 		}
@@ -1131,7 +1131,7 @@ namespace DockRotate
 			if (rotCur != null) {
 				float angle = rotCur.tgt - rotCur.pos;
 				if (rotCur.continuousRotation != 0)
-					angle = rotCur.continuousRotation * CONTINUOUS;
+					angle = rotCur.continuousRotation * SmoothMotion.CONTINUOUS;
 				enqueueFrozenRotation(angle, rotCur.maxvel, keepSpeed ? rotCur.vel : 0.0f);
 				rotCur.abort(msg);
 				rotCur.forceStaticize();
@@ -1148,7 +1148,7 @@ namespace DockRotate
 
 			if (frozenContinuousRotation != 0f && rotCur == null) {
 				lprint(part.desc() + ": restoring continuous rotation " + frozenContinuousRotation);
-				enqueueRotation(Mathf.Sign(frozenContinuousRotation) * CONTINUOUS,
+				enqueueRotation(Mathf.Sign(frozenContinuousRotation) * SmoothMotion.CONTINUOUS,
 					Mathf.Abs(frozenContinuousRotation));
 				frozenRotation = Vector3.zero;
 			}
@@ -1316,7 +1316,7 @@ namespace DockRotate
 		{
 			float s = rotationStep;
 			if (s <= 0.5f)
-				s = CONTINUOUS;
+				s = SmoothMotion.CONTINUOUS;
 			if (reverseRotation)
 				s = -s;
 			enqueueRotation(s, rotationSpeed);
@@ -1326,7 +1326,7 @@ namespace DockRotate
 		{
 			float s = -rotationStep;
 			if (s >= -0.5f)
-				s = -CONTINUOUS;
+				s = -SmoothMotion.CONTINUOUS;
 			if (reverseRotation)
 				s = -s;
 			enqueueRotation(s, rotationSpeed);
@@ -1637,7 +1637,7 @@ namespace DockRotate
 				return;
 			float s = rotationStep;
 			if (s <= 0.5f)
-				s = CONTINUOUS;
+				s = SmoothMotion.CONTINUOUS;
 			if (reverseRotation)
 				s = -s;
 			enqueueRotation(s, rotationSpeed);
@@ -1649,7 +1649,7 @@ namespace DockRotate
 				return;
 			float s = -rotationStep;
 			if (s >= -0.5f)
-				s = -CONTINUOUS;
+				s = -SmoothMotion.CONTINUOUS;
 			if (reverseRotation)
 				s = -s;
 			enqueueRotation(s, rotationSpeed);
