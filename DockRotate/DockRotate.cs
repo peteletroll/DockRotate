@@ -1120,6 +1120,9 @@ namespace DockRotate
 				return;
 			}
 
+			if (Mathf.Abs(rotCur.tgt) > CONTINUOUS / 2.0f)
+				rotCur.tgt = Mathf.Sign(rotCur.tgt) * CONTINUOUS;
+
 			rotCur.advance(deltat);
 		}
 
