@@ -1079,7 +1079,6 @@ namespace DockRotate
 				action = "added";
 				int continuous = 0;
 				if (Mathf.Abs(angle) >= SmoothMotion.CONTINUOUS / 2.0f) {
-					angle = Mathf.Clamp(angle, -180f, 180f);
 					continuous = (int) Mathf.Sign(angle);
 					action = "added continuous";
 				}
