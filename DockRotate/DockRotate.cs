@@ -32,6 +32,9 @@ namespace DockRotate
 			if (finished)
 				return;
 
+			if (Mathf.Abs(tgt) > CONTINUOUS / 2.0f)
+				tgt = Mathf.Sign(tgt) * CONTINUOUS;
+
 			maxacc = maxvel / accelTime;
 
 			bool goingRightWay = (tgt - pos) * vel >= 0;
@@ -1119,9 +1122,6 @@ namespace DockRotate
 				rotCur = null;
 				return;
 			}
-
-			if (Mathf.Abs(rotCur.tgt) > SmoothMotion.CONTINUOUS / 2.0f)
-				rotCur.tgt = Mathf.Sign(rotCur.tgt) * SmoothMotion.CONTINUOUS;
 
 			rotCur.advance(deltat);
 		}
