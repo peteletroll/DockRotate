@@ -30,8 +30,7 @@ namespace DockRotate
 			if (finished)
 				return;
 
-			if (Mathf.Abs(tgt) > CONTINUOUS / 2.0f)
-				tgt = Mathf.Sign(tgt) * CONTINUOUS;
+			isContinuous(); // normalizes tgt for continuous rotation
 
 			maxacc = maxvel / accelTime;
 
@@ -71,6 +70,20 @@ namespace DockRotate
 				ModuleBaseRotate.lprint("clampAngle(): newzero " + newzero + " from pos " + pos);
 				tgt -= newzero;
 				pos -= newzero;
+				return true;
+			}
+			return false;
+		}
+
+		public bool isContinuous(float target)
+		{
+			return Mathf.Abs(target) > CONTINUOUS / 2.0f;
+		}
+
+		public bool isContinuous()
+		{
+			if (isContinuous(tgt)) {
+				tgt = Mathf.Sign(tgt) * CONTINUOUS;
 				return true;
 			}
 			return false;
