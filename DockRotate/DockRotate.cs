@@ -1069,7 +1069,17 @@ namespace DockRotate
 
 			string action = "none";
 			if (rotCur != null) {
-				rotCur.tgt += angle;
+				if (rotCur.isContinuous()) {
+					if (rotCur.isContinuous(angle) && rotCur.tgt * angle < 0f) {
+						// reverse continuous rotation
+						rotCur.tgt = angle;
+					} else {
+						// keep continuous rotation, no log
+						return false;
+					}
+				} else {
+					rotCur.tgt += angle;
+				}
 				rotCur.maxvel = speed;
 				action = "updated";
 			} else {
@@ -1136,8 +1146,13 @@ namespace DockRotate
 			if (frozenRotation[0] != 0.0f) {
 				Vector3 fr = frozenRotation;
 				frozenRotation = Vector3.zero;
-				lprint(part.desc() + ": resuming rotation " + fr);
+				// lprint(part.desc() + ": resuming rotation " + fr);
 				enqueueRotation(fr[0], fr[1], fr[2]);
+			}
+
+			if (rotCur != null && rotCur.isContinuous()) {
+				frozenRotation = Vector3.zero;
+				frozenRotation[0] = rotCur.tgt;
 			}
 		}
 
