@@ -887,6 +887,8 @@ namespace DockRotate
 
 		public override void OnAwake()
 		{
+			settedUp = false;
+
 			base.OnAwake();
 
 			GameEvents.onVesselGoOnRails.Add(OnVesselGoOnRails);
@@ -1031,6 +1033,7 @@ namespace DockRotate
 #endif
 		}
 
+		protected bool settedUp = false;
 		protected abstract void setup();
 
 		protected virtual ModuleBaseRotate actionTarget()
@@ -1128,6 +1131,7 @@ namespace DockRotate
 		protected void freezeCurrentRotation(string msg, bool keepSpeed)
 		{
 			if (rotCur != null) {
+				rotCur.isContinuous();
 				float angle = rotCur.tgt - rotCur.pos;
 				enqueueFrozenRotation(angle, rotCur.maxvel, keepSpeed ? rotCur.vel : 0.0f);
 				rotCur.abort(msg);
@@ -1161,7 +1165,10 @@ namespace DockRotate
 			if (onRails || HighLogic.LoadedScene != GameScenes.FLIGHT)
 				return;
 
-			checkFrozenRotation();
+			if (!settedUp) {
+				lprint(part.desc() + ": no setup yet, skip FixedUpdate()");
+				checkFrozenRotation();
+			}
 
 			if (rotCur != null) {
 				rotCur.clampAngle();
@@ -1236,6 +1243,8 @@ namespace DockRotate
 		{
 			if (onRails || !part || !vessel)
 				return;
+
+			settedUp = true;
 
 			setupGuiActive();
 
@@ -1467,6 +1476,8 @@ namespace DockRotate
 		{
 			if (onRails || !part || !vessel)
 				return;
+
+			settedUp = true;
 
 			setupGuiActive();
 
