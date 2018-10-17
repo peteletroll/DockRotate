@@ -50,6 +50,7 @@ done
 zip=/tmp/$name-$version.zip
 
 (
+	status=0
 
 	kspversion=`cat "$ksphome/readme.txt" | awk 'NR <= 30 && NF == 2 && $1 == "Version" { print $2 }'`
 	if [ "$kspversion" = "" ]
@@ -77,7 +78,7 @@ zip=/tmp/$name-$version.zip
 	if [ "$version" != "$jversion" ]
 	then
 		echo "ABORTING: DLL version is $version, JSON version is $jversion" 1>&2
-		exit 1
+		status=1
 	fi
 
 	jqfilter='.KSP_VERSION | (.MAJOR|tostring) + "." + (.MINOR|tostring) + "." + (.PATCH|tostring)'
@@ -90,9 +91,10 @@ zip=/tmp/$name-$version.zip
 	if [ "$kspversion" != "$jversion" ]
 	then
 		echo "ABORTING: KSP version is $kspversion, JSON version is $jversion" 1>&2
-		exit 1
+		status=1
 	fi
-
+	
+	exit $status
 )
 
 if [ $? -ne 0 ]
