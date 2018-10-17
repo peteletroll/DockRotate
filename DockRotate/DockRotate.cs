@@ -733,7 +733,13 @@ namespace DockRotate
 
 		private void doSetup()
 		{
+			if (onRails || !part || !vessel)
+				return;
+
+			setupGuiActive();
+
 			setup();
+
 			setupDone = true;
 		}
 
@@ -1247,11 +1253,6 @@ namespace DockRotate
 
 		protected override void setup()
 		{
-			if (onRails || !part || !vessel)
-				return;
-
-			setupGuiActive();
-
 			rotationStep = Mathf.Abs(rotationStep);
 			rotationSpeed = Mathf.Abs(rotationSpeed);
 
@@ -1478,11 +1479,6 @@ namespace DockRotate
 
 		protected override void setup()
 		{
-			if (onRails || !part || !vessel)
-				return;
-
-			setupGuiActive();
-
 			basicSetup();
 
 			if (!dockingNode)
