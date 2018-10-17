@@ -16,6 +16,8 @@ namespace DockRotate
 		public float maxvel = 1.0f;
 		private float maxacc = 1.0f;
 
+		public bool braking = false;
+
 		public bool started = false, finished = false;
 
 		private const float accelTime = 2.0f;
@@ -106,6 +108,7 @@ namespace DockRotate
 			float brakingTime = Mathf.Abs(vel) / maxacc;
 			float brakingSpace = vel / 2 * brakingTime;
 			tgt = pos + brakingSpace;
+			braking = true;
 		}
 
 		public bool done()
@@ -1089,6 +1092,10 @@ namespace DockRotate
 
 			string action = "none";
 			if (rotCur != null) {
+				if (rotCur.braking) {
+					lprint(part.desc() + ": enqueueRotation() canceled, braking");
+					return false;
+				}
 				if (rotCur.isContinuous()) {
 					if (rotCur.isContinuous(angle) && rotCur.tgt * angle < 0f) {
 						// reverse continuous rotation
