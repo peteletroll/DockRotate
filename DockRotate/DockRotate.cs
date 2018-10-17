@@ -728,6 +728,15 @@ namespace DockRotate
 		[KSPField(isPersistant = true)]
 		public Vector3 frozenRotation = Vector3.zero;
 
+		protected bool setupDone = false;
+		protected abstract void setup();
+
+		private void doSetup()
+		{
+			setup();
+			setupDone = true;
+		}
+
 		public void OnVesselGoOnRails(Vessel v)
 		{
 			if (!vessel)
@@ -756,7 +765,7 @@ namespace DockRotate
 				lprint(part.desc() + ": canceling frozen speed");
 				frozenRotation[2] = 0.0f;
 			}
-			setup();
+			doSetup();
 		}
 
 		public void RightBeforeModuleSave(GameEvents.FromToAction<ProtoPartModuleSnapshot, ConfigNode> action)
@@ -860,7 +869,7 @@ namespace DockRotate
 		{
 			if (verboseEvents)
 				lprint(part.desc() + ": RightAfterStructureChange()");
-			setup();
+			doSetup();
 		}
 
 		private void RightAfterSameVesselDock(GameEvents.FromToAction<ModuleDockingNode, ModuleDockingNode> action)
@@ -871,7 +880,7 @@ namespace DockRotate
 				lprint(part.desc() + ": RightAfterSameVesselDock("
 					+ action.from.part.desc() + ", " + action.to.part.desc() + ")");
 			if (action.to.part == part || action.from.part == part)
-				setup();
+				doSetup();
 		}
 
 		private void RightAfterSameVesselUndock(GameEvents.FromToAction<ModuleDockingNode, ModuleDockingNode> action)
@@ -882,7 +891,7 @@ namespace DockRotate
 				lprint(part.desc() + ": RightAfterSameVesselUndock("
 					+ action.from.part.desc() + ", " + action.to.part.desc() + ")");
 			if (action.to.part == part || action.from.part == part)
-				setup();
+				doSetup();
 		}
 
 		public override void OnAwake()
@@ -1032,9 +1041,6 @@ namespace DockRotate
 			Events["ToggleAutoStrutDisplay"].guiName = PhysicsGlobals.AutoStrutDisplay ? "Hide Autostruts" : "Show Autostruts";
 #endif
 		}
-
-		protected bool setupDone = false;
-		protected abstract void setup();
 
 		protected virtual ModuleBaseRotate actionTarget()
 		{
@@ -1243,8 +1249,6 @@ namespace DockRotate
 		{
 			if (onRails || !part || !vessel)
 				return;
-
-			setupDone = true;
 
 			setupGuiActive();
 
@@ -1476,8 +1480,6 @@ namespace DockRotate
 		{
 			if (onRails || !part || !vessel)
 				return;
-
-			setupDone = true;
 
 			setupGuiActive();
 
