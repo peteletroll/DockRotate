@@ -1174,9 +1174,10 @@ namespace DockRotate
 			if (onRails || HighLogic.LoadedScene != GameScenes.FLIGHT)
 				return;
 
-			if (!setupDone) {
-				lprint(part.desc() + ": no setup yet, skip FixedUpdate()");
+			if (setupDone) {
 				checkFrozenRotation();
+			} else {
+				lprint(part.desc() + ": no setup yet, skip checkFrozenRotation()");
 			}
 
 			if (rotCur != null) {
