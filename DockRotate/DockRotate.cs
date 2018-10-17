@@ -1417,6 +1417,7 @@ namespace DockRotate
 		private ModuleDockingNode dockingNode;
 		public ModuleDockRotate activeRotationModule;
 		public ModuleDockRotate proxyRotationModule;
+		public ModuleDockRotate otherRotationModule;
 
 #if DEBUG
 		[KSPEvent(
@@ -1459,7 +1460,7 @@ namespace DockRotate
 
 			activePart = proxyPart = null;
 			rotatingJoint = null;
-			activeRotationModule = proxyRotationModule = null;
+			activeRotationModule = proxyRotationModule = otherRotationModule = null;
 			nodeRole = "None";
 			partNodePos = partNodeAxis = partNodeUp = undefV3;
 #if DEBUG
@@ -1499,6 +1500,7 @@ namespace DockRotate
 					nodeRole = "Active";
 				}
 			}
+
 			if (activeRotationModule) {
 				activePart = activeRotationModule.part;
 				proxyPart = proxyRotationModule.part;
@@ -1511,6 +1513,8 @@ namespace DockRotate
 				proxyRotationModule.proxyRotationModule = proxyRotationModule;
 				proxyRotationModule.proxyPart = proxyPart;
 				proxyPart = proxyRotationModule.part;
+				otherRotationModule = proxyRotationModule;
+				proxyRotationModule.otherRotationModule = activeRotationModule;
 				if (verboseEvents)
 					lprint(activeRotationModule.part.desc()
 						+ ": on " + proxyRotationModule.part.desc());
@@ -1520,6 +1524,12 @@ namespace DockRotate
 				&& activeRotationModule == this
 				&& (rotationEnabled || proxyRotationModule.rotationEnabled)) {
 				enqueueFrozenRotation(angleToSnap(dockingNode.snapOffset), rotationSpeed);
+			}
+
+			if (activeRotationModule == this) {
+				otherRotationModule = proxyRotationModule;
+			} else {
+				otherRotationModule = activeRotationModule;
 			}
 		}
 
@@ -1656,7 +1666,10 @@ namespace DockRotate
 		{
 			if (!activeRotationModule)
 				return;
-			activeRotationModule.enqueueRotationToSnap(rotationStep, rotationSpeed);
+			float snap = rotationStep;
+			if (snap < 0.5f && otherRotationModule)
+				snap = otherRotationModule.rotationStep;
+			activeRotationModule.enqueueRotationToSnap(snap, rotationSpeed);
 		}
 
 		protected override RotationAnimation currentRotation()
