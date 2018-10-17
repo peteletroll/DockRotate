@@ -887,7 +887,7 @@ namespace DockRotate
 
 		public override void OnAwake()
 		{
-			settedUp = false;
+			setupDone = false;
 
 			base.OnAwake();
 
@@ -1033,7 +1033,7 @@ namespace DockRotate
 #endif
 		}
 
-		protected bool settedUp = false;
+		protected bool setupDone = false;
 		protected abstract void setup();
 
 		protected virtual ModuleBaseRotate actionTarget()
@@ -1165,7 +1165,7 @@ namespace DockRotate
 			if (onRails || HighLogic.LoadedScene != GameScenes.FLIGHT)
 				return;
 
-			if (!settedUp) {
+			if (!setupDone) {
 				lprint(part.desc() + ": no setup yet, skip FixedUpdate()");
 				checkFrozenRotation();
 			}
@@ -1244,7 +1244,7 @@ namespace DockRotate
 			if (onRails || !part || !vessel)
 				return;
 
-			settedUp = true;
+			setupDone = true;
 
 			setupGuiActive();
 
@@ -1477,7 +1477,7 @@ namespace DockRotate
 			if (onRails || !part || !vessel)
 				return;
 
-			settedUp = true;
+			setupDone = true;
 
 			setupGuiActive();
 
