@@ -736,6 +736,9 @@ namespace DockRotate
 			if (onRails || !part || !vessel)
 				return;
 
+			rotationStep = Mathf.Abs(rotationStep);
+			rotationSpeed = Mathf.Abs(rotationSpeed);
+
 			setupGuiActive();
 
 			setup();
@@ -1253,9 +1256,6 @@ namespace DockRotate
 
 		protected override void setup()
 		{
-			rotationStep = Mathf.Abs(rotationStep);
-			rotationSpeed = Mathf.Abs(rotationSpeed);
-
 			rotatingJoint = null;
 			activePart = proxyPart = null;
 			partNodePos = partNodeAxis = partNodeUp = otherPartUp = undefV3;
@@ -1455,9 +1455,6 @@ namespace DockRotate
 				return;
 			}
 			lastBasicSetupFrame = now;
-
-			rotationStep = Mathf.Abs(rotationStep);
-			rotationSpeed = Mathf.Abs(rotationSpeed);
 
 			activePart = proxyPart = null;
 			rotatingJoint = null;
