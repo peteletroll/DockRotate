@@ -737,6 +737,8 @@ namespace DockRotate
 
 			rotationStep = Mathf.Abs(rotationStep);
 			rotationSpeed = Mathf.Abs(rotationSpeed);
+			if (rotationSpeed < 1.0f)
+				rotationSpeed = 1.0f;
 
 			setupGuiActive();
 
