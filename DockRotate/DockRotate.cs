@@ -1073,6 +1073,8 @@ namespace DockRotate
 				frozenRotation[2] = startSpeed;
 			} else {
 				frozenRotation[0] += angle;
+				if (Mathf.Abs(frozenRotation[0]) >= SmoothMotion.CONTINUOUS / 2.0f)
+					frozenRotation[0] = Mathf.Sign(frozenRotation[0]) * SmoothMotion.CONTINUOUS;
 			}
 			lprint(part.desc() + ": frozen rotation " + prev + " -> " + frozenRotation);
 		}
@@ -1170,8 +1172,9 @@ namespace DockRotate
 			}
 
 			if (rotCur != null && rotCur.isContinuous()) {
-				frozenRotation = Vector3.zero;
 				frozenRotation[0] = rotCur.tgt;
+				frozenRotation[1] = rotCur.maxvel;
+				frozenRotation[2] = 0f;
 			}
 		}
 
