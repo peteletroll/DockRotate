@@ -711,7 +711,7 @@ namespace DockRotate
 			}
 		}
 
-		protected bool onRails;
+		protected bool onRails = true; // FIXME: obsoleted by setupDone?
 
 		public PartJoint rotatingJoint;
 		public Part activePart, proxyPart;
@@ -758,6 +758,7 @@ namespace DockRotate
 			freezeCurrentRotation("go on rails", false);
 			// VesselRotInfo.resetInfo(vessel.id);
 			onRails = true;
+			setupDone = false;
 		}
 
 		public void OnVesselGoOffRails(Vessel v)
@@ -770,6 +771,7 @@ namespace DockRotate
 				return;
 			// VesselRotInfo.resetInfo(vessel.id);
 			onRails = false;
+			setupDone = false;
 			if (frozenRotation[2] != 0.0f) {
 				// rotation speed always 0 when going off rails
 				lprint(part.desc() + ": canceling frozen speed");
@@ -779,7 +781,7 @@ namespace DockRotate
 		}
 
 		public void RightBeforeModuleSave(GameEvents.FromToAction<ProtoPartModuleSnapshot, ConfigNode> action)
-		// GONER
+		// FIXME: disabled, should be removed
 		{
 			if (!vessel || onRails)
 				return;
@@ -907,6 +909,7 @@ namespace DockRotate
 
 		public override void OnAwake()
 		{
+			onRails = true;
 			setupDone = false;
 
 			base.OnAwake();
@@ -1055,6 +1058,7 @@ namespace DockRotate
 		protected virtual bool canStartRotation()
 		{
 			return !onRails
+				&& setupDone
 				&& rotationEnabled
 				&& vessel
 				&& vessel.CurrentControlLevel == Vessel.ControlLevel.FULL;
@@ -1155,7 +1159,7 @@ namespace DockRotate
 
 		protected void checkFrozenRotation()
 		{
-			if (onRails)
+			if (onRails || !setupDone)
 				return;
 
 			if (frozenRotation[0] != 0.0f) {
