@@ -712,7 +712,6 @@ namespace DockRotate
 		}
 
 		protected bool onRails;
-		protected bool inEditor;
 
 		public PartJoint rotatingJoint;
 		public Part activePart, proxyPart;
@@ -778,6 +777,7 @@ namespace DockRotate
 		}
 
 		public void RightBeforeModuleSave(GameEvents.FromToAction<ProtoPartModuleSnapshot, ConfigNode> action)
+		// GONER
 		{
 			if (!vessel || onRails)
 				return;
@@ -1005,10 +1005,6 @@ namespace DockRotate
 		{
 			base.OnStart(state);
 
-			inEditor = (state & StartState.Editor) != 0;
-			if (inEditor)
-				return;
-
 			setupGuiActive();
 
 			checkGuiActive();
@@ -1017,8 +1013,6 @@ namespace DockRotate
 		public override void OnUpdate()
 		{
 			base.OnUpdate();
-			if (inEditor)
-				return;
 
 			bool guiActive = canStartRotation();
 			RotationAnimation cr = currentRotation();
