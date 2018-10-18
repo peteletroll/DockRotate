@@ -1265,7 +1265,7 @@ namespace DockRotate
 			partNodeUp = part.up(partNodeAxis);
 
 			Part other = rotatingNode.attachedPart;
-			if (other)
+			if (false && other) // FIXME: try to find a way to make it work
 				other.forcePhysics();
 
 			if (part.parent == other) {
