@@ -93,7 +93,7 @@ zip=/tmp/$name-$version.zip
 		echo "ABORTING: KSP version is $kspversion, JSON version is $jversion" 1>&2
 		status=1
 	fi
-	
+
 	exit $status
 )
 
