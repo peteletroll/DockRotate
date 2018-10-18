@@ -551,7 +551,8 @@ namespace DockRotate
 		[KSPEvent(
 			guiName = "#DCKROT_stop_rotation",
 			guiActive = false,
-			guiActiveEditor = false
+			guiActiveEditor = false,
+			requireFullControl = true
 		)]
 		public void StopRotation()
 		{
@@ -577,7 +578,8 @@ namespace DockRotate
 		[KSPEvent(
 			guiName = "#DCKROT_rotate_clockwise",
 			guiActive = false,
-			guiActiveEditor = false
+			guiActiveEditor = false,
+			requireFullControl = true
 		)]
 		public void RotateClockwise()
 		{
@@ -604,7 +606,8 @@ namespace DockRotate
 		[KSPEvent(
 			guiName = "#DCKROT_rotate_counterclockwise",
 			guiActive = false,
-			guiActiveEditor = false
+			guiActiveEditor = false,
+			requireFullControl = true
 		)]
 		public void RotateCounterclockwise()
 		{
@@ -626,7 +629,8 @@ namespace DockRotate
 		[KSPEvent(
 			guiName = "#DCKROT_rotate_to_snap",
 			guiActive = false,
-			guiActiveEditor = false
+			guiActiveEditor = false,
+			requireFullControl = true
 		)]
 		public void RotateToSnap()
 		{
@@ -1394,7 +1398,8 @@ namespace DockRotate
 		[KSPEvent(
 			guiName = "#DCKROT_redock",
 			guiActive = false,
-			guiActiveEditor = false
+			guiActiveEditor = false,
+			requireFullControl = true
 		)]
 		public void ReDock()
 		{
