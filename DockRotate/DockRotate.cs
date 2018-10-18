@@ -783,43 +783,6 @@ namespace DockRotate
 			doSetup();
 		}
 
-		public void RightBeforeModuleSave(GameEvents.FromToAction<ProtoPartModuleSnapshot, ConfigNode> action)
-		// FIXME: disabled, should be removed
-		{
-			if (!vessel || onRails)
-				return;
-			if (action.from == null)
-				return;
-			if (action.from.moduleName != this.moduleName)
-				return;
-
-			if (verboseEvents)
-				lprint(part.desc() + ": RightBeforeModuleSave()");
-
-			freezeCurrentRotation("vessel save", true);
-
-			if (verboseEvents) {
-				if (action.to != null) {
-					lprint(part.desc() + ": action.to is not null");
-					// lprint(action.to.ToString());
-				} else {
-					lprint(part.desc() + ": action.to is null");
-				}
-			}
-
-			/*
-			AttachNode node = part.PhysicsSignificance == 0 ?
-				part.FindAttachNode(rotatingNodeName) : null;
-			if (node == null)
-				return;
-			Part other = node.attachedPart;
-			if (!other)
-				return;
-			lprint(part.desc() + ": connected to " + other.desc());
-			other.forcePhysics();
-			*/
-		}
-
 		public void RightBeforeStructureChangeIds(uint id1, uint id2)
 		{
 			if (!vessel)
@@ -919,7 +882,6 @@ namespace DockRotate
 
 			GameEvents.onVesselGoOnRails.Add(OnVesselGoOnRails);
 			GameEvents.onVesselGoOffRails.Add(OnVesselGoOffRails);
-			// GameEvents.onProtoPartModuleSnapshotSave.Add(RightBeforeModuleSave);
 
 			GameEvents.onVesselDocking.Add(RightBeforeStructureChangeIds);
 			GameEvents.onDockingComplete.Add(RightAfterStructureChangeAction);
@@ -939,7 +901,6 @@ namespace DockRotate
 		{
 			GameEvents.onVesselGoOnRails.Remove(OnVesselGoOnRails);
 			GameEvents.onVesselGoOffRails.Remove(OnVesselGoOffRails);
-			// GameEvents.onProtoPartModuleSnapshotSave.Remove(RightBeforeModuleSave);
 
 			GameEvents.onVesselDocking.Remove(RightBeforeStructureChangeIds);
 			GameEvents.onDockingComplete.Remove(RightAfterStructureChangeAction);
