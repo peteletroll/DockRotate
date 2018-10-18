@@ -1043,6 +1043,7 @@ namespace DockRotate
 				frozenRotation[0] += angle;
 				if (Mathf.Abs(frozenRotation[0]) >= SmoothMotion.CONTINUOUS / 2.0f)
 					frozenRotation[0] = Mathf.Sign(frozenRotation[0]) * SmoothMotion.CONTINUOUS;
+				frozenRotation[2] = startSpeed;
 			}
 			lprint(part.desc() + ": frozen rotation " + prev + " -> " + frozenRotation);
 		}
