@@ -1526,12 +1526,6 @@ namespace DockRotate
 				&& (rotationEnabled || proxyRotationModule.rotationEnabled)) {
 				enqueueFrozenRotation(angleToSnap(dockingNode.snapOffset), rotationSpeed);
 			}
-
-			if (activeRotationModule == this) {
-				otherRotationModule = proxyRotationModule;
-			} else {
-				otherRotationModule = activeRotationModule;
-			}
 		}
 
 		private bool isDockedToParent(bool verbose) // must be used only after basicSetup()
