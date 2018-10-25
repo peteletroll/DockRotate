@@ -1086,16 +1086,14 @@ namespace DockRotate
 					lprint(part.desc() + ": enqueueRotation() canceled, braking");
 					return false;
 				}
-				if (rotCur.isContinuous()) {
-					if (rotCur.isContinuous(angle) && rotCur.tgt * angle < 0f) {
-						// reverse continuous rotation
-						rotCur.tgt = angle;
-					} else {
-						// keep continuous rotation, no log
-						return false;
-					}
+				if (rotCur.isContinuous(angle)) {
+					rotCur.tgt = angle;
 				} else {
-					rotCur.tgt += angle;
+					if (rotCur.isContinuous()) {
+						rotCur.tgt = rotCur.pos + angle;
+					} else {
+						rotCur.tgt = rotCur.tgt + angle;
+					}
 				}
 				rotCur.maxvel = speed;
 				action = "updated";
@@ -1115,7 +1113,9 @@ namespace DockRotate
 			snap = Mathf.Abs(snap);
 			if (snap < 0.5f)
 				return 0.0f;
-			float a = rotCur == null ? rotationAngle(false) : rotCur.tgt;
+			float a = rotCur == null ? rotationAngle(false) :
+				rotCur.isContinuous() ? rotCur.pos :
+				rotCur.tgt;
 			if (float.IsNaN(a))
 				return 0.0f;
 			float f = snap * Mathf.Floor(a / snap + 0.5f);
