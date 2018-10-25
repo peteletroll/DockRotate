@@ -29,11 +29,10 @@ namespace DockRotate
 		protected abstract void onStep(float deltat);
 		protected abstract void onStop();
 
-		public float curBrakingSpace(float deltat, bool signed)
+		public float curBrakingSpace(float deltat = 0f)
 		{
 			float time = Mathf.Abs(vel) / maxacc + 2 * stopMargin * deltat;
-			float space = vel / 2 * time;
-			return signed ? space : Mathf.Abs(space);
+			return vel / 2 * time;
 		}
 
 		public void advance(float deltat)
@@ -46,7 +45,7 @@ namespace DockRotate
 			maxacc = maxvel / accelTime;
 
 			bool goingRightWay = (tgt - pos) * vel >= 0;
-			float brakingSpace = curBrakingSpace(deltat, false);
+			float brakingSpace = Mathf.Abs(curBrakingSpace(deltat));
 
 			float newvel = vel;
 
@@ -76,7 +75,7 @@ namespace DockRotate
 
 		public void brake()
 		{
-			tgt = pos + curBrakingSpace(0f, true);
+			tgt = pos + curBrakingSpace();
 			braking = true;
 		}
 
