@@ -46,8 +46,6 @@ namespace DockRotate
 			maxacc = maxvel / accelTime;
 
 			bool goingRightWay = (tgt - pos) * vel >= 0;
-			// float brakingTime = Mathf.Abs(vel) / maxacc + 2 * stopMargin * deltat;
-			// float brakingSpace = Mathf.Abs(vel) / 2 * brakingTime;
 			float brakingSpace = curBrakingSpace(deltat, false);
 
 			float newvel = vel;
@@ -78,10 +76,7 @@ namespace DockRotate
 
 		public void brake()
 		{
-			// float brakingTime = Mathf.Abs(vel) / maxacc;
-			// float brakingSpace = vel / 2 * brakingTime;
-			float brakingSpace = curBrakingSpace(0f, true);
-			tgt = pos + brakingSpace;
+			tgt = pos + curBrakingSpace(0f, true);
 			braking = true;
 		}
 
