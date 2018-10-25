@@ -65,6 +65,14 @@ namespace DockRotate
 				onStop();
 		}
 
+		public void brake()
+		{
+			float brakingTime = Mathf.Abs(vel) / maxacc;
+			float brakingSpace = vel / 2 * brakingTime;
+			tgt = pos + brakingSpace;
+			braking = true;
+		}
+
 		public bool clampAngle()
 		{
 			if (pos < -180f || pos > 180f) {
@@ -101,14 +109,6 @@ namespace DockRotate
 				pos = tgt;
 			}
 			return finished;
-		}
-
-		public void brake()
-		{
-			float brakingTime = Mathf.Abs(vel) / maxacc;
-			float brakingSpace = vel / 2 * brakingTime;
-			tgt = pos + brakingSpace;
-			braking = true;
 		}
 
 		public bool done()
