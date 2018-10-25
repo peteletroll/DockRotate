@@ -20,6 +20,8 @@ namespace DockRotate
 
 		public bool started = false, finished = false;
 
+		public float elapsed = 0.0f;
+
 		private const float accelTime = 2.0f;
 		private const float stopMargin = 1.5f;
 
@@ -27,7 +29,7 @@ namespace DockRotate
 		protected abstract void onStep(float deltat);
 		protected abstract void onStop();
 
-		public virtual void advance(float deltat)
+		public void advance(float deltat)
 		{
 			if (finished)
 				return;
@@ -58,6 +60,7 @@ namespace DockRotate
 
 			vel = newvel;
 			pos += deltat * vel;
+			elapsed += deltat;
 
 			onStep(deltat);
 
@@ -151,8 +154,6 @@ namespace DockRotate
 
 		private Guid vesselId;
 
-		public float timeref = 0.0f;
-
 		public static string soundFile = "DockRotate/DockRotateMotor";
 		public AudioSource sound;
 		public float pitchAlteration;
@@ -199,14 +200,6 @@ namespace DockRotate
 			}
 			// lprint("vesselRotCount is now " + ret);
 			return vi.rotCount = ret;
-		}
-
-		public override void advance(float deltat)
-		{
-			if (finished)
-				return;
-			timeref += deltat;
-			base.advance(deltat);
 		}
 
 		protected override void onStart()
