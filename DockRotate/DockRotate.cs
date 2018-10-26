@@ -981,7 +981,7 @@ namespace DockRotate
 			fld = fl.ToArray();
 			evt = el.ToArray();
 
-			lprint(part.desc() + ": " + fld.Length + " fields, " + evt.Length + " events");
+			// lprint(part.desc() + ": " + fld.Length + " fields, " + evt.Length + " events");
 		}
 
 		private void checkGuiActive()
