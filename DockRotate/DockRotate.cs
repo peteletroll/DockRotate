@@ -1077,19 +1077,30 @@ namespace DockRotate
 				return false;
 
 			string action = "none";
+			bool showlog = true;
 			if (rotCur != null) {
 				if (rotCur.braking) {
 					lprint(part.desc() + ": enqueueRotation() canceled, braking");
 					return false;
 				}
 				if (rotCur.isContinuous(angle)) {
+					if (rotCur.isContinuous() && angle * rotCur.tgt > 0f)
+						showlog = false;
+					if (showlog)
+						lprint("MERGE CONTINUOUS " + angle + " -> " + rotCur.tgt);
 					rotCur.tgt = angle;
+					frozenRotation[0] = angle;
 				} else {
+					lprint("MERGE LIMITED " + angle + " -> " + rotCur.tgt);
 					if (rotCur.isContinuous()) {
+						lprint("MERGE INTO CONTINUOUS");
 						rotCur.tgt = rotCur.pos + angle;
 					} else {
+						lprint("MERGE INTO LIMITED");
 						rotCur.tgt = rotCur.tgt + angle;
 					}
+					lprint("MERGED: POS " + rotCur.pos +" TGT " + rotCur.tgt);
+					frozenRotation = Vector3.zero;
 				}
 				rotCur.maxvel = speed;
 				action = "updated";
@@ -1099,8 +1110,9 @@ namespace DockRotate
 				rotCur.smartAutoStruts = useSmartAutoStruts();
 				action = "added";
 			}
-			lprint(String.Format("{0}: enqueueRotation({1}, {2:F4}\u00b0, {3}\u00b0/s, {4}\u00b0/s), {5}",
-				activePart.desc(), partNodeAxis.desc(), rotCur.tgt, rotCur.maxvel, rotCur.vel, action));
+			if (showlog)
+				lprint(String.Format("{0}: enqueueRotation({1}, {2:F4}\u00b0, {3}\u00b0/s, {4}\u00b0/s), {5}",
+					activePart.desc(), partNodeAxis.desc(), rotCur.tgt, rotCur.maxvel, rotCur.vel, action));
 			return true;
 		}
 
@@ -1157,6 +1169,7 @@ namespace DockRotate
 			if (onRails || !setupDone)
 				return;
 
+			Vector3 prev = frozenRotation;
 			if (frozenRotation[0] != 0.0f) {
 				Vector3 fr = frozenRotation;
 				frozenRotation = Vector3.zero;
@@ -1169,6 +1182,8 @@ namespace DockRotate
 				frozenRotation[1] = rotCur.maxvel;
 				frozenRotation[2] = 0f;
 			}
+			if (frozenRotation != prev)
+				lprint(part.desc() + ": checkFrozenRotation(): " + prev + " -> " + frozenRotation);
 		}
 
 		public void FixedUpdate()
