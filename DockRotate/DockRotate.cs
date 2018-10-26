@@ -150,6 +150,11 @@ namespace DockRotate
 
 	public class RotationAnimation: SmoothMotion
 	{
+		public static implicit operator bool(RotationAnimation r)
+		{
+			return r != null;
+		}
+
 		private Part activePart, proxyPart;
 		private Vector3 node, axis;
 		private PartJoint joint;
@@ -1078,7 +1083,7 @@ namespace DockRotate
 
 			string action = "none";
 			bool showlog = true;
-			if (rotCur != null) {
+			if (rotCur) {
 				if (rotCur.braking) {
 					lprint(part.desc() + ": enqueueRotation() canceled, braking");
 					return false;
@@ -1139,7 +1144,7 @@ namespace DockRotate
 
 		protected virtual void advanceRotation(float deltat)
 		{
-			if (rotCur == null)
+			if (!rotCur)
 				return;
 
 			if (rotCur.done()) {
@@ -1152,7 +1157,7 @@ namespace DockRotate
 
 		protected void freezeCurrentRotation(string msg, bool keepSpeed)
 		{
-			if (rotCur != null) {
+			if (rotCur) {
 				rotCur.isContinuous();
 				float angle = rotCur.tgt - rotCur.pos;
 				enqueueFrozenRotation(angle, rotCur.maxvel, keepSpeed ? rotCur.vel : 0.0f);
@@ -1177,7 +1182,7 @@ namespace DockRotate
 				enqueueRotation(fr[0], fr[1], fr[2]);
 			}
 
-			if (rotCur != null && rotCur.isContinuous()) {
+			if (rotCur && rotCur.isContinuous()) {
 				frozenRotation[0] = rotCur.tgt;
 				frozenRotation[1] = rotCur.maxvel;
 				frozenRotation[2] = 0f;
@@ -1197,7 +1202,7 @@ namespace DockRotate
 				lprint(part.desc() + ": no setup yet, skip checkFrozenRotation()");
 			}
 
-			if (rotCur != null) {
+			if (rotCur) {
 				rotCur.clampAngle();
 				if (brakeRotationKey())
 					rotCur.brake();
