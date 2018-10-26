@@ -706,7 +706,7 @@ namespace DockRotate
 		public void doStopRotation()
 		{
 			RotationAnimation r = currentRotation();
-			if (r != null)
+			if (r)
 				r.brake();
 		}
 
@@ -724,7 +724,7 @@ namespace DockRotate
 
 		public bool IsJointUnlocked()
 		{
-			bool ret = currentRotation() != null;
+			bool ret = currentRotation();
 			// lprint(part.desc() + ".IsJointUnlocked() is " + ret);
 			return ret;
 		}
@@ -733,9 +733,9 @@ namespace DockRotate
 		protected RotationAnimation rotCur {
 			get { return _rotCur; }
 			set {
-				bool wasRotating = _rotCur != null;
+				bool wasRotating = _rotCur;
 				_rotCur = value;
-				bool isRotating = _rotCur != null;
+				bool isRotating = _rotCur;
 				if (isRotating != wasRotating && !useSmartAutoStruts()) {
 					lprint(part.desc() + " triggered CycleAllAutoStruts()");
 					vessel.CycleAllAutoStrut();
@@ -1019,12 +1019,12 @@ namespace DockRotate
 			nodeStatus = "";
 			int nJoints = countJoints();
 			nodeStatus = nodeRole + " [" + nJoints + "]";
-			if (cr != null)
+			if (cr)
 				nodeStatus += " " + cr.pos + "\u00b0 -> "+ cr.tgt + "\u00b0";
 			Fields["nodeStatus"].guiActive = guiActive && nodeStatus.Length > 0;
 #endif
 
-			if (cr != null) {
+			if (cr) {
 				angleInfo = String.Format("{0:+0.00;-0.00;0.00}\u00b0 ({1:+0.00;-0.00;0.00}\u00b0/s)",
 					rotationAngle(true),
 					cr.vel);
@@ -1034,7 +1034,7 @@ namespace DockRotate
 					dynamicDeltaAngle());
 			}
 
-			Events["StopRotation"].guiActive = currentRotation() != null;
+			Events["StopRotation"].guiActive = currentRotation();
 
 			checkGuiActive();
 
@@ -1126,7 +1126,7 @@ namespace DockRotate
 			snap = Mathf.Abs(snap);
 			if (snap < 0.5f)
 				return 0.0f;
-			float a = rotCur == null ? rotationAngle(false) :
+			float a = !rotCur ? rotationAngle(false) :
 				rotCur.isContinuous() ? rotCur.pos :
 				rotCur.tgt;
 			if (float.IsNaN(a))
