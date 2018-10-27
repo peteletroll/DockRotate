@@ -323,9 +323,8 @@ namespace DockRotate
 				sound.pitch = 0;
 				sound.loop = true;
 				sound.rolloffMode = AudioRolloffMode.Logarithmic;
-				sound.dopplerLevel = 0f;
-				sound.minDistance = 1f;
 				sound.spatialBlend = 1f;
+				sound.minDistance = 1f;
 				sound.maxDistance = 1000f;
 				sound.playOnAwake = false;
 
@@ -345,7 +344,7 @@ namespace DockRotate
 		{
 			if (sound != null) {
 				float p = Mathf.Sqrt(Mathf.Abs(vel / maxvel));
-				sound.volume = p * GameSettings.SHIP_VOLUME;
+				sound.volume = 0.5f * p * GameSettings.SHIP_VOLUME;
 				sound.pitch = p * pitchAlteration;
 			}
 		}
