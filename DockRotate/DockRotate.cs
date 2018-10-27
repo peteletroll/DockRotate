@@ -164,6 +164,7 @@ namespace DockRotate
 
 		public static string soundFile = "DockRotate/DockRotateMotor";
 		public AudioSource sound;
+		public float soundVolume = 1f;
 		public float pitchAlteration = 1f;
 
 		private struct RotJointInfo
@@ -344,7 +345,7 @@ namespace DockRotate
 		{
 			if (sound != null) {
 				float p = Mathf.Sqrt(Mathf.Abs(vel / maxvel));
-				sound.volume = 0.5f * p * GameSettings.SHIP_VOLUME;
+				sound.volume = soundVolume * p * GameSettings.SHIP_VOLUME;
 				sound.pitch = p * pitchAlteration;
 			}
 		}
@@ -526,6 +527,9 @@ namespace DockRotate
 			guiName = "#DCKROT_reverse_rotation"
 		)]
 		public bool reverseRotation = false;
+
+		[KSPField(isPersistant = true)]
+		public float soundVolume = 0.5f;
 
 		[UI_Toggle()]
 		[KSPField(
@@ -1113,6 +1117,7 @@ namespace DockRotate
 				action = "updated";
 			} else {
 				rotCur = new RotationAnimation(activePart, partNodePos, partNodeAxis, rotatingJoint, 0, angle, speed);
+				rotCur.soundVolume = soundVolume;
 				rotCur.vel = startSpeed;
 				rotCur.smartAutoStruts = useSmartAutoStruts();
 				action = "added";
