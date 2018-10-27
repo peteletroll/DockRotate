@@ -959,8 +959,7 @@ namespace DockRotate
 			"reverseRotation",
 			"RotateClockwise",
 			"RotateCounterclockwise",
-			"RotateToSnap",
-			"ToggleAutoStrutDisplay"
+			"RotateToSnap"
 		};
 
 		private BaseField[] fld;
