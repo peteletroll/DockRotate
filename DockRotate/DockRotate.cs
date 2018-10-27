@@ -313,7 +313,7 @@ namespace DockRotate
 			try {
 				AudioClip clip = GameDatabase.Instance.GetAudioClip(soundFile);
 				if (!clip) {
-					lprint("clip " + soundFile + "not found");
+					lprint("clip " + soundFile + " not found");
 					return;
 				}
 
@@ -324,7 +324,9 @@ namespace DockRotate
 				sound.loop = true;
 				sound.rolloffMode = AudioRolloffMode.Logarithmic;
 				sound.dopplerLevel = 0f;
-				sound.maxDistance = 10;
+				sound.minDistance = 1f;
+				sound.spatialBlend = 1f;
+				sound.maxDistance = 1000f;
 				sound.playOnAwake = false;
 
 				pitchAlteration = UnityEngine.Random.Range(0.9f, 1.1f);
