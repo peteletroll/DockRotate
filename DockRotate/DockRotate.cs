@@ -164,7 +164,7 @@ namespace DockRotate
 
 		public static string soundFile = "DockRotate/DockRotateMotor";
 		public AudioSource sound;
-		public float pitchAlteration;
+		public float pitchAlteration = 1f;
 
 		private struct RotJointInfo
 		{
@@ -329,7 +329,8 @@ namespace DockRotate
 				sound.maxDistance = 1000f;
 				sound.playOnAwake = false;
 
-				pitchAlteration = UnityEngine.Random.Range(0.9f, 1.1f);
+				uint pa = 33 * (activePart.flightID + proxyPart.flightID) % 10000;
+				pitchAlteration = 0.2f * (pa / 10000f) + 0.9f;
 
 				sound.Play();
 
