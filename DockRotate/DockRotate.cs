@@ -469,9 +469,9 @@ namespace DockRotate
 
 #if DEBUG
 		[UI_FloatEdit(
-			minValue = 1,
+			minValue = 0,
 			maxValue = 90,
-			incrementSlide = 5,
+			incrementSlide = 1,
 			incrementSmall = 1,
 			incrementLarge = 5,
 			sigFigs = 0,
@@ -497,9 +497,9 @@ namespace DockRotate
 		[UI_FloatEdit(
 			minValue = 1,
 			maxValue = 90,
-			incrementSlide = 5,
+			incrementSlide = 1,
 			incrementSmall = 1,
-			incrementLarge = 15,
+			incrementLarge = 5,
 			sigFigs = 0,
 			unit = "\u00b0/s"
 		)]
