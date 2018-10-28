@@ -810,11 +810,8 @@ namespace DockRotate
 			// VesselRotInfo.resetInfo(vessel.id);
 			onRails = false;
 			setupDone = false;
-			if (frozenRotation[2] != 0.0f) {
-				// rotation speed always 0 when going off rails
-				lprint(part.desc() + ": canceling frozen speed");
-				frozenRotation[2] = 0.0f;
-			}
+			// start speed always 0 when going off rails
+			frozenRotation[2] = 0.0f;
 			doSetup();
 		}
 
@@ -1095,7 +1092,6 @@ namespace DockRotate
 						rotCur.tgt = rotCur.tgt + angle;
 					}
 					lprint("MERGED: POS " + rotCur.pos +" TGT " + rotCur.tgt);
-					frozenRotation = Vector3.zero;
 					updateFrozenRotation(true);
 				}
 				rotCur.maxvel = speed;
@@ -1204,7 +1200,7 @@ namespace DockRotate
 				if (Mathf.Abs(frozenRotation[0]) >= SmoothMotion.CONTINUOUS / 2.0f)
 					frozenRotation[0] = Mathf.Sign(frozenRotation[0]) * SmoothMotion.CONTINUOUS;
 			}
-			lprint(part.desc() + ": frozen rotation " + prev + " -> " + frozenRotation);
+			lprint(part.desc() + ": enqueueFrozenRotation(): " + prev + " -> " + frozenRotation);
 		}
 
 		public void FixedUpdate()
