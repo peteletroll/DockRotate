@@ -1062,22 +1062,6 @@ namespace DockRotate
 				&& vessel.CurrentControlLevel == Vessel.ControlLevel.FULL;
 		}
 
-		protected void enqueueFrozenRotation(float angle, float speed, float startSpeed = 0.0f)
-		{
-			Vector3 prev = frozenRotation;
-			if (frozenRotation[0] == 0.0f) {
-				frozenRotation[0] = angle;
-				frozenRotation[1] = speed;
-				frozenRotation[2] = startSpeed;
-			} else {
-				frozenRotation[0] += angle;
-				if (Mathf.Abs(frozenRotation[0]) >= SmoothMotion.CONTINUOUS / 2.0f)
-					frozenRotation[0] = Mathf.Sign(frozenRotation[0]) * SmoothMotion.CONTINUOUS;
-				frozenRotation[2] = startSpeed;
-			}
-			lprint(part.desc() + ": frozen rotation " + prev + " -> " + frozenRotation);
-		}
-
 		protected virtual bool enqueueRotation(float angle, float speed, float startSpeed = 0.0f)
 		{
 			if (!rotatingJoint)
@@ -1203,6 +1187,22 @@ namespace DockRotate
 			}
 			if (frozenRotation != prev)
 				lprint(part.desc() + ": updateFrozenRotation(): " + prev + " -> " + frozenRotation);
+		}
+
+		protected void enqueueFrozenRotation(float angle, float speed, float startSpeed = 0.0f)
+		{
+			Vector3 prev = frozenRotation;
+			if (frozenRotation[0] == 0.0f) {
+				frozenRotation[0] = angle;
+				frozenRotation[1] = speed;
+				frozenRotation[2] = startSpeed;
+			} else {
+				frozenRotation[0] += angle;
+				if (Mathf.Abs(frozenRotation[0]) >= SmoothMotion.CONTINUOUS / 2.0f)
+					frozenRotation[0] = Mathf.Sign(frozenRotation[0]) * SmoothMotion.CONTINUOUS;
+				frozenRotation[2] = startSpeed;
+			}
+			lprint(part.desc() + ": frozen rotation " + prev + " -> " + frozenRotation);
 		}
 
 		public void FixedUpdate()
