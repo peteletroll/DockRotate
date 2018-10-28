@@ -91,18 +91,18 @@ namespace DockRotate
 			return false;
 		}
 
-		public bool isContinuous(float target)
+		public bool isContinuous(ref float target)
 		{
-			return Mathf.Abs(target) > CONTINUOUS / 2.0f;
+			if (Mathf.Abs(target) > CONTINUOUS / 2.0f) {
+				target = Mathf.Sign(target) * CONTINUOUS;
+				return true;
+			}
+			return false;
 		}
 
 		public bool isContinuous()
 		{
-			if (isContinuous(tgt)) {
-				tgt = Mathf.Sign(tgt) * CONTINUOUS;
-				return true;
-			}
-			return false;
+			return isContinuous(ref tgt);
 		}
 
 		private bool checkFinished(float deltat)
@@ -1079,7 +1079,7 @@ namespace DockRotate
 					lprint(part.desc() + ": enqueueRotation() canceled, braking");
 					return false;
 				}
-				if (rotCur.isContinuous(angle)) {
+				if (rotCur.isContinuous(ref angle)) {
 					if (rotCur.isContinuous() && angle * rotCur.tgt > 0f)
 						showlog = false; // already continuous the right way
 					if (showlog)
