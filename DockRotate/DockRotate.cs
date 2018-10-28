@@ -1188,16 +1188,18 @@ namespace DockRotate
 				enqueueRotation(fr[0], fr[1], fr[2]);
 			}
 
-			updateFrozenRotation();
+			updateFrozenRotation(false);
 		}
 
-		protected void updateFrozenRotation()
+		protected void updateFrozenRotation(bool forceZero)
 		{
 			Vector3 prev = frozenRotation;
 			if (rotCur && rotCur.isContinuous()) {
 				frozenRotation[0] = rotCur.tgt;
 				frozenRotation[1] = rotCur.maxvel;
 				frozenRotation[2] = 0f;
+			} else if (forceZero) {
+				frozenRotation = Vector3.zero;
 			}
 			if (frozenRotation != prev)
 				lprint(part.desc() + ": updateFrozenRotation(): " + prev + " -> " + frozenRotation);
