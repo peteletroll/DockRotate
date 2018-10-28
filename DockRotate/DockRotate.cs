@@ -1083,8 +1083,8 @@ namespace DockRotate
 					if (showlog)
 						lprint("MERGE CONTINUOUS " + angle + " -> " + rotCur.tgt);
 					rotCur.tgt = angle;
-					frozenRotation[0] = angle;
-					frozenRotation[1] = speed;
+					rotCur.maxvel = speed;
+					updateFrozenRotation(true);
 				} else {
 					lprint("MERGE LIMITED " + angle + " -> " + rotCur.tgt);
 					if (rotCur.isContinuous()) {
@@ -1096,6 +1096,7 @@ namespace DockRotate
 					}
 					lprint("MERGED: POS " + rotCur.pos +" TGT " + rotCur.tgt);
 					frozenRotation = Vector3.zero;
+					updateFrozenRotation(true);
 				}
 				rotCur.maxvel = speed;
 				action = "updated";
@@ -1198,9 +1199,10 @@ namespace DockRotate
 				frozenRotation[2] = startSpeed;
 			} else {
 				frozenRotation[0] += angle;
+				frozenRotation[1] = speed;
+				frozenRotation[2] = startSpeed;
 				if (Mathf.Abs(frozenRotation[0]) >= SmoothMotion.CONTINUOUS / 2.0f)
 					frozenRotation[0] = Mathf.Sign(frozenRotation[0]) * SmoothMotion.CONTINUOUS;
-				frozenRotation[2] = startSpeed;
 			}
 			lprint(part.desc() + ": frozen rotation " + prev + " -> " + frozenRotation);
 		}
