@@ -1081,7 +1081,7 @@ namespace DockRotate
 						lprint("MERGE CONTINUOUS " + angle + " -> " + rotCur.tgt);
 					rotCur.tgt = angle;
 					rotCur.maxvel = speed;
-					updateFrozenRotation(true);
+					updateFrozenRotation("MERGECONT", true);
 				} else {
 					lprint("MERGE LIMITED " + angle + " -> " + rotCur.tgt);
 					if (rotCur.isContinuous()) {
@@ -1092,7 +1092,7 @@ namespace DockRotate
 						rotCur.tgt = rotCur.tgt + angle;
 					}
 					lprint("MERGED: POS " + rotCur.pos +" TGT " + rotCur.tgt);
-					updateFrozenRotation(true);
+					updateFrozenRotation("MERGELIM", true);
 				}
 				rotCur.maxvel = speed;
 				action = "updated";
@@ -1164,15 +1164,14 @@ namespace DockRotate
 
 			if (frozenRotation[0] != 0.0f) {
 				Vector3 fr = frozenRotation;
-				frozenRotation = Vector3.zero;
 				// lprint(part.desc() + ": resuming rotation " + fr);
 				enqueueRotation(fr[0], fr[1], fr[2]);
 			}
 
-			updateFrozenRotation(false);
+			updateFrozenRotation("CHECK", true);
 		}
 
-		protected void updateFrozenRotation(bool forceZero)
+		protected void updateFrozenRotation(string context, bool forceZero)
 		{
 			Vector3 prev = frozenRotation;
 			if (rotCur && rotCur.isContinuous()) {
@@ -1183,7 +1182,9 @@ namespace DockRotate
 				frozenRotation = Vector3.zero;
 			}
 			if (frozenRotation != prev)
-				lprint(part.desc() + ": updateFrozenRotation(): " + prev + " -> " + frozenRotation);
+				lprint(part.desc() + ": updateFrozenRotation("
+					+ context + ", " + forceZero + "): "
+					+ prev + " -> " + frozenRotation);
 		}
 
 		protected void enqueueFrozenRotation(float angle, float speed, float startSpeed = 0.0f)
