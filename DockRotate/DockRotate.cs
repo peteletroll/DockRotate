@@ -467,7 +467,7 @@ namespace DockRotate
 		)]
 		public bool rotationEnabled = false;
 
-#if DEBUG
+#if false
 		[UI_FloatEdit(
 			minValue = 0,
 			maxValue = 90,
