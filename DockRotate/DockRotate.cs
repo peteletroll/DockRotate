@@ -1059,6 +1059,11 @@ namespace DockRotate
 				&& vessel.CurrentControlLevel == Vessel.ControlLevel.FULL;
 		}
 
+		protected bool enqueueRotation(Vector3 frozen)
+		{
+			return enqueueRotation(frozen[0], frozen[1], frozen[2]);
+		}
+
 		protected virtual bool enqueueRotation(float angle, float speed, float startSpeed = 0.0f)
 		{
 			if (!rotatingJoint)
@@ -1162,11 +1167,8 @@ namespace DockRotate
 			if (onRails || !setupDone)
 				return;
 
-			if (frozenRotation[0] != 0.0f) {
-				Vector3 fr = frozenRotation;
-				// lprint(part.desc() + ": resuming rotation " + fr);
-				enqueueRotation(fr[0], fr[1], fr[2]);
-			}
+			if (frozenRotation[0] != 0.0f)
+				enqueueRotation(frozenRotation);
 
 			updateFrozenRotation("CHECK", true);
 		}
