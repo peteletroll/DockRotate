@@ -493,7 +493,7 @@ namespace DockRotate
 		)]
 		public float rotationStep = 15;
 
-#if DEBUG
+#if false
 		[UI_FloatEdit(
 			minValue = 1,
 			maxValue = 90,
@@ -1076,7 +1076,7 @@ namespace DockRotate
 				}
 				if (rotCur.isContinuous(angle)) {
 					if (rotCur.isContinuous() && angle * rotCur.tgt > 0f)
-						showlog = false;
+						showlog = false; // already continuous the right way
 					if (showlog)
 						lprint("MERGE CONTINUOUS " + angle + " -> " + rotCur.tgt);
 					rotCur.tgt = angle;
