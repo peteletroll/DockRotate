@@ -1177,9 +1177,7 @@ namespace DockRotate
 		{
 			Vector3 prev = frozenRotation;
 			if (rotCur && rotCur.isContinuous()) {
-				frozenRotation[0] = rotCur.tgt;
-				frozenRotation[1] = rotCur.maxvel;
-				frozenRotation[2] = 0f;
+				frozenRotation.Set(rotCur.tgt, rotCur.maxvel, 0f);
 			} else if (forceZero) {
 				frozenRotation = Vector3.zero;
 			}
@@ -1192,9 +1190,7 @@ namespace DockRotate
 		protected void enqueueFrozenRotation(float angle, float speed, float startSpeed = 0.0f)
 		{
 			Vector3 prev = frozenRotation;
-			frozenRotation[0] += angle;
-			frozenRotation[1] = speed;
-			frozenRotation[2] = startSpeed;
+			frozenRotation.Set(frozenRotation[0] + angle, speed, startSpeed);
 			if (Mathf.Abs(frozenRotation[0]) >= SmoothMotion.CONTINUOUS / 2.0f)
 				frozenRotation[0] = Mathf.Sign(frozenRotation[0]) * SmoothMotion.CONTINUOUS;
 			lprint(part.desc() + ": enqueueFrozenRotation(): " + prev + " -> " + frozenRotation);
