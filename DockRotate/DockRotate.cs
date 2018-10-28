@@ -1100,6 +1100,7 @@ namespace DockRotate
 						lprint("MERGE CONTINUOUS " + angle + " -> " + rotCur.tgt);
 					rotCur.tgt = angle;
 					frozenRotation[0] = angle;
+					frozenRotation[1] = speed;
 				} else {
 					lprint("MERGE LIMITED " + angle + " -> " + rotCur.tgt);
 					if (rotCur.isContinuous()) {
@@ -1180,7 +1181,6 @@ namespace DockRotate
 			if (onRails || !setupDone)
 				return;
 
-			Vector3 prev = frozenRotation;
 			if (frozenRotation[0] != 0.0f) {
 				Vector3 fr = frozenRotation;
 				frozenRotation = Vector3.zero;
@@ -1188,13 +1188,19 @@ namespace DockRotate
 				enqueueRotation(fr[0], fr[1], fr[2]);
 			}
 
+			updateFrozenRotation();
+		}
+
+		protected void updateFrozenRotation()
+		{
+			Vector3 prev = frozenRotation;
 			if (rotCur && rotCur.isContinuous()) {
 				frozenRotation[0] = rotCur.tgt;
 				frozenRotation[1] = rotCur.maxvel;
 				frozenRotation[2] = 0f;
 			}
 			if (frozenRotation != prev)
-				lprint(part.desc() + ": checkFrozenRotation(): " + prev + " -> " + frozenRotation);
+				lprint(part.desc() + ": updateFrozenRotation(): " + prev + " -> " + frozenRotation);
 		}
 
 		public void FixedUpdate()
