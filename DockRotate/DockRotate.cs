@@ -160,6 +160,8 @@ namespace DockRotate
 		private PartJoint joint;
 		public bool smartAutoStruts = false;
 
+		public ModuleBaseRotate controller = null;
+
 		private Guid vesselId;
 
 		public static string soundFile = "DockRotate/DockRotateMotor";
@@ -1115,10 +1117,12 @@ namespace DockRotate
 					lprint("MERGED: POS " + rotCur.pos +" TGT " + rotCur.tgt);
 					updateFrozenRotation("MERGELIM", true);
 				}
+				rotCur.controller = this;
 				rotCur.maxvel = speed;
 				action = "updated";
 			} else {
 				rotCur = new RotationAnimation(activePart, partNodePos, partNodeAxis, rotatingJoint, 0, angle, speed);
+				rotCur.controller = this;
 				rotCur.soundVolume = soundVolume;
 				rotCur.vel = startSpeed;
 				rotCur.smartAutoStruts = useSmartAutoStruts();
@@ -1649,15 +1653,21 @@ namespace DockRotate
 
 		protected override bool enqueueRotation(float angle, float speed, float startSpeed = 0.0f)
 		{
+			bool ret = false;
 			if (activeRotationModule == this) {
-				return base.enqueueRotation(angle, speed, startSpeed);
+				ret = base.enqueueRotation(angle, speed, startSpeed);
 			} else if (activeRotationModule && activeRotationModule.activeRotationModule == activeRotationModule) {
-				return activeRotationModule.enqueueRotation(angle, speed, startSpeed);
+				ret = activeRotationModule.enqueueRotation(angle, speed, startSpeed);
 			} else {
 				lprint("enqueueRotation() called on wrong module, ignoring, active part "
 				       + (activeRotationModule ? activeRotationModule.part.desc() : "null"));
 			}
-			return false;
+			if (ret) {
+				RotationAnimation cr = currentRotation();
+				if (cr)
+					cr.controller = this;
+			}
+			return ret;
 		}
 
 		protected override void advanceRotation(float deltat)
