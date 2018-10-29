@@ -1044,8 +1044,6 @@ namespace DockRotate
 			nodeStatus = nodeRole + " [" + nJoints + "]";
 			if (cr)
 				nodeStatus += " " + cr.pos + "\u00b0 -> "+ cr.tgt + "\u00b0";
-			if (cr && cr.controller == this)
-				nodeStatus += " CTL";
 			Fields["nodeStatus"].guiActive = guiActive && nodeStatus.Length > 0;
 #endif
 
@@ -1053,6 +1051,8 @@ namespace DockRotate
 				angleInfo = String.Format("{0:+0.00;-0.00;0.00}\u00b0 ({1:+0.00;-0.00;0.00}\u00b0/s)",
 					rotationAngle(true),
 					cr.vel);
+				if (cr.controller == this)
+					angleInfo += " CTL";
 			} else {
 				angleInfo = String.Format("{0:+0.00;-0.00;0.00}\u00b0 ({1:+0.0000;-0.0000;0.0000}\u00b0\u0394)",
 					rotationAngle(false),
