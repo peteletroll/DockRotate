@@ -1044,6 +1044,8 @@ namespace DockRotate
 			nodeStatus = nodeRole + " [" + nJoints + "]";
 			if (cr)
 				nodeStatus += " " + cr.pos + "\u00b0 -> "+ cr.tgt + "\u00b0";
+			if (cr && cr.controller == this)
+				nodeStatus += " CTL";
 			Fields["nodeStatus"].guiActive = guiActive && nodeStatus.Length > 0;
 #endif
 
