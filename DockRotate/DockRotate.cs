@@ -540,7 +540,7 @@ namespace DockRotate
 			isPersistant = true,
 			advancedTweakable = true,
 			guiName = "#DCKROT_speed_multiplier",
-			guiUnits = "\u00b0/s"
+			guiUnits = "x"
 		)]
 		public float speedMultiplier = 1;
 
