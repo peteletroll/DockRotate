@@ -519,6 +519,21 @@ namespace DockRotate
 		)]
 		public float rotationSpeed = 5;
 
+		[UI_FloatRange(
+			minValue = 1,
+			maxValue = 20,
+			stepIncrement = 1
+		)]
+		[KSPField(
+			guiActive = true,
+			guiActiveEditor = true,
+			isPersistant = true,
+			advancedTweakable = true,
+			guiName = "#DCKROT_speed_multiplier",
+			guiUnits = "\u00b0/s"
+		)]
+		public float speedMultiplier = 1;
+
 		[UI_Toggle(affectSymCounterparts = UI_Scene.None)]
 		[KSPField(
 			guiActive = true,
@@ -772,11 +787,6 @@ namespace DockRotate
 		{
 			if (onRails || !part || !vessel)
 				return;
-
-			rotationStep = Mathf.Abs(rotationStep);
-			rotationSpeed = Mathf.Abs(rotationSpeed);
-			if (rotationSpeed < 1.0f)
-				rotationSpeed = 1.0f;
 
 			setupGuiActive();
 
@@ -1059,6 +1069,12 @@ namespace DockRotate
 				&& vessel.CurrentControlLevel == Vessel.ControlLevel.FULL;
 		}
 
+		protected float speed()
+		{
+			float s = Mathf.Abs(rotationSpeed * speedMultiplier);
+			return s >= 1f ? s : 1f;
+		}
+
 		protected bool enqueueRotation(Vector3 frozen)
 		{
 			return enqueueRotation(frozen[0], frozen[1], frozen[2]);
@@ -1132,7 +1148,7 @@ namespace DockRotate
 		{
 			if (snap < 0.5f)
 				snap = 15.0f;
-			return enqueueRotation(angleToSnap(snap), rotationSpeed);
+			return enqueueRotation(angleToSnap(snap), speed);
 		}
 
 		protected virtual void advanceRotation(float deltat)
@@ -1345,7 +1361,7 @@ namespace DockRotate
 				s = SmoothMotion.CONTINUOUS;
 			if (reverseRotation)
 				s = -s;
-			enqueueRotation(s, rotationSpeed);
+			enqueueRotation(s, speed());
 		}
 
 		public override void doRotateCounterclockwise()
@@ -1355,12 +1371,12 @@ namespace DockRotate
 				s = -SmoothMotion.CONTINUOUS;
 			if (reverseRotation)
 				s = -s;
-			enqueueRotation(s, rotationSpeed);
+			enqueueRotation(s, speed());
 		}
 
 		public override void doRotateToSnap()
 		{
-			enqueueRotationToSnap(rotationStep, rotationSpeed);
+			enqueueRotationToSnap(rotationStep, speed());
 		}
 
 		public override bool useSmartAutoStruts()
@@ -1663,7 +1679,7 @@ namespace DockRotate
 				s = SmoothMotion.CONTINUOUS;
 			if (reverseRotation)
 				s = -s;
-			enqueueRotation(s, rotationSpeed);
+			enqueueRotation(s, speed());
 		}
 
 		public override void doRotateCounterclockwise()
@@ -1675,7 +1691,7 @@ namespace DockRotate
 				s = -SmoothMotion.CONTINUOUS;
 			if (reverseRotation)
 				s = -s;
-			enqueueRotation(s, rotationSpeed);
+			enqueueRotation(s, speed());
 		}
 
 		public override void doRotateToSnap()
@@ -1685,7 +1701,7 @@ namespace DockRotate
 			float snap = rotationStep;
 			if (snap < 0.5f && otherRotationModule)
 				snap = otherRotationModule.rotationStep;
-			activeRotationModule.enqueueRotationToSnap(snap, rotationSpeed);
+			activeRotationModule.enqueueRotationToSnap(snap, speed());
 		}
 
 		protected override RotationAnimation currentRotation()
