@@ -276,6 +276,9 @@ namespace DockRotate
 
 			stepSound();
 
+			if (controller)
+				maxvel = controller.speed();
+
 			// first rough attempt for electricity consumption
 			if (deltat > 0) {
 				double el = activePart.RequestResource("ElectricCharge", 1.0 * deltat);
@@ -1071,7 +1074,7 @@ namespace DockRotate
 				&& vessel.CurrentControlLevel == Vessel.ControlLevel.FULL;
 		}
 
-		protected float speed()
+		public float speed()
 		{
 			float s = Mathf.Abs(rotationSpeed * speedMultiplier);
 			return s >= 1f ? s : 1f;
