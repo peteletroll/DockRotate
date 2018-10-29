@@ -91,7 +91,7 @@ namespace DockRotate
 			return false;
 		}
 
-		public bool isContinuous(ref float target)
+		public static bool isContinuous(ref float target)
 		{
 			if (Mathf.Abs(target) > CONTINUOUS / 2.0f) {
 				target = Mathf.Sign(target) * CONTINUOUS;
@@ -1079,7 +1079,7 @@ namespace DockRotate
 					lprint(part.desc() + ": enqueueRotation() canceled, braking");
 					return false;
 				}
-				if (rotCur.isContinuous(ref angle)) {
+				if (SmoothMotion.isContinuous(ref angle)) {
 					if (rotCur.isContinuous() && angle * rotCur.tgt > 0f)
 						showlog = false; // already continuous the right way
 					if (showlog)
@@ -1190,9 +1190,9 @@ namespace DockRotate
 		protected void enqueueFrozenRotation(float angle, float speed, float startSpeed = 0.0f)
 		{
 			Vector3 prev = frozenRotation;
-			frozenRotation.Set(frozenRotation[0] + angle, speed, startSpeed);
-			if (Mathf.Abs(frozenRotation[0]) >= SmoothMotion.CONTINUOUS / 2.0f)
-				frozenRotation[0] = Mathf.Sign(frozenRotation[0]) * SmoothMotion.CONTINUOUS;
+			angle += frozenRotation[0];
+			SmoothMotion.isContinuous(ref angle);
+			frozenRotation.Set(angle, speed, startSpeed);
 			lprint(part.desc() + ": enqueueFrozenRotation(): " + prev + " -> " + frozenRotation);
 		}
 
