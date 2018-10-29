@@ -276,8 +276,13 @@ namespace DockRotate
 
 			stepSound();
 
-			if (controller)
-				maxvel = controller.speed();
+			if (controller) {
+				float s = controller.speed();
+				if (s != maxvel) {
+					lprint(controller.part.desc() + ": speed change " + maxvel + " -> " + s);
+					maxvel = s;
+				}
+			}
 
 			// first rough attempt for electricity consumption
 			if (deltat > 0) {
