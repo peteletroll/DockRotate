@@ -542,7 +542,7 @@ namespace DockRotate
 			guiName = "#DCKROT_speed_multiplier",
 			guiUnits = "x"
 		)]
-		public float speedMultiplier = 1;
+		public float speedMultiplier = 1f;
 
 		[UI_Toggle(affectSymCounterparts = UI_Scene.None)]
 		[KSPField(
