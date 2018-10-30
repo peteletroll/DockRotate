@@ -1381,22 +1381,12 @@ namespace DockRotate
 
 		public override void doRotateClockwise()
 		{
-			float s = rotationStep;
-			if (s <= 0.5f)
-				s = SmoothMotion.CONTINUOUS;
-			if (reverseRotation)
-				s = -s;
-			enqueueRotation(s, speed());
+			enqueueRotation(step(), speed());
 		}
 
 		public override void doRotateCounterclockwise()
 		{
-			float s = -rotationStep;
-			if (s >= -0.5f)
-				s = -SmoothMotion.CONTINUOUS;
-			if (reverseRotation)
-				s = -s;
-			enqueueRotation(s, speed());
+			enqueueRotation(-step(), speed());
 		}
 
 		public override void doRotateToSnap()
@@ -1705,24 +1695,14 @@ namespace DockRotate
 		{
 			if (!activeRotationModule)
 				return;
-			float s = rotationStep;
-			if (s <= 0.5f)
-				s = SmoothMotion.CONTINUOUS;
-			if (reverseRotation)
-				s = -s;
-			enqueueRotation(s, speed());
+			enqueueRotation(step(), speed());
 		}
 
 		public override void doRotateCounterclockwise()
 		{
 			if (!activeRotationModule)
 				return;
-			float s = -rotationStep;
-			if (s >= -0.5f)
-				s = -SmoothMotion.CONTINUOUS;
-			if (reverseRotation)
-				s = -s;
-			enqueueRotation(s, speed());
+			enqueueRotation(-step(), speed());
 		}
 
 		public override void doRotateToSnap()
