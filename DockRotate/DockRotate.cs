@@ -1082,6 +1082,16 @@ namespace DockRotate
 				&& vessel.CurrentControlLevel == Vessel.ControlLevel.FULL;
 		}
 
+		public float step()
+		{
+			float s = rotationStep;
+			if (s <= 0.5f)
+				s = SmoothMotion.CONTINUOUS;
+			if (reverseRotation)
+				s = -s;
+			return s;
+		}
+
 		public float speed()
 		{
 			float s = Mathf.Abs(rotationSpeed * speedMultiplier);
