@@ -1035,6 +1035,9 @@ namespace DockRotate
 		{
 			base.OnUpdate();
 
+			if (MapView.MapIsEnabled)
+				return;
+
 			bool guiActive = canStartRotation();
 			RotationAnimation cr = currentRotation();
 
@@ -1059,7 +1062,7 @@ namespace DockRotate
 					dynamicDeltaAngle());
 			}
 
-			Events["StopRotation"].guiActive = currentRotation();
+			Events["StopRotation"].guiActive = cr;
 
 			checkGuiActive();
 
