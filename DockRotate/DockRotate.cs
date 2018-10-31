@@ -1255,6 +1255,7 @@ namespace DockRotate
 				if (brakeRotationKey())
 					rotCur.brake();
 				advanceRotation(Time.fixedDeltaTime);
+				updateFrozenRotation("FIXED", true);
 			}
 		}
 
