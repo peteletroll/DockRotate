@@ -339,7 +339,7 @@ namespace DockRotate
 				sound.maxDistance = 1000f;
 				sound.playOnAwake = false;
 
-				uint pa = 33 * (activePart.flightID + proxyPart.flightID) % 10000;
+				uint pa = 33 * (activePart.flightID ^ proxyPart.flightID) % 10000;
 				pitchAlteration = 0.2f * (pa / 10000f) + 0.9f;
 
 				sound.Play();
