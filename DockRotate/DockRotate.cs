@@ -83,7 +83,7 @@ namespace DockRotate
 		{
 			if (pos < -3600f || pos > 3600f) {
 				float newzero = 360f * Mathf.Floor(pos / 360f + 0.5f);
-				ModuleBaseRotate.lprint("clampAngle(): newzero " + newzero + " from pos " + pos);
+				// ModuleBaseRotate.lprint("clampAngle(): newzero " + newzero + " from pos " + pos);
 				tgt -= newzero;
 				pos -= newzero;
 				return true;
