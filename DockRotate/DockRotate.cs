@@ -827,7 +827,7 @@ namespace DockRotate
 				lprint(part.desc() + ": OnVesselGoOffRails(" + v.persistentId + ") [" + vessel.persistentId + "]");
 			if (v != vessel)
 				return;
-			// VesselRotInfo.resetInfo(vessel.id);
+			VesselRotInfo.resetInfo(vessel.id);
 			onRails = false;
 			setupDone = false;
 			// start speed always 0 when going off rails
