@@ -1566,7 +1566,7 @@ namespace DockRotate
 			}
 
 			if (activeRotationModule == this) {
-				proxyRotationModule.nodeRole = "Proxy";
+				proxyRotationModule.nodeRole = svj ? "ProxySame" : "Proxy";
 				proxyRotationModule.activeRotationModule = activeRotationModule;
 				proxyRotationModule.activePart = activePart;
 				proxyRotationModule.proxyRotationModule = proxyRotationModule;
