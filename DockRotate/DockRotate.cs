@@ -1210,7 +1210,7 @@ namespace DockRotate
 			if (onRails || !setupDone)
 				return;
 
-			if (frozenRotation[0] != 0.0f)
+			if (frozenRotation[0] != 0.0f && !currentRotation())
 				enqueueRotation(frozenRotation);
 
 			updateFrozenRotation("CHECK", true);
