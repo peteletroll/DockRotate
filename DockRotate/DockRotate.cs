@@ -1120,19 +1120,21 @@ namespace DockRotate
 					lprint(part.desc() + ": enqueueRotation() canceled, braking");
 					return false;
 				}
+				rotCur.controller = this;
+				rotCur.maxvel = speed;
+				action = "updated";
 				if (SmoothMotion.isContinuous(ref angle)) {
 					if (rotCur.isContinuous() && angle * rotCur.tgt > 0f)
 						showlog = false; // already continuous the right way
 					if (showlog)
 						lprint("MERGE CONTINUOUS " + angle + " -> " + rotCur.tgt);
 					rotCur.tgt = angle;
-					rotCur.maxvel = speed;
 					updateFrozenRotation("MERGECONT", true);
 				} else {
 					lprint("MERGE LIMITED " + angle + " -> " + rotCur.tgt);
 					if (rotCur.isContinuous()) {
 						lprint("MERGE INTO CONTINUOUS");
-						rotCur.tgt = rotCur.pos + angle;
+						rotCur.tgt = rotCur.pos + rotCur.curBrakingSpace() + angle;
 					} else {
 						lprint("MERGE INTO LIMITED");
 						rotCur.tgt = rotCur.tgt + angle;
@@ -1140,9 +1142,6 @@ namespace DockRotate
 					lprint("MERGED: POS " + rotCur.pos +" TGT " + rotCur.tgt);
 					updateFrozenRotation("MERGELIM", true);
 				}
-				rotCur.controller = this;
-				rotCur.maxvel = speed;
-				action = "updated";
 			} else {
 				rotCur = new RotationAnimation(activePart, partNodePos, partNodeAxis, rotatingJoint, 0, angle, speed);
 				rotCur.controller = this;
