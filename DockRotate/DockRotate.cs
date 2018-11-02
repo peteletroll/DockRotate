@@ -751,6 +751,11 @@ namespace DockRotate
 		[KSPField(isPersistant = true)]
 		public Vector3 frozenRotation = Vector3.zero;
 
+		[KSPField(isPersistant = true)]
+		public uint frozenRotationControllerID = 0;
+
+		protected abstract ModuleBaseRotate controller(uint id);
+
 		protected bool setupDone = false;
 		protected abstract void setup();
 
@@ -1169,8 +1174,12 @@ namespace DockRotate
 			if (onRails || !setupDone)
 				return;
 
-			if (frozenRotation[0] != 0.0f && !currentRotation())
+			if (frozenRotation[0] != 0.0f && !currentRotation()) {
 				enqueueRotation(frozenRotation);
+				RotationAnimation cr = currentRotation();
+				if (cr)
+					cr.controller = controller(frozenRotationControllerID);
+			}
 
 			updateFrozenRotation("CHECK", true);
 		}
@@ -1180,13 +1189,15 @@ namespace DockRotate
 			Vector3 prev = frozenRotation;
 			if (rotCur && rotCur.isContinuous()) {
 				frozenRotation.Set(rotCur.tgt, rotCur.maxvel, 0f);
+				frozenRotationControllerID = (rotCur && rotCur.controller) ? rotCur.controller.part.flightID : 0;
 			} else if (forceZero) {
 				frozenRotation = Vector3.zero;
+				frozenRotationControllerID = 0;
 			}
 			if (frozenRotation != prev)
 				lprint(part.desc() + ": updateFrozenRotation("
 					+ context + ", " + forceZero + "): "
-					+ prev + " -> " + frozenRotation);
+					+ prev + " -> " + frozenRotation + "@" + frozenRotationControllerID);
 		}
 
 		protected void enqueueFrozenRotation(float angle, float speed, float startSpeed = 0.0f)
@@ -1342,6 +1353,11 @@ namespace DockRotate
 					+ ": on "
 					+ (activePart == part ? "itself" : activePart.desc()));
 			}
+		}
+
+		protected override ModuleBaseRotate controller(uint id)
+		{
+			return part.flightID == id ? this : null;
 		}
 
 		public override void doRotateClockwise()
@@ -1543,6 +1559,15 @@ namespace DockRotate
 				&& (rotationEnabled || proxyRotationModule.rotationEnabled)) {
 				enqueueFrozenRotation(angleToSnap(dockingNode.snapOffset), rotationSpeed);
 			}
+		}
+
+		protected override ModuleBaseRotate controller(uint id)
+		{
+			if (activeRotationModule && activeRotationModule.part.flightID == id)
+				return activeRotationModule;
+			if (proxyRotationModule && proxyRotationModule.part.flightID == id)
+				return proxyRotationModule;
+			return null;
 		}
 
 		private bool isDockedToParent(bool verbose) // must be used only after basicSetup()
