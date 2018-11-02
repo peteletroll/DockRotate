@@ -477,23 +477,15 @@ namespace DockRotate
 		)]
 		public bool rotationEnabled = false;
 
-#if false
 		[UI_FloatEdit(
 			minValue = 0,
-			maxValue = 90,
+			maxValue = 360,
 			incrementSlide = 1,
-			incrementSmall = 1,
-			incrementLarge = 5,
+			incrementSmall = 5,
+			incrementLarge = 15,
 			sigFigs = 0,
 			unit = "\u00b0"
 		)]
-#else
-		[UI_FloatRange(
-			minValue = 0,
-			maxValue = 180,
-			stepIncrement = 5
-		)]
-#endif
 		[KSPField(
 			guiActive = true,
 			guiActiveEditor = true,
@@ -503,23 +495,15 @@ namespace DockRotate
 		)]
 		public float rotationStep = 15;
 
-#if false
 		[UI_FloatEdit(
 			minValue = 1,
-			maxValue = 90,
+			maxValue = 3600,
 			incrementSlide = 1,
-			incrementSmall = 1,
-			incrementLarge = 5,
+			incrementSmall = 15,
+			incrementLarge = 180,
 			sigFigs = 0,
 			unit = "\u00b0/s"
 		)]
-#else
-		[UI_FloatRange(
-			minValue = 1,
-			maxValue = 90,
-			stepIncrement = 1
-		)]
-#endif
 		[KSPField(
 			guiActive = true,
 			guiActiveEditor = true,
@@ -528,21 +512,6 @@ namespace DockRotate
 			guiUnits = "\u00b0/s"
 		)]
 		public float rotationSpeed = 5;
-
-		[UI_FloatRange(
-			minValue = 1,
-			maxValue = 20,
-			stepIncrement = 1
-		)]
-		[KSPField(
-			guiActive = true,
-			guiActiveEditor = true,
-			isPersistant = true,
-			advancedTweakable = true,
-			guiName = "#DCKROT_speed_multiplier",
-			guiUnits = "x"
-		)]
-		public float speedMultiplier = 1f;
 
 		[UI_Toggle(affectSymCounterparts = UI_Scene.None)]
 		[KSPField(
@@ -1096,7 +1065,7 @@ namespace DockRotate
 
 		public float speed()
 		{
-			float s = Mathf.Abs(rotationSpeed * speedMultiplier);
+			float s = Mathf.Abs(rotationSpeed);
 			return s >= 1f ? s : 1f;
 		}
 
