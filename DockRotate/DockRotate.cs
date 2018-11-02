@@ -1186,7 +1186,8 @@ namespace DockRotate
 
 		protected void updateFrozenRotation(string context, bool forceZero)
 		{
-			Vector3 prev = frozenRotation;
+			Vector3 prevRot = frozenRotation;
+			uint prevID = frozenRotationControllerID;
 			if (rotCur && rotCur.isContinuous()) {
 				frozenRotation.Set(rotCur.tgt, rotCur.maxvel, 0f);
 				frozenRotationControllerID = (rotCur && rotCur.controller) ? rotCur.controller.part.flightID : 0;
@@ -1194,10 +1195,11 @@ namespace DockRotate
 				frozenRotation = Vector3.zero;
 				frozenRotationControllerID = 0;
 			}
-			if (frozenRotation != prev)
+			if (frozenRotation != prevRot || frozenRotationControllerID != prevID)
 				lprint(part.desc() + ": updateFrozenRotation("
 					+ context + ", " + forceZero + "): "
-					+ prev + " -> " + frozenRotation + "@" + frozenRotationControllerID);
+					+ prevRot + "@" + prevID
+					+ " -> " + frozenRotation + "@" + frozenRotationControllerID);
 		}
 
 		protected void enqueueFrozenRotation(float angle, float speed, float startSpeed = 0.0f)
