@@ -942,7 +942,6 @@ namespace DockRotate
 			"angleInfo",
 			"rotationStep",
 			"rotationSpeed",
-			"speedMultiplier",
 			"reverseRotation",
 			"RotateClockwise",
 			"RotateCounterclockwise",
