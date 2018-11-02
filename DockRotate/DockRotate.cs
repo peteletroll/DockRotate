@@ -478,13 +478,9 @@ namespace DockRotate
 		public bool rotationEnabled = false;
 
 		[UI_FloatEdit(
-			minValue = 0,
-			maxValue = 360,
-			incrementSlide = 1,
-			incrementSmall = 5,
-			incrementLarge = 15,
-			sigFigs = 0,
-			unit = "\u00b0"
+			minValue = 0, maxValue = 360,
+			incrementSlide = 1, incrementSmall = 5, incrementLarge = 30,
+			sigFigs = 0, unit = "\u00b0"
 		)]
 		[KSPField(
 			guiActive = true,
@@ -496,13 +492,9 @@ namespace DockRotate
 		public float rotationStep = 15;
 
 		[UI_FloatEdit(
-			minValue = 1,
-			maxValue = 3600,
-			incrementSlide = 1,
-			incrementSmall = 15,
-			incrementLarge = 180,
-			sigFigs = 0,
-			unit = "\u00b0/s"
+			minValue = 1, maxValue = 3600,
+			incrementSlide = 1, incrementSmall = 15, incrementLarge = 180,
+			sigFigs = 0, unit = "\u00b0/s"
 		)]
 		[KSPField(
 			guiActive = true,
