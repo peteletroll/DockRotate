@@ -1094,7 +1094,7 @@ namespace DockRotate
 					if (showlog)
 						lprint("MERGE CONTINUOUS " + angle + " -> " + rotCur.tgt);
 					rotCur.tgt = angle;
-					updateFrozenRotation("MERGECONT", true);
+					updateFrozenRotation("MERGECONT");
 				} else {
 					lprint("MERGE LIMITED " + angle + " -> " + rotCur.tgt);
 					if (rotCur.isContinuous()) {
@@ -1105,7 +1105,7 @@ namespace DockRotate
 						rotCur.tgt = rotCur.tgt + angle;
 					}
 					lprint("MERGED: POS " + rotCur.pos +" TGT " + rotCur.tgt);
-					updateFrozenRotation("MERGELIM", true);
+					updateFrozenRotation("MERGELIM");
 				}
 			} else {
 				rotCur = new RotationAnimation(activePart, partNodePos, partNodeAxis, rotatingJoint, 0, angle, speed);
@@ -1181,23 +1181,23 @@ namespace DockRotate
 					cr.controller = controller(frozenRotationControllerID);
 			}
 
-			updateFrozenRotation("CHECK", true);
+			updateFrozenRotation("CHECK");
 		}
 
-		protected void updateFrozenRotation(string context, bool forceZero)
+		protected void updateFrozenRotation(string context)
 		{
 			Vector3 prevRot = frozenRotation;
 			uint prevID = frozenRotationControllerID;
 			if (rotCur && rotCur.isContinuous()) {
 				frozenRotation.Set(rotCur.tgt, rotCur.maxvel, 0f);
 				frozenRotationControllerID = (rotCur && rotCur.controller) ? rotCur.controller.part.flightID : 0;
-			} else if (forceZero) {
+			} else {
 				frozenRotation = Vector3.zero;
 				frozenRotationControllerID = 0;
 			}
 			if (frozenRotation != prevRot || frozenRotationControllerID != prevID)
 				lprint(part.desc() + ": updateFrozenRotation("
-					+ context + ", " + forceZero + "): "
+					+ context + "): "
 					+ prevRot + "@" + prevID
 					+ " -> " + frozenRotation + "@" + frozenRotationControllerID);
 		}
@@ -1227,7 +1227,7 @@ namespace DockRotate
 				if (brakeRotationKey())
 					rotCur.brake();
 				advanceRotation(Time.fixedDeltaTime);
-				updateFrozenRotation("FIXED", true);
+				updateFrozenRotation("FIXED");
 			}
 		}
 
