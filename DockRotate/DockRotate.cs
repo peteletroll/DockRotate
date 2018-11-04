@@ -273,11 +273,13 @@ namespace DockRotate
 					j.targetRotation = ji.jm.tgtRot0 * jointRotation;
 					j.targetPosition = jointRotation * (ji.jm.tgtPos0 - ji.jointNode) + ji.jointNode;
 
-					torque += j.currentTorque.Td(j.connectedBody.T(), activePart.T());
+					Vector3 jt = j.currentTorque;
+					if (Time.frameCount % 100 == 0)
+						lprint(activePart.desc() + ": torque[" + i + "] = " + torque + "|" + jt.magnitude + "|");
+
+					torque += jt.Td(j.connectedBody.T(), activePart.T());
 				}
 			}
-			if (Time.frameCount % 100 == 0)
-				lprint(activePart.desc() + ": torque " + torque);
 			float power = Mathf.Abs(vel * Vector3.Dot(torque, axis));
 			energy += deltat * power;
 
