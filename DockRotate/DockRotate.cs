@@ -169,8 +169,6 @@ namespace DockRotate
 		public float soundVolume = 1f;
 		public float pitchAlteration = 1f;
 
-		public float energy = 0;
-
 		private struct RotJointInfo
 		{
 			public ConfigurableJoint joint;
@@ -262,7 +260,6 @@ namespace DockRotate
 
 		protected override void onStep(float deltat)
 		{
-			Vector3 torque = Vector3.zero;
 			for (int i = 0; i < joint.joints.Count; i++) {
 				ConfigurableJoint j = joint.joints[i];
 				if (j) {
@@ -272,16 +269,8 @@ namespace DockRotate
 
 					j.targetRotation = ji.jm.tgtRot0 * jointRotation;
 					j.targetPosition = jointRotation * (ji.jm.tgtPos0 - ji.jointNode) + ji.jointNode;
-
-					Vector3 jt = j.currentTorque;
-					if (Time.frameCount % 100 == 0)
-						lprint(activePart.desc() + ": torque[" + i + "] = " + torque.ToString("E4"));
-
-					torque += jt.Td(j.connectedBody.T(), activePart.T());
 				}
 			}
-			float power = Mathf.Abs(vel * Vector3.Dot(torque, axis));
-			energy += deltat * power;
 
 			stepSound();
 
@@ -322,7 +311,7 @@ namespace DockRotate
 					joint.Host.vessel.secureAllAutoStruts();
 				}
 			}
-			lprint(activePart.desc() + ": rotation stopped, energy " + energy);
+			lprint(activePart.desc() + ": rotation stopped");
 		}
 
 		public void startSound()
