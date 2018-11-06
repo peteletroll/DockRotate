@@ -275,7 +275,7 @@ namespace DockRotate
 
 					Vector3 jt = j.currentTorque;
 					if (Time.frameCount % 100 == 0)
-						lprint(activePart.desc() + ": torque[" + i + "] = " + torque + "|" + jt.magnitude + "|");
+						lprint(activePart.desc() + ": torque[" + i + "] = " + torque.ToString("E4"));
 
 					torque += jt.Td(j.connectedBody.T(), activePart.T());
 				}
