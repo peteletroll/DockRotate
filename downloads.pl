@@ -25,5 +25,5 @@ foreach my $r (reverse @$j) {
 		$total += $c;
 	}
 }
-printf "%6d total\n", $total;
+printf "%6d total - %s\n", $total, $url;
 
