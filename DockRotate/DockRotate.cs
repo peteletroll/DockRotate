@@ -1301,8 +1301,13 @@ namespace DockRotate
 			if (part.FindModuleImplementing<ModuleDockRotate>())
 				return;
 
-			rotatingNode = part.PhysicsSignificance == 0 ?
-				part.FindAttachNode(rotatingNodeName) : null;
+			if (part.physicalSignificance != Part.PhysicalSignificance.FULL) {
+				lprint(part.desc() + ": physicsless, NodeRotate disabled"
+					+ " [" + part.PhysicsSignificance + " " + part.physicalSignificance + "]");
+				return;
+			}
+
+			rotatingNode = part.FindAttachNode(rotatingNodeName);
 			if (rotatingNode == null) {
 				lprint(part.desc() + " has no node named \"" + rotatingNodeName + "\"");
 				AttachNode[] nodes = part.FindAttachNodes("");
