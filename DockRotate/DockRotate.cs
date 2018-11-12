@@ -1937,7 +1937,7 @@ namespace DockRotate
 
 		public static void forcePhysics(this Part part)
 		{
-			if (part.PhysicsSignificance != 0 || part.physicalSignificance != Part.PhysicalSignificance.FULL) {
+			if (part.physicalSignificance != Part.PhysicalSignificance.FULL) {
 				lprint(part.desc() + ": calling PromoteToPhysicalPart(), "
 				       + part.PhysicsSignificance + " " + part.physicalSignificance);
 				part.physicalSignificance = Part.PhysicalSignificance.NONE;
