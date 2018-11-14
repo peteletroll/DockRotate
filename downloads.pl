@@ -12,9 +12,18 @@ my $url = "https://api.github.com/repos/$user/$repository/releases";
 my $j = get($url)
 	or die "$0: can't get $url\n";
 $j = from_json($j);
-foreach my $r (@$j) {
+my $total = 0;
+foreach my $r (reverse @$j) {
 	foreach my $a (@{$r->{assets}}) {
-		printf "%6d %s\n", $a->{download_count}, $a->{name};
+		my $c = $a->{download_count};
+		my $d = $a->{updated_at};
+		$d =~ s/[A-Z]/ /gs;
+		$d =~ s/^\s+//;
+		$d =~ s/\s+$//;
+		$d =~ s/\s+/ /g;
+		printf "%6d %s %s\n", $c, $d, $a->{name};
+		$total += $c;
 	}
 }
+printf "%6d total - %s\n", $total, $url;
 
