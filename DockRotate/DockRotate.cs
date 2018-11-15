@@ -1301,9 +1301,8 @@ namespace DockRotate
 			if (part.FindModuleImplementing<ModuleDockRotate>())
 				return;
 
-			if (part.physicalSignificance != Part.PhysicalSignificance.FULL) {
-				lprint(part.desc() + ": physicsless, NodeRotate disabled"
-					+ " [" + part.PhysicsSignificance + " " + part.physicalSignificance + "]");
+			if (!part.hasPhysics()) {
+				lprint(part.desc() + ": physicsless, NodeRotate disabled");
 				return;
 			}
 
@@ -1938,11 +1937,26 @@ namespace DockRotate
 			}
 		}
 
+		public static bool hasPhysics(this Part part)
+		{
+			bool ret = (part.physicalSignificance == Part.PhysicalSignificance.FULL);
+			if (ret != part.rb) {
+				lprint(part.desc() + ": hasPhysics() Rigidbody incoherency: "
+					+ part.physicalSignificance + ", " + (part.rb ? "rb ok" : "rb null"));
+				ret = part.rb;
+			}
+			if (ret != (part.PhysicsSignificance != 0)) {
+				lprint(part.desc() + ": hasPhysics() PhysicsSignificance incoherency: "
+					+ part.physicalSignificance + ", " + part.PhysicsSignificance);
+			}
+			return ret;
+		}
+
 		public static void forcePhysics(this Part part)
 		{
-			if (part.physicalSignificance != Part.PhysicalSignificance.FULL) {
+			if (!part.hasPhysics()) {
 				lprint(part.desc() + ": calling PromoteToPhysicalPart(), "
-				       + part.PhysicsSignificance + " " + part.physicalSignificance);
+					+ part.PhysicsSignificance + " " + part.physicalSignificance);
 				part.physicalSignificance = Part.PhysicalSignificance.NONE;
 				part.PromoteToPhysicalPart();
 			}
