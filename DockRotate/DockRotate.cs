@@ -1952,14 +1952,19 @@ namespace DockRotate
 			return ret;
 		}
 
-		public static void forcePhysics(this Part part)
+		public static bool forcePhysics(this Part part)
 		{
-			if (!part.hasPhysics()) {
-				lprint(part.desc() + ": calling PromoteToPhysicalPart(), "
-					+ part.PhysicsSignificance + " " + part.physicalSignificance);
-				part.physicalSignificance = Part.PhysicalSignificance.NONE;
-				part.PromoteToPhysicalPart();
-			}
+			if (part.hasPhysics())
+				return false;
+
+			lprint(part.desc() + ": calling PromoteToPhysicalPart(), "
+				+ part.PhysicsSignificance + " " + part.physicalSignificance);
+			part.physicalSignificance = Part.PhysicalSignificance.NONE;
+			part.PromoteToPhysicalPart();
+
+			// some PartJoint.Create() magic required here
+
+			return true;
 		}
 
 		/******** ModuleDockingMode utilities ********/
