@@ -1325,12 +1325,15 @@ namespace DockRotate
 
 			partNodePos = rotatingNode.position;
 			partNodeAxis = rotatingNode.orientation;
-
 			partNodeUp = part.up(partNodeAxis);
 
 			Part other = rotatingNode.attachedPart;
 			if (!other)
 				return;
+			if (!other.rb) {
+				lprint(part.desc() + ": other part " + other.desc() + " has no Rigidbody");
+				return;
+			}
 
 			if (false && other) // FIXME: try to find a way to make it work
 				other.forcePhysics();
