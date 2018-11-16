@@ -1944,10 +1944,6 @@ namespace DockRotate
 					+ part.physicalSignificance + ", " + (part.rb ? "rb ok" : "rb null"));
 				ret = part.rb;
 			}
-			if (ret != (part.PhysicsSignificance != 0)) {
-				lprint(part.desc() + ": hasPhysics() PhysicsSignificance incoherency: "
-					+ part.physicalSignificance + ", " + part.PhysicsSignificance);
-			}
 			return ret;
 		}
 
@@ -1956,8 +1952,7 @@ namespace DockRotate
 			if (!part || part.hasPhysics())
 				return false;
 
-			lprint(part.desc() + ": calling PromoteToPhysicalPart(), "
-				+ part.PhysicsSignificance + " " + part.physicalSignificance);
+			lprint(part.desc() + ": calling PromoteToPhysicalPart(), " + part.physicalSignificance);
 			part.physicalSignificance = Part.PhysicalSignificance.NONE;
 			part.PromoteToPhysicalPart();
 
