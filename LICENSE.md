@@ -1,4 +1,4 @@
-This license doesn't cover the content of the MotorPoint directory:
+This license doesn't cover the content of the MotorPoint and motorCap directories:
 
 The MIT License (MIT)
 
@@ -24,7 +24,7 @@ THE SOFTWARE.
 
 -----------------------------------------------------------------------------
 
-This license covers the content of the MotorPoint directory only:
+This license covers the content of the MotorPoint and motorCap directores only:
 
 The MIT License (MIT)
 
