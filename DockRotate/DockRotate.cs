@@ -1962,6 +1962,35 @@ namespace DockRotate
 			part.PromoteToPhysicalPart();
 
 			// some PartJoint.Create() magic required here
+			// to create parent joint
+
+			if (part.parent) {
+				AttachNode nodeHere = part.FindAttachNodeByPart(part.parent);
+				// lprint(part.desc() + " nodeHere " + nodeHere.desc());
+				AttachNode nodeParent = part.parent.FindAttachNodeByPart(part);
+				// lprint(part.desc() + " nodeParent " + nodeParent.desc());
+				AttachModes m = (nodeHere != null && nodeParent != null) ? AttachModes.STACK : AttachModes.SRF_ATTACH;
+				if (part.attachJoint) {
+					// this check is for extra safety, never saw this happen
+					lprint(part.desc() + ": parent joint exists already");
+				} else {
+					PartJoint nj = PartJoint.Create(part, part.parent, nodeHere, nodeParent, m);
+					// nj.dump();
+					lprint(part.desc() + ": created joint " + m + " " + nj.desc());
+					if (part.attachJoint) {
+						// these checks are for extra safety, never saw this happen
+						if (part.attachJoint == nj) {
+							lprint(part.desc() + ".attachJoint updated by Partjoint.Create()");
+						} else {
+							lprint(part.desc() + ".attachJoint IS WRONG NOW, FIXING");
+							part.attachJoint.DestroyJoint();
+							part.attachJoint = nj;
+						}
+					} else {
+						part.attachJoint = nj;
+					}
+				}
+			}
 
 			return true;
 		}
@@ -1976,10 +2005,22 @@ namespace DockRotate
 			return node.FindOtherNode();
 		}
 
+		/******** AttachNode utilities ********/
+
+		public static string desc(this AttachNode n)
+		{
+			if (n == null)
+				return "null";
+			return "[\"" + n.id + "\": "
+				+ n.owner.desc() + " -> " + n.attachedPart.desc() + "]";
+		}
+
 		/******** PartJoint utilities ********/
 
 		public static string desc(this PartJoint j)
 		{
+			if (j == null)
+				return "null";
 			string from = j.Host.desc() + "/" + (j.Child == j.Host ? "=" : j.Child.desc());
 			string to = j.Target.desc() + "/" + (j.Parent == j.Target ? "=" : j.Parent.desc());
 			return from + " -> " + to;
