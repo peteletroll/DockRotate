@@ -1267,7 +1267,7 @@ namespace DockRotate
 		protected override float dynamicDeltaAngle()
 		// = dynamic - static
 		{
-			if (!proxyPart)
+			if (!activePart || !proxyPart)
 				return float.NaN;
 
 			Vector3 a = partNodeAxis;
@@ -1329,13 +1329,12 @@ namespace DockRotate
 			Part other = rotatingNode.attachedPart;
 			if (!other)
 				return;
+
+			other.forcePhysics();
 			if (!other.rb) {
 				lprint(part.desc() + ": other part " + other.desc() + " has no Rigidbody");
-				return;
+				// return;
 			}
-
-			if (false && other) // FIXME: try to find a way to make it work
-				other.forcePhysics();
 
 			if (part.parent == other) {
 				nodeRole = "Active";
