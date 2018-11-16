@@ -1953,7 +1953,7 @@ namespace DockRotate
 
 		public static bool forcePhysics(this Part part)
 		{
-			if (part.hasPhysics())
+			if (!part || part.hasPhysics())
 				return false;
 
 			lprint(part.desc() + ": calling PromoteToPhysicalPart(), "
