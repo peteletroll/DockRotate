@@ -582,7 +582,7 @@ namespace DockRotate
 		{
 			ModuleBaseRotate tgt = actionTarget();
 			if (tgt) {
-				if (rotationReverseKey()) {
+				if (reverseActionRotationKey()) {
 					tgt.doRotateCounterclockwise();
 				} else {
 					tgt.doRotateClockwise();
@@ -610,7 +610,7 @@ namespace DockRotate
 		{
 			ModuleBaseRotate tgt = actionTarget();
 			if (tgt) {
-				if (rotationReverseKey()) {
+				if (reverseActionRotationKey()) {
 					tgt.doRotateClockwise();
 				} else {
 					tgt.doRotateCounterclockwise();
@@ -700,7 +700,7 @@ namespace DockRotate
 				r.brake();
 		}
 
-		protected bool rotationReverseKey()
+		protected bool reverseActionRotationKey()
 		{
 			return GameSettings.MODIFIER_KEY.GetKey();
 		}
