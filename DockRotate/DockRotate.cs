@@ -477,7 +477,7 @@ namespace DockRotate
 
 		[UI_FloatEdit(
 			minValue = 0, maxValue = 360,
-			incrementSlide = 0.5, incrementSmall = 5, incrementLarge = 30,
+			incrementSlide = 0.5f, incrementSmall = 5, incrementLarge = 30,
 			sigFigs = 0, unit = "\u00b0"
 		)]
 		[KSPField(
