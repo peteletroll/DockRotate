@@ -1317,11 +1317,6 @@ namespace DockRotate
 				return;
 			}
 
-			// FIXME: this should probably go
-			AttachNode otherNode = rotatingNode.FindOpposingNode();
-			if (false && otherNode == null)
-				return;
-
 			partNodePos = rotatingNode.position;
 			partNodeAxis = rotatingNode.orientation;
 			partNodeUp = part.up(partNodeAxis);
