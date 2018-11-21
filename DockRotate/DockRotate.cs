@@ -759,8 +759,10 @@ namespace DockRotate
 
 		private void doSetup()
 		{
-			if (onRails || !part || !vessel)
+			if (onRails || !part || !vessel) {
+				lprint("WARNING: doSetup() called at a bad time");
 				return;
+			}
 
 			setupGuiActive();
 
@@ -1040,8 +1042,7 @@ namespace DockRotate
 
 		protected virtual bool canStartRotation()
 		{
-			return !onRails
-				&& setupDone
+			return setupDone
 				&& rotationEnabled
 				&& vessel
 				&& vessel.CurrentControlLevel == Vessel.ControlLevel.FULL;
@@ -1169,7 +1170,7 @@ namespace DockRotate
 
 		protected void checkFrozenRotation()
 		{
-			if (onRails || !setupDone)
+			if (!setupDone)
 				return;
 
 			if (frozenRotation[0] != 0.0f && !currentRotation()) {
@@ -1211,13 +1212,8 @@ namespace DockRotate
 
 		public void FixedUpdate()
 		{
-			if (onRails || HighLogic.LoadedScene != GameScenes.FLIGHT)
+			if (!setupDone || HighLogic.LoadedScene != GameScenes.FLIGHT)
 				return;
-
-			if (!setupDone) {
-				lprint(part.desc() + ": no setup yet, skip checkFrozenRotation()");
-				return;
-			}
 
 			checkFrozenRotation();
 
