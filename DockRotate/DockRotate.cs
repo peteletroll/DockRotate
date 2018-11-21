@@ -1214,11 +1214,12 @@ namespace DockRotate
 			if (onRails || HighLogic.LoadedScene != GameScenes.FLIGHT)
 				return;
 
-			if (setupDone) {
-				checkFrozenRotation();
-			} else {
+			if (!setupDone) {
 				lprint(part.desc() + ": no setup yet, skip checkFrozenRotation()");
+				return;
 			}
+
+			checkFrozenRotation();
 
 			if (rotCur) {
 				rotCur.clampAngle();
