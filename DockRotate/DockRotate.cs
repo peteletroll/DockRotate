@@ -1050,7 +1050,7 @@ namespace DockRotate
 		public float step()
 		{
 			float s = rotationStep;
-			if (s <= 0.5f)
+			if (s < 0.1f)
 				s = SmoothMotion.CONTINUOUS;
 			if (reverseRotation)
 				s = -s;
@@ -1073,7 +1073,7 @@ namespace DockRotate
 			if (!rotatingJoint)
 				return false;
 
-			if (speed < 0.5)
+			if (speed < 0.1f)
 				return false;
 
 			string action = "none";
@@ -1135,7 +1135,7 @@ namespace DockRotate
 
 		protected bool enqueueRotationToSnap(float snap, float speed)
 		{
-			if (snap < 0.5f)
+			if (snap < 0.1f)
 				snap = 15.0f;
 			return enqueueRotation(angleToSnap(snap), speed);
 		}
@@ -1706,7 +1706,7 @@ namespace DockRotate
 			if (!activeRotationModule)
 				return;
 			float snap = rotationStep;
-			if (snap < 0.5f && otherRotationModule)
+			if (snap < 0.1f && otherRotationModule)
 				snap = otherRotationModule.rotationStep;
 			activeRotationModule.enqueueRotationToSnap(snap, speed());
 		}
