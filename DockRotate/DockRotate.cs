@@ -764,9 +764,15 @@ namespace DockRotate
 				return;
 			}
 
-			setupGuiActive();
-
-			setup();
+			try {
+				setupGuiActive();
+				setup();
+			} catch (Exception e) {
+				string sep = new string('-', 80);
+				lprint(sep);
+				lprint("Exception during setup:\n" + e.StackTrace);
+				lprint(sep);
+			}
 
 			setupDone = true;
 		}
