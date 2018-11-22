@@ -1665,7 +1665,7 @@ namespace DockRotate
 				ret = activeRotationModule.enqueueRotation(angle, speed, startSpeed);
 			} else {
 				lprint("enqueueRotation() called on wrong module, ignoring, active part "
-				       + (activeRotationModule ? activeRotationModule.part.desc() : "null"));
+					+ (activeRotationModule ? activeRotationModule.part.desc() : "null"));
 			}
 			if (ret) {
 				RotationAnimation cr = currentRotation();
