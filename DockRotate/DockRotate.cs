@@ -1023,13 +1023,11 @@ namespace DockRotate
 
 			if (cr) {
 				angleInfo = String.Format("{0:+0.00;-0.00;0.00}\u00b0 ({1:+0.00;-0.00;0.00}\u00b0/s){2}",
-					rotationAngle(true),
-					cr.vel,
+					rotationAngle(true), cr.vel,
 					(cr.controller == this ? " CTL" : ""));
 			} else {
 				angleInfo = String.Format("{0:+0.00;-0.00;0.00}\u00b0 ({1:+0.0000;-0.0000;0.0000}\u00b0\u0394)",
-					rotationAngle(false),
-					dynamicDeltaAngle());
+					rotationAngle(false), dynamicDeltaAngle());
 			}
 
 			Events["StopRotation"].guiActive = cr;
