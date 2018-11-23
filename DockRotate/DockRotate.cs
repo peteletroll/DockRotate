@@ -1965,23 +1965,8 @@ namespace DockRotate
 					// this check is for extra safety, never saw this happen
 					lprint(part.desc() + ": parent joint exists already");
 				} else {
-					// PartJoint nj = PartJoint.Create(part, part.parent, nodeHere, nodeParent, m);
 					part.CreateAttachJoint(m);
-					PartJoint nj = part.attachJoint;
-					// nj.dump();
-					lprint(part.desc() + ": created joint " + m + " " + nj.desc());
-					if (part.attachJoint) {
-						// these checks are for extra safety, never saw this happen
-						if (part.attachJoint == nj) {
-							lprint(part.desc() + ".attachJoint updated by Partjoint.Create()");
-						} else {
-							lprint(part.desc() + ".attachJoint IS WRONG NOW, FIXING");
-							part.attachJoint.DestroyJoint();
-							part.attachJoint = nj;
-						}
-					} else {
-						part.attachJoint = nj;
-					}
+					lprint(part.desc() + ": created joint " + m + " " + part.attachJoint.desc());
 				}
 			}
 
