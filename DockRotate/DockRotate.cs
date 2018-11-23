@@ -1951,19 +1951,12 @@ namespace DockRotate
 			lprint(part.desc() + ": calling PromoteToPhysicalPart(), " + part.physicalSignificance);
 			part.physicalSignificance = Part.PhysicalSignificance.NONE;
 			part.PromoteToPhysicalPart();
-
-			// some PartJoint.Create() magic required here
-			// to create parent joint
-
 			if (part.parent) {
 				AttachNode nodeHere = part.FindAttachNodeByPart(part.parent);
-				// lprint(part.desc() + " nodeHere " + nodeHere.desc());
 				AttachNode nodeParent = part.parent.FindAttachNodeByPart(part);
-				// lprint(part.desc() + " nodeParent " + nodeParent.desc());
 				AttachModes m = (nodeHere != null && nodeParent != null) ? AttachModes.STACK : AttachModes.SRF_ATTACH;
 				if (part.attachJoint) {
-					// this check is for extra safety, never saw this happen
-					lprint(part.desc() + ": parent joint exists already");
+					lprint(part.desc() + ": parent joint exists already unexpectedly");
 				} else {
 					part.CreateAttachJoint(m);
 					lprint(part.desc() + ": created joint " + m + " " + part.attachJoint.desc());
