@@ -11,18 +11,18 @@ namespace DockRotate
 		public float vel;
 		public float tgt;
 
-		public const float CONTINUOUS = 999999.0f;
+		public const float CONTINUOUS = 999999f;
 
-		public float maxvel = 1.0f;
-		private float maxacc = 1.0f;
+		public float maxvel = 1f;
+		private float maxacc = 1f;
 
 		public bool braking = false;
 
 		public bool started = false, finished = false;
 
-		public float elapsed = 0.0f;
+		public float elapsed = 0f;
 
-		private const float accelTime = 2.0f;
+		private const float accelTime = 2f;
 		private const float stopMargin = 1.5f;
 
 		protected abstract void onStart();
@@ -93,7 +93,7 @@ namespace DockRotate
 
 		public static bool isContinuous(ref float target)
 		{
-			if (Mathf.Abs(target) > CONTINUOUS / 2.0f) {
+			if (Mathf.Abs(target) > CONTINUOUS / 2f) {
 				target = Mathf.Sign(target) * CONTINUOUS;
 				return true;
 			}
@@ -284,8 +284,8 @@ namespace DockRotate
 
 			// first rough attempt for electricity consumption
 			if (deltat > 0) {
-				double el = activePart.RequestResource("ElectricCharge", 1.0 * deltat);
-				if (el <= 0.0)
+				double el = activePart.RequestResource("ElectricCharge", 1d * deltat);
+				if (el <= 0f)
 					abort("no electric charge");
 			}
 		}
@@ -337,7 +337,7 @@ namespace DockRotate
 				sound.maxDistance = 1000f;
 				sound.playOnAwake = false;
 
-				uint pa = (33 * (activePart.flightID ^ proxyPart.flightID)) % 10000;
+				uint pa = (33 * (activePart.flightID ^ proxyPart.flightID)) % 10000u;
 				pitchAlteration = 0.2f * (pa / 10000f) + 0.9f;
 
 				sound.Play();
@@ -476,8 +476,8 @@ namespace DockRotate
 		public bool rotationEnabled = false;
 
 		[UI_FloatEdit(
-			minValue = 0, maxValue = 360,
-			incrementSlide = 0.5f, incrementSmall = 5, incrementLarge = 30,
+			minValue = 0f, maxValue = 360f,
+			incrementSlide = 0.5f, incrementSmall = 5f, incrementLarge = 30f,
 			sigFigs = 1, unit = "\u00b0"
 		)]
 		[KSPField(
@@ -487,11 +487,11 @@ namespace DockRotate
 			guiName = "#DCKROT_rotation_step",
 			guiUnits = "\u00b0"
 		)]
-		public float rotationStep = 15;
+		public float rotationStep = 15f;
 
 		[UI_FloatEdit(
-			minValue = 1, maxValue = 8 * 360,
-			incrementSlide = 1, incrementSmall = 15, incrementLarge = 180,
+			minValue = 1, maxValue = 8f * 360f,
+			incrementSlide = 1f, incrementSmall = 15f, incrementLarge = 180f,
 			sigFigs = 0, unit = "\u00b0/s"
 		)]
 		[KSPField(
@@ -501,7 +501,7 @@ namespace DockRotate
 			guiName = "#DCKROT_rotation_speed",
 			guiUnits = "\u00b0/s"
 		)]
-		public float rotationSpeed = 5;
+		public float rotationSpeed = 5f;
 
 		[UI_Toggle(affectSymCounterparts = UI_Scene.None)]
 		[KSPField(
@@ -803,7 +803,7 @@ namespace DockRotate
 			onRails = false;
 			setupDone = false;
 			// start speed always 0 when going off rails
-			frozenRotation[2] = 0.0f;
+			frozenRotation[2] = 0f;
 			doSetup();
 		}
 
@@ -1073,7 +1073,7 @@ namespace DockRotate
 			return enqueueRotation(frozen[0], frozen[1], frozen[2]);
 		}
 
-		protected virtual bool enqueueRotation(float angle, float speed, float startSpeed = 0.0f)
+		protected virtual bool enqueueRotation(float angle, float speed, float startSpeed = 0f)
 		{
 			if (!rotatingJoint)
 				return false;
@@ -1128,12 +1128,12 @@ namespace DockRotate
 		{
 			snap = Mathf.Abs(snap);
 			if (snap < 0.5f)
-				return 0.0f;
+				return 0f;
 			float a = !rotCur ? rotationAngle(false) :
 				rotCur.isContinuous() ? rotCur.pos :
 				rotCur.tgt;
 			if (float.IsNaN(a))
-				return 0.0f;
+				return 0f;
 			float f = snap * Mathf.Floor(a / snap + 0.5f);
 			return f - a;
 		}
@@ -1141,7 +1141,7 @@ namespace DockRotate
 		protected bool enqueueRotationToSnap(float snap, float speed)
 		{
 			if (snap < 0.1f)
-				snap = 15.0f;
+				snap = 15f;
 			return enqueueRotation(angleToSnap(snap), speed);
 		}
 
@@ -1163,7 +1163,7 @@ namespace DockRotate
 			if (rotCur) {
 				rotCur.isContinuous();
 				float angle = rotCur.tgt - rotCur.pos;
-				enqueueFrozenRotation(angle, rotCur.maxvel, keepSpeed ? rotCur.vel : 0.0f);
+				enqueueFrozenRotation(angle, rotCur.maxvel, keepSpeed ? rotCur.vel : 0f);
 				rotCur.abort(msg);
 				rotCur.forceStaticize();
 				rotCur = null;
@@ -1177,7 +1177,7 @@ namespace DockRotate
 			if (!setupDone)
 				return;
 
-			if (frozenRotation[0] != 0.0f && !currentRotation()) {
+			if (frozenRotation[0] != 0f && !currentRotation()) {
 				enqueueRotation(frozenRotation);
 				RotationAnimation cr = currentRotation();
 				if (cr)
@@ -1205,7 +1205,7 @@ namespace DockRotate
 					+ " -> " + frozenRotation + "@" + frozenRotationControllerID);
 		}
 
-		protected void enqueueFrozenRotation(float angle, float speed, float startSpeed = 0.0f)
+		protected void enqueueFrozenRotation(float angle, float speed, float startSpeed = 0f)
 		{
 			Vector3 prev = frozenRotation;
 			angle += frozenRotation[0];
@@ -1556,7 +1556,7 @@ namespace DockRotate
 						+ ": on " + proxyRotationModule.part.desc());
 			}
 
-			if (dockingNode.snapRotation && dockingNode.snapOffset > 0
+			if (dockingNode.snapRotation && dockingNode.snapOffset > 0f
 				&& activeRotationModule == this
 				&& (rotationEnabled || proxyRotationModule.rotationEnabled)) {
 				enqueueFrozenRotation(angleToSnap(dockingNode.snapOffset), rotationSpeed);
@@ -1601,7 +1601,7 @@ namespace DockRotate
 					+ ", types " + dockingNode.nodeType + "/" + parentNode.nodeType);
 
 			bool ret = dockingNode.nodeType == parentNode.nodeType
-				&& nodeDist < 1.0f && nodeAngle < 5.0f;
+				&& nodeDist < 1f && nodeAngle < 5f;
 
 			if (verbose)
 				lprint(part.desc() + ": isDockedToParent() returns " + ret);
@@ -1654,7 +1654,7 @@ namespace DockRotate
 			return a.axisSignedAngle(vs, vd);
 		}
 
-		protected override bool enqueueRotation(float angle, float speed, float startSpeed = 0.0f)
+		protected override bool enqueueRotation(float angle, float speed, float startSpeed = 0f)
 		{
 			bool ret = false;
 			if (activeRotationModule == this) {
