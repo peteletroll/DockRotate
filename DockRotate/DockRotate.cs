@@ -1949,7 +1949,6 @@ namespace DockRotate
 				return false;
 
 			lprint(part.desc() + ": calling PromoteToPhysicalPart(), " + part.physicalSignificance);
-			part.physicalSignificance = Part.PhysicalSignificance.NONE;
 			part.PromoteToPhysicalPart();
 			if (part.parent) {
 				AttachNode nodeHere = part.FindAttachNodeByPart(part.parent);
