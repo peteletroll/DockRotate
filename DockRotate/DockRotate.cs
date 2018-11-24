@@ -1743,10 +1743,6 @@ namespace DockRotate
 		{
 			lprint("--- DUMP " + part.desc() + " ---");
 			lprint("rotPart: " + activePart.desc());
-			/*
-			lprint("mass: " + part.mass);
-			lprint("parent: " + descPart(part.parent));
-			*/
 			lprint("role: " + nodeRole);
 #if DEBUG
 			lprint("status: " + nodeStatus);
@@ -1754,17 +1750,10 @@ namespace DockRotate
 			lprint("org: " + part.orgPos.desc() + ", " + part.orgRot.desc());
 
 			if (dockingNode) {
-				// lprint("size: " + dockingNode.nodeType);
 				lprint("state: " + dockingNode.state);
 
 				ModuleDockingNode other = dockingNode.otherNode();
 				lprint("other: " + (other ? other.part.desc() : "none"));
-
-				/*
-				lprint("partNodePos: " + partNodePos);
-				lprint("partNodeAxis: " + partNodeAxis);
-				lprint("partNodeUp: " + partNodeUp);
-				*/
 
 				lprint("partNodeAxisV: " + partNodeAxis.STd(part, vessel.rootPart).desc());
 				lprint("GetFwdVector(): " + dockingNode.GetFwdVector().desc());
@@ -2048,59 +2037,16 @@ namespace DockRotate
 			}
 
 			lprint("  Link: " + j.gameObject + " to " + j.connectedBody);
-			// lprint("  autoConf: " + j.autoConfigureConnectedAnchor);
-			// lprint("  swap: " + j.swapBodies);
 			lprint("  Axes: " + j.axis.desc() + ", " + j.secondaryAxis.desc());
 			if (p)
 				lprint("  AxesV: " + j.axis.Td(T(j), T(p)).desc()
 					+ ", " + j.secondaryAxis.Td(T(j), T(p)).desc());
 
-			// lprint("  localToJoint: " + localToJoint.desc());
 			lprint("  Anchors: " + j.anchor.desc()
 				+ " -> " + j.connectedAnchor.desc()
 				+ " [" + j.connectedAnchor.Tp(j.connectedBody.T(), j.T()).desc() + "]");
 
-			/*
-			lprint("  thdAxis: " + Vector3.Cross(joint.axis, joint.secondaryAxis));
-			lprint("  axisV: " + Td(joint.axis, T(joint), T(vessel.rootPart)));
-			lprint("  secAxisV: " + Td(joint.secondaryAxis, T(joint), T(vessel.rootPart)));
-			lprint("  jSpacePartAxis: " + Td(partNodeAxis, T(part), T(joint)));
-			*/
-
-			/*
-			Quaternion axr = joint.axisRotation();
-			lprint("  axisRotation: " + axr.desc());
-			lprint("  axr*right: " + (axr * Vector3.right));
-			lprint("  axr*up: " + (axr * Vector3.up));
-			lprint("  axr*forward: " + (axr * Vector3.forward));
-			*/
-
-			/*
-			lprint("  AXMot: " + j.angularXMotion);
-			lprint("  LAXLim: " + j.lowAngularXLimit.desc());
-			lprint("  HAXLim: " + j.highAngularXLimit.desc());
-			lprint("  AXDrv: " + j.angularXDrive.desc());
-
-			lprint("  YMot: " + j.yMotion);
-			lprint("  YDrv: " + j.yDrive);
-			lprint("  ZMot: " + j.zMotion);
-			lprint("  ZDrv: " + j.zDrive.desc());
-			*/
-
 			lprint("  Tgt: " + j.targetPosition.desc() + ", " + j.targetRotation.desc());
-			// lprint("  TgtPosP: " + Tp(j.targetPosition, T(j), T(part)));
-
-			/*
-			lprint("  AnchorsP: " + Tp(j.anchor, T(j), T(part))
-				+ " -> " + Tp(j.connectedAnchor, T(j.connectedBody), T(part)));
-			*/
-
-			/*
-			lprint("Joint YMot: " + joint.Joint.angularYMotion);
-			lprint("Joint YLim: " + descLim(joint.Joint.angularYLimit));
-			lprint("Joint aYZDrv: " + descDrv(joint.Joint.angularYZDrive));
-			lprint("Joint RMode: " + joint.Joint.rotationDriveMode);
-			*/
 		}
 
 		/******** Vector3 utilities ********/
