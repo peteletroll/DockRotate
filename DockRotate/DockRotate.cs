@@ -1937,15 +1937,17 @@ namespace DockRotate
 			if (!part || part.hasPhysics())
 				return false;
 
-			lprint(part.desc() + ": calling PromoteToPhysicalPart(), " + part.physicalSignificance);
+			lprint(part.desc() + ": calling PromoteToPhysicalPart(), " + part.physicalSignificance + ", " + part.PhysicsSignificance);
 			part.PromoteToPhysicalPart();
+			lprint(part.desc() + ": called PromoteToPhysicalPart(), " + part.physicalSignificance + ", " + part.PhysicsSignificance);
 			if (part.parent) {
 				if (part.attachJoint) {
 					lprint(part.desc() + ": parent joint exists already: " + part.attachJoint.desc());
 				} else {
 					AttachNode nodeHere = part.FindAttachNodeByPart(part.parent);
 					AttachNode nodeParent = part.parent.FindAttachNodeByPart(part);
-					AttachModes m = (nodeHere != null && nodeParent != null) ? AttachModes.STACK : AttachModes.SRF_ATTACH;
+					AttachModes m = (nodeHere != null && nodeParent != null) ?
+						AttachModes.STACK : AttachModes.SRF_ATTACH;
 					part.CreateAttachJoint(m);
 					lprint(part.desc() + ": created joint " + m + " " + part.attachJoint.desc());
 				}
