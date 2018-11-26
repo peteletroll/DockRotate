@@ -1775,8 +1775,8 @@ namespace DockRotate
 
 		// joint space:
 		// origin is j.anchor;
-		// right is j.axis
-		// up is j.secondaryAxis
+		// right is j.axis;
+		// up is j.secondaryAxis;
 		// anchor, axis and secondaryAxis are defined in local space.
 
 		private ConfigurableJoint j;
