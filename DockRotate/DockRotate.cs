@@ -374,19 +374,20 @@ namespace DockRotate
 
 		private void staticizeJoints()
 		{
-			float angle = tgt;
 			for (int i = 0; i < joint.joints.Count; i++) {
 				ConfigurableJoint j = joint.joints[i];
 				if (j) {
 					RotJointInfo ji = rji[i];
 
 					// staticize joint rotation
-					Quaternion jointRot = ji.localAxis.rotation(angle);
+					// FIXME: this should be moved to JointManager
+
+					Quaternion jointRot = ji.localAxis.rotation(tgt);
 					j.axis = jointRot * j.axis;
 					j.secondaryAxis = jointRot * j.secondaryAxis;
 					j.targetRotation = ji.jm.tgtRot0;
 
-					Quaternion connectedBodyRot = ji.connectedBodyAxis.rotation(-angle);
+					Quaternion connectedBodyRot = ji.connectedBodyAxis.rotation(-tgt);
 					j.connectedAnchor = connectedBodyRot * (j.connectedAnchor - ji.connectedBodyNode)
 						+ ji.connectedBodyNode;
 					j.targetPosition = ji.jm.tgtPos0;
