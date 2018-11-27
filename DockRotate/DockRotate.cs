@@ -1786,6 +1786,12 @@ namespace DockRotate
 
 		public void setup(ConfigurableJoint j)
 		{
+			this.j = j;
+			setup();
+		}
+
+		public void setup()
+		{
 			// the jointToLocal rotation turns Vector3.right (1, 0, 0) to axis
 			// and Vector3.up (0, 1, 0) to secondaryAxis
 
@@ -1794,8 +1800,6 @@ namespace DockRotate
 			// result is same vector in local space
 
 			// source: https://answers.unity.com/questions/278147/how-to-use-target-rotation-on-a-configurable-joint.html
-
-			this.j = j;
 
 			Vector3 right = j.axis.normalized;
 			Vector3 forward = Vector3.Cross(j.axis, j.secondaryAxis).normalized;
