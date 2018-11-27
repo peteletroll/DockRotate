@@ -171,7 +171,6 @@ namespace DockRotate
 
 		private struct RotJointInfo
 		{
-			public ConfigurableJoint joint;
 			public JointManager jm;
 			public Vector3 localAxis, localNode;
 			public Vector3 jointAxis, jointNode;
@@ -230,7 +229,6 @@ namespace DockRotate
 
 				RotJointInfo ji;
 
-				ji.joint = j;
 				ji.jm = new JointManager();
 				ji.jm.setup(j);
 
@@ -1779,14 +1777,14 @@ namespace DockRotate
 		// up is j.secondaryAxis;
 		// anchor, axis and secondaryAxis are defined in local space.
 
-		private ConfigurableJoint j;
+		private ConfigurableJoint joint;
 		private Quaternion localToJoint, jointToLocal;
 		public Quaternion tgtRot0;
 		public Vector3 tgtPos0;
 
-		public void setup(ConfigurableJoint j)
+		public void setup(ConfigurableJoint joint)
 		{
-			this.j = j;
+			this.joint = joint;
 			setup();
 		}
 
@@ -1801,15 +1799,15 @@ namespace DockRotate
 
 			// source: https://answers.unity.com/questions/278147/how-to-use-target-rotation-on-a-configurable-joint.html
 
-			Vector3 right = j.axis.normalized;
-			Vector3 forward = Vector3.Cross(j.axis, j.secondaryAxis).normalized;
+			Vector3 right = joint.axis.normalized;
+			Vector3 forward = Vector3.Cross(joint.axis, joint.secondaryAxis).normalized;
 			Vector3 up = Vector3.Cross(forward, right).normalized;
 			jointToLocal = Quaternion.LookRotation(forward, up);
 
 			localToJoint = jointToLocal.inverse();
 
-			tgtPos0 = j.targetPosition;
-			tgtRot0 = j.targetRotation;
+			tgtPos0 = joint.targetPosition;
+			tgtRot0 = joint.targetRotation;
 		}
 
 		public Vector3 L2Jd(Vector3 v)
@@ -1824,12 +1822,12 @@ namespace DockRotate
 
 		public Vector3 L2Jp(Vector3 v)
 		{
-			return localToJoint * (v - j.anchor);
+			return localToJoint * (v - joint.anchor);
 		}
 
 		public Vector3 J2Lp(Vector3 v)
 		{
-			return jointToLocal * v + j.anchor;
+			return jointToLocal * v + joint.anchor;
 		}
 	}
 
