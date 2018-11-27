@@ -276,7 +276,7 @@ namespace DockRotate
 
 			if (controller) {
 				float s = controller.speed();
-				if (s != maxvel) {
+				if (!Mathf.Approximately(s, maxvel)) {
 					lprint(controller.part.desc() + ": speed change " + maxvel + " -> " + s);
 					maxvel = s;
 				}
@@ -1177,7 +1177,7 @@ namespace DockRotate
 			if (!setupDone)
 				return;
 
-			if (frozenRotation[0] != 0f && !currentRotation()) {
+			if (!Mathf.Approximately(frozenRotation[0], 0f) && !currentRotation()) {
 				enqueueRotation(frozenRotation);
 				RotationAnimation cr = currentRotation();
 				if (cr)
