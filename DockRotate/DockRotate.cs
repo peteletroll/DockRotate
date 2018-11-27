@@ -265,6 +265,7 @@ namespace DockRotate
 
 					Quaternion jointRotation = ji.jointAxis.rotation(pos);
 
+					// FIXME: this should be moved to JointManager
 					j.targetRotation = ji.jm.tgtRot0 * jointRotation;
 					j.targetPosition = jointRotation * (ji.jm.tgtPos0 - ji.jointNode) + ji.jointNode;
 				}
