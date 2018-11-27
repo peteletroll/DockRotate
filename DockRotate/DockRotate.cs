@@ -2105,22 +2105,6 @@ namespace DockRotate
 			return Quaternion.Inverse(q);
 		}
 
-		public static float angle(this Quaternion q)
-		{
-			float angle;
-			Vector3 axis;
-			q.ToAngleAxis(out angle, out axis);
-			return angle;
-		}
-
-		public static Vector3 axis(this Quaternion q)
-		{
-			float angle;
-			Vector3 axis;
-			q.ToAngleAxis(out angle, out axis);
-			return axis;
-		}
-
 		public static string desc(this Quaternion q)
 		{
 			float angle;
