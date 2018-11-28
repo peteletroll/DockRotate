@@ -386,6 +386,11 @@ namespace DockRotate
 					// staticize joint rotation
 					// FIXME: this should be moved to JointManager
 
+					checkChanges("axis", ji.jm.axis0, j.axis);
+					checkChanges("secAxis", ji.jm.secAxis0, j.secondaryAxis);
+					checkChanges("anchor", ji.jm.anchor0, j.anchor);
+					checkChanges("connAnchor", ji.jm.connAnchor0, j.connectedAnchor);
+
 					Quaternion jointRot = ji.localAxis.rotation(tgt);
 					j.axis = jointRot * j.axis;
 					j.secondaryAxis = jointRot * j.secondaryAxis;
@@ -399,6 +404,13 @@ namespace DockRotate
 					ji.jm.setup(j);
 				}
 			}
+		}
+
+		private void checkChanges(string name, Vector3 v0, Vector3 v1)
+		{
+			if ((v1 - v0).magnitude / (v0.magnitude + v1.magnitude) < 0.001f)
+				return;
+			lprint(name + " CHANGED: " + v0.desc() + " -> " + v1.desc());
 		}
 
 		private bool staticizeOrgInfo()
