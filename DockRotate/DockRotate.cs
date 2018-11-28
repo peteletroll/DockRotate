@@ -1786,6 +1786,7 @@ namespace DockRotate
 		private Quaternion localToJoint, jointToLocal;
 		public Quaternion tgtRot0;
 		public Vector3 tgtPos0;
+		public Vector3 axis0, secAxis0, anchor0, connAnchor0;
 
 		public void setup(ConfigurableJoint joint)
 		{
@@ -1813,6 +1814,11 @@ namespace DockRotate
 
 			tgtPos0 = joint.targetPosition;
 			tgtRot0 = joint.targetRotation;
+
+			axis0 = joint.axis;
+			secAxis0 = joint.secondaryAxis;
+			anchor0 = joint.anchor;
+			connAnchor0 = joint.connectedAnchor;
 		}
 
 		public Vector3 L2Jd(Vector3 v)
