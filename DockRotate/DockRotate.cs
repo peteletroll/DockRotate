@@ -408,7 +408,10 @@ namespace DockRotate
 
 		private void checkChanges(string name, Vector3 v0, Vector3 v1)
 		{
-			if ((v1 - v0).magnitude / (v0.magnitude + v1.magnitude) < 0.001f)
+			float d = v0.magnitude + v1.magnitude;
+			if (d < 1f)
+				d = 1f;
+			if ((v1 - v0).magnitude / d < 0.001f)
 				return;
 			lprint(name + " CHANGED: " + v0.desc() + " -> " + v1.desc());
 		}
