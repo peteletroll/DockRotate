@@ -169,6 +169,7 @@ namespace DockRotate
 		public AudioSource sound;
 		public float soundVolume = 1f;
 		public float pitchAlteration = 1f;
+		public float electricityRate = 10f;
 
 		private struct RotJointInfo
 		{
@@ -282,9 +283,8 @@ namespace DockRotate
 				}
 			}
 
-			// first rough attempt for electricity consumption
 			if (deltat > 0) {
-				double el = activePart.RequestResource("ElectricCharge", 1d * deltat);
+				double el = activePart.RequestResource("ElectricCharge", (double) electricityRate * deltat);
 				electricity += el;
 				if (el <= 0d)
 					abort("no electric charge");
@@ -770,6 +770,9 @@ namespace DockRotate
 		[KSPField(isPersistant = true)]
 		public uint frozenRotationControllerID = 0;
 
+		[KSPField(isPersistant = true)]
+		public float electricityRate = 10f;
+
 		protected abstract ModuleBaseRotate controller(uint id);
 
 		protected bool setupDone = false;
@@ -1131,6 +1134,7 @@ namespace DockRotate
 			} else {
 				rotCur = new RotationAnimation(activePart, partNodePos, partNodeAxis, rotatingJoint, 0, angle, speed);
 				rotCur.controller = this;
+				rotCur.electricityRate = electricityRate;
 				rotCur.soundVolume = soundVolume;
 				rotCur.vel = startSpeed;
 				rotCur.smartAutoStruts = useSmartAutoStruts();
