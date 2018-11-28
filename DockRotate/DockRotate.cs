@@ -21,6 +21,7 @@ namespace DockRotate
 		public bool started = false, finished = false;
 
 		public float elapsed = 0f;
+		public double electricity = 0d;
 
 		private const float accelTime = 2f;
 		private const float stopMargin = 1.5f;
@@ -284,7 +285,8 @@ namespace DockRotate
 			// first rough attempt for electricity consumption
 			if (deltat > 0) {
 				double el = activePart.RequestResource("ElectricCharge", 1d * deltat);
-				if (el <= 0f)
+				electricity += el;
+				if (el <= 0d)
 					abort("no electric charge");
 			}
 		}
@@ -310,7 +312,8 @@ namespace DockRotate
 					joint.Host.vessel.secureAllAutoStruts();
 				}
 			}
-			lprint(activePart.desc() + ": rotation stopped");
+			lprint(activePart.desc() + ": rotation stopped, "
+				+ electricity.ToString("F2") + " electricity");
 		}
 
 		public void startSound()
