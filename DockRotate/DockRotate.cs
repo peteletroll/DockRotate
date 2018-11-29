@@ -265,7 +265,8 @@ namespace DockRotate
 				if (j) {
 					RotJointInfo ji = rji[i];
 
-					Quaternion jointRotation = ji.jointAxis.rotation(pos);
+					// Quaternion jointRotation = ji.jointAxis.rotation(pos);
+					Quaternion jointRotation = ji.jm.L2Jr(ji.localAxis.rotation(pos));
 
 					// FIXME: this should be moved to JointManager
 					j.targetRotation = ji.jm.tgtRot0 * jointRotation;
@@ -383,13 +384,13 @@ namespace DockRotate
 				if (j) {
 					RotJointInfo ji = rji[i];
 
-					// staticize joint rotation
-					// FIXME: this should be moved to JointManager
-
 					checkChanges("axis", ji.jm.axis0, j.axis);
 					checkChanges("secAxis", ji.jm.secAxis0, j.secondaryAxis);
 					checkChanges("anchor", ji.jm.anchor0, j.anchor);
 					checkChanges("connAnchor", ji.jm.connAnchor0, j.connectedAnchor);
+
+					// staticize joint rotation
+					// FIXME: this should be moved to JointManager
 
 					Quaternion jointRot = ji.localAxis.rotation(tgt);
 					j.axis = jointRot * j.axis;
@@ -1858,6 +1859,16 @@ namespace DockRotate
 		public Vector3 J2Lp(Vector3 v)
 		{
 			return jointToLocal * v + joint.anchor;
+		}
+
+		public Quaternion L2Jr(Quaternion r)
+		{
+			return localToJoint * r * jointToLocal;
+		}
+
+		public Quaternion J2Lr(Quaternion r)
+		{
+			return jointToLocal * r * localToJoint;
 		}
 	}
 
