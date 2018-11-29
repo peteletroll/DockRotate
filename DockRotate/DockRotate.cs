@@ -2005,7 +2005,8 @@ namespace DockRotate
 			if (n == null)
 				return "null";
 			return "[\"" + n.id + "\": "
-				+ n.owner.desc() + " -> " + n.attachedPart.desc() + "]";
+				+ n.owner.desc() + " -> " + n.attachedPart.desc()
+				+ ", size " + n.size + "]";
 		}
 
 		/******** PartJoint utilities ********/
