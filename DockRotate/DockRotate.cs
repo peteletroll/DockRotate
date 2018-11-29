@@ -169,7 +169,7 @@ namespace DockRotate
 		public AudioSource sound;
 		public float soundVolume = 1f;
 		public float pitchAlteration = 1f;
-		public float electricityRate = 10f;
+		public float electricityRate = 5f;
 
 		private struct RotJointInfo
 		{
