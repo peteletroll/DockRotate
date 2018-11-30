@@ -177,6 +177,11 @@ namespace DockRotate
 			public Vector3 localAxis, localNode;
 			public Vector3 jointAxis, jointNode;
 			public Vector3 connectedBodyAxis, connectedBodyNode;
+
+			public void setRotation(float angle)
+			{
+				jm.setRotation(angle, localAxis, localNode);
+			}
 		}
 		private RotJointInfo[] rji;
 
@@ -262,10 +267,10 @@ namespace DockRotate
 		{
 			for (int i = 0; i < joint.joints.Count; i++) {
 				ConfigurableJoint j = joint.joints[i];
-				if (j) {
-					RotJointInfo ji = rji[i];
-					ji.jm.setRotation(pos, ji.localAxis, ji.localNode);
-				}
+				if (!j)
+					continue;
+				RotJointInfo ji = rji[i];
+				ji.setRotation(pos);
 			}
 
 			stepSound();
