@@ -283,7 +283,7 @@ namespace DockRotate
 				}
 			}
 
-			if (deltat > 0) {
+			if (deltat > 0f && electricityRate > 0f) {
 				double el = activePart.RequestResource("ElectricCharge", (double) electricityRate * deltat);
 				electricity += el;
 				if (el <= 0d)
@@ -771,7 +771,7 @@ namespace DockRotate
 		public uint frozenRotationControllerID = 0;
 
 		[KSPField(isPersistant = true)]
-		public float electricityRate = 10f;
+		public float electricityRate = 1f;
 
 		protected abstract ModuleBaseRotate controller(uint id);
 
