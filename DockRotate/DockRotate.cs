@@ -264,13 +264,7 @@ namespace DockRotate
 				ConfigurableJoint j = joint.joints[i];
 				if (j) {
 					RotJointInfo ji = rji[i];
-
-					// Quaternion jointRotation = ji.jointAxis.rotation(pos);
-					Quaternion jointRotation = ji.jm.L2Jr(ji.localAxis.rotation(pos));
-
-					// FIXME: this should be moved to JointManager
-					j.targetRotation = ji.jm.tgtRot0 * jointRotation;
-					j.targetPosition = jointRotation * (ji.jm.tgtPos0 - ji.jointNode) + ji.jointNode;
+					ji.jm.setRotation(pos, ji.localAxis, ji.localNode);
 				}
 			}
 
@@ -1839,6 +1833,15 @@ namespace DockRotate
 			secAxis0 = joint.secondaryAxis;
 			anchor0 = joint.anchor;
 			connAnchor0 = joint.connectedAnchor;
+		}
+
+		public void setRotation(float angle, Vector3 axis, Vector3 node)
+		// axis and node are in local space
+		{
+			Quaternion jointRotation = L2Jr(axis.rotation(angle));
+			Vector3 jointNode = L2Jp(node);
+			joint.targetRotation = tgtRot0 * jointRotation;
+			joint.targetPosition = jointRotation * (tgtPos0 - jointNode) + jointNode;
 		}
 
 		public Vector3 L2Jd(Vector3 v)
