@@ -182,6 +182,11 @@ namespace DockRotate
 			{
 				jm.setRotation(angle, localAxis, localNode);
 			}
+
+			public void staticizeRotation()
+			{
+				jm.staticizeRotation();
+			}
 		}
 		private RotJointInfo[] rji;
 
@@ -388,13 +393,7 @@ namespace DockRotate
 					checkChanges("anchor", ji.jm.anchor0, j.anchor);
 					checkChanges("connAnchor", ji.jm.connAnchor0, j.connectedAnchor);
 
-					// staticize joint rotation
-					// FIXME: this should be moved to JointManager
-
-					Quaternion jointRot = ji.localAxis.rotation(tgt);
-					j.axis = jointRot * j.axis;
-					j.secondaryAxis = jointRot * j.secondaryAxis;
-					j.targetRotation = ji.jm.tgtRot0;
+					ji.staticizeRotation();
 
 					Quaternion connectedBodyRot = ji.connectedBodyAxis.rotation(-tgt);
 					j.connectedAnchor = connectedBodyRot * (j.connectedAnchor - ji.connectedBodyNode)
@@ -1847,6 +1846,14 @@ namespace DockRotate
 			Vector3 jointNode = L2Jp(node);
 			joint.targetRotation = tgtRot0 * jointRotation;
 			joint.targetPosition = jointRotation * (tgtPos0 - jointNode) + jointNode;
+		}
+
+		public void staticizeRotation()
+		{
+			Quaternion localRotation = J2Lr(tgtRot0.inverse() * joint.targetRotation);
+			joint.axis = localRotation * joint.axis;
+			joint.secondaryAxis = localRotation * joint.secondaryAxis;
+			joint.targetRotation = tgtRot0;
 		}
 
 		public Vector3 L2Jd(Vector3 v)
