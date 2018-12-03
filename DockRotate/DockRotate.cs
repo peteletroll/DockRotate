@@ -1851,6 +1851,7 @@ namespace DockRotate
 			joint.targetPosition = jointRotation * (tgtPos0 - jointNode) + jointNode;
 		}
 
+		// FIXME: this must include position staticization before the setup() call
 		public void staticizeRotation()
 		{
 			Quaternion localRotation = J2Lr(tgtRot0.inverse() * joint.targetRotation);
