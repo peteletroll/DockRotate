@@ -393,8 +393,11 @@ namespace DockRotate
 					checkChanges("anchor", ji.jm.anchor0, j.anchor);
 					checkChanges("connAnchor", ji.jm.connAnchor0, j.connectedAnchor);
 
+					// staticize joint rotation
+
 					ji.staticizeRotation();
 
+					// FIXME: this should be moved to JointManager
 					Quaternion connectedBodyRot = ji.connectedBodyAxis.rotation(-tgt);
 					j.connectedAnchor = connectedBodyRot * (j.connectedAnchor - ji.connectedBodyNode)
 						+ ji.connectedBodyNode;
