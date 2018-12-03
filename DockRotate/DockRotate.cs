@@ -403,7 +403,7 @@ namespace DockRotate
 						+ ji.connectedBodyNode;
 					j.targetPosition = ji.jm.tgtPos0;
 
-					ji.jm.setup(j);
+					ji.jm.setup();
 				}
 			}
 		}
@@ -1851,14 +1851,13 @@ namespace DockRotate
 			joint.targetPosition = jointRotation * (tgtPos0 - jointNode) + jointNode;
 		}
 
-		// FIXME: this must include position staticization before the setup() call
+		// FIXME: this must include position staticization
 		public void staticizeRotation()
 		{
 			Quaternion localRotation = J2Lr(tgtRot0.inverse() * joint.targetRotation);
 			joint.axis = localRotation * joint.axis;
 			joint.secondaryAxis = localRotation * joint.secondaryAxis;
 			joint.targetRotation = tgtRot0;
-			setup();
 		}
 
 		public Vector3 L2Jd(Vector3 v)
