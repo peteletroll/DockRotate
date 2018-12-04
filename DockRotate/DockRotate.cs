@@ -833,8 +833,12 @@ namespace DockRotate
 		public void OnCameraChange(CameraManager.CameraMode mode)
 		{
 			Camera camera = CameraManager.GetCurrentCamera();
-			if (verboseEvents && camera)
-				lprint(part.desc() + ": OnCameraChange(" + mode + "): "	+ camera.desc());
+			if (verboseEvents && camera) {
+				lprint(part.desc() + ": OnCameraChange(" + mode + "): " + camera.desc());
+				Camera[] cameras = Camera.allCameras;
+				for (int i = 0; i < cameras.Length; i++)
+					lprint("camera[" + i + "] = " + cameras[i].desc());
+			}
 		}
 
 		public void RightBeforeStructureChangeIds(uint id1, uint id2)
@@ -1915,7 +1919,7 @@ namespace DockRotate
 		{
 			if (!c)
 				return "null";
-			return c.name;
+			return c.name + "(" + c.cameraType + ")";
 		}
 
 		/******** Vessel utilities ********/
