@@ -830,6 +830,11 @@ namespace DockRotate
 			doSetup();
 		}
 
+		public void OnCameraChange(CameraManager.CameraMode mode)
+		{
+			
+		}
+
 		public void RightBeforeStructureChangeIds(uint id1, uint id2)
 		{
 			if (!vessel)
@@ -930,6 +935,8 @@ namespace DockRotate
 			GameEvents.onVesselGoOnRails.Add(OnVesselGoOnRails);
 			GameEvents.onVesselGoOffRails.Add(OnVesselGoOffRails);
 
+			GameEvents.OnCameraChange.Add(OnCameraChange);
+
 			GameEvents.onPartCouple.Add(RightBeforeStructureChangeAction);
 			GameEvents.onPartCoupleComplete.Add(RightAfterStructureChangeAction);
 			GameEvents.onPartDeCouple.Add(RightBeforeStructureChangePart);
@@ -948,6 +955,8 @@ namespace DockRotate
 		{
 			GameEvents.onVesselGoOnRails.Remove(OnVesselGoOnRails);
 			GameEvents.onVesselGoOffRails.Remove(OnVesselGoOffRails);
+
+			GameEvents.OnCameraChange.Remove(OnCameraChange);
 
 			GameEvents.onPartCouple.Remove(RightBeforeStructureChangeAction);
 			GameEvents.onPartCoupleComplete.Remove(RightAfterStructureChangeAction);
