@@ -832,7 +832,9 @@ namespace DockRotate
 
 		public void OnCameraChange(CameraManager.CameraMode mode)
 		{
-			
+			Camera camera = CameraManager.GetCurrentCamera();
+			if (verboseEvents && camera)
+				lprint(part.desc() + ": OnCameraChange(" + mode + "): "	+ camera.desc());
 		}
 
 		public void RightBeforeStructureChangeIds(uint id1, uint id2)
@@ -1905,6 +1907,15 @@ namespace DockRotate
 		private static bool lprint(string msg)
 		{
 			return ModuleBaseRotate.lprint(msg);
+		}
+
+		/******** Camera utilities ********/
+
+		public static string desc(this Camera c)
+		{
+			if (!c)
+				return "null";
+			return c.name;
 		}
 
 		/******** Vessel utilities ********/
