@@ -312,8 +312,8 @@ namespace DockRotate
 					lprint("securing autostruts on vessel " + vesselId);
 					joint.Host.vessel.secureAllAutoStruts();
 				} else {
-					// no action needed with IsJountUnlocked() logic
-					// but IsJountUnlocked() logic is bugged now
+					// no action needed with IsJointUnlocked() logic
+					// but IsJointUnlocked() logic is bugged now
 					joint.Host.vessel.secureAllAutoStruts();
 				}
 			}
