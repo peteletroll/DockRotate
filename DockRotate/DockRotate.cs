@@ -170,6 +170,7 @@ namespace DockRotate
 		public float soundVolume = 1f;
 		public float pitchAlteration = 1f;
 		public float electricityRate = 1f;
+		public float rot0 = 0f;
 
 		private struct RotJointInfo
 		{
@@ -1137,7 +1138,7 @@ namespace DockRotate
 					rotCur.tgt = angle;
 					updateFrozenRotation("MERGECONT");
 				} else {
-					lprint("MERGE LIMITED " + angle + " -> " + rotCur.tgt);
+					lprint("MERGE LIMITED " + angle + " -> " + rotCur.rot0 + " + " + rotCur.tgt);
 					if (rotCur.isContinuous()) {
 						lprint("MERGE INTO CONTINUOUS");
 						rotCur.tgt = rotCur.pos + rotCur.curBrakingSpace() + angle;
@@ -1150,6 +1151,7 @@ namespace DockRotate
 				}
 			} else {
 				rotCur = new RotationAnimation(activePart, partNodePos, partNodeAxis, rotatingJoint, 0, angle, speed);
+				rotCur.rot0 = rotationAngle(false);
 				rotCur.controller = this;
 				rotCur.electricityRate = electricityRate;
 				rotCur.soundVolume = soundVolume;
@@ -1169,8 +1171,8 @@ namespace DockRotate
 			if (snap < 0.5f)
 				return 0f;
 			float a = !rotCur ? rotationAngle(false) :
-				rotCur.isContinuous() ? rotCur.pos :
-				rotCur.tgt;
+				rotCur.isContinuous() ? rotCur.rot0 + rotCur.pos :
+				rotCur.rot0 + rotCur.tgt;
 			if (float.IsNaN(a))
 				return 0f;
 			float f = snap * Mathf.Floor(a / snap + 0.5f);
