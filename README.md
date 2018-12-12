@@ -10,7 +10,7 @@ This plugin can help you.
 
 Docked port pairs can rotate via right-click menu or action groups. ( * )
 They can rotate to snap for perfect alignment.
-And if you want to uninstall the module, you won't lose any ship, because there's no new parts involved. Your station parts will stay aligned, and your satellite arms will stay deployed.
+And if you want to uninstall the module, you won't lose any ship, because there's no new parts involved **(this is true for docking ports, but not if you use NodeRotate parts)**. Your station parts will stay aligned, and your satellite arms will stay deployed.
 
 If the rotation step is set to 0, the rotation will be continuous. You can stop it with the "Stop Rotation" right-click menu entry, the "Stop Rotation" action, or Alt-B.
 
