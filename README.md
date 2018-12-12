@@ -16,15 +16,13 @@ If the rotation step is set to 0, the rotation will be continuous. You can stop 
 
 Rotation will malfunction if parts on opposite sides of the rotating joint are connected by struts.
 
-Autostruts are removed during motion, and restored after.
-
-If advanced tweakables are enabled, you can access to the experimental smart autostruts. If the "Smart Autostruts" flag is enabled only the autostruts that cross the rotating joint are removed. This can misbehave with crossing struts, use with caution and quicksave before!
+**Autostruts** are properly handled.
 
 Forum page: https://forum.kerbalspaceprogram.com/index.php?/topic/170484-dockrotate-rotation-control-on-docking-ports/
 
 ( * ) Should work with any port based on ModuleDockingNode.
 
-( ** ) DockRotate can be compatible with Kerbal Joint Reinforcement. KJR configuration must be updated.
+( ** ) DockRotate can be compatible with **Kerbal Joint Reinforcement**. KJR configuration may need an update: see https://forum.kerbalspaceprogram.com/index.php?/topic/170484-dockrotate&do=findComment&comment=3305721 and https://forum.kerbalspaceprogram.com/index.php?/topic/170484-14-dockrotate&do=findComment&comment=3424519
 
 # NodeRotate
 
