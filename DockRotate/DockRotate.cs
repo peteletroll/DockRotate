@@ -2092,17 +2092,24 @@ namespace DockRotate
 
 		public static string desc(this JointDrive drive)
 		{
-			return "drv(maxFrc=" + drive.maximumForce
-				+ " posSpring=" + drive.positionSpring
-				+ " posDamp=" + drive.positionDamper
+			return "drv(frc=" + drive.maximumForce
+				+ " spr=" + drive.positionSpring
+				+ " dmp=" + drive.positionDamper
 				+ ")";
 		}
 
 		public static string desc(this SoftJointLimit limit)
 		{
 			return "lim(lim=" + limit.limit
-				+ " bounce=" + limit.bounciness
-				+ " cDist=" + limit.contactDistance
+				+ " bnc=" + limit.bounciness
+				+ " dst=" + limit.contactDistance
+				+ ")";
+		}
+
+		public static string desc(this SoftJointLimitSpring spring)
+		{
+			return "spr(spr=" + spring.spring
+				+ " dmp=" + spring.damper
 				+ ")";
 		}
 
@@ -2138,6 +2145,18 @@ namespace DockRotate
 				+ " [" + j.connectedAnchor.Tp(j.connectedBody.T(), j.T()).desc() + "]");
 
 			lprint("  Tgt: " + j.targetPosition.desc() + ", " + j.targetRotation.desc());
+
+			lprint("  angX: " + _jdump(j.angularXMotion, j.angularXDrive, j.angularXLimitSpring));
+			lprint("  angY: " + _jdump(j.angularYMotion, j.angularYZDrive, j.angularYZLimitSpring));
+			lprint("  angZ: " + _jdump(j.angularZMotion, j.angularYZDrive, j.angularYZLimitSpring));
+			lprint("  linX: " + _jdump(j.xMotion, j.xDrive, j.linearLimitSpring));
+			lprint("  linY: " + _jdump(j.yMotion, j.yDrive, j.linearLimitSpring));
+			lprint("  linZ: " + _jdump(j.zMotion, j.zDrive, j.linearLimitSpring));
+		}
+
+		private static string _jdump(ConfigurableJointMotion mot, JointDrive drv, SoftJointLimitSpring lim)
+		{
+			return mot.ToString() + " " + drv.desc() + " " + lim.desc();
 		}
 
 		/******** Vector3 utilities ********/
