@@ -2146,17 +2146,17 @@ namespace DockRotate
 
 			lprint("  Tgt: " + j.targetPosition.desc() + ", " + j.targetRotation.desc());
 
-			lprint("  angX: " + _jdump(j.angularXMotion, j.angularXDrive, j.angularXLimitSpring));
-			lprint("  angY: " + _jdump(j.angularYMotion, j.angularYZDrive, j.angularYZLimitSpring));
-			lprint("  angZ: " + _jdump(j.angularZMotion, j.angularYZDrive, j.angularYZLimitSpring));
-			lprint("  linX: " + _jdump(j.xMotion, j.xDrive, j.linearLimitSpring));
-			lprint("  linY: " + _jdump(j.yMotion, j.yDrive, j.linearLimitSpring));
-			lprint("  linZ: " + _jdump(j.zMotion, j.zDrive, j.linearLimitSpring));
+			lprint("  angX: " + _jdump(j.angularXMotion, j.angularXDrive, j.lowAngularXLimit, j.angularXLimitSpring));
+			lprint("  angY: " + _jdump(j.angularYMotion, j.angularYZDrive, j.angularYLimit, j.angularYZLimitSpring));
+			lprint("  angZ: " + _jdump(j.angularZMotion, j.angularYZDrive, j.angularZLimit, j.angularYZLimitSpring));
+			lprint("  linX: " + _jdump(j.xMotion, j.xDrive, j.linearLimit, j.linearLimitSpring));
+			lprint("  linY: " + _jdump(j.yMotion, j.yDrive, j.linearLimit, j.linearLimitSpring));
+			lprint("  linZ: " + _jdump(j.zMotion, j.zDrive, j.linearLimit, j.linearLimitSpring));
 		}
 
-		private static string _jdump(ConfigurableJointMotion mot, JointDrive drv, SoftJointLimitSpring lim)
+		private static string _jdump(ConfigurableJointMotion mot, JointDrive drv, SoftJointLimit lim, SoftJointLimitSpring spr)
 		{
-			return mot.ToString() + " " + drv.desc() + " " + lim.desc();
+			return mot.ToString() + " " + drv.desc() + " " + lim.desc() + " " + spr.desc();
 		}
 
 		/******** Vector3 utilities ********/
