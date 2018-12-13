@@ -1986,6 +1986,8 @@ namespace DockRotate
 			PartJoint[] allJoints = UnityEngine.Object.FindObjectsOfType<PartJoint>();
 			for (int ii = 0; ii < allJoints.Length; ii++) {
 				PartJoint j = allJoints[ii];
+				if (!j)
+					continue;
 				if (!j.Host || j.Host.vessel != part.vessel)
 					continue;
 				if (!j.Target || j.Target.vessel != part.vessel)
