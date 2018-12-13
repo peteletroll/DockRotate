@@ -1960,9 +1960,9 @@ namespace DockRotate
 		{
 			if (!part)
 				return "<null>";
-			ModuleDockRotate mdr = part.FindModuleImplementing<ModuleDockRotate>();
+			ModuleBaseRotate mbr = part.FindModuleImplementing<ModuleBaseRotate>();
 			return part.name + "_" + part.flightID
-				+ (mdr ? "_" + mdr.nodeRole : "");
+				+ (mbr ? "_" + mbr.nodeRole : "");
 		}
 
 		public static Vector3 up(this Part part, Vector3 axis)
