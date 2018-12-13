@@ -2152,6 +2152,8 @@ namespace DockRotate
 			lprint("  linX: " + _jdump(j.xMotion, j.xDrive, j.linearLimit, j.linearLimitSpring));
 			lprint("  linY: " + _jdump(j.yMotion, j.yDrive, j.linearLimit, j.linearLimitSpring));
 			lprint("  linZ: " + _jdump(j.zMotion, j.zDrive, j.linearLimit, j.linearLimitSpring));
+
+			lprint("  proj: " + j.projectionMode + " ang=" + j.projectionAngle + " dst=" + j.projectionDistance); 
 		}
 
 		private static string _jdump(ConfigurableJointMotion mot, JointDrive drv, SoftJointLimit lim, SoftJointLimitSpring spr)
