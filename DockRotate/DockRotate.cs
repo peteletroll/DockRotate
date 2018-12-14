@@ -2038,34 +2038,14 @@ namespace DockRotate
 		{
 			PartSet rotParts = part.allPartsFromHere();
 
-			List<ModuleDockingNode> allDockingNodes = part.vessel.FindPartModulesImplementing<ModuleDockingNode>();
-			List<ModuleDockingNode> sameVesselDockingNodes = new List<ModuleDockingNode>();
-			for (int i = 0; i < allDockingNodes.Count; i++)
-				if (allDockingNodes[i].sameVesselDockJoint)
-					sameVesselDockingNodes.Add(allDockingNodes[i]);
+			PartJoint[] allAutostrutJoints = getAllAutostrutJoints(part.vessel);
 
 			int count = 0;
-			PartJoint[] allJoints = getAllJoints();
-			for (int ii = 0; ii < allJoints.Length; ii++) {
-				PartJoint j = allJoints[ii];
+			for (int ii = 0; ii < allAutostrutJoints.Length; ii++) {
+				PartJoint j = allAutostrutJoints[ii];
 				if (!j)
 					continue;
-				if (!j.Host || j.Host.vessel != part.vessel)
-					continue;
-				if (!j.Target || j.Target.vessel != part.vessel)
-					continue;
-				if (j == j.Host.attachJoint)
-					continue;
-				if (j == j.Target.attachJoint)
-					continue;
 				if (rotParts.contains(j.Host) == rotParts.contains(j.Target))
-					continue;
-
-				bool isSameVesselDockingJoint = false;
-				for (int i = 0; !isSameVesselDockingJoint && i < sameVesselDockingNodes.Count; i++)
-					if (j == sameVesselDockingNodes[i].sameVesselDockJoint)
-						isSameVesselDockingJoint = true;
-				if (isSameVesselDockingJoint)
 					continue;
 
 				lprint("releasing [" + ++count + "] " + j.desc());
