@@ -451,40 +451,6 @@ namespace DockRotate
 		}
 	}
 
-	public class PartSet: Dictionary<uint, Part>
-	{
-		private Part[] partArray = null;
-
-		public void add(Part part)
-		{
-			partArray = null;
-			Add(part.flightID, part);
-		}
-
-		public bool contains(Part part)
-		{
-			return ContainsKey(part.flightID);
-		}
-
-		public Part[] parts()
-		{
-			if (partArray != null)
-				return partArray;
-			List<Part> ret = new List<Part>();
-			foreach (KeyValuePair<uint, Part> i in this) {
-				ret.Add(i.Value);
-			}
-			return partArray = ret.ToArray();
-		}
-
-		public void dump()
-		{
-			Part[] p = parts();
-			for (int i = 0; i < p.Length; i++)
-				ModuleBaseRotate.lprint("rotPart " + p[i].desc());
-		}
-	}
-
 	public abstract class ModuleBaseRotate: PartModule, IJointLockState
 	{
 		[UI_Toggle()]
@@ -1910,11 +1876,63 @@ namespace DockRotate
 
 	public static class SmartAutostruts
 	{
-		public static bool lprint(string msg)
+		private static bool lprint(string msg)
 		{
 			Debug.Log("[SmartAutostruts:" + Time.frameCount + "]: " + msg);
 			return true;
 		}
+
+		/******** PartSet utilities ********/
+
+		private class PartSet : Dictionary<uint, Part>
+		{
+			private Part[] partArray = null;
+
+			public void add(Part part)
+			{
+				partArray = null;
+				Add(part.flightID, part);
+			}
+
+			public bool contains(Part part)
+			{
+				return ContainsKey(part.flightID);
+			}
+
+			public Part[] parts()
+			{
+				if (partArray != null)
+					return partArray;
+				List<Part> ret = new List<Part>();
+				foreach (KeyValuePair<uint, Part> i in this) {
+					ret.Add(i.Value);
+				}
+				return partArray = ret.ToArray();
+			}
+
+			public void dump()
+			{
+				Part[] p = parts();
+				for (int i = 0; i < p.Length; i++)
+					ModuleBaseRotate.lprint("rotPart " + p[i].desc());
+			}
+		}
+
+		private static PartSet allPartsFromHere(this Part p)
+		{
+			PartSet ret = new PartSet();
+			_collect(ret, p);
+			return ret;
+		}
+
+		private static void _collect(PartSet s, Part p)
+		{
+			s.add(p);
+			for (int i = 0; i < p.children.Count; i++)
+				_collect(s, p.children[i]);
+		}
+
+		/******** Object.FindObjectsOfType<PartJoint>() cache ********/
 
 		private static PartJoint[] cached_allJoints = null;
 		private static int cached_allJoints_frame = 0;
@@ -1927,6 +1945,8 @@ namespace DockRotate
 			cached_allJoints_frame = Time.frameCount;
 			return cached_allJoints;
 		}
+
+		/******** Vessel Autostruts cache cache ********/
 
 		private static PartJoint[] cached_allAutostrutJoints = null;
 		private static Vessel cached_allAutostrutJoints_vessel = null;
@@ -2028,20 +2048,6 @@ namespace DockRotate
 		}
 
 		/******** Part utilities ********/
-
-		public static PartSet allPartsFromHere(this Part p)
-		{
-			PartSet ret = new PartSet();
-			_collect(ret, p);
-			return ret;
-		}
-
-		private static void _collect(PartSet s, Part p)
-		{
-			s.add(p);
-			for (int i = 0; i < p.children.Count; i++)
-				_collect(s, p.children[i]);
-		}
 
 		public static string desc(this Part part)
 		{
