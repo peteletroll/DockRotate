@@ -1972,6 +1972,68 @@ namespace DockRotate
 			return (up1.magnitude > up2.magnitude ? up1 : up2).normalized;
 		}
 
+		/******** Smart Autostruts utilities ********/
+
+		private static PartJoint[] cached_allJoints = null;
+		private static int cached_allJoints_frame = 0;
+
+		private static PartJoint[] getAllJoints()
+		{
+			if (cached_allJoints != null && cached_allJoints_frame == Time.frameCount)
+				return cached_allJoints;
+			cached_allJoints = UnityEngine.Object.FindObjectsOfType<PartJoint>();
+			cached_allJoints_frame = Time.frameCount;
+			return cached_allJoints;
+		}
+
+		private static PartJoint[] cached_allAutostrutJoints = null;
+		private static Vessel cached_allAutostrutJoints_vessel = null;
+		private static int cached_allAutostrutJoints_frame = 0;
+
+		private static PartJoint[] getAllAutostrutJoints(Vessel vessel)
+		{
+			if (cached_allAutostrutJoints != null && cached_allAutostrutJoints_vessel == vessel && cached_allAutostrutJoints_frame == Time.frameCount)
+				return cached_allAutostrutJoints;
+
+			List<ModuleDockingNode> allDockingNodes = vessel.FindPartModulesImplementing<ModuleDockingNode>();
+			List<ModuleDockingNode> sameVesselDockingNodes = new List<ModuleDockingNode>();
+			for (int i = 0; i < allDockingNodes.Count; i++)
+				if (allDockingNodes[i].sameVesselDockJoint)
+					sameVesselDockingNodes.Add(allDockingNodes[i]);
+
+			int count = 0;
+			PartJoint[] allJoints = getAllJoints();
+			List<PartJoint> allAutostruts = new List<PartJoint>();
+			for (int ii = 0; ii < allJoints.Length; ii++) {
+				PartJoint j = allJoints[ii];
+				if (!j)
+					continue;
+				if (!j.Host || j.Host.vessel != vessel)
+					continue;
+				if (!j.Target || j.Target.vessel != vessel)
+					continue;
+				if (j == j.Host.attachJoint)
+					continue;
+				if (j == j.Target.attachJoint)
+					continue;
+
+				bool isSameVesselDockingJoint = false;
+				for (int i = 0; !isSameVesselDockingJoint && i < sameVesselDockingNodes.Count; i++)
+					if (j == sameVesselDockingNodes[i].sameVesselDockJoint)
+						isSameVesselDockingJoint = true;
+				if (isSameVesselDockingJoint)
+					continue;
+
+				lprint("Autostrut [" + ++count + "] " + j.desc());
+				allAutostruts.Add(j);
+			}
+
+			cached_allAutostrutJoints = allAutostruts.ToArray();
+			cached_allAutostrutJoints_vessel = vessel;
+			cached_allAutostrutJoints_frame = Time.frameCount;
+			return cached_allAutostrutJoints;
+		}
+
 		public static void releaseCrossAutoStruts(this Part part)
 		{
 			PartSet rotParts = part.allPartsFromHere();
@@ -1983,7 +2045,7 @@ namespace DockRotate
 					sameVesselDockingNodes.Add(allDockingNodes[i]);
 
 			int count = 0;
-			PartJoint[] allJoints = UnityEngine.Object.FindObjectsOfType<PartJoint>();
+			PartJoint[] allJoints = getAllJoints();
 			for (int ii = 0; ii < allJoints.Length; ii++) {
 				PartJoint j = allJoints[ii];
 				if (!j)
