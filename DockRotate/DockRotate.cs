@@ -1904,9 +1904,8 @@ namespace DockRotate
 				if (partArray != null)
 					return partArray;
 				List<Part> ret = new List<Part>();
-				foreach (KeyValuePair<uint, Part> i in this) {
+				foreach (KeyValuePair<uint, Part> i in this)
 					ret.Add(i.Value);
-				}
 				return partArray = ret.ToArray();
 			}
 
@@ -1946,7 +1945,7 @@ namespace DockRotate
 			return cached_allJoints;
 		}
 
-		/******** Vessel Autostruts cache cache ********/
+		/******** Vessel Autostruts cache ********/
 
 		private static PartJoint[] cached_allAutostrutJoints = null;
 		private static Vessel cached_allAutostrutJoints_vessel = null;
@@ -1994,6 +1993,8 @@ namespace DockRotate
 			cached_allAutostrutJoints_frame = Time.frameCount;
 			return cached_allAutostrutJoints;
 		}
+
+		/******** public interface ********/
 
 		public static void releaseCrossAutoStruts(this Part part)
 		{
