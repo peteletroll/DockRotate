@@ -1908,71 +1908,13 @@ namespace DockRotate
 		}
 	}
 
-	public static class Extensions
+	public static class SmartAutostruts
 	{
-		private static bool lprint(string msg)
+		public static bool lprint(string msg)
 		{
-			return ModuleBaseRotate.lprint(msg);
+			Debug.Log("[SmartAutostruts:" + Time.frameCount + "]: " + msg);
+			return true;
 		}
-
-		/******** Camera utilities ********/
-
-		public static string desc(this Camera c)
-		{
-			if (!c)
-				return "null";
-			return c.name + "(" + c.cameraType + ")";
-		}
-
-		/******** Vessel utilities ********/
-
-		public static void releaseAllAutoStruts(this Vessel v)
-		{
-			List<Part> parts = v.parts;
-			for (int i = 0; i < parts.Count; i++) {
-				parts[i].ReleaseAutoStruts();
-			}
-		}
-
-		public static void secureAllAutoStruts(this Vessel v)
-		{
-			v.releaseAllAutoStruts();
-			v.CycleAllAutoStrut();
-		}
-
-		/******** Part utilities ********/
-
-		public static PartSet allPartsFromHere(this Part p)
-		{
-			PartSet ret = new PartSet();
-			_collect(ret, p);
-			return ret;
-		}
-
-		private static void _collect(PartSet s, Part p)
-		{
-			s.add(p);
-			for (int i = 0; i < p.children.Count; i++)
-				_collect(s, p.children[i]);
-		}
-
-		public static string desc(this Part part)
-		{
-			if (!part)
-				return "<null>";
-			ModuleBaseRotate mbr = part.FindModuleImplementing<ModuleBaseRotate>();
-			return part.name + "_" + part.flightID
-				+ (mbr ? "_" + mbr.nodeRole : "");
-		}
-
-		public static Vector3 up(this Part part, Vector3 axis)
-		{
-			Vector3 up1 = Vector3.ProjectOnPlane(Vector3.up, axis);
-			Vector3 up2 = Vector3.ProjectOnPlane(Vector3.forward, axis);
-			return (up1.magnitude > up2.magnitude ? up1 : up2).normalized;
-		}
-
-		/******** Smart Autostruts utilities ********/
 
 		private static PartJoint[] cached_allJoints = null;
 		private static int cached_allJoints_frame = 0;
@@ -2050,6 +1992,71 @@ namespace DockRotate
 				lprint(part.desc() + ": releasing [" + ++count + "] " + j.desc());
 				j.DestroyJoint();
 			}
+		}
+	}
+
+	public static class Extensions
+	{
+		private static bool lprint(string msg)
+		{
+			return ModuleBaseRotate.lprint(msg);
+		}
+
+		/******** Camera utilities ********/
+
+		public static string desc(this Camera c)
+		{
+			if (!c)
+				return "null";
+			return c.name + "(" + c.cameraType + ")";
+		}
+
+		/******** Vessel utilities ********/
+
+		public static void releaseAllAutoStruts(this Vessel v)
+		{
+			List<Part> parts = v.parts;
+			for (int i = 0; i < parts.Count; i++) {
+				parts[i].ReleaseAutoStruts();
+			}
+		}
+
+		public static void secureAllAutoStruts(this Vessel v)
+		{
+			v.releaseAllAutoStruts();
+			v.CycleAllAutoStrut();
+		}
+
+		/******** Part utilities ********/
+
+		public static PartSet allPartsFromHere(this Part p)
+		{
+			PartSet ret = new PartSet();
+			_collect(ret, p);
+			return ret;
+		}
+
+		private static void _collect(PartSet s, Part p)
+		{
+			s.add(p);
+			for (int i = 0; i < p.children.Count; i++)
+				_collect(s, p.children[i]);
+		}
+
+		public static string desc(this Part part)
+		{
+			if (!part)
+				return "<null>";
+			ModuleBaseRotate mbr = part.FindModuleImplementing<ModuleBaseRotate>();
+			return part.name + "_" + part.flightID
+				+ (mbr ? "_" + mbr.nodeRole : "");
+		}
+
+		public static Vector3 up(this Part part, Vector3 axis)
+		{
+			Vector3 up1 = Vector3.ProjectOnPlane(Vector3.up, axis);
+			Vector3 up2 = Vector3.ProjectOnPlane(Vector3.forward, axis);
+			return (up1.magnitude > up2.magnitude ? up1 : up2).normalized;
 		}
 
 		/******** Physics Activation utilities ********/
