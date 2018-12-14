@@ -2001,9 +2001,8 @@ namespace DockRotate
 				if (allDockingNodes[i].sameVesselDockJoint)
 					sameVesselDockingNodes.Add(allDockingNodes[i]);
 
-			int count = 0;
 			PartJoint[] allJoints = getAllJoints();
-			List<PartJoint> allAutostruts = new List<PartJoint>();
+			List<PartJoint> allAutostrutJoints = new List<PartJoint>();
 			for (int ii = 0; ii < allJoints.Length; ii++) {
 				PartJoint j = allJoints[ii];
 				if (!j)
@@ -2024,11 +2023,11 @@ namespace DockRotate
 				if (isSameVesselDockingJoint)
 					continue;
 
-				lprint("Autostrut [" + ++count + "] " + j.desc());
-				allAutostruts.Add(j);
+				allAutostrutJoints.Add(j);
+				lprint("Autostrut [" + allAutostrutJoints.Count + "] " + j.desc());
 			}
 
-			cached_allAutostrutJoints = allAutostruts.ToArray();
+			cached_allAutostrutJoints = allAutostrutJoints.ToArray();
 			cached_allAutostrutJoints_vessel = vessel;
 			cached_allAutostrutJoints_frame = Time.frameCount;
 			return cached_allAutostrutJoints;
@@ -2048,10 +2047,12 @@ namespace DockRotate
 				if (rotParts.contains(j.Host) == rotParts.contains(j.Target))
 					continue;
 
-				lprint("releasing [" + ++count + "] " + j.desc());
+				lprint(part.desc() + ": releasing [" + ++count + "] " + j.desc());
 				j.DestroyJoint();
 			}
 		}
+
+		/******** Physics Activation utilities ********/
 
 		public static bool hasPhysics(this Part part)
 		{
