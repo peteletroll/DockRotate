@@ -1607,7 +1607,7 @@ namespace DockRotate
 				lprint(part.desc() + ": isDockedToParent(): dist " + nodeDist + ", angle " + nodeAngle
 					+ ", types " + dockingNode.nodeType + "/" + parentNode.nodeType);
 
-			bool ret = dockingNode.nodeType == parentNode.nodeType
+			bool ret = dockingNode.nodeTypes.Overlaps(parentNode.nodeTypes)
 				&& nodeDist < 1f && nodeAngle < 5f;
 
 			if (verbose)
