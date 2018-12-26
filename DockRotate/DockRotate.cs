@@ -1605,7 +1605,7 @@ namespace DockRotate
 			float nodeAngle = Vector3.Angle(partNodeAxis, Vector3.back.Td(parentNode.T(), part.parent.T()).STd(part.parent, part));
 			if (verbose)
 				lprint(part.desc() + ": isDockedToParent(): dist " + nodeDist + ", angle " + nodeAngle
-					+ ", types " + dockingNode.nodeType + "/" + parentNode.nodeType);
+					+ ", types " + dockingNode.allTypes() + "/" + parentNode.allTypes());
 
 			bool ret = dockingNode.nodeTypes.Overlaps(parentNode.nodeTypes)
 				&& nodeDist < 1f && nodeAngle < 5f;
@@ -1759,6 +1759,8 @@ namespace DockRotate
 			if (dockingNode) {
 				lprint("state: " + dockingNode.state);
 
+				lprint("types: " + dockingNode.allTypes());
+
 				ModuleDockingNode other = dockingNode.otherNode();
 				lprint("other: " + (other ? other.part.desc() : "none"));
 
@@ -1884,7 +1886,7 @@ namespace DockRotate
 
 		/******** PartSet utilities ********/
 
-		private class PartSet : Dictionary<uint, Part>
+		private class PartSet: Dictionary<uint, Part>
 		{
 			private Part[] partArray = null;
 
@@ -2111,6 +2113,17 @@ namespace DockRotate
 			if (node.dockedPartUId <= 0)
 				return null;
 			return node.FindOtherNode();
+		}
+
+		public static string allTypes(this ModuleDockingNode node)
+		{
+			string lst = "";
+			foreach (string t in node.nodeTypes) {
+				if (lst.Length > 0)
+					lst += ",";
+				lst += t;
+			}
+			return lst;
 		}
 
 		/******** AttachNode utilities ********/
