@@ -525,7 +525,7 @@ namespace DockRotate
 			guiActive = false,
 			guiActiveEditor = false
 		)]
-		public String nodeStatus = "";
+		public string nodeStatus = "";
 #endif
 
 #if DEBUG
