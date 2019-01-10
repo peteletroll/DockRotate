@@ -1097,6 +1097,7 @@ namespace DockRotate
 			string action = "none";
 			bool showlog = true;
 			if (rotCur) {
+				bool trace = false;
 				if (rotCur.isBraking()) {
 					lprint(part.desc() + ": enqueueRotation() canceled, braking");
 					return false;
@@ -1107,20 +1108,24 @@ namespace DockRotate
 				if (SmoothMotion.isContinuous(ref angle)) {
 					if (rotCur.isContinuous() && angle * rotCur.tgt > 0f)
 						showlog = false; // already continuous the right way
-					if (showlog)
+					if (trace && showlog)
 						lprint("MERGE CONTINUOUS " + angle + " -> " + rotCur.tgt);
 					rotCur.tgt = angle;
 					updateFrozenRotation("MERGECONT");
 				} else {
-					lprint("MERGE LIMITED " + angle + " -> " + rotCur.rot0 + " + " + rotCur.tgt);
+					if (trace)
+						lprint("MERGE LIMITED " + angle + " -> " + rotCur.rot0 + " + " + rotCur.tgt);
 					if (rotCur.isContinuous()) {
-						lprint("MERGE INTO CONTINUOUS");
+						if (trace)
+							lprint("MERGE INTO CONTINUOUS");
 						rotCur.tgt = rotCur.pos + rotCur.curBrakingSpace() + angle;
 					} else {
-						lprint("MERGE INTO LIMITED");
+						if (trace)
+							lprint("MERGE INTO LIMITED");
 						rotCur.tgt = rotCur.tgt + angle;
 					}
-					lprint("MERGED: POS " + rotCur.pos +" TGT " + rotCur.tgt);
+					if (trace)
+						lprint("MERGED: POS " + rotCur.pos +" TGT " + rotCur.tgt);
 					updateFrozenRotation("MERGELIM");
 				}
 			} else {
