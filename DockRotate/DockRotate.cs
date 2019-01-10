@@ -170,10 +170,12 @@ namespace DockRotate
 
 		private Guid vesselId;
 
+		public const float pitchAlterationRateMax = 0.1f;
 		public static string soundFile = "DockRotate/DockRotateMotor";
 		public AudioSource sound;
 		public float soundVolume = 1f;
 		public float pitchAlteration = 1f;
+
 		public float electricityRate = 1f;
 		public float rot0 = 0f;
 
@@ -350,8 +352,9 @@ namespace DockRotate
 				sound.maxDistance = 1000f;
 				sound.playOnAwake = false;
 
-				uint pa = (33 * (activePart.flightID ^ proxyPart.flightID)) % 10000u;
-				pitchAlteration = 0.2f * (pa / 10000f) + 0.9f;
+				uint pa = (33u * (activePart.flightID ^ proxyPart.flightID)) % 10000u;
+				pitchAlteration = 2f * pitchAlterationRateMax * (pa / 10000f)
+					+ (1f - pitchAlterationRateMax);
 
 				sound.Play();
 
