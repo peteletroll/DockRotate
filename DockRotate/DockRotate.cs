@@ -852,7 +852,7 @@ namespace DockRotate
 		public void RightBeforeStructureChange()
 		{
 			if (verboseEvents)
-				lprint(part.desc() + ": RightBeforeStructureChange()");
+				lprint(part.desc() + ": RightBeforeStructureChange(): " + dynamicDeltaAngle() + "\u00b0\u0394");
 			freezeCurrentRotation("structure change", true);
 		}
 
@@ -880,7 +880,7 @@ namespace DockRotate
 		private void RightAfterStructureChange()
 		{
 			if (verboseEvents)
-				lprint(part.desc() + ": RightAfterStructureChange()");
+				lprint(part.desc() + ": RightAfterStructureChange(): " + dynamicDeltaAngle() + "\u00b0\u0394");
 			doSetup();
 		}
 
