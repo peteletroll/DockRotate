@@ -735,8 +735,8 @@ namespace DockRotate
 		protected Vector3 partNodeUp; // node vector for measuring angle, relative to part
 
 		// localized info cache
-		protected string displayName = "";
-		protected string displayInfo = "";
+		protected string cached_moduleDisplayName = "";
+		protected string cached_info = "";
 
 		[KSPField(isPersistant = true)]
 		public Vector3 frozenRotation = Vector3.zero;
@@ -1291,16 +1291,16 @@ namespace DockRotate
 
 		public override string GetModuleDisplayName()
 		{
-			if (displayName.Length <= 0)
-				displayName = Localizer.Format("#DCKROT_node_displayname");
-			return displayName;
+			if (cached_moduleDisplayName.Length <= 0)
+				cached_moduleDisplayName = Localizer.Format("#DCKROT_node_displayname");
+			return cached_moduleDisplayName;
 		}
 
 		public override string GetInfo()
 		{
-			if (displayInfo.Length <= 0)
-				displayInfo = Localizer.Format("#DCKROT_node_info", rotatingNodeName);
-			return displayInfo;
+			if (cached_info.Length <= 0)
+				cached_info = Localizer.Format("#DCKROT_node_info", rotatingNodeName);
+			return cached_info;
 		}
 
 		protected override void setup()
@@ -1482,16 +1482,16 @@ namespace DockRotate
 
 		public override string GetModuleDisplayName()
 		{
-			if (displayName.Length <= 0)
-				displayName = Localizer.Format("#DCKROT_port_displayname");
-			return displayName;
+			if (cached_moduleDisplayName.Length <= 0)
+				cached_moduleDisplayName = Localizer.Format("#DCKROT_port_displayname");
+			return cached_moduleDisplayName;
 		}
 
 		public override string GetInfo()
 		{
-			if (displayInfo.Length <= 0)
-				displayInfo = Localizer.Format("#DCKROT_port_info");
-			return displayInfo;
+			if (cached_info.Length <= 0)
+				cached_info = Localizer.Format("#DCKROT_port_info");
+			return cached_info;
 		}
 
 		private int lastBasicSetupFrame = -1;
