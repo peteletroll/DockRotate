@@ -16,9 +16,9 @@ namespace DockRotate
 		public float maxvel = 1f;
 		private float maxacc = 1f;
 
-		public bool braking = false;
+		private bool braking = false;
 
-		public bool started = false, finished = false;
+		private bool started = false, finished = false;
 
 		public float elapsed = 0f;
 		public double electricity = 0d;
@@ -78,6 +78,11 @@ namespace DockRotate
 		{
 			tgt = pos + curBrakingSpace();
 			braking = true;
+		}
+
+		public bool isBraking()
+		{
+			return braking;
 		}
 
 		public bool clampAngle()
@@ -1089,7 +1094,7 @@ namespace DockRotate
 			string action = "none";
 			bool showlog = true;
 			if (rotCur) {
-				if (rotCur.braking) {
+				if (rotCur.isBraking()) {
 					lprint(part.desc() + ": enqueueRotation() canceled, braking");
 					return false;
 				}
