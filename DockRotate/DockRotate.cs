@@ -166,6 +166,8 @@ namespace DockRotate
 		private PartJoint joint;
 		public bool smartAutoStruts = false;
 
+		public float dynDeltaChange = 0f;
+
 		public ModuleBaseRotate controller = null;
 
 		private Guid vesselId;
@@ -312,6 +314,8 @@ namespace DockRotate
 
 			onStep(0);
 
+			processDynDeltaChange();
+
 			staticizeOrgInfo();
 			staticizeJoints();
 
@@ -327,6 +331,14 @@ namespace DockRotate
 			}
 			lprint(activePart.desc() + ": rotation stopped, "
 				+ electricity.ToString("F2") + " electricity");
+		}
+
+		private void processDynDeltaChange()
+		{
+			if (dynDeltaChange != 0f) {
+				lprint("processing dynDeltaChange = " + dynDeltaChange + "\u00b0");
+				dynDeltaChange = 0f;
+			}
 		}
 
 		public void startSound()
@@ -728,6 +740,8 @@ namespace DockRotate
 			}
 		}
 
+		private float dynDeltaChange = 0f;
+
 		protected bool onRails = true; // FIXME: obsoleted by setupDone?
 
 		public PartJoint rotatingJoint;
@@ -849,10 +863,13 @@ namespace DockRotate
 				RightBeforeStructureChange();
 		}
 
+		private float _prevDelta = 0f;
+
 		public void RightBeforeStructureChange()
 		{
+			_prevDelta = dynamicDeltaAngle();
 			if (verboseEvents)
-				lprint(part.desc() + ": RightBeforeStructureChange(): " + dynamicDeltaAngle() + "\u00b0\u0394");
+				lprint(part.desc() + ": RightBeforeStructureChange(): " + _prevDelta.ToString("F2") + "\u00b0\u0394");
 			freezeCurrentRotation("structure change", true);
 		}
 
@@ -879,8 +896,14 @@ namespace DockRotate
 
 		private void RightAfterStructureChange()
 		{
+			float curDelta = dynamicDeltaAngle();
+			float prevDelta = _prevDelta;
+			_prevDelta = 0f;
+			float changeDelta = curDelta - prevDelta;
 			if (verboseEvents)
-				lprint(part.desc() + ": RightAfterStructureChange(): " + dynamicDeltaAngle() + "\u00b0\u0394");
+				lprint(part.desc() + ": RightAfterStructureChange(): " + dynamicDeltaAngle() + "\u00b0\u0394"
+					+ ", change " + changeDelta + "\00b0");
+			dynDeltaChange += changeDelta;
 			doSetup();
 		}
 
@@ -1242,6 +1265,11 @@ namespace DockRotate
 			checkFrozenRotation();
 
 			if (rotCur) {
+				if (dynDeltaChange != 0f) {
+					lprint(part.desc() + ": registering dynDeltaChange = " + dynDeltaChange);
+					rotCur.dynDeltaChange += dynDeltaChange;
+					dynDeltaChange = 0f;
+				}
 				rotCur.clampAngle();
 				if (brakeRotationKey())
 					rotCur.brake();
