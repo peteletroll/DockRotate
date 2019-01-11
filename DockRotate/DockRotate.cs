@@ -285,7 +285,7 @@ namespace DockRotate
 				if (!j)
 					continue;
 				RotJointInfo ji = rji[i];
-				ji.setRotation(pos);
+				ji.setRotation(pos - dynDeltaChange);
 			}
 
 			stepSound();
@@ -314,10 +314,11 @@ namespace DockRotate
 
 			onStep(0);
 
-			processDynDeltaChange();
 
 			staticizeOrgInfo();
 			staticizeJoints();
+
+			processDynDeltaChange();
 
 			if (changeCount(-1) <= 0) {
 				if (smartAutoStruts) {
