@@ -741,8 +741,6 @@ namespace DockRotate
 			}
 		}
 
-		private float dynDeltaChange = 0f;
-
 		protected bool onRails = true; // FIXME: obsoleted by setupDone?
 
 		public PartJoint rotatingJoint;
@@ -831,6 +829,27 @@ namespace DockRotate
 			}
 		}
 
+		private struct StructureChangeInfo {
+			public int frameCount;
+			public bool klawing;
+			public float prevDelta;
+			public float dynDeltaChange;
+		}
+
+		private StructureChangeInfo structureChangeInfo;
+
+		private void resetStructureChangeInfo()
+		{
+			int now = Time.frameCount;
+			if (structureChangeInfo.frameCount == now) {
+				lprint(part.desc() + ": skipping repeated resetStructureChangeInfo()");
+				return;
+			}
+			lprint(part.desc() + ": resetStructureChangeInfo()");
+			structureChangeInfo = new StructureChangeInfo();
+			structureChangeInfo.frameCount = now;
+		}
+
 		public void RightBeforeStructureChangeIds(uint id1, uint id2)
 		{
 			if (!vessel)
@@ -839,8 +858,10 @@ namespace DockRotate
 			if (verboseEvents)
 				lprint(part.desc() + ": RightBeforeStructureChangeIds("
 					+ id1 + ", " + id2 + ") [" + id + "]");
-			if (id1 == id || id2 == id)
+			if (id1 == id || id2 == id) {
+				resetStructureChangeInfo();
 				RightBeforeStructureChange();
+			}
 		}
 
 		public void RightBeforeStructureChangeAction(GameEvents.FromToAction<Part, Part> action)
@@ -850,8 +871,11 @@ namespace DockRotate
 			if (verboseEvents)
 				lprint(part.desc() + ": RightBeforeStructureChangeAction("
 					+ action.from.desc() + ", " + action.to.desc() + ")");
-			if (action.from.vessel == vessel || action.to.vessel == vessel)
+			if (action.from.vessel == vessel || action.to.vessel == vessel) {
+				resetStructureChangeInfo();
+				structureChangeInfo.klawing = structureChangeInfo.klawing || action.from.isKlaw() || action.to.isKlaw();
 				RightBeforeStructureChange();
+			}
 		}
 
 		public void RightBeforeStructureChangePart(Part p)
@@ -860,17 +884,18 @@ namespace DockRotate
 				return;
 			if (verboseEvents)
 				lprint(part.desc() + ": RightBeforeStructureChangePart(" + part.desc() + ")");
-			if (p.vessel == vessel)
+			if (p.vessel == vessel) {
+				resetStructureChangeInfo();
 				RightBeforeStructureChange();
+			}
 		}
-
-		private float _prevDelta = 0f;
 
 		public void RightBeforeStructureChange()
 		{
-			_prevDelta = dynamicDeltaAngle();
+			structureChangeInfo.prevDelta = dynamicDeltaAngle();
 			if (verboseEvents)
-				lprint(part.desc() + ": RightBeforeStructureChange(): " + _prevDelta.ToString("F2") + "\u00b0\u0394");
+				lprint(part.desc() + ": RightBeforeStructureChange(): "
+					+ structureChangeInfo.prevDelta.ToString("F2") + "\u00b0\u0394");
 			freezeCurrentRotation("structure change", true);
 		}
 
@@ -897,21 +922,25 @@ namespace DockRotate
 
 		private void RightAfterStructureChange()
 		{
+			if (structureChangeInfo.klawing)
+				lprint(part.desc() + ": RightAfterStructureChange() after klawing");
+
 			float curDelta = dynamicDeltaAngle();
-			float prevDelta = _prevDelta;
-			_prevDelta = 0f;
+			float prevDelta = structureChangeInfo.prevDelta;
+			structureChangeInfo.prevDelta = 0f;
 			float changeDelta = curDelta - prevDelta;
 			if (float.IsNaN(changeDelta)) {
 				changeDelta = 0f;
-				if (dynDeltaChange != 0f) {
-					lprint(part.desc() + ": RightAfterStructureChange() resetting dynDeltaChange = " + dynDeltaChange);
-					dynDeltaChange = 0f;
+				if (structureChangeInfo.dynDeltaChange != 0f) {
+					lprint(part.desc() + ": RightAfterStructureChange() resetting dynDeltaChange = "
+						+ structureChangeInfo.dynDeltaChange);
+					structureChangeInfo.dynDeltaChange = 0f;
 				}
 			}
 			if (verboseEvents)
 				lprint(part.desc() + ": RightAfterStructureChange(): " + dynamicDeltaAngle() + "\u00b0\u0394"
 					+ ", change " + changeDelta + "\00b0");
-			dynDeltaChange += changeDelta;
+			structureChangeInfo.dynDeltaChange += changeDelta;
 			doSetup();
 		}
 
@@ -1272,14 +1301,14 @@ namespace DockRotate
 
 			checkFrozenRotation();
 
-			if (dynDeltaChange != 0f) {
+			if (structureChangeInfo.dynDeltaChange != 0f) {
 				if (currentRotation()) {
-					lprint(part.desc() + ": registering dynDeltaChange = " + dynDeltaChange);
-					currentRotation().dynDeltaChange += dynDeltaChange;
-					dynDeltaChange = 0f;
+					lprint(part.desc() + ": registering dynDeltaChange = " + structureChangeInfo.dynDeltaChange);
+					currentRotation().dynDeltaChange += structureChangeInfo.dynDeltaChange;
+					structureChangeInfo.dynDeltaChange = 0f;
 				} else {
-					lprint(part.desc() + ": FixedUpdate() resetting dynDeltaChange = " + dynDeltaChange);
-					dynDeltaChange = 0f;
+					lprint(part.desc() + ": FixedUpdate() resetting dynDeltaChange = " + structureChangeInfo.dynDeltaChange);
+					structureChangeInfo.dynDeltaChange = 0f;
 				}
 			}
 
