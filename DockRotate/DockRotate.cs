@@ -314,7 +314,6 @@ namespace DockRotate
 
 			onStep(0);
 
-
 			staticizeOrgInfo();
 			staticizeJoints();
 
