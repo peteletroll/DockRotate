@@ -2123,6 +2123,11 @@ namespace DockRotate
 			return (up1.magnitude > up2.magnitude ? up1 : up2).normalized;
 		}
 
+		public static bool isKlaw(this Part part)
+		{
+			return part && part.FindModuleImplementing<ModuleGrappleNode>();
+		}
+
 		/******** Physics Activation utilities ********/
 
 		public static bool hasPhysics(this Part part)
