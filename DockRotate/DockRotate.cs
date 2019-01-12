@@ -901,6 +901,8 @@ namespace DockRotate
 			float prevDelta = _prevDelta;
 			_prevDelta = 0f;
 			float changeDelta = curDelta - prevDelta;
+			if (float.IsNaN(changeDelta))
+				changeDelta = 0f;
 			if (verboseEvents)
 				lprint(part.desc() + ": RightAfterStructureChange(): " + dynamicDeltaAngle() + "\u00b0\u0394"
 					+ ", change " + changeDelta + "\00b0");
