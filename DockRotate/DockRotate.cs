@@ -317,7 +317,10 @@ namespace DockRotate
 			rotateOrgInfo(tgt);
 			staticizeJoints();
 
-			processDynDeltaChange();
+			if (dynDeltaChange != 0f) {
+				lprint("OnStop(): final dynDeltaChange = " + dynDeltaChange + "\u00b0");
+				dynDeltaChange = 0f;
+			}
 
 			if (changeCount(-1) <= 0) {
 				if (smartAutoStruts) {
@@ -331,14 +334,6 @@ namespace DockRotate
 			}
 			lprint(activePart.desc() + ": rotation stopped, "
 				+ electricity.ToString("F2") + " electricity");
-		}
-
-		private void processDynDeltaChange()
-		{
-			if (dynDeltaChange != 0f) {
-				lprint("processing dynDeltaChange = " + dynDeltaChange + "\u00b0");
-				dynDeltaChange = 0f;
-			}
 		}
 
 		public void startSound()
