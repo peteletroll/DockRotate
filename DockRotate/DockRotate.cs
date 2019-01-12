@@ -1302,9 +1302,9 @@ namespace DockRotate
 			checkFrozenRotation();
 
 			if (structureChangeInfo.dynDeltaChange != 0f) {
-				if (currentRotation()) {
-					lprint(part.desc() + ": registering dynDeltaChange = " + structureChangeInfo.dynDeltaChange);
-					currentRotation().dynDeltaChange += structureChangeInfo.dynDeltaChange;
+				if (rotCur) {
+					lprint(part.desc() + ": FixedUpdate() registering dynDeltaChange = " + structureChangeInfo.dynDeltaChange);
+					rotCur.dynDeltaChange += structureChangeInfo.dynDeltaChange;
 					structureChangeInfo.dynDeltaChange = 0f;
 				} else {
 					lprint(part.desc() + ": FixedUpdate() resetting dynDeltaChange = " + structureChangeInfo.dynDeltaChange);
