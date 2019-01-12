@@ -314,7 +314,7 @@ namespace DockRotate
 
 			onStep(0);
 
-			staticizeOrgInfo();
+			rotateOrgInfo(tgt);
 			staticizeJoints();
 
 			processDynDeltaChange();
@@ -398,7 +398,7 @@ namespace DockRotate
 		public void forceStaticize()
 		{
 			lprint("forceStaticize() at " + tgt + "\u00b0");
-			staticizeOrgInfo();
+			rotateOrgInfo(tgt);
 			staticizeJoints();
 		}
 
@@ -439,13 +439,12 @@ namespace DockRotate
 			lprint(name + " CHANGED: " + v0.desc() + " -> " + v1.desc());
 		}
 
-		private bool staticizeOrgInfo()
+		private bool rotateOrgInfo(float angle)
 		{
 			if (joint != activePart.attachJoint) {
 				lprint(activePart.desc() + ": skip staticize, same vessel joint");
 				return false;
 			}
-			float angle = tgt;
 			Vector3 nodeAxis = -axis.STd(activePart, activePart.vessel.rootPart);
 			Quaternion nodeRot = nodeAxis.rotation(angle);
 			Vector3 nodePos = node.STp(activePart, activePart.vessel.rootPart);
@@ -1902,7 +1901,12 @@ namespace DockRotate
 			localToJoint = jointToLocal.inverse();
 
 			tgtPos0 = joint.targetPosition;
+			if (tgtPos0 != Vector3.zero)
+				Debug.Log("JointManager: tgtPos0 = " + tgtPos0.desc());
+
 			tgtRot0 = joint.targetRotation;
+			if (tgtRot0 != Quaternion.identity)
+				Debug.Log("JointManager: tgtRot0 = " + tgtRot0.desc());
 
 			axis0 = joint.axis;
 			secAxis0 = joint.secondaryAxis;
@@ -2376,7 +2380,7 @@ namespace DockRotate
 			float angle;
 			Vector3 axis;
 			q.ToAngleAxis(out angle, out axis);
-			return angle.ToString("F1") + "\u00b0" + axis.desc();
+			return angle.ToString("F1") + "\u00b0|" + axis.desc();
 		}
 
 		/******** Reference change utilities - dynamic ********/
