@@ -901,8 +901,13 @@ namespace DockRotate
 			float prevDelta = _prevDelta;
 			_prevDelta = 0f;
 			float changeDelta = curDelta - prevDelta;
-			if (float.IsNaN(changeDelta))
+			if (float.IsNaN(changeDelta)) {
 				changeDelta = 0f;
+				if (dynDeltaChange != 0f) {
+					lprint(part.desc() + ": RightAfterStructureChange() resetting dynDeltaChange = " + dynDeltaChange);
+					dynDeltaChange = 0f;
+				}
+			}
 			if (verboseEvents)
 				lprint(part.desc() + ": RightAfterStructureChange(): " + dynamicDeltaAngle() + "\u00b0\u0394"
 					+ ", change " + changeDelta + "\00b0");
@@ -1267,12 +1272,18 @@ namespace DockRotate
 
 			checkFrozenRotation();
 
-			if (rotCur) {
-				if (dynDeltaChange != 0f) {
+			if (dynDeltaChange != 0f) {
+				if (currentRotation()) {
 					lprint(part.desc() + ": registering dynDeltaChange = " + dynDeltaChange);
-					rotCur.dynDeltaChange += dynDeltaChange;
+					currentRotation().dynDeltaChange += dynDeltaChange;
+					dynDeltaChange = 0f;
+				} else {
+					lprint(part.desc() + ": FixedUpdate() resetting dynDeltaChange = " + dynDeltaChange);
 					dynDeltaChange = 0f;
 				}
+			}
+
+			if (rotCur) {
 				rotCur.clampAngle();
 				if (brakeRotationKey())
 					rotCur.brake();
