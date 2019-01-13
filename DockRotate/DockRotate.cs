@@ -458,7 +458,7 @@ namespace DockRotate
 
 		public void abort(string msg)
 		{
-			lprint("ABORTING: " + msg);
+			lprint("ABORTING: " + msg + ": " + pos + "\u00b0 -> " + tgt + "\u00b0 (" + (tgt - pos) + "\u00b0 left");
 			stopSound();
 			tgt = pos;
 			vel = 0;
@@ -824,7 +824,7 @@ namespace DockRotate
 
 		private struct StructureChangeInfo {
 			public int frameCount;
-			public bool klawing;
+			public ModuleGrappleNode klaw;
 			public float prevDelta;
 			public float dynDeltaChange;
 		}
@@ -866,7 +866,9 @@ namespace DockRotate
 					+ action.from.desc() + ", " + action.to.desc() + ")");
 			if (action.from.vessel == vessel || action.to.vessel == vessel) {
 				resetStructureChangeInfo();
-				structureChangeInfo.klawing = structureChangeInfo.klawing || action.from.isKlaw() || action.to.isKlaw();
+				ModuleGrappleNode fromKlaw = action.from.getKlaw();
+				ModuleGrappleNode toKlaw = action.to.getKlaw();
+				structureChangeInfo.klaw = fromKlaw ? fromKlaw : toKlaw;
 				RightBeforeStructureChange();
 			}
 		}
@@ -885,11 +887,21 @@ namespace DockRotate
 
 		public void RightBeforeStructureChange()
 		{
+			ModuleGrappleNode klaw = structureChangeInfo.klaw;
+			if (klaw) {
+				lprint("ORG0 " + activePart.descOrg());
+				lprint("KLAW0 nodeTrf " + klaw.nodeTransform.desc(8));
+			}
+
 			structureChangeInfo.prevDelta = dynamicDeltaAngle();
 			if (verboseEvents)
 				lprint(part.desc() + ": RightBeforeStructureChange(): "
 					+ structureChangeInfo.prevDelta.ToString("F2") + "\u00b0\u0394");
 			freezeCurrentRotation("structure change", true);
+
+			if (klaw) {
+				lprint("ORG1 " + activePart.descOrg());
+			}
 		}
 
 		public void RightAfterStructureChangeAction(GameEvents.FromToAction<Part, Part> action)
@@ -915,8 +927,10 @@ namespace DockRotate
 
 		private void RightAfterStructureChange()
 		{
-			if (structureChangeInfo.klawing)
-				lprint(part.desc() + ": RightAfterStructureChange() after klawing");
+			ModuleGrappleNode klaw = structureChangeInfo.klaw;
+			if (klaw) {
+				lprint("ORG2 " + activePart.descOrg());
+			}
 
 			float curDelta = dynamicDeltaAngle();
 			float prevDelta = structureChangeInfo.prevDelta;
@@ -935,6 +949,11 @@ namespace DockRotate
 					+ ", change " + changeDelta + "\00b0");
 			structureChangeInfo.dynDeltaChange += changeDelta;
 			doSetup();
+
+			if (klaw) {
+				lprint("ORG3 " + activePart.descOrg());
+				lprint("KLAW3 nodeTrf " + klaw.nodeTransform.desc(8));
+			}
 		}
 
 		private void RightAfterSameVesselDock(GameEvents.FromToAction<ModuleDockingNode, ModuleDockingNode> action)
@@ -1303,6 +1322,7 @@ namespace DockRotate
 					lprint(part.desc() + ": FixedUpdate() resetting dynDeltaChange = " + structureChangeInfo.dynDeltaChange);
 					structureChangeInfo.dynDeltaChange = 0f;
 				}
+				lprint("\tORG4 " + activePart.descOrg());
 			}
 
 			if (rotCur) {
@@ -1843,6 +1863,7 @@ namespace DockRotate
 
 				lprint("partNodeAxisV: " + partNodeAxis.STd(part, vessel.rootPart).desc());
 				lprint("GetFwdVector(): " + dockingNode.GetFwdVector().desc());
+				lprint("nodeTransform: " + dockingNode.nodeTransform.desc(8));
 			}
 
 			if (rotatingJoint) {
@@ -1968,13 +1989,15 @@ namespace DockRotate
 
 		/******** PartSet utilities ********/
 
-		private class PartSet: Dictionary<uint, Part>
+		public class PartSet: Dictionary<uint, Part>
 		{
 			private Part[] partArray = null;
+			private ModuleGrappleNode[] klawArray = null;
 
 			public void add(Part part)
 			{
 				partArray = null;
+				klawArray = null;
 				Add(part.flightID, part);
 			}
 
@@ -1993,6 +2016,20 @@ namespace DockRotate
 				return partArray = ret.ToArray();
 			}
 
+			public ModuleGrappleNode[] klaws()
+			{
+				if (klawArray != null)
+					return klawArray;
+				Part[] p = parts();
+				List<ModuleGrappleNode> ret = new List<ModuleGrappleNode>();
+				for (int i = 0; i < p.Length; i++) {
+					ModuleGrappleNode k = p[i].getKlaw();
+					if (k)
+						ret.Add(k);
+				}
+				return klawArray = ret.ToArray();
+			}
+
 			public void dump()
 			{
 				Part[] p = parts();
@@ -2001,7 +2038,7 @@ namespace DockRotate
 			}
 		}
 
-		private static PartSet allPartsFromHere(this Part p)
+		public static PartSet allPartsFromHere(this Part p)
 		{
 			PartSet ret = new PartSet();
 			_collect(ret, p);
@@ -2150,9 +2187,9 @@ namespace DockRotate
 			return (up1.magnitude > up2.magnitude ? up1 : up2).normalized;
 		}
 
-		public static bool isKlaw(this Part part)
+		public static ModuleGrappleNode getKlaw(this Part part)
 		{
-			return part && part.FindModuleImplementing<ModuleGrappleNode>();
+			return part ? part.FindModuleImplementing<ModuleGrappleNode>() : null;
 		}
 
 		/******** Physics Activation utilities ********/
@@ -2338,7 +2375,7 @@ namespace DockRotate
 
 		public static string desc(this Vector3 v)
 		{
-			return v.ToString("F2");
+			return v.ToString(v == Vector3.zero ? "F0" : "F2");
 		}
 
 		public static string ddesc(this Vector3 v, Part p)
@@ -2375,10 +2412,25 @@ namespace DockRotate
 			float angle;
 			Vector3 axis;
 			q.ToAngleAxis(out angle, out axis);
-			return angle.ToString("F1") + "\u00b0|" + axis.desc();
+			if (angle == 0f)
+				axis = Vector3.zero;
+			return angle.ToString(angle == 0 ? "F0" : "F1") + "\u00b0" + axis.desc();
 		}
 
 		/******** Reference change utilities - dynamic ********/
+
+		public static string desc(this Transform t, int parents = 0)
+		{
+			if (!t)
+				return "world";
+			string ret = t.name + ":" + t.GetInstanceID() + ":"
+				+ t.localRotation.desc() + "@" + t.localPosition.desc()
+				+ "/"
+				+ t.rotation.desc() + "@" + t.position.desc();
+			if (parents > 0)
+				ret += "\n\t< " + t.parent.desc(parents - 1);
+			return ret;
+		}
 
 		public static Vector3 Td(this Vector3 v, Transform from, Transform to)
 		{
@@ -2411,6 +2463,11 @@ namespace DockRotate
 		}
 
 		/******** Reference change utilities - static ********/
+
+		public static string descOrg(this Part p)
+		{
+			return p ? p.orgRot.desc() + "@" + p.orgPos.desc() : "null-part";
+		}
 
 		public static Vector3 STd(this Vector3 v, Part from, Part to)
 		{
