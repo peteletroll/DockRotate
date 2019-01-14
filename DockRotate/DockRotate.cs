@@ -888,7 +888,7 @@ namespace DockRotate
 		public void RightBeforeStructureChange()
 		{
 			ModuleGrappleNode klaw = structureChangeInfo.klaw;
-			if (klaw) {
+			if (verboseEvents && klaw && activePart) {
 				lprint("ORG0 " + activePart.descOrg());
 				lprint("KLAW0 nodeTrf " + klaw.nodeTransform.desc(8));
 			}
@@ -899,7 +899,7 @@ namespace DockRotate
 					+ structureChangeInfo.prevDelta.ToString("F2") + "\u00b0\u0394");
 			freezeCurrentRotation("structure change", true);
 
-			if (klaw) {
+			if (verboseEvents && klaw && activePart) {
 				lprint("ORG1 " + activePart.descOrg());
 			}
 		}
@@ -928,7 +928,7 @@ namespace DockRotate
 		private void RightAfterStructureChange()
 		{
 			ModuleGrappleNode klaw = structureChangeInfo.klaw;
-			if (klaw) {
+			if (klaw && activePart) {
 				lprint("ORG2 " + activePart.descOrg());
 			}
 
