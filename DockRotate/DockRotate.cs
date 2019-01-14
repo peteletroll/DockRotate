@@ -826,8 +826,6 @@ namespace DockRotate
 			public int frameCount;
 			public ModuleGrappleNode klaw;
 			public Part klawed;
-			public float prevDelta;
-			public float dynDeltaChange;
 			public float stoppedAtPos; // = -dynDeltaChange
 		}
 
@@ -896,13 +894,13 @@ namespace DockRotate
 				lprint("KLAW0 nodeTrf " + klaw.nodeTransform.desc(8));
 			}
 
-			if (rotCur)
+			if (rotCur) {
 				structureChangeInfo.stoppedAtPos = rotCur.pos;
+				if (verboseEvents && structureChangeInfo.stoppedAtPos != 0f)
+					lprint(part.desc() + ": RightBeforeStructureChange(): stopped at "
+						+ structureChangeInfo.stoppedAtPos.ToString("F2") + "\u00b0");
+			}
 
-			structureChangeInfo.prevDelta = dynamicDeltaAngle();
-			if (verboseEvents)
-				lprint(part.desc() + ": RightBeforeStructureChange(): "
-					+ structureChangeInfo.prevDelta.ToString("F2") + "\u00b0\u0394");
 			freezeCurrentRotation("structure change", true);
 
 			if (verboseEvents && klaw && activePart) {
@@ -938,22 +936,9 @@ namespace DockRotate
 				lprint("ORG2 " + activePart.descOrg());
 			}
 
-			float curDelta = dynamicDeltaAngle();
-			float prevDelta = structureChangeInfo.prevDelta;
-			structureChangeInfo.prevDelta = 0f;
-			float changeDelta = curDelta - prevDelta;
-			if (float.IsNaN(changeDelta)) {
-				changeDelta = 0f;
-				if (structureChangeInfo.dynDeltaChange != 0f) {
-					lprint(part.desc() + ": RightAfterStructureChange() resetting dynDeltaChange = "
-						+ structureChangeInfo.dynDeltaChange);
-					structureChangeInfo.dynDeltaChange = 0f;
-				}
-			}
 			if (verboseEvents)
-				lprint(part.desc() + ": RightAfterStructureChange(): " + dynamicDeltaAngle() + "\u00b0\u0394"
-					+ ", change " + changeDelta + "\00b0");
-			structureChangeInfo.dynDeltaChange += changeDelta;
+				lprint(part.desc() + ": RightAfterStructureChange(): stoppedAtPos = "
+					+ structureChangeInfo.stoppedAtPos + "\u00b0");
 			doSetup();
 
 			if (verboseEvents && klaw) {
@@ -1319,14 +1304,16 @@ namespace DockRotate
 
 			checkFrozenRotation();
 
-			if (structureChangeInfo.dynDeltaChange != 0f) {
-				if (rotCur) {
-					lprint(part.desc() + ": FixedUpdate() registering dynDeltaChange = " + structureChangeInfo.dynDeltaChange);
-					rotCur.dynDeltaChange += structureChangeInfo.dynDeltaChange;
-					structureChangeInfo.dynDeltaChange = 0f;
+			if (structureChangeInfo.stoppedAtPos != 0f) {
+				if (rotCur && structureChangeInfo.klaw) {
+					lprint(part.desc() + ": FixedUpdate() registering stoppedAtPos = "
+						+ structureChangeInfo.stoppedAtPos);
+					rotCur.dynDeltaChange -= structureChangeInfo.stoppedAtPos;
+					structureChangeInfo.stoppedAtPos = 0f;
 				} else {
-					lprint(part.desc() + ": FixedUpdate() resetting dynDeltaChange = " + structureChangeInfo.dynDeltaChange);
-					structureChangeInfo.dynDeltaChange = 0f;
+					lprint(part.desc() + ": FixedUpdate() resetting stoppedAtPos = "
+						+ structureChangeInfo.stoppedAtPos);
+					structureChangeInfo.stoppedAtPos = 0f;
 				}
 				lprint("\tORG4 " + activePart.descOrg());
 			}
