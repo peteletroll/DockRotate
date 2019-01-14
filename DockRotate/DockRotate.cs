@@ -825,8 +825,10 @@ namespace DockRotate
 		private struct StructureChangeInfo {
 			public int frameCount;
 			public ModuleGrappleNode klaw;
+			public Part klawed;
 			public float prevDelta;
 			public float dynDeltaChange;
+			public float stoppedAtPos; // = -dynDeltaChange
 		}
 
 		private StructureChangeInfo structureChangeInfo;
@@ -869,6 +871,7 @@ namespace DockRotate
 				ModuleGrappleNode fromKlaw = action.from.getKlaw();
 				ModuleGrappleNode toKlaw = action.to.getKlaw();
 				structureChangeInfo.klaw = fromKlaw ? fromKlaw : toKlaw;
+				structureChangeInfo.klawed = fromKlaw ? action.to : action.from;
 				RightBeforeStructureChange();
 			}
 		}
@@ -892,6 +895,9 @@ namespace DockRotate
 				lprint("ORG0 " + activePart.descOrg());
 				lprint("KLAW0 nodeTrf " + klaw.nodeTransform.desc(8));
 			}
+
+			if (rotCur)
+				structureChangeInfo.stoppedAtPos = rotCur.pos;
 
 			structureChangeInfo.prevDelta = dynamicDeltaAngle();
 			if (verboseEvents)
