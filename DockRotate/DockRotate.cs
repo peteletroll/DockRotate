@@ -2434,12 +2434,20 @@ namespace DockRotate
 
 		public static Vector3 Td(this Vector3 v, Transform from, Transform to)
 		{
-			return to.InverseTransformDirection(from.TransformDirection(v));
+			if (from)
+				v = from.TransformDirection(v);
+			if (to)
+				v = to.InverseTransformDirection(v);
+			return v;
 		}
 
 		public static Vector3 Tp(this Vector3 v, Transform from, Transform to)
 		{
-			return to.InverseTransformPoint(from.TransformPoint(v));
+			if (from)
+				v = from.TransformPoint(v);
+			if (to)
+				v = to.InverseTransformPoint(v);
+			return v;
 		}
 
 		public static Transform T(this Part p)
