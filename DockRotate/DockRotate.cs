@@ -458,7 +458,7 @@ namespace DockRotate
 
 		public void abort(string msg)
 		{
-			lprint("ABORTING: " + msg + ": " + pos + "\u00b0 -> " + tgt + "\u00b0 (" + (tgt - pos) + "\u00b0 left");
+			lprint("ABORTING: " + msg + ": " + pos + "\u00b0 -> " + tgt + "\u00b0 (" + (tgt - pos) + "\u00b0 left)");
 			stopSound();
 			tgt = pos;
 			vel = 0;
