@@ -2333,8 +2333,8 @@ namespace DockRotate
 			lprint("  Link: " + j.gameObject + " to " + j.connectedBody);
 			lprint("  Axes: " + j.axis.desc() + ", " + j.secondaryAxis.desc());
 			if (p)
-				lprint("  AxesV: " + j.axis.Td(T(j), T(p)).desc()
-					+ ", " + j.secondaryAxis.Td(T(j), T(p)).desc());
+				lprint("  AxesV: " + j.axis.Td(j.T(), j.T()).desc()
+					+ ", " + j.secondaryAxis.Td(j.T(), p.T()).desc());
 
 			lprint("  Anchors: " + j.anchor.desc()
 				+ " -> " + j.connectedAnchor.desc()
@@ -2416,9 +2416,10 @@ namespace DockRotate
 				axis = Vector3.zero;
 			return angle.ToString(angle == 0 ? "F0" : "F1") + "\u00b0" + axis.desc();
 		}
+	}
 
-		/******** Reference change utilities - dynamic ********/
-
+	public static class DynamicReferenceChanges
+	{
 		public static string desc(this Transform t, int parents = 0)
 		{
 			if (!t)
@@ -2469,9 +2470,10 @@ namespace DockRotate
 		{
 			return m.nodeTransform;
 		}
+	}
 
-		/******** Reference change utilities - static ********/
-
+	public static class StaticReferenceChanges
+	{
 		public static string descOrg(this Part p)
 		{
 			return p ? p.orgRot.desc() + "@" + p.orgPos.desc() : "null-part";
