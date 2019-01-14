@@ -928,7 +928,7 @@ namespace DockRotate
 		private void RightAfterStructureChange()
 		{
 			ModuleGrappleNode klaw = structureChangeInfo.klaw;
-			if (klaw && activePart) {
+			if (verboseEvents && klaw && activePart) {
 				lprint("ORG2 " + activePart.descOrg());
 			}
 
@@ -950,7 +950,7 @@ namespace DockRotate
 			structureChangeInfo.dynDeltaChange += changeDelta;
 			doSetup();
 
-			if (klaw) {
+			if (verboseEvents && klaw) {
 				lprint("ORG3 " + activePart.descOrg());
 				lprint("KLAW3 nodeTrf " + klaw.nodeTransform.desc(8));
 			}
