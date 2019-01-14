@@ -826,7 +826,7 @@ namespace DockRotate
 			public int frameCount;
 			public ModuleGrappleNode klaw;
 			public Part klawed;
-			public float stoppedAtPos; // = -dynDeltaChange
+			public float stoppedAtPos;
 		}
 
 		private StructureChangeInfo structureChangeInfo;
@@ -869,7 +869,8 @@ namespace DockRotate
 				ModuleGrappleNode fromKlaw = action.from.getKlaw();
 				ModuleGrappleNode toKlaw = action.to.getKlaw();
 				structureChangeInfo.klaw = fromKlaw ? fromKlaw : toKlaw;
-				structureChangeInfo.klawed = fromKlaw ? action.to : action.from;
+				if (structureChangeInfo.klaw)
+					structureChangeInfo.klawed = fromKlaw ? action.to : action.from;
 				RightBeforeStructureChange();
 			}
 		}
@@ -1310,8 +1311,8 @@ namespace DockRotate
 						+ structureChangeInfo.stoppedAtPos);
 					rotCur.dynDeltaChange -= structureChangeInfo.stoppedAtPos;
 					structureChangeInfo.stoppedAtPos = 0f;
-				} else {
-					lprint(part.desc() + ": FixedUpdate() resetting stoppedAtPos = "
+				} else if (structureChangeInfo.stoppedAtPos != 0f) {
+					lprint(part.desc() + ": FixedUpdate() ignoring stoppedAtPos = "
 						+ structureChangeInfo.stoppedAtPos);
 					structureChangeInfo.stoppedAtPos = 0f;
 				}
