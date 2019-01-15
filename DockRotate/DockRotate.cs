@@ -166,6 +166,8 @@ namespace DockRotate
 		private PartJoint joint;
 		public bool smartAutoStruts = false;
 
+		bool needStaticizeJoint = false;
+
 		public float dynDeltaChange = 0f;
 
 		public ModuleBaseRotate controller = null;
@@ -286,6 +288,7 @@ namespace DockRotate
 					continue;
 				RotJointInfo ji = rji[i];
 				ji.setRotation(pos - dynDeltaChange);
+				needStaticizeJoint = true;
 			}
 
 			stepSound();
@@ -399,6 +402,10 @@ namespace DockRotate
 
 		private void staticizeJoints()
 		{
+			if (!needStaticizeJoint) {
+				lprint("skipping repeated staticizeJoints()");
+				return;
+			}
 			for (int i = 0; i < joint.joints.Count; i++) {
 				ConfigurableJoint j = joint.joints[i];
 				if (j) {
@@ -422,6 +429,7 @@ namespace DockRotate
 					ji.jm.setup();
 				}
 			}
+			needStaticizeJoint = false;
 		}
 
 		private void checkChanges(string name, Vector3 v0, Vector3 v1)
