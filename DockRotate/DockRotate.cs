@@ -838,7 +838,8 @@ namespace DockRotate
 				lprint(part.desc() + ": skipping repeated resetStructureChangeInfo()");
 				return;
 			}
-			lprint(part.desc() + ": resetStructureChangeInfo()");
+			if (verboseEvents)
+				lprint(part.desc() + ": resetStructureChangeInfo()");
 			structureChangeInfo = new StructureChangeInfo();
 			structureChangeInfo.frameCount = now;
 		}
@@ -891,8 +892,10 @@ namespace DockRotate
 		{
 			ModuleGrappleNode klaw = structureChangeInfo.klaw;
 			if (verboseEvents && klaw && activePart) {
-				lprint("ORG0 " + activePart.descOrg());
-				lprint("KLAW0 nodeTrf " + klaw.nodeTransform.desc(8));
+				lprint("ORG1 " + activePart.descOrg());
+				lprint("KLAW1 nodeTrf " + klaw.nodeTransform.desc(8));
+				if (klaw.part.vessel == structureChangeInfo.klawed.vessel)
+					lprint("*** WARNING *** same vessel, should be different");
 			}
 
 			if (rotCur) {
@@ -905,7 +908,7 @@ namespace DockRotate
 			freezeCurrentRotation("structure change", true);
 
 			if (verboseEvents && klaw && activePart) {
-				lprint("ORG1 " + activePart.descOrg());
+				lprint("ORG2 " + activePart.descOrg());
 			}
 		}
 
@@ -934,7 +937,9 @@ namespace DockRotate
 		{
 			ModuleGrappleNode klaw = structureChangeInfo.klaw;
 			if (verboseEvents && klaw && activePart) {
-				lprint("ORG2 " + activePart.descOrg());
+				lprint("ORG3 " + activePart.descOrg());
+				if (klaw.part.vessel != structureChangeInfo.klawed.vessel)
+					lprint("*** WARNING *** different vessel, should be same");
 			}
 
 			if (verboseEvents)
@@ -943,8 +948,8 @@ namespace DockRotate
 			doSetup();
 
 			if (verboseEvents && klaw) {
-				lprint("ORG3 " + activePart.descOrg());
-				lprint("KLAW3 nodeTrf " + klaw.nodeTransform.desc(8));
+				lprint("ORG4 " + activePart.descOrg());
+				lprint("KLAW4 nodeTrf " + klaw.nodeTransform.desc(8));
 			}
 		}
 
@@ -968,6 +973,15 @@ namespace DockRotate
 					+ action.from.part.desc() + ", " + action.to.part.desc() + ")");
 			if (action.to.part == part || action.from.part == part)
 				doSetup();
+		}
+
+		private void ActiveJointNeedUpdate(Vessel v)
+		{
+			if (v != vessel)
+				return;
+			if (verboseEvents && activePart)
+				lprint(part.desc() + ": ActiveJointNeedUpdate(): ORG " + activePart.descOrg());
+
 		}
 
 		public override void OnAwake()
@@ -994,6 +1008,8 @@ namespace DockRotate
 
 			GameEvents.onSameVesselDock.Add(RightAfterSameVesselDock);
 			GameEvents.onSameVesselUndock.Add(RightAfterSameVesselUndock);
+
+			GameEvents.onActiveJointNeedUpdate.Add(ActiveJointNeedUpdate);
 		}
 
 		public virtual void OnDestroy()
@@ -1015,6 +1031,8 @@ namespace DockRotate
 
 			GameEvents.onSameVesselDock.Remove(RightAfterSameVesselDock);
 			GameEvents.onSameVesselUndock.Remove(RightAfterSameVesselUndock);
+
+			GameEvents.onActiveJointNeedUpdate.Remove(ActiveJointNeedUpdate);
 		}
 
 		protected static string[] guiList = {
@@ -1201,10 +1219,13 @@ namespace DockRotate
 				rotCur.vel = startSpeed;
 				rotCur.smartAutoStruts = useSmartAutoStruts();
 				action = "added";
+
 			}
-			if (showlog)
+			if (showlog) {
 				lprint(String.Format("{0}: enqueueRotation({1}, {2:F4}\u00b0, {3}\u00b0/s, {4}\u00b0/s), {5}",
 					activePart.desc(), partNodeAxis.desc(), rotCur.tgt, rotCur.maxvel, rotCur.vel, action));
+				lprint("ORG0 " + activePart.descOrg());
+			}
 			return true;
 		}
 
@@ -1309,14 +1330,15 @@ namespace DockRotate
 				if (rotCur && structureChangeInfo.klaw) {
 					lprint(part.desc() + ": FixedUpdate() registering stoppedAtPos = "
 						+ structureChangeInfo.stoppedAtPos);
-					rotCur.dynDeltaChange -= structureChangeInfo.stoppedAtPos;
+					if (false)
+						rotCur.dynDeltaChange -= structureChangeInfo.stoppedAtPos;
 					structureChangeInfo.stoppedAtPos = 0f;
 				} else if (structureChangeInfo.stoppedAtPos != 0f) {
 					lprint(part.desc() + ": FixedUpdate() ignoring stoppedAtPos = "
 						+ structureChangeInfo.stoppedAtPos);
 					structureChangeInfo.stoppedAtPos = 0f;
 				}
-				lprint("\tORG4 " + activePart.descOrg());
+				lprint("\tORG5 " + activePart.descOrg());
 			}
 
 			if (rotCur) {
