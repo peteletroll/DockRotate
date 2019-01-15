@@ -274,6 +274,8 @@ namespace DockRotate
 
 			startSound();
 
+			needStaticizeJoint = true;
+
 			/*
 			lprint(String.Format("{0}: started {1:F4}\u00b0 at {2}\u00b0/s",
 				part.desc(), tgt, maxvel));
@@ -282,6 +284,9 @@ namespace DockRotate
 
 		protected override void onStep(float deltat)
 		{
+			if (!needStaticizeJoint)
+				lprint("*** WARNING *** needStaticizeJoint incoherency");
+
 			for (int i = 0; i < joint.joints.Count; i++) {
 				ConfigurableJoint j = joint.joints[i];
 				if (!j)
@@ -400,7 +405,7 @@ namespace DockRotate
 			staticizeJoints();
 		}
 
-		private void staticizeJoints()
+		public void staticizeJoints()
 		{
 			if (!needStaticizeJoint) {
 				lprint("skipping repeated staticizeJoints()");
@@ -989,7 +994,10 @@ namespace DockRotate
 				return;
 			if (verboseEvents && activePart)
 				lprint(part.desc() + ": ActiveJointNeedUpdate(): ORG " + activePart.descOrg());
-
+			if (rotCur) {
+				lprint(part.desc() + ": ActiveJointNeedUpdate(): calling staticizeJoints()");
+				rotCur.staticizeJoints();
+			}
 		}
 
 		public override void OnAwake()
