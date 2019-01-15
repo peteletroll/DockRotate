@@ -285,7 +285,7 @@ namespace DockRotate
 		protected override void onStep(float deltat)
 		{
 			if (!needStaticizeJoint)
-				lprint("*** WARNING *** needStaticizeJoint incoherency");
+				lprint("*** WARNING *** needStaticizeJoint incoherency in OnStep(" + deltat + ")");
 
 			for (int i = 0; i < joint.joints.Count; i++) {
 				ConfigurableJoint j = joint.joints[i];
@@ -293,7 +293,6 @@ namespace DockRotate
 					continue;
 				RotJointInfo ji = rji[i];
 				ji.setRotation(pos - dynDeltaChange);
-				needStaticizeJoint = true;
 			}
 
 			stepSound();
@@ -435,6 +434,7 @@ namespace DockRotate
 				}
 			}
 			needStaticizeJoint = false;
+			lprint("staticizeJoints() complete");
 		}
 
 		private void checkChanges(string name, Vector3 v0, Vector3 v1)
