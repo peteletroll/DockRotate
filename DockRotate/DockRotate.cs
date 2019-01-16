@@ -222,6 +222,13 @@ namespace DockRotate
 			this.maxvel = maxvel;
 
 			this.vel = 0;
+
+			if (joint && joint.gameObject)
+				lprint("new RotationAnimation.joint.gameObject = " + joint.gameObject);
+			if (activePart && activePart.gameObject)
+				lprint("new RotationAnimation.activePart.gameObject = " + activePart.gameObject);
+			if (proxyPart && proxyPart.gameObject)
+				lprint("new RotationAnimation.proxyPart.gameObject = " + proxyPart.gameObject);
 		}
 
 		private int changeCount(int delta)
