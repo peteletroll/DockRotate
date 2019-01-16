@@ -166,7 +166,7 @@ namespace DockRotate
 		private PartJoint joint;
 		public bool smartAutoStruts = false;
 
-		bool needStaticizeJoint = false;
+		bool needStaticize = false;
 
 		public float dynDeltaChange = 0f;
 
@@ -274,7 +274,7 @@ namespace DockRotate
 
 			startSound();
 
-			needStaticizeJoint = true;
+			needStaticize = true;
 
 			/*
 			lprint(String.Format("{0}: started {1:F4}\u00b0 at {2}\u00b0/s",
@@ -284,7 +284,7 @@ namespace DockRotate
 
 		protected override void onStep(float deltat)
 		{
-			if (!needStaticizeJoint)
+			if (!needStaticize)
 				lprint("*** WARNING *** needStaticizeJoint incoherency in OnStep(" + deltat + ")");
 
 			for (int i = 0; i < joint.joints.Count; i++) {
@@ -404,12 +404,19 @@ namespace DockRotate
 			staticizeJoints();
 		}
 
-		public void staticizeJoints()
+		public void staticize()
 		{
-			if (!needStaticizeJoint) {
-				lprint("skipping repeated staticizeJoints()");
+			if (!needStaticize) {
+				lprint("skipping repeated staticize()");
 				return;
 			}
+			rotateOrgInfo(tgt);
+			staticizeJoints();
+			needStaticize = false;
+		}
+
+		public void staticizeJoints()
+		{
 			for (int i = 0; i < joint.joints.Count; i++) {
 				ConfigurableJoint j = joint.joints[i];
 				if (j) {
@@ -433,7 +440,6 @@ namespace DockRotate
 					ji.jm.setup();
 				}
 			}
-			needStaticizeJoint = false;
 			lprint("staticizeJoints() complete");
 		}
 
@@ -447,7 +453,7 @@ namespace DockRotate
 			lprint(name + " CHANGED: " + v0.desc() + " -> " + v1.desc());
 		}
 
-		private bool rotateOrgInfo(float angle)
+		public bool rotateOrgInfo(float angle)
 		{
 			if (joint != activePart.attachJoint) {
 				lprint(activePart.desc() + ": skip staticize, same vessel joint");
@@ -865,6 +871,7 @@ namespace DockRotate
 				lprint(part.desc() + ": RightBeforeStructureChangeJointUpdate(): ORG " + activePart.descOrg());
 			if (rotCur) {
 				lprint(part.desc() + ": RightBeforeStructureChangeJointUpdate(): calling staticizeJoints()");
+				rotCur.rotateOrgInfo(rotCur.tgt);
 				rotCur.staticizeJoints();
 			}
 		}
