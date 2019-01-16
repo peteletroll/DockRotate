@@ -321,8 +321,7 @@ namespace DockRotate
 
 			onStep(0);
 
-			rotateOrgInfo(tgt);
-			staticizeJoints();
+			staticize();
 
 			if (dynDeltaChange != 0f) {
 				lprint("OnStop(): final dynDeltaChange = " + dynDeltaChange + "\u00b0");
@@ -400,8 +399,7 @@ namespace DockRotate
 		public void forceStaticize()
 		{
 			lprint("forceStaticize() at " + tgt + "\u00b0");
-			rotateOrgInfo(tgt);
-			staticizeJoints();
+			staticize();
 		}
 
 		public void staticize()
@@ -415,7 +413,7 @@ namespace DockRotate
 			needStaticize = false;
 		}
 
-		public void staticizeJoints()
+		private void staticizeJoints()
 		{
 			for (int i = 0; i < joint.joints.Count; i++) {
 				ConfigurableJoint j = joint.joints[i];
@@ -453,7 +451,7 @@ namespace DockRotate
 			lprint(name + " CHANGED: " + v0.desc() + " -> " + v1.desc());
 		}
 
-		public bool rotateOrgInfo(float angle)
+		private bool rotateOrgInfo(float angle)
 		{
 			if (joint != activePart.attachJoint) {
 				lprint(activePart.desc() + ": skip staticize, same vessel joint");
@@ -871,8 +869,7 @@ namespace DockRotate
 				lprint(part.desc() + ": RightBeforeStructureChangeJointUpdate(): ORG " + activePart.descOrg());
 			if (rotCur) {
 				lprint(part.desc() + ": RightBeforeStructureChangeJointUpdate(): calling staticizeJoints()");
-				rotCur.rotateOrgInfo(rotCur.tgt);
-				rotCur.staticizeJoints();
+				rotCur.staticize();
 			}
 		}
 
