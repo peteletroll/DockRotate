@@ -857,6 +857,18 @@ namespace DockRotate
 			structureChangeInfo.frameCount = now;
 		}
 
+		private void RightBeforeStructureChangeJointUpdate(Vessel v)
+		{
+			if (v != vessel)
+				return;
+			if (verboseEvents && activePart)
+				lprint(part.desc() + ": RightBeforeStructureChangeJointUpdate(): ORG " + activePart.descOrg());
+			if (rotCur) {
+				lprint(part.desc() + ": RightBeforeStructureChangeJointUpdate(): calling staticizeJoints()");
+				rotCur.staticizeJoints();
+			}
+		}
+
 		public void RightBeforeStructureChangeIds(uint id1, uint id2)
 		{
 			if (!vessel)
@@ -988,18 +1000,6 @@ namespace DockRotate
 				doSetup();
 		}
 
-		private void ActiveJointNeedUpdate(Vessel v)
-		{
-			if (v != vessel)
-				return;
-			if (verboseEvents && activePart)
-				lprint(part.desc() + ": ActiveJointNeedUpdate(): ORG " + activePart.descOrg());
-			if (rotCur) {
-				lprint(part.desc() + ": ActiveJointNeedUpdate(): calling staticizeJoints()");
-				rotCur.staticizeJoints();
-			}
-		}
-
 		public override void OnAwake()
 		{
 			onRails = true;
@@ -1011,6 +1011,8 @@ namespace DockRotate
 			GameEvents.onVesselGoOffRails.Add(OnVesselGoOffRails);
 
 			GameEvents.OnCameraChange.Add(OnCameraChange);
+
+			GameEvents.onActiveJointNeedUpdate.Add(RightBeforeStructureChangeJointUpdate);
 
 			GameEvents.onPartCouple.Add(RightBeforeStructureChangeAction);
 			GameEvents.onPartCoupleComplete.Add(RightAfterStructureChangeAction);
@@ -1024,8 +1026,6 @@ namespace DockRotate
 
 			GameEvents.onSameVesselDock.Add(RightAfterSameVesselDock);
 			GameEvents.onSameVesselUndock.Add(RightAfterSameVesselUndock);
-
-			GameEvents.onActiveJointNeedUpdate.Add(ActiveJointNeedUpdate);
 		}
 
 		public virtual void OnDestroy()
@@ -1034,6 +1034,8 @@ namespace DockRotate
 			GameEvents.onVesselGoOffRails.Remove(OnVesselGoOffRails);
 
 			GameEvents.OnCameraChange.Remove(OnCameraChange);
+
+			GameEvents.onActiveJointNeedUpdate.Remove(RightBeforeStructureChangeJointUpdate);
 
 			GameEvents.onPartCouple.Remove(RightBeforeStructureChangeAction);
 			GameEvents.onPartCoupleComplete.Remove(RightAfterStructureChangeAction);
@@ -1047,8 +1049,6 @@ namespace DockRotate
 
 			GameEvents.onSameVesselDock.Remove(RightAfterSameVesselDock);
 			GameEvents.onSameVesselUndock.Remove(RightAfterSameVesselUndock);
-
-			GameEvents.onActiveJointNeedUpdate.Remove(ActiveJointNeedUpdate);
 		}
 
 		protected static string[] guiList = {
