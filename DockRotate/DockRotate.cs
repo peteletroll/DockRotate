@@ -420,11 +420,6 @@ namespace DockRotate
 				if (j) {
 					RotJointInfo ji = rji[i];
 
-					checkChanges("axis", ji.jm.axis0, j.axis);
-					checkChanges("secAxis", ji.jm.secAxis0, j.secondaryAxis);
-					checkChanges("anchor", ji.jm.anchor0, j.anchor);
-					checkChanges("connAnchor", ji.jm.connAnchor0, j.connectedAnchor);
-
 					// staticize joint rotation
 
 					ji.staticizeRotation();
@@ -439,16 +434,6 @@ namespace DockRotate
 				}
 			}
 			lprint("staticizeJoints() complete");
-		}
-
-		private void checkChanges(string name, Vector3 v0, Vector3 v1)
-		{
-			float d = v0.magnitude + v1.magnitude;
-			if (d < 1f)
-				d = 1f;
-			if ((v1 - v0).magnitude / d < 0.001f)
-				return;
-			lprint(name + " CHANGED: " + v0.desc() + " -> " + v1.desc());
 		}
 
 		private bool rotateOrgInfo(float angle)
