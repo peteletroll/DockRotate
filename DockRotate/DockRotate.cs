@@ -839,28 +839,6 @@ namespace DockRotate
 			}
 		}
 
-		private struct StructureChangeInfo {
-			public int frameCount;
-			public ModuleGrappleNode klaw;
-			public Part klawed;
-			public float stoppedAtPos;
-		}
-
-		private StructureChangeInfo structureChangeInfo;
-
-		private void resetStructureChangeInfo()
-		{
-			int now = Time.frameCount;
-			if (structureChangeInfo.frameCount == now) {
-				lprint(part.desc() + ": skipping repeated resetStructureChangeInfo()");
-				return;
-			}
-			if (verboseEvents)
-				lprint(part.desc() + ": resetStructureChangeInfo()");
-			structureChangeInfo = new StructureChangeInfo();
-			structureChangeInfo.frameCount = now;
-		}
-
 		private void RightBeforeStructureChangeJointUpdate(Vessel v)
 		{
 			if (v != vessel)
@@ -881,10 +859,8 @@ namespace DockRotate
 			if (verboseEvents)
 				lprint(part.desc() + ": RightBeforeStructureChangeIds("
 					+ id1 + ", " + id2 + ") [" + id + "]");
-			if (id1 == id || id2 == id) {
-				resetStructureChangeInfo();
+			if (id1 == id || id2 == id)
 				RightBeforeStructureChange();
-			}
 		}
 
 		public void RightBeforeStructureChangeAction(GameEvents.FromToAction<Part, Part> action)
@@ -894,15 +870,8 @@ namespace DockRotate
 			if (verboseEvents)
 				lprint(part.desc() + ": RightBeforeStructureChangeAction("
 					+ action.from.desc() + ", " + action.to.desc() + ")");
-			if (action.from.vessel == vessel || action.to.vessel == vessel) {
-				resetStructureChangeInfo();
-				ModuleGrappleNode fromKlaw = action.from.getKlaw();
-				ModuleGrappleNode toKlaw = action.to.getKlaw();
-				structureChangeInfo.klaw = fromKlaw ? fromKlaw : toKlaw;
-				if (structureChangeInfo.klaw)
-					structureChangeInfo.klawed = fromKlaw ? action.to : action.from;
+			if (action.from.vessel == vessel || action.to.vessel == vessel)
 				RightBeforeStructureChange();
-			}
 		}
 
 		public void RightBeforeStructureChangePart(Part p)
@@ -911,34 +880,15 @@ namespace DockRotate
 				return;
 			if (verboseEvents)
 				lprint(part.desc() + ": RightBeforeStructureChangePart(" + part.desc() + ")");
-			if (p.vessel == vessel) {
-				resetStructureChangeInfo();
+			if (p.vessel == vessel)
 				RightBeforeStructureChange();
-			}
 		}
 
 		public void RightBeforeStructureChange()
 		{
-			ModuleGrappleNode klaw = structureChangeInfo.klaw;
-			if (verboseEvents && klaw && activePart) {
-				lprint("ORG1 " + activePart.descOrg());
-				lprint("KLAW1 nodeTrf " + klaw.nodeTransform.desc(8));
-				if (klaw.part.vessel == structureChangeInfo.klawed.vessel)
-					lprint("*** WARNING *** same vessel, should be different");
-			}
-
-			if (rotCur) {
-				structureChangeInfo.stoppedAtPos = rotCur.pos;
-				if (verboseEvents && structureChangeInfo.stoppedAtPos != 0f)
-					lprint(part.desc() + ": RightBeforeStructureChange(): stopped at "
-						+ structureChangeInfo.stoppedAtPos.ToString("F2") + "\u00b0");
-			}
-
+			if (verboseEvents)
+				lprint(part.desc() + ": RightBeforeStructureChange()");
 			freezeCurrentRotation("structure change", true);
-
-			if (verboseEvents && klaw && activePart) {
-				lprint("ORG2 " + activePart.descOrg());
-			}
 		}
 
 		public void RightAfterStructureChangeAction(GameEvents.FromToAction<Part, Part> action)
@@ -964,22 +914,9 @@ namespace DockRotate
 
 		private void RightAfterStructureChange()
 		{
-			ModuleGrappleNode klaw = structureChangeInfo.klaw;
-			if (verboseEvents && klaw && activePart) {
-				lprint("ORG3 " + activePart.descOrg());
-				if (klaw.part.vessel != structureChangeInfo.klawed.vessel)
-					lprint("*** WARNING *** different vessel, should be same");
-			}
-
 			if (verboseEvents)
-				lprint(part.desc() + ": RightAfterStructureChange(): stoppedAtPos = "
-					+ structureChangeInfo.stoppedAtPos + "\u00b0");
+				lprint(part.desc() + ": RightAfterStructureChange()");
 			doSetup();
-
-			if (verboseEvents && klaw) {
-				lprint("ORG4 " + activePart.descOrg());
-				lprint("KLAW4 nodeTrf " + klaw.nodeTransform.desc(8));
-			}
 		}
 
 		private void RightAfterSameVesselDock(GameEvents.FromToAction<ModuleDockingNode, ModuleDockingNode> action)
@@ -1345,19 +1282,6 @@ namespace DockRotate
 				return;
 
 			checkFrozenRotation();
-
-			if (structureChangeInfo.stoppedAtPos != 0f) {
-				if (rotCur && structureChangeInfo.klaw) {
-					lprint(part.desc() + ": FixedUpdate() registering stoppedAtPos = "
-						+ structureChangeInfo.stoppedAtPos);
-					structureChangeInfo.stoppedAtPos = 0f;
-				} else if (structureChangeInfo.stoppedAtPos != 0f) {
-					lprint(part.desc() + ": FixedUpdate() ignoring stoppedAtPos = "
-						+ structureChangeInfo.stoppedAtPos);
-					structureChangeInfo.stoppedAtPos = 0f;
-				}
-				lprint("\tORG5 " + activePart.descOrg());
-			}
 
 			if (rotCur) {
 				rotCur.clampAngle();
