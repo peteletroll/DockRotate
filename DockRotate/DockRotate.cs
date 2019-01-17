@@ -220,13 +220,6 @@ namespace DockRotate
 			this.maxvel = maxvel;
 
 			this.vel = 0;
-
-			if (joint && joint.gameObject)
-				lprint("new RotationAnimation.joint.gameObject = " + joint.gameObject);
-			if (activePart && activePart.gameObject)
-				lprint("new RotationAnimation.activePart.gameObject = " + activePart.gameObject);
-			if (proxyPart && proxyPart.gameObject)
-				lprint("new RotationAnimation.proxyPart.gameObject = " + proxyPart.gameObject);
 		}
 
 		private int changeCount(int delta)
@@ -408,7 +401,7 @@ namespace DockRotate
 				lprint("skipping repeated staticize()");
 				return;
 			}
-			rotateOrgInfo(tgt);
+			staticizeOrgInfo();
 			staticizeJoints();
 			needStaticize = false;
 		}
@@ -436,12 +429,13 @@ namespace DockRotate
 			lprint("staticizeJoints() complete");
 		}
 
-		private bool rotateOrgInfo(float angle)
+		private bool staticizeOrgInfo()
 		{
 			if (joint != activePart.attachJoint) {
 				lprint(activePart.desc() + ": skip staticize, same vessel joint");
 				return false;
 			}
+			float angle = tgt;
 			Vector3 nodeAxis = -axis.STd(activePart, activePart.vessel.rootPart);
 			Quaternion nodeRot = nodeAxis.rotation(angle);
 			Vector3 nodePos = node.STp(activePart, activePart.vessel.rootPart);
@@ -828,8 +822,8 @@ namespace DockRotate
 		{
 			if (v != vessel)
 				return;
-			if (verboseEvents && activePart)
-				lprint(part.desc() + ": RightBeforeStructureChangeJointUpdate(): ORG " + activePart.descOrg());
+			if (verboseEvents)
+				lprint(part.desc() + ": RightBeforeStructureChangeJointUpdate()");
 			if (rotCur) {
 				lprint(part.desc() + ": RightBeforeStructureChangeJointUpdate(): calling staticizeJoints()");
 				rotCur.staticize();
@@ -1163,11 +1157,9 @@ namespace DockRotate
 				action = "added";
 
 			}
-			if (showlog) {
+			if (showlog)
 				lprint(String.Format("{0}: enqueueRotation({1}, {2:F4}\u00b0, {3}\u00b0/s, {4}\u00b0/s), {5}",
 					activePart.desc(), partNodeAxis.desc(), rotCur.tgt, rotCur.maxvel, rotCur.vel, action));
-				lprint("ORG0 " + activePart.descOrg());
-			}
 			return true;
 		}
 
@@ -1965,7 +1957,7 @@ namespace DockRotate
 			}
 		}
 
-		public static PartSet allPartsFromHere(this Part p)
+		private static PartSet allPartsFromHere(this Part p)
 		{
 			PartSet ret = new PartSet();
 			_collect(ret, p);
