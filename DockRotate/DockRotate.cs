@@ -447,14 +447,6 @@ namespace DockRotate
 			for (int i = 0; i < p.children.Count; i++)
 				_propagate(p.children[i], rot, pos);
 		}
-
-		public void abort(string msg)
-		{
-			lprint("ABORTING: " + msg + ": " + pos + "\u00b0 -> " + tgt + "\u00b0 (" + (tgt - pos) + "\u00b0 left)");
-			stopSound();
-			tgt = pos;
-			vel = 0;
-		}
 	}
 
 	public abstract class ModuleBaseRotate: PartModule, IJointLockState
@@ -1195,10 +1187,14 @@ namespace DockRotate
 		protected void freezeCurrentRotation(string msg, bool keepSpeed)
 		{
 			if (rotCur) {
+				lprint(part.desc() + ": freezeCurrentRotation("
+					+ msg + ", " + keepSpeed + ")");
 				rotCur.isContinuous();
 				float angle = rotCur.tgt - rotCur.pos;
 				enqueueFrozenRotation(angle, rotCur.maxvel, keepSpeed ? rotCur.vel : 0f);
-				rotCur.abort(msg);
+				rotCur.stopSound();
+				rotCur.tgt = rotCur.pos;
+				rotCur.vel = 0;
 				rotCur.staticize();
 				rotCur = null;
 			}
