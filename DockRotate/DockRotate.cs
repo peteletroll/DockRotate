@@ -389,12 +389,6 @@ namespace DockRotate
 			}
 		}
 
-		public void forceStaticize()
-		{
-			lprint("forceStaticize() at " + tgt + "\u00b0");
-			staticize();
-		}
-
 		public void staticize()
 		{
 			if (!needStaticize) {
@@ -1155,7 +1149,6 @@ namespace DockRotate
 				rotCur.vel = startSpeed;
 				rotCur.smartAutoStruts = useSmartAutoStruts();
 				action = "added";
-
 			}
 			if (showlog)
 				lprint(String.Format("{0}: enqueueRotation({1}, {2:F4}\u00b0, {3}\u00b0/s, {4}\u00b0/s), {5}",
@@ -1204,7 +1197,7 @@ namespace DockRotate
 				float angle = rotCur.tgt - rotCur.pos;
 				enqueueFrozenRotation(angle, rotCur.maxvel, keepSpeed ? rotCur.vel : 0f);
 				rotCur.abort(msg);
-				rotCur.forceStaticize();
+				rotCur.staticize();
 				rotCur = null;
 			}
 		}
