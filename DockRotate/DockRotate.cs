@@ -422,7 +422,7 @@ namespace DockRotate
 				lprint(activePart.desc() + ": skip staticize, same vessel joint");
 				return false;
 			}
-			float angle = tgt;
+			float angle = pos;
 			Vector3 nodeAxis = -axis.STd(activePart, activePart.vessel.rootPart);
 			Quaternion nodeRot = nodeAxis.rotation(angle);
 			Vector3 nodePos = node.STp(activePart, activePart.vessel.rootPart);
