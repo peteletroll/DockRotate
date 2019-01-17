@@ -187,16 +187,6 @@ namespace DockRotate
 			public Vector3 localAxis, localNode;
 			public Vector3 jointAxis, jointNode;
 			public Vector3 connectedBodyAxis, connectedBodyNode;
-
-			public void setRotation(float angle)
-			{
-				jm.setRotation(angle, localAxis, localNode);
-			}
-
-			public void staticizeRotation()
-			{
-				jm.staticizeRotation();
-			}
 		}
 		private RotJointInfo[] rji;
 
@@ -290,7 +280,7 @@ namespace DockRotate
 				if (!j)
 					continue;
 				RotJointInfo ji = rji[i];
-				ji.setRotation(pos);
+				ji.jm.setRotation(pos, ji.localAxis, ji.localNode);
 			}
 
 			stepSound();
@@ -412,7 +402,7 @@ namespace DockRotate
 
 					// staticize joint rotation
 
-					ji.staticizeRotation();
+					ji.jm.staticizeRotation();
 
 					// FIXME: this should be moved to JointManager
 					Quaternion connectedBodyRot = ji.connectedBodyAxis.rotation(-pos);
