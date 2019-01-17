@@ -1973,7 +1973,9 @@ namespace DockRotate
 
 		private static PartJoint[] getAllAutostrutJoints(Vessel vessel)
 		{
-			if (cached_allAutostrutJoints != null && cached_allAutostrutJoints_vessel == vessel && cached_allAutostrutJoints_frame == Time.frameCount)
+			if (cached_allAutostrutJoints != null
+				&& cached_allAutostrutJoints_vessel == vessel
+				&& cached_allAutostrutJoints_frame == Time.frameCount)
 				return cached_allAutostrutJoints;
 
 			List<ModuleDockingNode> allDockingNodes = vessel.FindPartModulesImplementing<ModuleDockingNode>();
