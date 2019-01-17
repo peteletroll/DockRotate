@@ -306,8 +306,10 @@ namespace DockRotate
 			if (deltat > 0f && electricityRate > 0f) {
 				double el = activePart.RequestResource("ElectricCharge", (double) electricityRate * deltat);
 				electricity += el;
-				if (el <= 0d)
-					abort("no electric charge");
+				if (el <= 0d) {
+					lprint("no electricity, braking rotation");
+					brake();
+				}
 			}
 		}
 
