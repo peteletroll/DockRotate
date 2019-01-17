@@ -168,8 +168,6 @@ namespace DockRotate
 
 		bool needStaticize = false;
 
-		public float dynDeltaChange = 0f;
-
 		public ModuleBaseRotate controller = null;
 
 		private Guid vesselId;
@@ -299,7 +297,7 @@ namespace DockRotate
 				if (!j)
 					continue;
 				RotJointInfo ji = rji[i];
-				ji.setRotation(pos - dynDeltaChange);
+				ji.setRotation(pos);
 			}
 
 			stepSound();
@@ -329,11 +327,6 @@ namespace DockRotate
 			onStep(0);
 
 			staticize();
-
-			if (dynDeltaChange != 0f) {
-				lprint("OnStop(): final dynDeltaChange = " + dynDeltaChange + "\u00b0");
-				dynDeltaChange = 0f;
-			}
 
 			if (changeCount(-1) <= 0) {
 				if (smartAutoStruts) {
@@ -1357,8 +1350,6 @@ namespace DockRotate
 				if (rotCur && structureChangeInfo.klaw) {
 					lprint(part.desc() + ": FixedUpdate() registering stoppedAtPos = "
 						+ structureChangeInfo.stoppedAtPos);
-					if (false)
-						rotCur.dynDeltaChange -= structureChangeInfo.stoppedAtPos;
 					structureChangeInfo.stoppedAtPos = 0f;
 				} else if (structureChangeInfo.stoppedAtPos != 0f) {
 					lprint(part.desc() + ": FixedUpdate() ignoring stoppedAtPos = "
