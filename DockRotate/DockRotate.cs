@@ -1950,12 +1950,10 @@ namespace DockRotate
 		public class PartSet: Dictionary<uint, Part>
 		{
 			private Part[] partArray = null;
-			private ModuleGrappleNode[] klawArray = null;
 
 			public void add(Part part)
 			{
 				partArray = null;
-				klawArray = null;
 				Add(part.flightID, part);
 			}
 
@@ -1972,20 +1970,6 @@ namespace DockRotate
 				foreach (KeyValuePair<uint, Part> i in this)
 					ret.Add(i.Value);
 				return partArray = ret.ToArray();
-			}
-
-			public ModuleGrappleNode[] klaws()
-			{
-				if (klawArray != null)
-					return klawArray;
-				Part[] p = parts();
-				List<ModuleGrappleNode> ret = new List<ModuleGrappleNode>();
-				for (int i = 0; i < p.Length; i++) {
-					ModuleGrappleNode k = p[i].getKlaw();
-					if (k)
-						ret.Add(k);
-				}
-				return klawArray = ret.ToArray();
 			}
 
 			public void dump()
@@ -2216,11 +2200,6 @@ namespace DockRotate
 			Vector3 up1 = Vector3.ProjectOnPlane(Vector3.up, axis);
 			Vector3 up2 = Vector3.ProjectOnPlane(Vector3.forward, axis);
 			return (up1.magnitude > up2.magnitude ? up1 : up2).normalized;
-		}
-
-		public static ModuleGrappleNode getKlaw(this Part part)
-		{
-			return part ? part.FindModuleImplementing<ModuleGrappleNode>() : null;
 		}
 
 		/******** Physics Activation utilities ********/
