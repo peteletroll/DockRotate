@@ -1779,7 +1779,7 @@ namespace DockRotate
 #if DEBUG
 			lprint("status: " + nodeStatus);
 #endif
-			lprint("org: " + part.orgPos.desc() + ", " + part.orgRot.desc());
+			lprint("org: " + part.descOrg());
 
 			if (dockingNode) {
 				lprint("state: " + dockingNode.state);
