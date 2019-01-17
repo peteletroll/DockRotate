@@ -2197,9 +2197,11 @@ namespace DockRotate
 			if (!part || part.hasPhysics())
 				return false;
 
-			lprint(part.desc() + ": calling PromoteToPhysicalPart(), " + part.physicalSignificance + ", " + part.PhysicsSignificance);
+			lprint(part.desc() + ": calling PromoteToPhysicalPart(), "
+				+ part.physicalSignificance + ", " + part.PhysicsSignificance);
 			part.PromoteToPhysicalPart();
-			lprint(part.desc() + ": called PromoteToPhysicalPart(), " + part.physicalSignificance + ", " + part.PhysicsSignificance);
+			lprint(part.desc() + ": called PromoteToPhysicalPart(), "
+				+ part.physicalSignificance + ", " + part.PhysicsSignificance);
 			if (part.parent) {
 				if (part.attachJoint) {
 					lprint(part.desc() + ": parent joint exists already: " + part.attachJoint.desc());
