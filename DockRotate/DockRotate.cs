@@ -397,8 +397,9 @@ namespace DockRotate
 				lprint("skipping repeated staticize()");
 				return;
 			}
-			staticizeOrgInfo();
+			lprint("staticize() at pos = " + pos + "\u00b0");
 			staticizeJoints();
+			staticizeOrgInfo();
 			needStaticize = false;
 		}
 
@@ -414,7 +415,7 @@ namespace DockRotate
 					ji.staticizeRotation();
 
 					// FIXME: this should be moved to JointManager
-					Quaternion connectedBodyRot = ji.connectedBodyAxis.rotation(-tgt);
+					Quaternion connectedBodyRot = ji.connectedBodyAxis.rotation(-pos);
 					j.connectedAnchor = connectedBodyRot * (j.connectedAnchor - ji.connectedBodyNode)
 						+ ji.connectedBodyNode;
 					j.targetPosition = ji.jm.tgtPos0;
@@ -1193,8 +1194,6 @@ namespace DockRotate
 				float angle = rotCur.tgt - rotCur.pos;
 				enqueueFrozenRotation(angle, rotCur.maxvel, keepSpeed ? rotCur.vel : 0f);
 				rotCur.stopSound();
-				rotCur.tgt = rotCur.pos;
-				rotCur.vel = 0;
 				rotCur.staticize();
 				rotCur = null;
 			}
