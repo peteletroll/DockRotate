@@ -166,8 +166,6 @@ namespace DockRotate
 		private PartJoint joint;
 		public bool smartAutoStruts = false;
 
-		bool needStaticize = false;
-
 		public ModuleBaseRotate controller = null;
 
 		private Guid vesselId;
@@ -262,8 +260,6 @@ namespace DockRotate
 
 			startSound();
 
-			needStaticize = true;
-
 			/*
 			lprint(String.Format("{0}: started {1:F4}\u00b0 at {2}\u00b0/s",
 				part.desc(), tgt, maxvel));
@@ -272,9 +268,6 @@ namespace DockRotate
 
 		protected override void onStep(float deltat)
 		{
-			if (!needStaticize)
-				lprint("*** WARNING *** needStaticizeJoint incoherency in OnStep(" + deltat + ")");
-
 			for (int i = 0; i < joint.joints.Count; i++) {
 				ConfigurableJoint j = joint.joints[i];
 				if (!j)
@@ -383,14 +376,9 @@ namespace DockRotate
 
 		public void staticize()
 		{
-			if (!needStaticize) {
-				lprint("skipping repeated staticize()");
-				return;
-			}
 			lprint("staticize() at pos = " + pos + "\u00b0");
 			staticizeJoints();
 			staticizeOrgInfo();
-			needStaticize = false;
 		}
 
 		private void staticizeJoints()
