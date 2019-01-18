@@ -413,7 +413,6 @@ namespace DockRotate
 					ji.jm.setup();
 				}
 			}
-			lprint("staticizeJoints() complete");
 		}
 
 		private bool staticizeOrgInfo()
@@ -803,10 +802,7 @@ namespace DockRotate
 				return;
 			if (verboseEvents)
 				lprint(part.desc() + ": RightBeforeStructureChangeJointUpdate()");
-			if (rotCur) {
-				lprint(part.desc() + ": RightBeforeStructureChangeJointUpdate(): calling staticizeJoints()");
-				rotCur.staticize();
-			}
+			RightBeforeStructureChange();
 		}
 
 		public void RightBeforeStructureChangeIds(uint id1, uint id2)
@@ -842,8 +838,17 @@ namespace DockRotate
 				RightBeforeStructureChange();
 		}
 
+		int lastRightBeforeStructureChange = 0;
+
 		public void RightBeforeStructureChange()
 		{
+			int now = Time.frameCount;
+			if (lastRightBeforeStructureChange == now) {
+				lprint(part.desc() + ": skipping repeated RightBeforeStructureChange()");
+				return;
+			}
+			lastRightBeforeStructureChange = now;
+
 			if (verboseEvents)
 				lprint(part.desc() + ": RightBeforeStructureChange()");
 			freezeCurrentRotation("structure change", true);
@@ -1230,7 +1235,8 @@ namespace DockRotate
 			angle += frozenRotation[0];
 			SmoothMotion.isContinuous(ref angle);
 			frozenRotation.Set(angle, speed, startSpeed);
-			lprint(part.desc() + ": enqueueFrozenRotation(): " + prev + " -> " + frozenRotation);
+			lprint(part.desc() + ": enqueueFrozenRotation(): "
+				+ prev.desc() + " -> " + frozenRotation.desc());
 		}
 
 		public void FixedUpdate()
