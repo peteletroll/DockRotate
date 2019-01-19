@@ -131,6 +131,8 @@ namespace DockRotate
 
 	public class VesselRotInfo
 	{
+		public static bool trace = true;
+
 		public Guid id;
 		public int rotCount = 0;
 
@@ -150,7 +152,21 @@ namespace DockRotate
 
 		public static void resetInfo(Guid id)
 		{
+			if (!vesselInfo.ContainsKey(id))
+				return;
 			vesselInfo.Remove(id);
+			if (trace)
+				ModuleBaseRotate.lprint("changeCount(" + id + "): RESET");
+		}
+
+		public int changeCount(int delta)
+		{
+			int ret = rotCount + delta;
+			if (ret < 0)
+				ret = 0;
+			if (trace)
+				ModuleBaseRotate.lprint("changeCount(" + id + ", " + delta + "): " + rotCount + " -> " + ret);
+			return rotCount = ret;
 		}
 	}
 
@@ -212,14 +228,7 @@ namespace DockRotate
 
 		private int changeCount(int delta)
 		{
-			VesselRotInfo vi = VesselRotInfo.getInfo(vesselId);
-			int ret = vi.rotCount + delta;
-			if (ret < 0) {
-				lprint("WARNING: vesselRotCount[" + vesselId + "] = " + ret + " in changeCount(" + delta + ")");
-				ret = 0;
-			}
-			// lprint("vesselRotCount is now " + ret);
-			return vi.rotCount = ret;
+			return VesselRotInfo.getInfo(vesselId).changeCount(delta);
 		}
 
 		protected override void onStart()
@@ -752,7 +761,7 @@ namespace DockRotate
 			if (v != vessel)
 				return;
 			freezeCurrentRotation("go on rails", false);
-			// VesselRotInfo.resetInfo(vessel.id);
+			VesselRotInfo.resetInfo(vessel.id);
 			onRails = true;
 			setupDone = false;
 		}
