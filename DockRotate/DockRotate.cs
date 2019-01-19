@@ -152,11 +152,10 @@ namespace DockRotate
 
 		public static void resetInfo(Guid id)
 		{
-			if (!vesselInfo.ContainsKey(id))
-				return;
+			int c = vesselInfo.ContainsKey(id) ? getInfo(id).rotCount : 0;
+			if (trace && c != 0)
+					ModuleBaseRotate.lprint("changeCount(" + id + "): RESET");
 			vesselInfo.Remove(id);
-			if (trace)
-				ModuleBaseRotate.lprint("changeCount(" + id + "): RESET");
 		}
 
 		public int changeCount(int delta)
