@@ -223,6 +223,8 @@ namespace DockRotate
 			this.maxvel = maxvel;
 
 			this.vel = 0;
+
+			ModulePartJointRotate.get(joint);
 		}
 
 		private int changeCount(int delta)
@@ -432,6 +434,87 @@ namespace DockRotate
 
 			for (int i = 0; i < p.children.Count; i++)
 				_propagate(p.children[i], rot, pos);
+		}
+	}
+
+	public class ModulePartJointRotate: PartModule, IJointLockState
+	{
+		[KSPField(isPersistant = true)]
+		uint ownerID = 0, otherID = 0;
+		// ownerID always < otherID
+
+		public bool IsJointUnlocked()
+		{
+			return false;
+		}
+
+		public static ModulePartJointRotate get(PartJoint joint)
+		{
+			Part owner = joint.Host;
+			Part other = joint.Target;
+			if (owner.vessel != other.vessel) {
+				warn("PartJoint vessel incoherency");
+				return null;
+			}
+
+			if (ID(owner) > ID(other)) {
+				Part tmp = owner;
+				owner = other;
+				other = tmp;
+			}
+
+			ModulePartJointRotate ret = null;
+
+			List<ModulePartJointRotate> movers = owner.FindModulesImplementing<ModulePartJointRotate>();
+			int l = movers.Count;
+			for (int i = 0; i < l; i++) {
+				ModulePartJointRotate mover = movers[i];
+				if (mover.ownerID == ID(owner) && mover.otherID == ID(other)) {
+					log("found " + mover.desc());
+					ret = mover;
+					break;
+				}
+			}
+
+			if (!ret) {
+				ret = owner.AddModule(nameof(ModulePartJointRotate)) as ModulePartJointRotate;
+				if (!ret) {
+					warn("can't create new " + nameof(ModulePartJointRotate)
+					     + " from " + ID(owner) + " to " + ID(other));
+					return null;
+				}
+				ret.ownerID = ID(owner);
+				ret.otherID = ID(other);
+				log("created " + ret.desc());
+			}
+
+			return ret;
+		}
+
+		public string desc()
+		{
+			return nameof(ModulePartJointRotate)
+				+ ":" + this.GetInstanceID()
+				+ "(" + ownerID + ", " + otherID + ")";
+		}
+
+		private static uint ID(Part p)
+		{
+			return p.flightID;
+		}
+
+		private static void log(string msg)
+		{
+			Debug.Log(logPrefix() + msg);
+		}
+
+		private static void warn(string msg)
+		{
+			Debug.LogWarning(logPrefix() + msg);
+		}
+
+		private static string logPrefix() {
+			return "[" + nameof(ModulePartJointRotate) + ":" + Time.frameCount + "]: ";
 		}
 	}
 
