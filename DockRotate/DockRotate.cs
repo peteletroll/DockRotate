@@ -74,6 +74,12 @@ namespace DockRotate
 				onStop();
 		}
 
+		public void abort()
+		{
+			finished = true;
+			onStop();
+		}
+
 		public void brake()
 		{
 			tgt = pos + curBrakingSpace();
@@ -133,8 +139,8 @@ namespace DockRotate
 	{
 		public static bool trace = true;
 
-		public Guid id;
-		public int rotCount = 0;
+		private Guid id;
+		private int rotCount = 0;
 
 		private static Dictionary<Guid, VesselRotInfo> vesselInfo = new Dictionary<Guid, VesselRotInfo>();
 
@@ -163,7 +169,7 @@ namespace DockRotate
 			int ret = rotCount + delta;
 			if (ret < 0)
 				ret = 0;
-			if (trace)
+			if (trace && delta != 0)
 				ModuleBaseRotate.lprint("changeCount(" + id + ", " + delta + "): " + rotCount + " -> " + ret);
 			return rotCount = ret;
 		}
@@ -1210,6 +1216,7 @@ namespace DockRotate
 					updateFrozenRotation("MERGELIM");
 				}
 			} else {
+				lprint(part.desc() + ": creating rotation");
 				rotCur = new RotationAnimation(activePart, partNodePos, partNodeAxis, rotatingJoint, 0, angle, speed);
 				rotCur.rot0 = rotationAngle(false);
 				rotCur.controller = this;
@@ -1252,6 +1259,7 @@ namespace DockRotate
 				return;
 
 			if (rotCur.done()) {
+				lprint(part.desc() + ": removing rotation (1)");
 				rotCur = null;
 				return;
 			}
@@ -1267,8 +1275,8 @@ namespace DockRotate
 				rotCur.isContinuous();
 				float angle = rotCur.tgt - rotCur.pos;
 				enqueueFrozenRotation(angle, rotCur.maxvel, keepSpeed ? rotCur.vel : 0f);
-				rotCur.stopSound();
-				rotCur.staticize();
+				rotCur.abort();
+				lprint(part.desc() + ": removing rotation (2)");
 				rotCur = null;
 			}
 		}
@@ -1783,6 +1791,7 @@ namespace DockRotate
 
 			if (activeRotationModule != this) {
 				lprint("advanceRotation() called on wrong module, aborting");
+				lprint(part.desc() + ": removing rotation (3)");
 				rotCur = null;
 			}
 		}
