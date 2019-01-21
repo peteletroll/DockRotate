@@ -235,7 +235,6 @@ namespace DockRotate
 
 		protected override void onStart()
 		{
-			VesselRotInfo.getInfo(vesselId).changeCount(+1);
 			if (smartAutoStruts) {
 				activePart.releaseCrossAutoStruts();
 			} else {
@@ -317,7 +316,7 @@ namespace DockRotate
 
 			staticize();
 
-			int c = VesselRotInfo.getInfo(vesselId).changeCount(-1);
+			int c = VesselRotInfo.getInfo(vesselId).changeCount(0);
 			if (c <= 0) {
 				if (smartAutoStruts) {
 					lprint("securing autostruts on vessel " + vesselId);
@@ -783,6 +782,14 @@ namespace DockRotate
 				_rotCur = value;
 				bool isRotating = _rotCur;
 				if (isRotating != wasRotating) {
+					// rotation count change
+					if (isRotating) {
+						// a new rotation is starting
+						VesselRotInfo.getInfo(activePart.vessel.id).changeCount(+1);
+					} else {
+						// an old rotation is finishing
+						VesselRotInfo.getInfo(activePart.vessel.id).changeCount(-1);
+					}
 					if (useSmartAutoStruts()) {
 
 					} else {
