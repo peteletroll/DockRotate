@@ -160,7 +160,7 @@ namespace DockRotate
 		{
 			int c = vesselInfo.ContainsKey(id) ? getInfo(id).rotCount : 0;
 			if (trace && c != 0)
-					ModuleBaseRotate.lprint("changeCount(" + id + "): RESET");
+				ModuleBaseRotate.lprint("changeCount(" + id + "): " + c + " -> RESET");
 			vesselInfo.Remove(id);
 		}
 
@@ -233,14 +233,9 @@ namespace DockRotate
 			ModulePartJointRotate.get(joint);
 		}
 
-		private int changeCount(int delta)
-		{
-			return VesselRotInfo.getInfo(vesselId).changeCount(delta);
-		}
-
 		protected override void onStart()
 		{
-			changeCount(+1);
+			VesselRotInfo.getInfo(vesselId).changeCount(+1);
 			if (smartAutoStruts) {
 				activePart.releaseCrossAutoStruts();
 			} else {
@@ -322,7 +317,8 @@ namespace DockRotate
 
 			staticize();
 
-			if (changeCount(-1) <= 0) {
+			int c = VesselRotInfo.getInfo(vesselId).changeCount(-1);
+			if (c <= 0) {
 				if (smartAutoStruts) {
 					lprint("securing autostruts on vessel " + vesselId);
 					joint.Host.vessel.secureAllAutoStruts();
@@ -786,9 +782,13 @@ namespace DockRotate
 				bool wasRotating = _rotCur;
 				_rotCur = value;
 				bool isRotating = _rotCur;
-				if (isRotating != wasRotating && !useSmartAutoStruts()) {
-					lprint(part.desc() + " triggered CycleAllAutoStruts()");
-					vessel.CycleAllAutoStrut();
+				if (isRotating != wasRotating) {
+					if (useSmartAutoStruts()) {
+
+					} else {
+						lprint(part.desc() + " triggered CycleAllAutoStruts()");
+						vessel.CycleAllAutoStrut();
+					}
 				}
 			}
 		}
