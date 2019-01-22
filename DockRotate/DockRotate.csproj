@@ -34,6 +34,7 @@
     <Compile Include="SmartAutostruts.cs" />
     <Compile Include="ReferenceChanges.cs" />
     <Compile Include="SmoothMotion.cs" />
+    <Compile Include="ConfigurableJointManager.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="UnityEngine">
