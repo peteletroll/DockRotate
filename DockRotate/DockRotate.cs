@@ -5,7 +5,14 @@ using KSP.Localization;
 
 namespace DockRotate
 {
-	public abstract class ModuleBaseRotate: PartModule, IJointLockState
+	public interface IStructureChangeListener
+	{
+		void RightBeforeStructureChange();
+		void RightAfterStructureChange();
+		bool traceStructureChanges();
+	}
+
+	public abstract class ModuleBaseRotate: PartModule, IJointLockState, IStructureChangeListener
 	{
 		[UI_Toggle()]
 		[KSPField(
@@ -454,7 +461,7 @@ namespace DockRotate
 				RightAfterStructureChange();
 		}
 
-		private void RightAfterStructureChange()
+		public void RightAfterStructureChange()
 		{
 			if (verboseEvents)
 				lprint(part.desc() + ": RightAfterStructureChange()");
@@ -481,6 +488,11 @@ namespace DockRotate
 					+ action.from.part.desc() + ", " + action.to.part.desc() + ")");
 			if (action.to.part == part || action.from.part == part)
 				doSetup();
+		}
+
+		public bool traceStructureChanges()
+		{
+			return verboseEvents;
 		}
 
 		public override void OnAwake()
