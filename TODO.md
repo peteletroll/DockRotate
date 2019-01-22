@@ -1,3 +1,5 @@
+* refactor RotationAnimation as MonoBehaviour
+
 * handle multiple docking alignment better
 
 * fix the moving IVA camera bug
