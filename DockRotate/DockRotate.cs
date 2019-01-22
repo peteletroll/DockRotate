@@ -5,46 +5,6 @@ using KSP.Localization;
 
 namespace DockRotate
 {
-	public class VesselRotInfo
-	{
-		public static bool trace = true;
-
-		private Guid id;
-		private int rotCount = 0;
-
-		private static Dictionary<Guid, VesselRotInfo> vesselInfo = new Dictionary<Guid, VesselRotInfo>();
-
-		private VesselRotInfo(Guid id)
-		{
-			this.id = id;
-		}
-
-		public static VesselRotInfo getInfo(Guid id)
-		{
-			if (vesselInfo.ContainsKey(id))
-				return vesselInfo[id];
-			return vesselInfo[id] = new VesselRotInfo(id);
-		}
-
-		public static void resetInfo(Guid id)
-		{
-			int c = vesselInfo.ContainsKey(id) ? getInfo(id).rotCount : 0;
-			if (trace && c != 0)
-				ModuleBaseRotate.lprint("changeCount(" + id + "): " + c + " -> RESET");
-			vesselInfo.Remove(id);
-		}
-
-		public int changeCount(int delta)
-		{
-			int ret = rotCount + delta;
-			if (ret < 0)
-				ret = 0;
-			if (trace && delta != 0)
-				ModuleBaseRotate.lprint("changeCount(" + id + ", " + delta + "): " + rotCount + " -> " + ret);
-			return rotCount = ret;
-		}
-	}
-
 	public abstract class ModuleBaseRotate: PartModule, IJointLockState
 	{
 		[UI_Toggle()]
@@ -311,10 +271,10 @@ namespace DockRotate
 					// rotation count change
 					if (isRotating) {
 						// a new rotation is starting
-						VesselRotInfo.getInfo(activePart.vessel.id).changeCount(+1);
+						VesselMotionInfo.getInfo(activePart.vessel.id).changeCount(+1);
 					} else {
 						// an old rotation is finishing
-						VesselRotInfo.getInfo(activePart.vessel.id).changeCount(-1);
+						VesselMotionInfo.getInfo(activePart.vessel.id).changeCount(-1);
 					}
 					if (useSmartAutoStruts()) {
 
@@ -382,7 +342,7 @@ namespace DockRotate
 			if (v != vessel)
 				return;
 			freezeCurrentRotation("go on rails", false);
-			VesselRotInfo.resetInfo(vessel.id);
+			VesselMotionInfo.resetInfo(vessel.id);
 			onRails = true;
 			setupDone = false;
 		}
@@ -395,7 +355,7 @@ namespace DockRotate
 				lprint(part.desc() + ": OnVesselGoOffRails(" + v.persistentId + ") [" + vessel.persistentId + "]");
 			if (v != vessel)
 				return;
-			VesselRotInfo.resetInfo(vessel.id);
+			VesselMotionInfo.resetInfo(vessel.id);
 			onRails = false;
 			setupDone = false;
 			// start speed always 0 when going off rails

@@ -1,0 +1,46 @@
+using System;
+using System.Collections.Generic;
+
+namespace DockRotate
+{
+	public class VesselMotionInfo
+	{
+		public static bool trace = true;
+
+		private Guid id;
+		private int rotCount = 0;
+
+		private static Dictionary<Guid, VesselMotionInfo> vesselInfo = new Dictionary<Guid, VesselMotionInfo>();
+
+		private VesselMotionInfo(Guid id)
+		{
+			this.id = id;
+		}
+
+		public static VesselMotionInfo getInfo(Guid id)
+		{
+			if (vesselInfo.ContainsKey(id))
+				return vesselInfo[id];
+			return vesselInfo[id] = new VesselMotionInfo(id);
+		}
+
+		public static void resetInfo(Guid id)
+		{
+			int c = vesselInfo.ContainsKey(id) ? getInfo(id).rotCount : 0;
+			if (trace && c != 0)
+				ModuleBaseRotate.lprint("changeCount(" + id + "): " + c + " -> RESET");
+			vesselInfo.Remove(id);
+		}
+
+		public int changeCount(int delta)
+		{
+			int ret = rotCount + delta;
+			if (ret < 0)
+				ret = 0;
+			if (trace && delta != 0)
+				ModuleBaseRotate.lprint("changeCount(" + id + ", " + delta + "): " + rotCount + " -> " + ret);
+			return rotCount = ret;
+		}
+	}
+}
+
