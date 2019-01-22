@@ -33,6 +33,7 @@
     <Compile Include="DockRotate.cs" />
     <Compile Include="SmartAutostruts.cs" />
     <Compile Include="ReferenceChanges.cs" />
+    <Compile Include="SmoothMotion.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="UnityEngine">
