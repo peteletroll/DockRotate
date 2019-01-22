@@ -31,6 +31,7 @@
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="DockRotate.cs" />
+    <Compile Include="SmartAutostruts.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="UnityEngine">
