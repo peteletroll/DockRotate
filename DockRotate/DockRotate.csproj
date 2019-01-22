@@ -35,6 +35,7 @@
     <Compile Include="ReferenceChanges.cs" />
     <Compile Include="SmoothMotion.cs" />
     <Compile Include="ConfigurableJointManager.cs" />
+    <Compile Include="JointMotion.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="UnityEngine">
