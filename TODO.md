@@ -1,6 +1,6 @@
 * handle multiple docking alignment better
 
+* fix the moving IVA camera bug
+
 * experiment with IJointLockState.IsJointUnlocked()
   (found KSP bug)
-
-* experiment with RotationAnimation as PartJoint.gameObject component
