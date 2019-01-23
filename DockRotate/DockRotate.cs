@@ -502,48 +502,57 @@ namespace DockRotate
 
 			base.OnAwake();
 
-			GameEvents.onVesselGoOnRails.Add(OnVesselGoOnRails);
-			GameEvents.onVesselGoOffRails.Add(OnVesselGoOffRails);
-
-			GameEvents.OnCameraChange.Add(OnCameraChange);
-
-			GameEvents.onActiveJointNeedUpdate.Add(RightBeforeStructureChangeJointUpdate);
-
-			GameEvents.onPartCouple.Add(RightBeforeStructureChangeAction);
-			GameEvents.onPartCoupleComplete.Add(RightAfterStructureChangeAction);
-			GameEvents.onPartDeCouple.Add(RightBeforeStructureChangePart);
-			GameEvents.onPartDeCoupleComplete.Add(RightAfterStructureChangePart);
-
-			GameEvents.onVesselDocking.Add(RightBeforeStructureChangeIds);
-			GameEvents.onDockingComplete.Add(RightAfterStructureChangeAction);
-			GameEvents.onPartUndock.Add(RightBeforeStructureChangePart);
-			GameEvents.onPartUndockComplete.Add(RightAfterStructureChangePart);
-
-			GameEvents.onSameVesselDock.Add(RightAfterSameVesselDock);
-			GameEvents.onSameVesselUndock.Add(RightAfterSameVesselUndock);
+			setEvents(true);
 		}
 
 		public virtual void OnDestroy()
 		{
-			GameEvents.onVesselGoOnRails.Remove(OnVesselGoOnRails);
-			GameEvents.onVesselGoOffRails.Remove(OnVesselGoOffRails);
+			setEvents(false);
+		}
 
-			GameEvents.OnCameraChange.Remove(OnCameraChange);
+		private void setEvents(bool cmd)
+		{
+			if (cmd) {
+				GameEvents.onVesselGoOnRails.Add(OnVesselGoOnRails);
+				GameEvents.onVesselGoOffRails.Add(OnVesselGoOffRails);
 
-			GameEvents.onActiveJointNeedUpdate.Remove(RightBeforeStructureChangeJointUpdate);
+				GameEvents.OnCameraChange.Add(OnCameraChange);
 
-			GameEvents.onPartCouple.Remove(RightBeforeStructureChangeAction);
-			GameEvents.onPartCoupleComplete.Remove(RightAfterStructureChangeAction);
-			GameEvents.onPartDeCouple.Remove(RightBeforeStructureChangePart);
-			GameEvents.onPartDeCoupleComplete.Remove(RightAfterStructureChangePart);
+				GameEvents.onActiveJointNeedUpdate.Add(RightBeforeStructureChangeJointUpdate);
 
-			GameEvents.onVesselDocking.Remove(RightBeforeStructureChangeIds);
-			GameEvents.onDockingComplete.Remove(RightAfterStructureChangeAction);
-			GameEvents.onPartUndock.Remove(RightBeforeStructureChangePart);
-			GameEvents.onPartUndockComplete.Remove(RightAfterStructureChangePart);
+				GameEvents.onPartCouple.Add(RightBeforeStructureChangeAction);
+				GameEvents.onPartCoupleComplete.Add(RightAfterStructureChangeAction);
+				GameEvents.onPartDeCouple.Add(RightBeforeStructureChangePart);
+				GameEvents.onPartDeCoupleComplete.Add(RightAfterStructureChangePart);
 
-			GameEvents.onSameVesselDock.Remove(RightAfterSameVesselDock);
-			GameEvents.onSameVesselUndock.Remove(RightAfterSameVesselUndock);
+				GameEvents.onVesselDocking.Add(RightBeforeStructureChangeIds);
+				GameEvents.onDockingComplete.Add(RightAfterStructureChangeAction);
+				GameEvents.onPartUndock.Add(RightBeforeStructureChangePart);
+				GameEvents.onPartUndockComplete.Add(RightAfterStructureChangePart);
+
+				GameEvents.onSameVesselDock.Add(RightAfterSameVesselDock);
+				GameEvents.onSameVesselUndock.Add(RightAfterSameVesselUndock);
+			} else {
+				GameEvents.onVesselGoOnRails.Remove(OnVesselGoOnRails);
+				GameEvents.onVesselGoOffRails.Remove(OnVesselGoOffRails);
+
+				GameEvents.OnCameraChange.Remove(OnCameraChange);
+
+				GameEvents.onActiveJointNeedUpdate.Remove(RightBeforeStructureChangeJointUpdate);
+
+				GameEvents.onPartCouple.Remove(RightBeforeStructureChangeAction);
+				GameEvents.onPartCoupleComplete.Remove(RightAfterStructureChangeAction);
+				GameEvents.onPartDeCouple.Remove(RightBeforeStructureChangePart);
+				GameEvents.onPartDeCoupleComplete.Remove(RightAfterStructureChangePart);
+
+				GameEvents.onVesselDocking.Remove(RightBeforeStructureChangeIds);
+				GameEvents.onDockingComplete.Remove(RightAfterStructureChangeAction);
+				GameEvents.onPartUndock.Remove(RightBeforeStructureChangePart);
+				GameEvents.onPartUndockComplete.Remove(RightAfterStructureChangePart);
+
+				GameEvents.onSameVesselDock.Remove(RightAfterSameVesselDock);
+				GameEvents.onSameVesselUndock.Remove(RightAfterSameVesselUndock);
+			}
 		}
 
 		protected static string[] guiList = {
