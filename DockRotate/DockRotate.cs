@@ -513,6 +513,7 @@ namespace DockRotate
 		private void setEvents(bool cmd)
 		{
 			if (cmd) {
+
 				GameEvents.onVesselGoOnRails.Add(OnVesselGoOnRails);
 				GameEvents.onVesselGoOffRails.Add(OnVesselGoOffRails);
 
@@ -532,7 +533,9 @@ namespace DockRotate
 
 				GameEvents.onSameVesselDock.Add(RightAfterSameVesselDock);
 				GameEvents.onSameVesselUndock.Add(RightAfterSameVesselUndock);
+
 			} else {
+
 				GameEvents.onVesselGoOnRails.Remove(OnVesselGoOnRails);
 				GameEvents.onVesselGoOffRails.Remove(OnVesselGoOffRails);
 
@@ -552,6 +555,7 @@ namespace DockRotate
 
 				GameEvents.onSameVesselDock.Remove(RightAfterSameVesselDock);
 				GameEvents.onSameVesselUndock.Remove(RightAfterSameVesselUndock);
+
 			}
 		}
 
