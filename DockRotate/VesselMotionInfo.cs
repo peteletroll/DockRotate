@@ -1,5 +1,3 @@
-using System;
-using System.Collections.Generic;
 using UnityEngine;
 
 namespace DockRotate
@@ -11,24 +9,25 @@ namespace DockRotate
 		private Vessel vessel = null;
 		private int rotCount = 0;
 
-		public static VesselMotionInfo get(Vessel v)
+		public static VesselMotionInfo get(Vessel v, bool create = true)
 		{
-			Guid id = v.id;
 			VesselMotionInfo info = v.gameObject.GetComponent<VesselMotionInfo>();
-			if (!info) {
+			if (!info && create) {
 				info = v.gameObject.AddComponent<VesselMotionInfo>();
 				info.vessel = v;
-				ModuleBaseRotate.lprint("created VesselMotionInfo for " + v.name);
+				ModuleBaseRotate.lprint("created VesselMotionInfo " + info.GetInstanceID() + " for " + v.name);
 			}
 			return info;
 		}
 
 		public static void resetInfo(Vessel v)
 		{
-			VesselMotionInfo info = get(v);
+			VesselMotionInfo info = get(v, false);
+			if (!info)
+				return;
 			int c = info.rotCount;
 			if (trace && c != 0)
-				ModuleBaseRotate.lprint("resetInfo(" + v.name + "): " + c + " -> RESET");
+				ModuleBaseRotate.lprint("resetInfo(" + info.GetInstanceID() + "): " + c + " -> RESET");
 			info.rotCount = 0;
 		}
 
@@ -38,7 +37,7 @@ namespace DockRotate
 			if (ret < 0)
 				ret = 0;
 			if (trace && delta != 0)
-				ModuleBaseRotate.lprint("changeCount(" + vessel.name + ", " + delta + "): "
+				ModuleBaseRotate.lprint("changeCount(" + GetInstanceID() + ", " + delta + "): "
 					+ rotCount + " -> " + ret);
 			return rotCount = ret;
 		}
