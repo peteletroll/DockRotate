@@ -1,37 +1,35 @@
 using System;
 using System.Collections.Generic;
+using UnityEngine;
 
 namespace DockRotate
 {
-	public class VesselMotionInfo
+	public class VesselMotionInfo: MonoBehaviour
 	{
 		public static bool trace = true;
 
-		private Guid id;
+		private Vessel vessel = null;
 		private int rotCount = 0;
-
-		private static Dictionary<Guid, VesselMotionInfo> vesselInfo = new Dictionary<Guid, VesselMotionInfo>();
-
-		private VesselMotionInfo(Vessel v)
-		{
-			this.id = v.id;
-		}
 
 		public static VesselMotionInfo getInfo(Vessel v)
 		{
 			Guid id = v.id;
-			if (vesselInfo.ContainsKey(id))
-				return vesselInfo[id];
-			return vesselInfo[id] = new VesselMotionInfo(v);
+			VesselMotionInfo info = v.gameObject.GetComponent<VesselMotionInfo>();
+			if (!info) {
+				info = v.gameObject.GetComponent<VesselMotionInfo>();
+				info.vessel = v;
+				ModuleBaseRotate.lprint("created VesselMotionInfo for " + v.name);
+			}
+			return info;
 		}
 
 		public static void resetInfo(Vessel v)
 		{
-			Guid id = v.id;
-			int c = vesselInfo.ContainsKey(id) ? getInfo(v).rotCount : 0;
+			VesselMotionInfo info = getInfo(v);
+			int c = info.rotCount;
 			if (trace && c != 0)
-				ModuleBaseRotate.lprint("changeCount(" + id + "): " + c + " -> RESET");
-			vesselInfo.Remove(id);
+				ModuleBaseRotate.lprint("changeCount(" + v.name + "): " + c + " -> RESET");
+			info.rotCount = 0;
 		}
 
 		public int changeCount(int delta)
@@ -40,7 +38,8 @@ namespace DockRotate
 			if (ret < 0)
 				ret = 0;
 			if (trace && delta != 0)
-				ModuleBaseRotate.lprint("changeCount(" + id + ", " + delta + "): " + rotCount + " -> " + ret);
+				ModuleBaseRotate.lprint("changeCount(" + vessel.name + ", " + delta + "): "
+					+ rotCount + " -> " + ret);
 			return rotCount = ret;
 		}
 	}
