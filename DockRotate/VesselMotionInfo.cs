@@ -28,7 +28,7 @@ namespace DockRotate
 			VesselMotionInfo info = get(v);
 			int c = info.rotCount;
 			if (trace && c != 0)
-				ModuleBaseRotate.lprint("changeCount(" + v.name + "): " + c + " -> RESET");
+				ModuleBaseRotate.lprint("resetInfo(" + v.name + "): " + c + " -> RESET");
 			info.rotCount = 0;
 		}
 
@@ -41,6 +41,23 @@ namespace DockRotate
 				ModuleBaseRotate.lprint("changeCount(" + vessel.name + ", " + delta + "): "
 					+ rotCount + " -> " + ret);
 			return rotCount = ret;
+		}
+
+		/******** Events ********/
+
+		public void Awake()
+		{
+			ModuleBaseRotate.lprint(nameof(VesselMotionInfo) + ".Awake(" + gameObject.name + ")");
+		}
+
+		public void Start()
+		{
+			ModuleBaseRotate.lprint(nameof(VesselMotionInfo) + ".Start(" + gameObject.name + ")");
+		}
+
+		public void OnDestroy()
+		{
+			ModuleBaseRotate.lprint(nameof(VesselMotionInfo) + ".OnDestroy(" + gameObject.name + ")");
 		}
 	}
 }
