@@ -12,21 +12,23 @@ namespace DockRotate
 
 		private static Dictionary<Guid, VesselMotionInfo> vesselInfo = new Dictionary<Guid, VesselMotionInfo>();
 
-		private VesselMotionInfo(Guid id)
+		private VesselMotionInfo(Vessel v)
 		{
-			this.id = id;
+			this.id = v.id;
 		}
 
-		public static VesselMotionInfo getInfo(Guid id)
+		public static VesselMotionInfo getInfo(Vessel v)
 		{
+			Guid id = v.id;
 			if (vesselInfo.ContainsKey(id))
 				return vesselInfo[id];
-			return vesselInfo[id] = new VesselMotionInfo(id);
+			return vesselInfo[id] = new VesselMotionInfo(v);
 		}
 
-		public static void resetInfo(Guid id)
+		public static void resetInfo(Vessel v)
 		{
-			int c = vesselInfo.ContainsKey(id) ? getInfo(id).rotCount : 0;
+			Guid id = v.id;
+			int c = vesselInfo.ContainsKey(id) ? getInfo(v).rotCount : 0;
 			if (trace && c != 0)
 				ModuleBaseRotate.lprint("changeCount(" + id + "): " + c + " -> RESET");
 			vesselInfo.Remove(id);
