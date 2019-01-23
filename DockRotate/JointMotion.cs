@@ -143,7 +143,7 @@ namespace DockRotate
 			staticize();
 
 			int c = VesselMotionInfo.get(activePart.vessel).changeCount(0);
-			if (c <= 0) {
+			if (c <= 1) {
 				if (smartAutoStruts) {
 					lprint("securing autostruts on vessel " + vesselId);
 					joint.Host.vessel.secureAllAutoStruts();
@@ -153,7 +153,7 @@ namespace DockRotate
 					joint.Host.vessel.secureAllAutoStruts();
 				}
 			}
-			lprint(activePart.desc() + ": rotation stopped, "
+			lprint(activePart.desc() + ": rotation stopped [" + c + "], "
 				+ electricity.ToString("F2") + " electricity");
 		}
 
