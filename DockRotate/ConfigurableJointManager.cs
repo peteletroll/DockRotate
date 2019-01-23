@@ -5,12 +5,12 @@ namespace DockRotate
 	public struct ConfigurableJointManager
 	{
 		// local space:
-		// defined by j.transform.
+		// defined by joint.transform.
 
 		// joint space:
-		// origin is j.anchor;
-		// right is j.axis;
-		// up is j.secondaryAxis;
+		// origin is joint.anchor;
+		// right is joint.axis;
+		// up is joint.secondaryAxis;
 		// anchor, axis and secondaryAxis are defined in local space.
 
 		private ConfigurableJoint joint;
