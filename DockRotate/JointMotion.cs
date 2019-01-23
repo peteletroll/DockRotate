@@ -142,7 +142,7 @@ namespace DockRotate
 
 			staticize();
 
-			int c = VesselMotionInfo.getInfo(activePart.vessel).changeCount(0);
+			int c = VesselMotionInfo.get(activePart.vessel).changeCount(0);
 			if (c <= 0) {
 				if (smartAutoStruts) {
 					lprint("securing autostruts on vessel " + vesselId);

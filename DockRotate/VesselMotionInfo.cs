@@ -11,12 +11,12 @@ namespace DockRotate
 		private Vessel vessel = null;
 		private int rotCount = 0;
 
-		public static VesselMotionInfo getInfo(Vessel v)
+		public static VesselMotionInfo get(Vessel v)
 		{
 			Guid id = v.id;
 			VesselMotionInfo info = v.gameObject.GetComponent<VesselMotionInfo>();
 			if (!info) {
-				info = v.gameObject.GetComponent<VesselMotionInfo>();
+				info = v.gameObject.AddComponent<VesselMotionInfo>();
 				info.vessel = v;
 				ModuleBaseRotate.lprint("created VesselMotionInfo for " + v.name);
 			}
@@ -25,7 +25,7 @@ namespace DockRotate
 
 		public static void resetInfo(Vessel v)
 		{
-			VesselMotionInfo info = getInfo(v);
+			VesselMotionInfo info = get(v);
 			int c = info.rotCount;
 			if (trace && c != 0)
 				ModuleBaseRotate.lprint("changeCount(" + v.name + "): " + c + " -> RESET");
