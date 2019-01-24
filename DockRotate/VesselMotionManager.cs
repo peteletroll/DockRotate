@@ -2,12 +2,22 @@ using UnityEngine;
 
 namespace DockRotate
 {
+	public interface IStructureChangeListener
+	{
+		void OnVesselGoOnRails();
+		void OnVesselGoOffRails();
+		void RightBeforeStructureChange();
+		void RightAfterStructureChange();
+	}
+
 	public class VesselMotionManager: MonoBehaviour
 	{
 		public static bool trace = true;
 
 		private Vessel vessel = null;
 		private int rotCount = 0;
+		private bool verboseEvents = false;
+		public bool onRails = false;
 
 		public static VesselMotionManager get(Vessel v, bool create = true)
 		{
@@ -44,6 +54,109 @@ namespace DockRotate
 
 		/******** Events ********/
 
+		private IStructureChangeListener[] allListeners()
+		{
+			return vessel.FindPartModulesImplementing<IStructureChangeListener>().ToArray();
+		}
+
+		private void setEvents(bool cmd)
+		{
+			if (cmd) {
+
+				GameEvents.onVesselGoOnRails.Add(OnVesselGoOnRails);
+				GameEvents.onVesselGoOffRails.Add(OnVesselGoOffRails);
+
+				GameEvents.OnCameraChange.Add(OnCameraChange);
+
+				/*
+
+				GameEvents.onActiveJointNeedUpdate.Add(RightBeforeStructureChangeJointUpdate);
+
+				GameEvents.onPartCouple.Add(RightBeforeStructureChangeAction);
+				GameEvents.onPartCoupleComplete.Add(RightAfterStructureChangeAction);
+				GameEvents.onPartDeCouple.Add(RightBeforeStructureChangePart);
+				GameEvents.onPartDeCoupleComplete.Add(RightAfterStructureChangePart);
+
+				GameEvents.onVesselDocking.Add(RightBeforeStructureChangeIds);
+				GameEvents.onDockingComplete.Add(RightAfterStructureChangeAction);
+				GameEvents.onPartUndock.Add(RightBeforeStructureChangePart);
+				GameEvents.onPartUndockComplete.Add(RightAfterStructureChangePart);
+
+				GameEvents.onSameVesselDock.Add(RightAfterSameVesselDock);
+				GameEvents.onSameVesselUndock.Add(RightAfterSameVesselUndock);
+
+				*/
+
+			} else {
+
+				GameEvents.onVesselGoOnRails.Remove(OnVesselGoOnRails);
+				GameEvents.onVesselGoOffRails.Remove(OnVesselGoOffRails);
+
+				GameEvents.OnCameraChange.Remove(OnCameraChange);
+
+				/*
+
+				GameEvents.onActiveJointNeedUpdate.Remove(RightBeforeStructureChangeJointUpdate);
+
+				GameEvents.onPartCouple.Remove(RightBeforeStructureChangeAction);
+				GameEvents.onPartCoupleComplete.Remove(RightAfterStructureChangeAction);
+				GameEvents.onPartDeCouple.Remove(RightBeforeStructureChangePart);
+				GameEvents.onPartDeCoupleComplete.Remove(RightAfterStructureChangePart);
+
+				GameEvents.onVesselDocking.Remove(RightBeforeStructureChangeIds);
+				GameEvents.onDockingComplete.Remove(RightAfterStructureChangeAction);
+				GameEvents.onPartUndock.Remove(RightBeforeStructureChangePart);
+				GameEvents.onPartUndockComplete.Remove(RightAfterStructureChangePart);
+
+				GameEvents.onSameVesselDock.Remove(RightAfterSameVesselDock);
+				GameEvents.onSameVesselUndock.Remove(RightAfterSameVesselUndock);
+
+				*/
+			}
+		}
+
+		private bool dontCare(Vessel v)
+		{
+			return !v || !vessel || v != vessel;
+		}
+
+		public void OnVesselGoOnRails(Vessel v)
+		{
+			if (dontCare(v))
+				return;
+			if (verboseEvents)
+				lprint(nameof(VesselMotionManager) + ".OnVesselGoOnRails(" + v.persistentId + ") [" + vessel.persistentId + "]");
+			resetInfo(vessel);
+			onRails = true;
+			IStructureChangeListener[] l = allListeners();
+			for (int i = 0; i < l.Length; i++)
+				l[i].OnVesselGoOnRails();
+		}
+
+		public void OnVesselGoOffRails(Vessel v)
+		{
+			if (dontCare(v))
+				return;
+			if (verboseEvents)
+				lprint(nameof(VesselMotionManager) + ".OnVesselGoOffRails(" + v.persistentId + ") [" + vessel.persistentId + "]");
+			resetInfo(vessel);
+			onRails = false;
+			IStructureChangeListener[] l = allListeners();
+			for (int i = 0; i < l.Length; i++)
+				l[i].OnVesselGoOffRails();
+		}
+
+		public void OnCameraChange(CameraManager.CameraMode mode)
+		{
+			Camera camera = CameraManager.GetCurrentCamera();
+			if (verboseEvents && camera) {
+				lprint(nameof(VesselMotionManager) + ".OnCameraChange(" + mode + "): " + camera.desc());
+				Camera[] cameras = Camera.allCameras;
+				for (int i = 0; i < cameras.Length; i++)
+					lprint("camera[" + i + "] = " + cameras[i].desc());
+			}
+		}
+
 		public void Awake()
 		{
 			ModuleBaseRotate.lprint(nameof(VesselMotionManager) + ".Awake(" + gameObject.name + ")");
@@ -57,6 +170,11 @@ namespace DockRotate
 		public void OnDestroy()
 		{
 			ModuleBaseRotate.lprint(nameof(VesselMotionManager) + ".OnDestroy(" + gameObject.name + ")");
+		}
+
+		private void lprint(string msg)
+		{
+			ModuleBaseRotate.lprint(msg);
 		}
 	}
 }

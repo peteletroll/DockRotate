@@ -5,13 +5,6 @@ using KSP.Localization;
 
 namespace DockRotate
 {
-	public interface IStructureChangeListener
-	{
-		void RightBeforeStructureChange();
-		void RightAfterStructureChange();
-		bool traceStructureChanges();
-	}
-
 	public abstract class ModuleBaseRotate: PartModule, IJointLockState, IStructureChangeListener
 	{
 		[UI_Toggle()]
@@ -293,8 +286,6 @@ namespace DockRotate
 			}
 		}
 
-		protected bool onRails = true; // FIXME: obsoleted by setupDone?
-
 		public PartJoint rotatingJoint;
 		public Part activePart, proxyPart;
 		public string nodeRole = "Init";
@@ -322,7 +313,7 @@ namespace DockRotate
 
 		private void doSetup()
 		{
-			if (onRails || !part || !vessel) {
+			if (!part || !vessel) {
 				lprint("WARNING: doSetup() called at a bad time");
 				return;
 			}
@@ -340,45 +331,22 @@ namespace DockRotate
 			setupDone = true;
 		}
 
-		public void OnVesselGoOnRails(Vessel v)
+		public void OnVesselGoOnRails()
 		{
-			if (!vessel)
-				return;
 			if (verboseEvents)
-				lprint(part.desc() + ": OnVesselGoOnRails(" + v.persistentId + ") [" + vessel.persistentId + "]");
-			if (v != vessel)
-				return;
+				lprint(part.desc() + ": OnVesselGoOnRails()");
 			freezeCurrentRotation("go on rails", false);
-			VesselMotionManager.resetInfo(vessel);
-			onRails = true;
 			setupDone = false;
 		}
 
-		public void OnVesselGoOffRails(Vessel v)
+		public void OnVesselGoOffRails()
 		{
-			if (!vessel)
-				return;
 			if (verboseEvents)
-				lprint(part.desc() + ": OnVesselGoOffRails(" + v.persistentId + ") [" + vessel.persistentId + "]");
-			if (v != vessel)
-				return;
-			VesselMotionManager.resetInfo(vessel);
-			onRails = false;
+				lprint(part.desc() + ": OnVesselGoOffRails()");
 			setupDone = false;
 			// start speed always 0 when going off rails
 			frozenRotation[2] = 0f;
 			doSetup();
-		}
-
-		public void OnCameraChange(CameraManager.CameraMode mode)
-		{
-			Camera camera = CameraManager.GetCurrentCamera();
-			if (verboseEvents && camera) {
-				lprint(part.desc() + ": OnCameraChange(" + mode + "): " + camera.desc());
-				Camera[] cameras = Camera.allCameras;
-				for (int i = 0; i < cameras.Length; i++)
-					lprint("camera[" + i + "] = " + cameras[i].desc());
-			}
 		}
 
 		private void RightBeforeStructureChangeJointUpdate(Vessel v)
@@ -490,14 +458,8 @@ namespace DockRotate
 				doSetup();
 		}
 
-		public bool traceStructureChanges()
-		{
-			return verboseEvents;
-		}
-
 		public override void OnAwake()
 		{
-			onRails = true;
 			setupDone = false;
 
 			base.OnAwake();
@@ -513,11 +475,6 @@ namespace DockRotate
 		private void setEvents(bool cmd)
 		{
 			if (cmd) {
-
-				GameEvents.onVesselGoOnRails.Add(OnVesselGoOnRails);
-				GameEvents.onVesselGoOffRails.Add(OnVesselGoOffRails);
-
-				GameEvents.OnCameraChange.Add(OnCameraChange);
 
 				GameEvents.onActiveJointNeedUpdate.Add(RightBeforeStructureChangeJointUpdate);
 
@@ -535,11 +492,6 @@ namespace DockRotate
 				GameEvents.onSameVesselUndock.Add(RightAfterSameVesselUndock);
 
 			} else {
-
-				GameEvents.onVesselGoOnRails.Remove(OnVesselGoOnRails);
-				GameEvents.onVesselGoOffRails.Remove(OnVesselGoOffRails);
-
-				GameEvents.OnCameraChange.Remove(OnCameraChange);
 
 				GameEvents.onActiveJointNeedUpdate.Remove(RightBeforeStructureChangeJointUpdate);
 
