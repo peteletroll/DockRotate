@@ -278,10 +278,10 @@ namespace DockRotate
 					// rotation count change
 					if (isRotating) {
 						// a new rotation is starting
-						VesselMotionInfo.get(activePart.vessel).changeCount(+1);
+						VesselMotionManager.get(activePart.vessel).changeCount(+1);
 					} else {
 						// an old rotation is finishing
-						VesselMotionInfo.get(activePart.vessel).changeCount(-1);
+						VesselMotionManager.get(activePart.vessel).changeCount(-1);
 					}
 					if (useSmartAutoStruts()) {
 
@@ -349,7 +349,7 @@ namespace DockRotate
 			if (v != vessel)
 				return;
 			freezeCurrentRotation("go on rails", false);
-			VesselMotionInfo.resetInfo(vessel);
+			VesselMotionManager.resetInfo(vessel);
 			onRails = true;
 			setupDone = false;
 		}
@@ -362,7 +362,7 @@ namespace DockRotate
 				lprint(part.desc() + ": OnVesselGoOffRails(" + v.persistentId + ") [" + vessel.persistentId + "]");
 			if (v != vessel)
 				return;
-			VesselMotionInfo.resetInfo(vessel);
+			VesselMotionManager.resetInfo(vessel);
 			onRails = false;
 			setupDone = false;
 			// start speed always 0 when going off rails

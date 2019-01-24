@@ -37,7 +37,7 @@
     <Compile Include="ConfigurableJointManager.cs" />
     <Compile Include="JointMotion.cs" />
     <Compile Include="Extensions.cs" />
-    <Compile Include="VesselMotionInfo.cs" />
+    <Compile Include="VesselMotionManager.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="UnityEngine">

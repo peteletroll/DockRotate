@@ -2,18 +2,18 @@ using UnityEngine;
 
 namespace DockRotate
 {
-	public class VesselMotionInfo: MonoBehaviour
+	public class VesselMotionManager: MonoBehaviour
 	{
 		public static bool trace = true;
 
 		private Vessel vessel = null;
 		private int rotCount = 0;
 
-		public static VesselMotionInfo get(Vessel v, bool create = true)
+		public static VesselMotionManager get(Vessel v, bool create = true)
 		{
-			VesselMotionInfo info = v.gameObject.GetComponent<VesselMotionInfo>();
+			VesselMotionManager info = v.gameObject.GetComponent<VesselMotionManager>();
 			if (!info && create) {
-				info = v.gameObject.AddComponent<VesselMotionInfo>();
+				info = v.gameObject.AddComponent<VesselMotionManager>();
 				info.vessel = v;
 				ModuleBaseRotate.lprint("created VesselMotionInfo " + info.GetInstanceID() + " for " + v.name);
 			}
@@ -22,7 +22,7 @@ namespace DockRotate
 
 		public static void resetInfo(Vessel v)
 		{
-			VesselMotionInfo info = get(v, false);
+			VesselMotionManager info = get(v, false);
 			if (!info)
 				return;
 			int c = info.rotCount;
@@ -46,17 +46,17 @@ namespace DockRotate
 
 		public void Awake()
 		{
-			ModuleBaseRotate.lprint(nameof(VesselMotionInfo) + ".Awake(" + gameObject.name + ")");
+			ModuleBaseRotate.lprint(nameof(VesselMotionManager) + ".Awake(" + gameObject.name + ")");
 		}
 
 		public void Start()
 		{
-			ModuleBaseRotate.lprint(nameof(VesselMotionInfo) + ".Start(" + gameObject.name + ")");
+			ModuleBaseRotate.lprint(nameof(VesselMotionManager) + ".Start(" + gameObject.name + ")");
 		}
 
 		public void OnDestroy()
 		{
-			ModuleBaseRotate.lprint(nameof(VesselMotionInfo) + ".OnDestroy(" + gameObject.name + ")");
+			ModuleBaseRotate.lprint(nameof(VesselMotionManager) + ".OnDestroy(" + gameObject.name + ")");
 		}
 	}
 }
