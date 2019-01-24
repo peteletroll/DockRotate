@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 namespace DockRotate
@@ -53,11 +54,6 @@ namespace DockRotate
 		}
 
 		/******** Events ********/
-
-		private IStructureChangeListener[] allListeners()
-		{
-			return vessel.FindPartModulesImplementing<IStructureChangeListener>().ToArray();
-		}
 
 		private void setEvents(bool cmd)
 		{
@@ -120,6 +116,25 @@ namespace DockRotate
 			return !v || !vessel || v != vessel;
 		}
 
+		private IStructureChangeListener[] allListeners()
+		{
+			return vessel.FindPartModulesImplementing<IStructureChangeListener>().ToArray();
+		}
+
+		private void onAllListeners(Action<IStructureChangeListener> a)
+		{
+			IStructureChangeListener[] l = allListeners();
+			for (int i = 0; i < l.Length; i++) {
+				if (l[i] == null)
+					continue;
+				try {
+					a(l[i]);
+				} catch (Exception e) {
+					lprint(e.StackTrace);
+				}
+			}
+		}
+
 		public void OnVesselGoOnRails(Vessel v)
 		{
 			if (dontCare(v))
@@ -128,9 +143,7 @@ namespace DockRotate
 				lprint(nameof(VesselMotionManager) + ".OnVesselGoOnRails(" + v.persistentId + ") [" + vessel.persistentId + "]");
 			resetInfo(vessel);
 			onRails = true;
-			IStructureChangeListener[] l = allListeners();
-			for (int i = 0; i < l.Length; i++)
-				l[i].OnVesselGoOnRails();
+			onAllListeners(l => l.OnVesselGoOnRails());
 		}
 
 		public void OnVesselGoOffRails(Vessel v)
@@ -141,9 +154,7 @@ namespace DockRotate
 				lprint(nameof(VesselMotionManager) + ".OnVesselGoOffRails(" + v.persistentId + ") [" + vessel.persistentId + "]");
 			resetInfo(vessel);
 			onRails = false;
-			IStructureChangeListener[] l = allListeners();
-			for (int i = 0; i < l.Length; i++)
-				l[i].OnVesselGoOffRails();
+			onAllListeners(l => l.OnVesselGoOffRails());
 		}
 
 		public void OnCameraChange(CameraManager.CameraMode mode)
