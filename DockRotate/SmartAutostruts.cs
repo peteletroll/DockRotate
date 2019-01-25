@@ -146,7 +146,5 @@ namespace DockRotate
 			}
 		}
 	}
-
-
 }
 
