@@ -463,7 +463,6 @@ namespace DockRotate
 			setupDone = false;
 
 			base.OnAwake();
-
 			setEvents(true);
 		}
 
@@ -567,6 +566,8 @@ namespace DockRotate
 		public override void OnStart(StartState state)
 		{
 			base.OnStart(state);
+
+			VesselMotionManager.get(vessel); // force creation of VesselMotionManager
 
 			setupGuiActive();
 

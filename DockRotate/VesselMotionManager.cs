@@ -22,6 +22,10 @@ namespace DockRotate
 
 		public static VesselMotionManager get(Vessel v, bool create = true)
 		{
+			if (!v) {
+				lprint("*** WARNING *** " + nameof(VesselMotionManager) + ".get() with null vessel");
+				return null;
+			}
 			VesselMotionManager info = v.gameObject.GetComponent<VesselMotionManager>();
 			if (!info && create) {
 				info = v.gameObject.AddComponent<VesselMotionManager>();
@@ -171,6 +175,7 @@ namespace DockRotate
 		public void Awake()
 		{
 			ModuleBaseRotate.lprint(nameof(VesselMotionManager) + ".Awake(" + gameObject.name + ")");
+			setEvents(true);
 		}
 
 		public void Start()
@@ -181,9 +186,10 @@ namespace DockRotate
 		public void OnDestroy()
 		{
 			ModuleBaseRotate.lprint(nameof(VesselMotionManager) + ".OnDestroy(" + gameObject.name + ")");
+			setEvents(false);
 		}
 
-		private void lprint(string msg)
+		private static void lprint(string msg)
 		{
 			ModuleBaseRotate.lprint(msg);
 		}
