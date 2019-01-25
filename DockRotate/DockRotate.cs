@@ -567,7 +567,11 @@ namespace DockRotate
 		{
 			base.OnStart(state);
 
-			VesselMotionManager.get(vessel); // force creation of VesselMotionManager
+			if (vessel) {
+				VesselMotionManager.get(vessel); // force creation of VesselMotionManager
+			} else if (state != StartState.Editor) {
+				lprint(part.desc() + ": OnStart() with no vessel, state " + state);
+			}
 
 			setupGuiActive();
 
