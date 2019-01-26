@@ -408,27 +408,6 @@ namespace DockRotate
 			freezeCurrentRotation("structure change", true);
 		}
 
-		public void RightAfterStructureChangeAction(GameEvents.FromToAction<Part, Part> action)
-		{
-			if (!vessel)
-				return;
-			if (verboseEvents)
-				lprint(part.desc() + ": RightAfterStructureChangeAction("
-					+ action.from.desc() + ", " + action.to.desc() + ")");
-			if (action.from.vessel == vessel || action.to.vessel == vessel)
-				RightAfterStructureChange();
-		}
-
-		public void RightAfterStructureChangePart(Part p)
-		{
-			if (!vessel)
-				return;
-			if (verboseEvents)
-				lprint(part.desc() + ": RightAfterStructureChangePart(" + p.desc() + ")");
-			if (p.vessel == vessel)
-				RightAfterStructureChange();
-		}
-
 		public void RightAfterStructureChange()
 		{
 			if (verboseEvents)
@@ -478,14 +457,10 @@ namespace DockRotate
 				GameEvents.onActiveJointNeedUpdate.Add(RightBeforeStructureChangeJointUpdate);
 
 				GameEvents.onPartCouple.Add(RightBeforeStructureChangeAction);
-				GameEvents.onPartCoupleComplete.Add(RightAfterStructureChangeAction);
 				GameEvents.onPartDeCouple.Add(RightBeforeStructureChangePart);
-				GameEvents.onPartDeCoupleComplete.Add(RightAfterStructureChangePart);
 
 				GameEvents.onVesselDocking.Add(RightBeforeStructureChangeIds);
-				GameEvents.onDockingComplete.Add(RightAfterStructureChangeAction);
 				GameEvents.onPartUndock.Add(RightBeforeStructureChangePart);
-				GameEvents.onPartUndockComplete.Add(RightAfterStructureChangePart);
 
 				GameEvents.onSameVesselDock.Add(RightAfterSameVesselDock);
 				GameEvents.onSameVesselUndock.Add(RightAfterSameVesselUndock);
@@ -495,14 +470,10 @@ namespace DockRotate
 				GameEvents.onActiveJointNeedUpdate.Remove(RightBeforeStructureChangeJointUpdate);
 
 				GameEvents.onPartCouple.Remove(RightBeforeStructureChangeAction);
-				GameEvents.onPartCoupleComplete.Remove(RightAfterStructureChangeAction);
 				GameEvents.onPartDeCouple.Remove(RightBeforeStructureChangePart);
-				GameEvents.onPartDeCoupleComplete.Remove(RightAfterStructureChangePart);
 
 				GameEvents.onVesselDocking.Remove(RightBeforeStructureChangeIds);
-				GameEvents.onDockingComplete.Remove(RightAfterStructureChangeAction);
 				GameEvents.onPartUndock.Remove(RightBeforeStructureChangePart);
-				GameEvents.onPartUndockComplete.Remove(RightAfterStructureChangePart);
 
 				GameEvents.onSameVesselDock.Remove(RightAfterSameVesselDock);
 				GameEvents.onSameVesselUndock.Remove(RightAfterSameVesselUndock);
