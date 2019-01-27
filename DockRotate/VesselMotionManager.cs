@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace DockRotate
@@ -9,6 +10,23 @@ namespace DockRotate
 		void OnVesselGoOffRails();
 		void RightBeforeStructureChange();
 		void RightAfterStructureChange();
+	}
+
+	public static class StructureChangeMapper
+	{
+		public static void map(this List<IStructureChangeListener> l, Action<IStructureChangeListener> a)
+		{
+			int c = l.Count;
+			for (int i = 0; i < c; i++) {
+				if (l[i] == null)
+					continue;
+				try {
+					a(l[i]);
+				} catch (Exception e) {
+					ModuleBaseRotate.lprint(e.StackTrace);
+				}
+			}
+		}
 	}
 
 	public class VesselMotionManager: MonoBehaviour
@@ -100,8 +118,8 @@ namespace DockRotate
 				GameEvents.onPartUndock.Add(RightBeforeStructureChangePart);
 				GameEvents.onPartUndockComplete.Add(RightAfterStructureChangePart);
 
-				// GameEvents.onSameVesselDock.Add(RightAfterSameVesselDock);
-				// GameEvents.onSameVesselUndock.Add(RightAfterSameVesselUndock);
+				GameEvents.onSameVesselDock.Add(RightAfterSameVesselDock);
+				GameEvents.onSameVesselUndock.Add(RightAfterSameVesselUndock);
 
 			} else {
 
@@ -124,8 +142,8 @@ namespace DockRotate
 				GameEvents.onPartUndock.Remove(RightBeforeStructureChangePart);
 				GameEvents.onPartUndockComplete.Remove(RightAfterStructureChangePart);
 
-				// GameEvents.onSameVesselDock.Remove(RightAfterSameVesselDock);
-				// GameEvents.onSameVesselUndock.Remove(RightAfterSameVesselUndock);
+				GameEvents.onSameVesselDock.Remove(RightAfterSameVesselDock);
+				GameEvents.onSameVesselUndock.Remove(RightAfterSameVesselUndock);
 
 			}
 
@@ -168,25 +186,25 @@ namespace DockRotate
 			return care(action.from, useStructureChangeInfo) || care(action.to, useStructureChangeInfo);
 		}
 
-		private IStructureChangeListener[] allListeners()
+		private bool care(GameEvents.FromToAction<ModuleDockingNode, ModuleDockingNode> action, bool useStructureChangeInfo)
 		{
-			return vessel.FindPartModulesImplementing<IStructureChangeListener>().ToArray();
+			return care(action.from.part, useStructureChangeInfo) || care(action.to.part, useStructureChangeInfo);
 		}
 
-		private void onAllListeners(Action<IStructureChangeListener> a)
+		private List<IStructureChangeListener> listeners()
 		{
-			IStructureChangeListener[] l = allListeners();
+			List<IStructureChangeListener> ret = vessel.FindPartModulesImplementing<IStructureChangeListener>();
 			if (verboseEvents)
-				lprint(nameof(VesselMotionManager) + ".onAllListeners() on " + desc() + " finds " + l.Length);
-			for (int i = 0; i < l.Length; i++) {
-				if (l[i] == null)
-					continue;
-				try {
-					a(l[i]);
-				} catch (Exception e) {
-					lprint(e.StackTrace);
-				}
-			}
+				lprint(nameof(VesselMotionManager) + ".listeners() on " + desc() + " finds " + ret.Count);
+			return ret;
+		}
+
+		private List<IStructureChangeListener> listeners(Part p)
+		{
+			List<IStructureChangeListener> ret = p.FindModulesImplementing<IStructureChangeListener>();
+			if (verboseEvents)
+				lprint(nameof(VesselMotionManager) + ".listeners(" + p.desc() + ") on " + desc() + " finds " + ret.Count);
+			return ret;
 		}
 
 		public void OnVesselCreate(Vessel v)
@@ -205,7 +223,7 @@ namespace DockRotate
 			resetRotCount(vessel);
 			structureChangeInfo.reset();
 			onRails = true;
-			onAllListeners(l => l.OnVesselGoOnRails());
+			listeners().map(l => l.OnVesselGoOnRails());
 		}
 
 		public void OnVesselGoOffRails(Vessel v)
@@ -218,7 +236,7 @@ namespace DockRotate
 			resetRotCount(vessel);
 			structureChangeInfo.reset();
 			onRails = false;
-			onAllListeners(l => l.OnVesselGoOffRails());
+			listeners().map(l => l.OnVesselGoOffRails());
 		}
 
 		public void RightBeforeStructureChangePart(Part p)
@@ -240,7 +258,7 @@ namespace DockRotate
 					+ ") on " + desc());
 			if (!care(action, true))
 				return;
-			onAllListeners(l => l.RightAfterStructureChange());
+			listeners().map(l => l.RightAfterStructureChange());
 		}
 
 		public void RightAfterStructureChangePart(Part p)
@@ -250,7 +268,31 @@ namespace DockRotate
 					+ desc(p.vessel) + ") on " + desc());
 			if (!care(p, true))
 				return;
-			onAllListeners(l => l.RightAfterStructureChange());
+			listeners().map(l => l.RightAfterStructureChange());
+		}
+
+		public void RightAfterSameVesselDock(GameEvents.FromToAction<ModuleDockingNode, ModuleDockingNode> action)
+		{
+			if (verboseEvents)
+				lprint(nameof(VesselMotionManager) + ".RightAfterSameVesselDock("
+					+ desc(action.from.vessel) + ", " + desc(action.to.vessel)
+					+ ") on " + desc());
+			if (!care(action, false))
+				return;
+			listeners(action.from.part);
+			listeners(action.to.part);
+		}
+
+		public void RightAfterSameVesselUndock(GameEvents.FromToAction<ModuleDockingNode, ModuleDockingNode> action)
+		{
+			if (verboseEvents)
+				lprint(nameof(VesselMotionManager) + ".RightAfterSameVesselUndock("
+					+ desc(action.from.vessel) + ", " + desc(action.to.vessel)
+					+ ") on " + desc());
+			if (!care(action, false))
+				return;
+			listeners(action.from.part);
+			listeners(action.to.part);
 		}
 
 		public void OnCameraChange(CameraManager.CameraMode mode)
