@@ -415,28 +415,6 @@ namespace DockRotate
 			doSetup();
 		}
 
-		private void RightAfterSameVesselDock(GameEvents.FromToAction<ModuleDockingNode, ModuleDockingNode> action)
-		{
-			if (!vessel)
-				return;
-			if (verboseEvents)
-				lprint(part.desc() + ": RightAfterSameVesselDock("
-					+ action.from.part.desc() + ", " + action.to.part.desc() + ")");
-			if (action.to.part == part || action.from.part == part)
-				doSetup();
-		}
-
-		private void RightAfterSameVesselUndock(GameEvents.FromToAction<ModuleDockingNode, ModuleDockingNode> action)
-		{
-			if (!vessel)
-				return;
-			if (verboseEvents)
-				lprint(part.desc() + ": RightAfterSameVesselUndock("
-					+ action.from.part.desc() + ", " + action.to.part.desc() + ")");
-			if (action.to.part == part || action.from.part == part)
-				doSetup();
-		}
-
 		public override void OnAwake()
 		{
 			setupDone = false;
@@ -462,9 +440,6 @@ namespace DockRotate
 				GameEvents.onVesselDocking.Add(RightBeforeStructureChangeIds);
 				GameEvents.onPartUndock.Add(RightBeforeStructureChangePart);
 
-				GameEvents.onSameVesselDock.Add(RightAfterSameVesselDock);
-				GameEvents.onSameVesselUndock.Add(RightAfterSameVesselUndock);
-
 			} else {
 
 				GameEvents.onActiveJointNeedUpdate.Remove(RightBeforeStructureChangeJointUpdate);
@@ -474,9 +449,6 @@ namespace DockRotate
 
 				GameEvents.onVesselDocking.Remove(RightBeforeStructureChangeIds);
 				GameEvents.onPartUndock.Remove(RightBeforeStructureChangePart);
-
-				GameEvents.onSameVesselDock.Remove(RightAfterSameVesselDock);
-				GameEvents.onSameVesselUndock.Remove(RightAfterSameVesselUndock);
 
 			}
 		}

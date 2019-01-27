@@ -279,8 +279,8 @@ namespace DockRotate
 					+ ") on " + desc());
 			if (!care(action, false))
 				return;
-			listeners(action.from.part);
-			listeners(action.to.part);
+			listeners(action.from.part).map(l => l.RightAfterStructureChange());
+			listeners(action.to.part).map(l => l.RightAfterStructureChange());
 		}
 
 		public void RightAfterSameVesselUndock(GameEvents.FromToAction<ModuleDockingNode, ModuleDockingNode> action)
@@ -291,8 +291,8 @@ namespace DockRotate
 					+ ") on " + desc());
 			if (!care(action, false))
 				return;
-			listeners(action.from.part);
-			listeners(action.to.part);
+			listeners(action.from.part).map(l => l.RightAfterStructureChange());
+			listeners(action.to.part).map(l => l.RightAfterStructureChange());
 		}
 
 		public void OnCameraChange(CameraManager.CameraMode mode)
