@@ -191,6 +191,11 @@ namespace DockRotate
 			return care(action.from.part, useStructureChangeInfo) || care(action.to.part, useStructureChangeInfo);
 		}
 
+		private bool care(uint id1, uint id2, bool useStructureChangeInfo)
+		{
+			return vessel && (vessel.persistentId == id1 || vessel.persistentId == id2);
+		}
+
 		private List<IStructureChangeListener> listeners()
 		{
 			List<IStructureChangeListener> ret = vessel.FindPartModulesImplementing<IStructureChangeListener>();
@@ -239,15 +244,46 @@ namespace DockRotate
 			listeners().map(l => l.OnVesselGoOffRails());
 		}
 
+		private void RightBeforeStructureChangeJointUpdate(Vessel v)
+		{
+			if (verboseEvents)
+				lprint(nameof(VesselMotionManager) + ".RightBeforeStructureChangeJointUpdate()");
+			if (!care(v, false))
+				return;
+			structureChangeInfo.reset();
+			listeners().map(l => l.RightBeforeStructureChange());
+		}
+
+		public void RightBeforeStructureChangeIds(uint id1, uint id2)
+		{
+			if (verboseEvents)
+				lprint(nameof(VesselMotionManager) + ".RightBeforeStructureChangeIds("
+					+ id1 + ", " + id2 + ") [" + desc() + "]");
+			if (!care(id1, id2, false))
+				return;
+			listeners().map(l => l.RightBeforeStructureChange());
+		}
+
+		public void RightBeforeStructureChangeAction(GameEvents.FromToAction<Part, Part> action)
+		{
+			if (verboseEvents)
+				lprint(nameof(VesselMotionManager) + ".RightBeforeStructureChangeAction("
+					+ action.from.desc() + ", " + action.to.desc() + ")");
+			if (!care(action, false))
+				return;
+			listeners().map(l => l.RightBeforeStructureChange());
+		}
+
 		public void RightBeforeStructureChangePart(Part p)
 		{
 			if (verboseEvents)
 				lprint(nameof(VesselMotionManager) + ".RightBeforeStructureChangePart("
 					+ desc(p.vessel) + ") on " + desc());
-			structureChangeInfo.reset();
 			if (!care(p, false))
 				return;
+			structureChangeInfo.reset();
 			structureChangeInfo.part = p;
+			listeners().map(l => l.RightBeforeStructureChange());
 		}
 
 		public void RightAfterStructureChangeAction(GameEvents.FromToAction<Part, Part> action)

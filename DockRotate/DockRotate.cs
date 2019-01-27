@@ -349,48 +349,6 @@ namespace DockRotate
 			doSetup();
 		}
 
-		private void RightBeforeStructureChangeJointUpdate(Vessel v)
-		{
-			if (v != vessel)
-				return;
-			if (verboseEvents)
-				lprint(part.desc() + ": RightBeforeStructureChangeJointUpdate()");
-			RightBeforeStructureChange();
-		}
-
-		public void RightBeforeStructureChangeIds(uint id1, uint id2)
-		{
-			if (!vessel)
-				return;
-			uint id = vessel.persistentId;
-			if (verboseEvents)
-				lprint(part.desc() + ": RightBeforeStructureChangeIds("
-					+ id1 + ", " + id2 + ") [" + id + "]");
-			if (id1 == id || id2 == id)
-				RightBeforeStructureChange();
-		}
-
-		public void RightBeforeStructureChangeAction(GameEvents.FromToAction<Part, Part> action)
-		{
-			if (!vessel)
-				return;
-			if (verboseEvents)
-				lprint(part.desc() + ": RightBeforeStructureChangeAction("
-					+ action.from.desc() + ", " + action.to.desc() + ")");
-			if (action.from.vessel == vessel || action.to.vessel == vessel)
-				RightBeforeStructureChange();
-		}
-
-		public void RightBeforeStructureChangePart(Part p)
-		{
-			if (!vessel)
-				return;
-			if (verboseEvents)
-				lprint(part.desc() + ": RightBeforeStructureChangePart(" + part.desc() + ")");
-			if (p.vessel == vessel)
-				RightBeforeStructureChange();
-		}
-
 		int lastRightBeforeStructureChange = 0;
 
 		public void RightBeforeStructureChange()
@@ -420,37 +378,10 @@ namespace DockRotate
 			setupDone = false;
 
 			base.OnAwake();
-			setEvents(true);
 		}
 
 		public virtual void OnDestroy()
 		{
-			setEvents(false);
-		}
-
-		private void setEvents(bool cmd)
-		{
-			if (cmd) {
-
-				GameEvents.onActiveJointNeedUpdate.Add(RightBeforeStructureChangeJointUpdate);
-
-				GameEvents.onPartCouple.Add(RightBeforeStructureChangeAction);
-				GameEvents.onPartDeCouple.Add(RightBeforeStructureChangePart);
-
-				GameEvents.onVesselDocking.Add(RightBeforeStructureChangeIds);
-				GameEvents.onPartUndock.Add(RightBeforeStructureChangePart);
-
-			} else {
-
-				GameEvents.onActiveJointNeedUpdate.Remove(RightBeforeStructureChangeJointUpdate);
-
-				GameEvents.onPartCouple.Remove(RightBeforeStructureChangeAction);
-				GameEvents.onPartDeCouple.Remove(RightBeforeStructureChangePart);
-
-				GameEvents.onVesselDocking.Remove(RightBeforeStructureChangeIds);
-				GameEvents.onPartUndock.Remove(RightBeforeStructureChangePart);
-
-			}
 		}
 
 		protected static string[] guiList = {
