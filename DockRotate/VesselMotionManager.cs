@@ -134,14 +134,14 @@ namespace DockRotate
 
 		struct StructureChangeInfo {
 			public Part part;
+
+			public void reset()
+			{
+				this = new StructureChangeInfo();
+			}
 		}
 
 		StructureChangeInfo structureChangeInfo;
-
-		private void resetStructureChangeInfo()
-		{
-			structureChangeInfo = new StructureChangeInfo();
-		}
 
 		private bool care(Vessel v, bool useStructureChangeInfo)
 		{
@@ -203,7 +203,7 @@ namespace DockRotate
 			if (!care(v, false))
 				return;
 			resetRotCount(vessel);
-			resetStructureChangeInfo();
+			structureChangeInfo.reset();
 			onRails = true;
 			onAllListeners(l => l.OnVesselGoOnRails());
 		}
@@ -216,7 +216,7 @@ namespace DockRotate
 			if (!care(v, false))
 				return;
 			resetRotCount(vessel);
-			resetStructureChangeInfo();
+			structureChangeInfo.reset();
 			onRails = false;
 			onAllListeners(l => l.OnVesselGoOffRails());
 		}
@@ -226,7 +226,7 @@ namespace DockRotate
 			if (verboseEvents)
 				lprint(nameof(VesselMotionManager) + ".RightBeforeStructureChangePart("
 					+ desc(p.vessel) + ") on " + desc());
-			resetStructureChangeInfo();
+			structureChangeInfo.reset();
 			if (!care(p, false))
 				return;
 			structureChangeInfo.part = p;
