@@ -44,13 +44,13 @@ namespace DockRotate
 
 		public static void resetRotCount(Vessel v)
 		{
-			VesselMotionManager info = get(v, false);
-			if (!info)
+			VesselMotionManager vmm = get(v, false);
+			if (!vmm)
 				return;
-			int c = info.rotCount;
+			int c = vmm.rotCount;
 			if (trace && c != 0)
-				ModuleBaseRotate.lprint("resetInfo(" + info.desc() + "): " + c + " -> RESET");
-			info.rotCount = 0;
+				ModuleBaseRotate.lprint("resetInfo(" + vmm.desc() + "): " + c + " -> RESET");
+			vmm.rotCount = 0;
 		}
 
 		public int changeCount(int delta)
