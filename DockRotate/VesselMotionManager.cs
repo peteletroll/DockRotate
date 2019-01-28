@@ -38,6 +38,11 @@ namespace DockRotate
 		private bool verboseEvents = true;
 		public bool onRails = false;
 
+		public static VesselMotionManager get(Part p, bool create = true)
+		{
+			return get(p.vessel, create);
+		}
+
 		public static VesselMotionManager get(Vessel v, bool create = true)
 		{
 			if (!v) {

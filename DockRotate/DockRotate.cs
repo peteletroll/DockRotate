@@ -271,10 +271,10 @@ namespace DockRotate
 					// rotation count change
 					if (isRotating) {
 						// a new rotation is starting
-						VesselMotionManager.get(activePart.vessel).changeCount(+1);
+						VesselMotionManager.get(activePart).changeCount(+1);
 					} else {
 						// an old rotation is finishing
-						VesselMotionManager.get(activePart.vessel).changeCount(-1);
+						VesselMotionManager.get(activePart).changeCount(-1);
 					}
 					if (useSmartAutoStruts()) {
 
