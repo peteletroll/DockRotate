@@ -17,7 +17,7 @@ namespace DockRotate
 		{
 			if (!c)
 				return "null";
-			return c.name + "(" + c.cameraType + ")";
+			return c.name + "(" + c.cameraType + ") @ " + c.gameObject;
 		}
 
 		/******** Vessel utilities ********/
