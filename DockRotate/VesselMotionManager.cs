@@ -229,8 +229,8 @@ namespace DockRotate
 				return;
 			resetRotCount();
 			structureChangeInfo.reset();
-			onRails = true;
 			listeners().map(l => l.OnVesselGoOnRails());
+			onRails = true;
 		}
 
 		public void OnVesselGoOffRails(Vessel v)
