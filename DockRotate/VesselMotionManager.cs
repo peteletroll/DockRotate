@@ -108,12 +108,12 @@ namespace DockRotate
 
 				// GameEvents.onActiveJointNeedUpdate.Add(RightBeforeStructureChangeJointUpdate);
 
-				// GameEvents.onPartCouple.Add(RightBeforeStructureChangeAction);
+				GameEvents.onPartCouple.Add(RightBeforeStructureChangeAction);
 				GameEvents.onPartCoupleComplete.Add(RightAfterStructureChangeAction);
 				GameEvents.onPartDeCouple.Add(RightBeforeStructureChangePart);
 				GameEvents.onPartDeCoupleComplete.Add(RightAfterStructureChangePart);
 
-				// GameEvents.onVesselDocking.Add(RightBeforeStructureChangeIds);
+				GameEvents.onVesselDocking.Add(RightBeforeStructureChangeIds);
 				GameEvents.onDockingComplete.Add(RightAfterStructureChangeAction);
 				GameEvents.onPartUndock.Add(RightBeforeStructureChangePart);
 				GameEvents.onPartUndockComplete.Add(RightAfterStructureChangePart);
@@ -132,7 +132,7 @@ namespace DockRotate
 
 				// GameEvents.onActiveJointNeedUpdate.Remove(RightBeforeStructureChangeJointUpdate);
 
-				// GameEvents.onPartCouple.Remove(RightBeforeStructureChangeAction);
+				GameEvents.onPartCouple.Remove(RightBeforeStructureChangeAction);
 				GameEvents.onPartCoupleComplete.Remove(RightAfterStructureChangeAction);
 				GameEvents.onPartDeCouple.Remove(RightBeforeStructureChangePart);
 				GameEvents.onPartDeCoupleComplete.Remove(RightAfterStructureChangePart);
