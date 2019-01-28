@@ -175,7 +175,7 @@ namespace DockRotate
 		private bool care(Part p, bool useStructureChangeInfo)
 		{
 			if (useStructureChangeInfo && p && p == structureChangeInfo.part) {
-				lprint(nameof(VesselMotionManager) + ".care(" + p.desc() + ") = " + true);
+				lprint(nameof(VesselMotionManager) + ".care(" + p.desc() + ") on " + desc() + " = " + true);
 				return true;
 			}
 			return p && care(p.vessel, useStructureChangeInfo);
@@ -193,7 +193,9 @@ namespace DockRotate
 
 		private bool care(uint id1, uint id2, bool useStructureChangeInfo)
 		{
-			return vessel && (vessel.persistentId == id1 || vessel.persistentId == id2);
+			bool ret = vessel && (vessel.persistentId == id1 || vessel.persistentId == id2);
+			lprint(nameof(VesselMotionManager) + ".care(" + id1 + ", " + id2 + ") on " + desc() + " = " + ret);
+			return ret;
 		}
 
 		private List<IStructureChangeListener> listeners()
@@ -247,7 +249,7 @@ namespace DockRotate
 		private void RightBeforeStructureChangeJointUpdate(Vessel v)
 		{
 			if (verboseEvents)
-				lprint(nameof(VesselMotionManager) + ".RightBeforeStructureChangeJointUpdate()");
+				lprint(nameof(VesselMotionManager) + ".RightBeforeStructureChangeJointUpdate() on " + desc());
 			if (!care(v, false))
 				return;
 			structureChangeInfo.reset();
@@ -258,7 +260,7 @@ namespace DockRotate
 		{
 			if (verboseEvents)
 				lprint(nameof(VesselMotionManager) + ".RightBeforeStructureChangeIds("
-					+ id1 + ", " + id2 + ") [" + desc() + "]");
+					+ id1 + ", " + id2 + ") on " + desc());
 			if (!care(id1, id2, false))
 				return;
 			listeners().map(l => l.RightBeforeStructureChange());
@@ -268,7 +270,7 @@ namespace DockRotate
 		{
 			if (verboseEvents)
 				lprint(nameof(VesselMotionManager) + ".RightBeforeStructureChangeAction("
-					+ action.from.desc() + ", " + action.to.desc() + ")");
+					+ action.from.desc() + ", " + action.to.desc() + ") on " + desc());
 			if (!care(action, false))
 				return;
 			listeners().map(l => l.RightBeforeStructureChange());
