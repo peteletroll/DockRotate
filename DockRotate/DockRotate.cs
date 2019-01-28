@@ -761,8 +761,10 @@ namespace DockRotate
 
 			nodeRole = "None";
 
-			if (part.FindModuleImplementing<ModuleDockRotate>())
+			if (part.FindModuleImplementing<ModuleDockRotate>()) {
+				lprint(part.desc() + ": has DockRotate, NodeRotate disabled");
 				return;
+			}
 
 			if (!part.hasPhysics()) {
 				lprint(part.desc() + ": physicsless, NodeRotate disabled");
