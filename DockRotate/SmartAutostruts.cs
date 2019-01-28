@@ -13,7 +13,7 @@ namespace DockRotate
 
 		/******** PartSet utilities ********/
 
-		public class PartSet : Dictionary<uint, Part>
+		public class PartSet: Dictionary<uint, Part>
 		{
 			private Part[] partArray = null;
 

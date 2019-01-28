@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace DockRotate
 {
-	public class JointMotion : SmoothMotion
+	public class JointMotion: SmoothMotion
 	{
 		public static implicit operator bool(JointMotion r)
 		{
