@@ -31,8 +31,6 @@ namespace DockRotate
 
 	public class VesselMotionManager: MonoBehaviour
 	{
-		public static bool trace = true;
-
 		private Vessel vessel = null;
 		private int rotCount = 0;
 		private bool verboseEvents = true;
@@ -65,15 +63,12 @@ namespace DockRotate
 			return info;
 		}
 
-		public static void resetRotCount(Vessel v)
+		public void resetRotCount()
 		{
-			VesselMotionManager vmm = get(v, false);
-			if (!vmm)
-				return;
-			int c = vmm.rotCount;
-			if (trace && c != 0)
-				ModuleBaseRotate.lprint("resetInfo(" + vmm.desc() + "): " + c + " -> RESET");
-			vmm.rotCount = 0;
+			int c = rotCount;
+			if (verboseEvents && c != 0)
+				ModuleBaseRotate.lprint("resetInfo(" + desc() + "): " + c + " -> RESET");
+			rotCount = 0;
 		}
 
 		public int changeCount(int delta)
@@ -81,7 +76,7 @@ namespace DockRotate
 			int ret = rotCount + delta;
 			if (ret < 0)
 				ret = 0;
-			if (trace && delta != 0)
+			if (verboseEvents && delta != 0)
 				ModuleBaseRotate.lprint("changeCount(" + GetInstanceID() + ", " + delta + "): "
 					+ rotCount + " -> " + ret);
 			return rotCount = ret;
@@ -232,7 +227,7 @@ namespace DockRotate
 				lprint(nameof(VesselMotionManager) + ".OnVesselGoOnRails(" + desc(v) + ") on " + desc());
 			if (!care(v, false))
 				return;
-			resetRotCount(vessel);
+			resetRotCount();
 			structureChangeInfo.reset();
 			onRails = true;
 			listeners().map(l => l.OnVesselGoOnRails());
@@ -245,7 +240,7 @@ namespace DockRotate
 			VesselMotionManager.get(v);
 			if (!care(v, false))
 				return;
-			resetRotCount(vessel);
+			resetRotCount();
 			structureChangeInfo.reset();
 			onRails = false;
 			listeners().map(l => l.OnVesselGoOffRails());
