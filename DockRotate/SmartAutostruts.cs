@@ -103,10 +103,12 @@ namespace DockRotate
 
 			PartJointSet jointsToKeep = new PartJointSet();
 
+			// keep same vessel docking joints
 			List<ModuleDockingNode> allDockingNodes = vessel.FindPartModulesImplementing<ModuleDockingNode>();
 			for (int i = 0; i < allDockingNodes.Count; i++)
 				jointsToKeep.add(allDockingNodes[i].sameVesselDockJoint);
 
+			// keep strut joints
 			List<CModuleStrut> allStruts = vessel.FindPartModulesImplementing<CModuleStrut>();
 			for (int i = 0; i < allStruts.Count; i++)
 				jointsToKeep.add(allStruts[i].strutJoint);
@@ -117,13 +119,13 @@ namespace DockRotate
 				PartJoint j = allJoints[ii];
 				if (!j)
 					continue;
+
 				if (!j.Host || j.Host.vessel != vessel)
 					continue;
 				if (!j.Target || j.Target.vessel != vessel)
 					continue;
-				if (j == j.Host.attachJoint)
-					continue;
-				if (j == j.Target.attachJoint)
+
+				if (j == j.Host.attachJoint || j == j.Target.attachJoint)
 					continue;
 
 				if (jointsToKeep.contains(j))
