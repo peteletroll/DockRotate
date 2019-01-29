@@ -36,12 +36,12 @@ namespace DockRotate
 		private bool verboseEvents = true;
 		public bool onRails = false;
 
-		public static VesselMotionManager get(Part p, bool create = true)
+		public static VesselMotionManager get(Part p)
 		{
-			return get(p.vessel, create);
+			return get(p.vessel);
 		}
 
-		public static VesselMotionManager get(Vessel v, bool create = true)
+		public static VesselMotionManager get(Vessel v)
 		{
 			if (!v) {
 				lprint("*** WARNING *** " + nameof(VesselMotionManager) + ".get() with null vessel");
@@ -55,7 +55,7 @@ namespace DockRotate
 				info.vessel = v;
 			}
 
-			if (!info && create) {
+			if (!info) {
 				info = v.gameObject.AddComponent<VesselMotionManager>();
 				info.vessel = v;
 				lprint(nameof(VesselMotionManager) + ".get(" + desc(v) + ") created " + info.desc());
