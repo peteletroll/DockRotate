@@ -50,7 +50,11 @@ namespace DockRotate
 				return null;
 			}
 
-			VesselMotionManager info = v.gameObject.GetComponent<VesselMotionManager>();
+			VesselMotionManager[] infos = v.gameObject.GetComponents<VesselMotionManager>();
+			if (infos != null && infos.Length > 1)
+				lprint(nameof(VesselMotionManager) + ": *** WARNING *** found " + infos.Length);
+
+			VesselMotionManager info = (infos != null && infos.Length > 0) ? infos[0] : null;
 			if (info) {
 				if (info.vessel != v)
 					lprint(nameof(VesselMotionManager) + ".vessel: " + info.desc() + " -> " + desc(v));
