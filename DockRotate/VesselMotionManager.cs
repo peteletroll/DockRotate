@@ -352,6 +352,11 @@ namespace DockRotate
 		public void Awake()
 		{
 			ModuleBaseRotate.lprint(nameof(VesselMotionManager) + ".Awake() on " + desc());
+			if (!vessel) {
+				vessel = gameObject.GetComponent<Vessel>();
+				if (verboseEvents && vessel)
+					lprint(nameof(VesselMotionManager) + ".Awake(): found vessel " + desc());
+			}
 			setEvents(true);
 		}
 
