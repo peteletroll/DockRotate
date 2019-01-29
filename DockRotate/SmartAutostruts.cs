@@ -11,7 +11,20 @@ namespace DockRotate
 			return true;
 		}
 
-		/******** PartSet utilities ********/
+		public class PartJointSet: Dictionary<int, PartJoint>
+		{
+			public void add(PartJoint j)
+			{
+				if (!j)
+					return;
+				Add(j.GetInstanceID(), j);
+			}
+
+			public bool contains(PartJoint j)
+			{
+				return ContainsKey(j.GetInstanceID());
+			}
+		}
 
 		public class PartSet: Dictionary<uint, Part>
 		{
@@ -87,11 +100,11 @@ namespace DockRotate
 				&& cached_allAutostrutJoints_frame == Time.frameCount)
 				return cached_allAutostrutJoints;
 
+			PartJointSet jointsToKeep = new PartJointSet();
+
 			List<ModuleDockingNode> allDockingNodes = vessel.FindPartModulesImplementing<ModuleDockingNode>();
-			List<ModuleDockingNode> sameVesselDockingNodes = new List<ModuleDockingNode>();
 			for (int i = 0; i < allDockingNodes.Count; i++)
-				if (allDockingNodes[i].sameVesselDockJoint)
-					sameVesselDockingNodes.Add(allDockingNodes[i]);
+				jointsToKeep.add(allDockingNodes[i].sameVesselDockJoint);
 
 			PartJoint[] allJoints = getAllJoints();
 			List<PartJoint> allAutostrutJoints = new List<PartJoint>();
@@ -108,11 +121,7 @@ namespace DockRotate
 				if (j == j.Target.attachJoint)
 					continue;
 
-				bool isSameVesselDockingJoint = false;
-				for (int i = 0; !isSameVesselDockingJoint && i < sameVesselDockingNodes.Count; i++)
-					if (j == sameVesselDockingNodes[i].sameVesselDockJoint)
-						isSameVesselDockingJoint = true;
-				if (isSameVesselDockingJoint)
+				if (jointsToKeep.contains(j))
 					continue;
 
 				allAutostrutJoints.Add(j);
