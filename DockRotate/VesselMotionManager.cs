@@ -33,8 +33,10 @@ namespace DockRotate
 	{
 		private Vessel vessel = null;
 		private int rotCount = 0;
-		private bool verboseEvents = true;
 		public bool onRails = false;
+
+		private bool verboseEvents = true;
+		private bool verboseCare = true;
 
 		public static VesselMotionManager get(Part p)
 		{
@@ -164,18 +166,20 @@ namespace DockRotate
 		private bool care(Vessel v, bool useStructureChangeInfo)
 		{
 			bool ret = v && v == vessel;
-			lprint(nameof(VesselMotionManager) + ".care("
-				+ desc(v)
-				+ ") on "
-				+ desc()
-				+ " = " + ret);
+			if (verboseCare)
+				lprint(nameof(VesselMotionManager) + ".care("
+					+ desc(v)
+					+ ") on "
+					+ desc()
+					+ " = " + ret);
 			return ret;
 		}
 
 		private bool care(Part p, bool useStructureChangeInfo)
 		{
 			if (useStructureChangeInfo && p && p == structureChangeInfo.part) {
-				lprint(nameof(VesselMotionManager) + ".care(" + p.desc() + ") on " + desc() + " = " + true);
+				if (verboseCare)
+					lprint(nameof(VesselMotionManager) + ".care(" + p.desc() + ") on " + desc() + " = " + true);
 				return true;
 			}
 			return p && care(p.vessel, useStructureChangeInfo);
@@ -194,7 +198,8 @@ namespace DockRotate
 		private bool care(uint id1, uint id2, bool useStructureChangeInfo)
 		{
 			bool ret = vessel && (vessel.persistentId == id1 || vessel.persistentId == id2);
-			lprint(nameof(VesselMotionManager) + ".care(" + id1 + ", " + id2 + ") on " + desc() + " = " + ret);
+			if (verboseCare)
+				lprint(nameof(VesselMotionManager) + ".care(" + id1 + ", " + id2 + ") on " + desc() + " = " + ret);
 			return ret;
 		}
 
