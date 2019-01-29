@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using CompoundParts;
 
 namespace DockRotate
 {
@@ -105,6 +106,10 @@ namespace DockRotate
 			List<ModuleDockingNode> allDockingNodes = vessel.FindPartModulesImplementing<ModuleDockingNode>();
 			for (int i = 0; i < allDockingNodes.Count; i++)
 				jointsToKeep.add(allDockingNodes[i].sameVesselDockJoint);
+
+			List<CModuleStrut> allStruts = vessel.FindPartModulesImplementing<CModuleStrut>();
+			for (int i = 0; i < allStruts.Count; i++)
+				jointsToKeep.add(allStruts[i].strutJoint);
 
 			PartJoint[] allJoints = getAllJoints();
 			List<PartJoint> allAutostrutJoints = new List<PartJoint>();
