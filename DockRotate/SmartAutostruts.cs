@@ -29,11 +29,8 @@ namespace DockRotate
 
 		public class PartSet: Dictionary<uint, Part>
 		{
-			private Part[] partArray = null;
-
 			public void add(Part part)
 			{
-				partArray = null;
 				Add(part.flightID, part);
 			}
 
@@ -42,36 +39,19 @@ namespace DockRotate
 				return ContainsKey(part.flightID);
 			}
 
-			public Part[] parts()
+			public static PartSet allPartsFromHere(Part p)
 			{
-				if (partArray != null)
-					return partArray;
-				List<Part> ret = new List<Part>();
-				foreach (KeyValuePair<uint, Part> i in this)
-					ret.Add(i.Value);
-				return partArray = ret.ToArray();
+				PartSet ret = new PartSet();
+				_collect(ret, p);
+				return ret;
 			}
 
-			public void dump()
+			private static void _collect(PartSet s, Part p)
 			{
-				Part[] p = parts();
-				for (int i = 0; i < p.Length; i++)
-					ModuleBaseRotate.lprint("rotPart " + p[i].desc());
+				s.add(p);
+				for (int i = 0; i < p.children.Count; i++)
+					_collect(s, p.children[i]);
 			}
-		}
-
-		private static PartSet allPartsFromHere(this Part p)
-		{
-			PartSet ret = new PartSet();
-			_collect(ret, p);
-			return ret;
-		}
-
-		private static void _collect(PartSet s, Part p)
-		{
-			s.add(p);
-			for (int i = 0; i < p.children.Count; i++)
-				_collect(s, p.children[i]);
 		}
 
 		/******** Object.FindObjectsOfType<PartJoint>() cache ********/
@@ -145,7 +125,7 @@ namespace DockRotate
 
 		public static void releaseCrossAutoStruts(this Part part)
 		{
-			PartSet rotParts = part.allPartsFromHere();
+			PartSet rotParts = PartSet.allPartsFromHere(part);
 
 			PartJoint[] allAutostrutJoints = getAllAutostrutJoints(part.vessel);
 
