@@ -349,18 +349,8 @@ namespace DockRotate
 			doSetup();
 		}
 
-		int lastRightBeforeStructureChange = 0;
-
 		public void RightBeforeStructureChange()
 		{
-			int now = Time.frameCount;
-			if (lastRightBeforeStructureChange == now) {
-				if (verboseEvents)
-					lprint(part.desc() + ": skipping repeated RightBeforeStructureChange()");
-				return;
-			}
-			lastRightBeforeStructureChange = now;
-
 			if (verboseEvents)
 				lprint(part.desc() + ": RightBeforeStructureChange()");
 			freezeCurrentRotation("structure change", true);

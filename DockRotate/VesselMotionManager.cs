@@ -158,14 +158,24 @@ namespace DockRotate
 
 		struct StructureChangeInfo {
 			public Part part;
+			public int lastResetFrame;
 
 			public void reset()
 			{
 				this = new StructureChangeInfo();
+				this.lastResetFrame = Time.frameCount;
 			}
 		}
 
 		StructureChangeInfo structureChangeInfo;
+
+		private bool isRepeated(string label)
+		{
+			bool ret = structureChangeInfo.lastResetFrame == Time.frameCount;
+			if (ret && verboseEvents)
+				lprint(nameof(VesselMotionManager) + ".isRepeated(): repeated " + label);
+			return ret;
+		}
 
 		private bool care(Vessel v, bool useStructureChangeInfo)
 		{
@@ -261,6 +271,8 @@ namespace DockRotate
 				lprint(nameof(VesselMotionManager) + ".RightBeforeStructureChangeJointUpdate() on " + desc());
 			if (!care(v, false))
 				return;
+			if (isRepeated("JointUpdate"))
+				return;
 			structureChangeInfo.reset();
 			listeners().map(l => l.RightBeforeStructureChange());
 		}
@@ -272,6 +284,9 @@ namespace DockRotate
 					+ id1 + ", " + id2 + ") on " + desc());
 			if (!care(id1, id2, false))
 				return;
+			if (isRepeated("Ids"))
+				return;
+			structureChangeInfo.reset();
 			listeners().map(l => l.RightBeforeStructureChange());
 		}
 
@@ -282,6 +297,9 @@ namespace DockRotate
 					+ action.from.desc() + ", " + action.to.desc() + ") on " + desc());
 			if (!care(action, false))
 				return;
+			if (isRepeated("Action"))
+				return;
+			structureChangeInfo.reset();
 			listeners().map(l => l.RightBeforeStructureChange());
 		}
 
@@ -292,8 +310,10 @@ namespace DockRotate
 					+ desc(p.vessel) + ") on " + desc());
 			if (!care(p, false))
 				return;
-			structureChangeInfo.reset();
 			structureChangeInfo.part = p;
+			if (isRepeated("Part"))
+				return;
+			structureChangeInfo.reset();
 			listeners().map(l => l.RightBeforeStructureChange());
 		}
 
