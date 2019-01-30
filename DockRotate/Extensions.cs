@@ -32,6 +32,8 @@ namespace DockRotate
 
 		public static void secureAllAutoStruts(this Vessel v)
 		{
+			if (!v)
+				return;
 			v.releaseAllAutoStruts();
 			v.CycleAllAutoStrut();
 		}

@@ -86,6 +86,14 @@ namespace DockRotate
 			if (verboseEvents && delta != 0)
 				ModuleBaseRotate.lprint("changeCount(" + delta + "): "
 					+ rotCount + " -> " + ret + " on " + desc());
+
+			if (ret == 0 && rotCount > 0) {
+				// no action needed with IsJointUnlocked() logic (no smart autostruts)
+				// but IsJointUnlocked() logic is bugged now
+				lprint("securing autostruts on " + desc());
+				vessel.secureAllAutoStruts();
+			}
+
 			return rotCount = ret;
 		}
 

@@ -140,16 +140,6 @@ namespace DockRotate
 			staticize();
 
 			int c = VesselMotionManager.get(activePart).changeCount(0);
-			if (c <= 1) {
-				if (smartAutoStruts) {
-					lprint("securing autostruts on vessel " + activePart.vessel.name);
-					joint.Host.vessel.secureAllAutoStruts();
-				} else {
-					// no action needed with IsJointUnlocked() logic
-					// but IsJointUnlocked() logic is bugged now
-					joint.Host.vessel.secureAllAutoStruts();
-				}
-			}
 			lprint(activePart.desc() + ": rotation stopped [" + c + "], "
 				+ electricity.ToString("F2") + " electricity");
 		}
