@@ -60,9 +60,9 @@ namespace DockRotate
 			guiActiveEditor = true,
 			isPersistant = true,
 			advancedTweakable = true,
-			guiName = "#DCKROT_flip_flop_reverse"
+			guiName = "#DCKROT_flip_flop_mode"
 		)]
-		public bool flipFlopReverse = false;
+		public bool flipFlopMode = false;
 
 		[KSPField(isPersistant = true)]
 		public float soundVolume = 0.5f;
@@ -139,7 +139,7 @@ namespace DockRotate
 				} else {
 					tgt.doRotateClockwise();
 				}
-				if (tgt.flipFlopReverse)
+				if (tgt.flipFlopMode)
 					tgt.reverseRotation = !tgt.reverseRotation;
 			}
 		}
@@ -154,7 +154,7 @@ namespace DockRotate
 		{
 			if (canStartRotation()) {
 				doRotateClockwise();
-				if (flipFlopReverse)
+				if (flipFlopMode)
 					reverseRotation = !reverseRotation;
 			}
 		}
@@ -172,7 +172,7 @@ namespace DockRotate
 				} else {
 					tgt.doRotateCounterclockwise();
 				}
-				if (tgt.flipFlopReverse)
+				if (tgt.flipFlopMode)
 					tgt.reverseRotation = !tgt.reverseRotation;
 			}
 		}
@@ -187,7 +187,7 @@ namespace DockRotate
 		{
 			if (canStartRotation()) {
 				doRotateCounterclockwise();
-				if (flipFlopReverse)
+				if (flipFlopMode)
 					reverseRotation = !reverseRotation;
 			}
 
