@@ -36,7 +36,7 @@ namespace DockRotate
 		public bool onRails = false;
 
 		private bool verboseEvents = true;
-		private bool verboseCare = true;
+		private bool verboseCare = false;
 
 		public static VesselMotionManager get(Part p)
 		{
