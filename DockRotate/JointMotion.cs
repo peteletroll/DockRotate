@@ -17,8 +17,6 @@ namespace DockRotate
 
 		public ModuleBaseRotate controller = null;
 
-		private Guid vesselId;
-
 		public const float pitchAlterationRateMax = 0.1f;
 		public static string soundFile = "DockRotate/DockRotateMotor";
 		public AudioSource sound;
@@ -50,7 +48,6 @@ namespace DockRotate
 			this.joint = joint;
 
 			this.proxyPart = joint.Host == part ? joint.Target : joint.Host;
-			this.vesselId = part.vessel.id;
 
 			this.pos = pos;
 			this.tgt = tgt;
@@ -145,7 +142,7 @@ namespace DockRotate
 			int c = VesselMotionManager.get(activePart).changeCount(0);
 			if (c <= 1) {
 				if (smartAutoStruts) {
-					lprint("securing autostruts on vessel " + vesselId);
+					lprint("securing autostruts on vessel " + activePart.vessel.name);
 					joint.Host.vessel.secureAllAutoStruts();
 				} else {
 					// no action needed with IsJointUnlocked() logic
