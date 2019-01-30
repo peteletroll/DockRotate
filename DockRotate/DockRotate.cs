@@ -49,9 +49,20 @@ namespace DockRotate
 			guiActive = true,
 			guiActiveEditor = true,
 			isPersistant = true,
+			advancedTweakable = true,
 			guiName = "#DCKROT_reverse_rotation"
 		)]
 		public bool reverseRotation = false;
+
+		[UI_Toggle()]
+		[KSPField(
+			guiActive = true,
+			guiActiveEditor = true,
+			isPersistant = true,
+			advancedTweakable = true,
+			guiName = "#DCKROT_flip_flop_reverse"
+		)]
+		public bool flipFlopReverse = false;
 
 		[KSPField(isPersistant = true)]
 		public float soundVolume = 0.5f;
@@ -128,6 +139,8 @@ namespace DockRotate
 				} else {
 					tgt.doRotateClockwise();
 				}
+				if (tgt.flipFlopReverse)
+					tgt.reverseRotation = !tgt.reverseRotation;
 			}
 		}
 
@@ -139,8 +152,11 @@ namespace DockRotate
 		)]
 		public void RotateClockwise()
 		{
-			if (canStartRotation())
+			if (canStartRotation()) {
 				doRotateClockwise();
+				if (flipFlopReverse)
+					reverseRotation = !reverseRotation;
+			}
 		}
 
 		[KSPAction(
@@ -156,6 +172,8 @@ namespace DockRotate
 				} else {
 					tgt.doRotateCounterclockwise();
 				}
+				if (tgt.flipFlopReverse)
+					tgt.reverseRotation = !tgt.reverseRotation;
 			}
 		}
 
@@ -167,8 +185,12 @@ namespace DockRotate
 		)]
 		public void RotateCounterclockwise()
 		{
-			if (canStartRotation())
+			if (canStartRotation()) {
 				doRotateCounterclockwise();
+				if (flipFlopReverse)
+					reverseRotation = !reverseRotation;
+			}
+
 		}
 
 		[KSPAction(
