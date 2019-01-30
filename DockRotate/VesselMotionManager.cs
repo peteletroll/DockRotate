@@ -52,12 +52,13 @@ namespace DockRotate
 
 			VesselMotionManager[] infos = v.gameObject.GetComponents<VesselMotionManager>();
 			if (infos != null && infos.Length > 1)
-				lprint(nameof(VesselMotionManager) + ": *** WARNING *** found " + infos.Length);
+				lprint(nameof(VesselMotionManager) + ".get(): *** WARNING *** found " + infos.Length);
 
 			VesselMotionManager info = (infos != null && infos.Length > 0) ? infos[0] : null;
 			if (info) {
 				if (info.vessel != v)
-					lprint(nameof(VesselMotionManager) + ".vessel: " + info.desc() + " -> " + desc(v));
+					lprint(nameof(VesselMotionManager) + ".get(): *** WARNING *** "
+						+ info.desc() + " -> " + desc(v));
 				info.vessel = v;
 			}
 
@@ -73,7 +74,7 @@ namespace DockRotate
 		{
 			int c = rotCount;
 			if (verboseEvents && c != 0)
-				ModuleBaseRotate.lprint("resetInfo(" + desc() + "): " + c + " -> RESET");
+				ModuleBaseRotate.lprint("resetInfo(): " + c + " -> RESET on " + desc());
 			rotCount = 0;
 		}
 
@@ -83,8 +84,8 @@ namespace DockRotate
 			if (ret < 0)
 				ret = 0;
 			if (verboseEvents && delta != 0)
-				ModuleBaseRotate.lprint("changeCount(" + GetInstanceID() + ", " + delta + "): "
-					+ rotCount + " -> " + ret);
+				ModuleBaseRotate.lprint("changeCount(" + delta + "): "
+					+ rotCount + " -> " + ret + " on " + desc());
 			return rotCount = ret;
 		}
 
@@ -159,6 +160,7 @@ namespace DockRotate
 		struct StructureChangeInfo {
 			public Part part;
 			public int lastResetFrame;
+			public string lastLabel;
 
 			public void reset()
 			{
@@ -172,8 +174,13 @@ namespace DockRotate
 		private bool isRepeated(string label)
 		{
 			bool ret = structureChangeInfo.lastResetFrame == Time.frameCount;
-			if (ret && verboseEvents)
-				lprint(nameof(VesselMotionManager) + ".isRepeated(): repeated " + label);
+			if (ret && verboseEvents) {
+				lprint(nameof(VesselMotionManager) + ".isRepeated(): repeated " + label
+					+ " after " + structureChangeInfo.lastLabel
+					+ " on " + desc());
+			} else {
+				structureChangeInfo.lastLabel = label;
+			}
 			return ret;
 		}
 
