@@ -58,15 +58,15 @@ namespace DockRotate
 			return a.axisSignedAngle(vs, vd);
 		}
 
-		public void onStart()
+		public void onStart(SmoothMotionDispatcher source)
 		{
 		}
 
-		public void onStep(float deltat)
+		public void onStep(SmoothMotionDispatcher source, float deltat)
 		{
 		}
 
-		public void onStop()
+		public void onStop(SmoothMotionDispatcher source)
 		{
 		}
 
