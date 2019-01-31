@@ -3,12 +3,14 @@ using UnityEngine;
 
 namespace DockRotate
 {
-	public class JointMotionMB: MonoBehaviour
+	public class JointMotionMB: MonoBehaviour, ISmoothMotionListener
 	{
 		public PartJoint joint;
 
 		private Vector3 hostAxis, hostNode;
 		private Vector3 hostUp, targetUp;
+
+		private SmoothMotionDispatcher rotation;
 
 		public static JointMotionMB get(PartJoint j)
 		{
@@ -25,6 +27,7 @@ namespace DockRotate
 
 			JointMotionMB jm = j.gameObject.AddComponent<JointMotionMB>();
 			jm.joint = j;
+			lprint(nameof(JointMotionMB) + ".get(): created on " + jm.joint.desc());
 			return jm;
 		}
 
@@ -55,19 +58,32 @@ namespace DockRotate
 			return a.axisSignedAngle(vs, vd);
 		}
 
+		public void onStart()
+		{
+		}
+
+		public void onStep(float deltat)
+		{
+		}
+
+		public void onStop()
+		{
+		}
+
 		public void Awake()
 		{
-			lprint(nameof(JointMotionMB) + ".Awake()");
+			lprint(nameof(JointMotionMB) + ".Awake() on " + joint.desc());
+			rotation = new SmoothMotionDispatcher(this);
 		}
 
 		public void Start()
 		{
-			lprint(nameof(JointMotionMB) + ".Start()");
+			lprint(nameof(JointMotionMB) + ".Start() on " + joint.desc());
 		}
 
 		public void OnDestroy()
 		{
-			lprint(nameof(JointMotionMB) + ".OnDestroy()");
+			lprint(nameof(JointMotionMB) + ".OnDestroy() on " + joint.desc());
 		}
 
 		private static bool lprint(string msg)

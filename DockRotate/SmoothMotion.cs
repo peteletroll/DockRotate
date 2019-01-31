@@ -131,5 +131,37 @@ namespace DockRotate
 			return finished;
 		}
 	}
+
+	public interface ISmoothMotionListener
+	{
+		void onStart();
+		void onStep(float deltat);
+		void onStop();
+	}
+
+	public class SmoothMotionDispatcher: SmoothMotion
+	{
+		private ISmoothMotionListener listener;
+
+		public SmoothMotionDispatcher(ISmoothMotionListener l)
+		{
+			listener = l;
+		}
+
+		protected override void onStart()
+		{
+			listener.onStart();
+		}
+
+		protected override void onStep(float deltat)
+		{
+			listener.onStep(deltat);
+		}
+
+		protected override void onStop()
+		{
+			listener.onStop();
+		}
+	}
 }
 
