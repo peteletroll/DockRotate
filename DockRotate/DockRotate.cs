@@ -821,8 +821,11 @@ namespace DockRotate
 				partNodeUp = activePart.up(partNodeAxis);
 			}
 
-			if (activePart)
+			if (activePart) {
 				rotatingJoint = activePart.attachJoint;
+				JointMotionMB.get(rotatingJoint).setAxis(activePart, partNodeAxis, partNodePos);
+			}
+
 			if (proxyPart)
 				otherPartUp = proxyPart.up(partNodeAxis.STd(part, proxyPart));
 
@@ -1036,6 +1039,10 @@ namespace DockRotate
 				&& activeRotationModule == this
 				&& (rotationEnabled || proxyRotationModule.rotationEnabled)) {
 				enqueueFrozenRotation(angleToSnap(dockingNode.snapOffset), rotationSpeed);
+			}
+
+			if (rotatingJoint) {
+				JointMotionMB.get(rotatingJoint).setAxis(part, partNodeAxis, partNodePos);
 			}
 		}
 

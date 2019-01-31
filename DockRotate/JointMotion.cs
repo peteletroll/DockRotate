@@ -3,6 +3,59 @@ using UnityEngine;
 
 namespace DockRotate
 {
+	public class JointMotionMB: MonoBehaviour
+	{
+		private PartJoint joint;
+		private Vector3 hostAxis, hostNode;
+		private Vector3 hostUp, targetUp;
+
+		public static JointMotionMB get(PartJoint j)
+		{
+			if (!j)
+				return null;
+
+			if (j.gameObject != j.Host.gameObject)
+				lprint(nameof(JointMotionMB) + ".get(): *** WARNING *** gameObject incoherency");
+
+			JointMotionMB[] jms = j.gameObject.GetComponents<JointMotionMB>();
+			for (int i = 0; i < jms.Length; i++)
+				if (jms[i].joint == j)
+					return jms[i];
+
+			JointMotionMB jm = j.gameObject.AddComponent<JointMotionMB>();
+			jm.joint = j;
+			return jm;
+		}
+
+		public void setAxis(Part part, Vector3 axis, Vector3 node)
+		{
+			hostAxis = axis.STd(part, joint.Host);
+			hostNode = node.STp(part, joint.Host);
+			hostUp = joint.Host.up(hostAxis);
+			targetUp = joint.Target.up(hostAxis.STd(joint.Host, joint.Target));
+		}
+
+		public void Awake()
+		{
+			lprint(nameof(JointMotionMB) + ".Awake()");
+		}
+
+		public void Start()
+		{
+			lprint(nameof(JointMotionMB) + ".Start()");
+		}
+
+		public void OnDestroy()
+		{
+			lprint(nameof(JointMotionMB) + ".OnDestroy()");
+		}
+
+		private static bool lprint(string msg)
+		{
+			return ModuleBaseRotate.lprint(msg);
+		}
+	}
+
 	public class JointMotion: SmoothMotion
 	{
 		public static implicit operator bool(JointMotion r)

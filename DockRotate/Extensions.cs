@@ -53,7 +53,7 @@ namespace DockRotate
 		{
 			Vector3 up1 = Vector3.ProjectOnPlane(Vector3.up, axis);
 			Vector3 up2 = Vector3.ProjectOnPlane(Vector3.forward, axis);
-			return (up1.magnitude > up2.magnitude ? up1 : up2).normalized;
+			return (up1.magnitude >= up2.magnitude ? up1 : up2).normalized;
 		}
 
 		/******** Physics Activation utilities ********/
