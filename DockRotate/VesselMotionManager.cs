@@ -50,31 +50,31 @@ namespace DockRotate
 				return null;
 			}
 
-			VesselMotionManager[] infos = v.gameObject.GetComponents<VesselMotionManager>();
-			if (infos != null && infos.Length > 1)
-				lprint(nameof(VesselMotionManager) + ".get(): *** WARNING *** found " + infos.Length);
+			VesselMotionManager[] mgrs = v.gameObject.GetComponents<VesselMotionManager>();
+			if (mgrs != null && mgrs.Length > 1)
+				lprint(nameof(VesselMotionManager) + ".get(): *** WARNING *** found " + mgrs.Length);
 
-			VesselMotionManager info = (infos != null && infos.Length > 0) ? infos[0] : null;
-			if (info) {
-				if (info.vessel != v)
+			VesselMotionManager mgr = (mgrs != null && mgrs.Length > 0) ? mgrs[0] : null;
+			if (mgr) {
+				if (mgr.vessel != v)
 					lprint(nameof(VesselMotionManager) + ".get(): *** WARNING *** "
-						+ info.desc() + " -> " + desc(v));
-				info.vessel = v;
+						+ mgr.desc() + " -> " + desc(v));
+				mgr.vessel = v;
 			}
 
-			if (!info) {
-				info = v.gameObject.AddComponent<VesselMotionManager>();
-				info.vessel = v;
-				lprint(nameof(VesselMotionManager) + ".get(" + desc(v) + ") created " + info.desc());
+			if (!mgr) {
+				mgr = v.gameObject.AddComponent<VesselMotionManager>();
+				mgr.vessel = v;
+				lprint(nameof(VesselMotionManager) + ".get(" + desc(v) + ") created " + mgr.desc());
 			}
-			return info;
+			return mgr;
 		}
 
 		public void resetRotCount()
 		{
 			int c = rotCount;
 			if (verboseEvents && c != 0)
-				ModuleBaseRotate.lprint("resetInfo(): " + c + " -> RESET on " + desc());
+				ModuleBaseRotate.lprint("resetRotCount(): " + c + " -> RESET on " + desc());
 			rotCount = 0;
 		}
 
