@@ -308,7 +308,8 @@ namespace DockRotate
 			}
 		}
 
-		public PartJoint rotatingJoint;
+		protected JointMotionMB jointMotion;
+
 		public Part activePart, proxyPart;
 		public string nodeRole = "Init";
 		protected Vector3 partNodePos; // node position, relative to part
@@ -537,7 +538,7 @@ namespace DockRotate
 
 		protected virtual bool enqueueRotation(float angle, float speed, float startSpeed = 0f)
 		{
-			if (!rotatingJoint)
+			if (!jointMotion)
 				return false;
 
 			if (speed < 0.1f)
@@ -579,7 +580,7 @@ namespace DockRotate
 				}
 			} else {
 				lprint(part.desc() + ": creating rotation");
-				rotCur = new JointMotion(activePart, partNodePos, partNodeAxis, rotatingJoint, 0, angle, speed);
+				rotCur = new JointMotion(activePart, partNodePos, partNodeAxis, jointMotion.joint, 0, angle, speed);
 				rotCur.rot0 = rotationAngle(false);
 				rotCur.controller = this;
 				rotCur.electricityRate = electricityRate;
@@ -723,7 +724,7 @@ namespace DockRotate
 
 		protected override int countJoints()
 		{
-			return rotatingJoint ? rotatingJoint.joints.Count : 0;
+			return jointMotion ? jointMotion.joint.joints.Count : 0;
 		}
 
 		protected override float rotationAngle(bool dynamic)
@@ -767,7 +768,9 @@ namespace DockRotate
 
 		protected override void setup()
 		{
-			rotatingJoint = null;
+			PartJoint rotatingJoint = null;
+
+			jointMotion = null;
 			activePart = proxyPart = null;
 			partNodePos = partNodeAxis = partNodeUp = otherPartUp = undefV3;
 
@@ -821,10 +824,8 @@ namespace DockRotate
 				partNodeUp = activePart.up(partNodeAxis);
 			}
 
-			if (activePart) {
+			if (activePart)
 				rotatingJoint = activePart.attachJoint;
-				JointMotionMB.get(rotatingJoint).setAxis(activePart, partNodeAxis, partNodePos);
-			}
 
 			if (proxyPart)
 				otherPartUp = proxyPart.up(partNodeAxis.STd(part, proxyPart));
@@ -833,6 +834,11 @@ namespace DockRotate
 				lprint(part.desc()
 					+ ": on "
 					+ (activePart == part ? "itself" : activePart.desc()));
+			}
+
+			if (rotatingJoint) {
+				jointMotion = JointMotionMB.get(rotatingJoint);
+				jointMotion.setAxis(activePart, partNodeAxis, partNodePos);
 			}
 		}
 
@@ -868,7 +874,7 @@ namespace DockRotate
 
 		protected override bool canStartRotation()
 		{
-			return rotatingJoint && base.canStartRotation();
+			return jointMotion && base.canStartRotation();
 		}
 
 		protected override void dumpPart()
@@ -893,9 +899,9 @@ namespace DockRotate
 				_dumpv("sec", n.secondaryAxis, n.originalSecondaryAxis);
 				_dumpv("pos", n.position, n.originalPosition);
 			}
-			if (rotatingJoint) {
-				lprint(rotatingJoint == part.attachJoint ? "parent joint:" : "not parent joint:");
-				rotatingJoint.dump();
+			if (jointMotion) {
+				lprint(jointMotion.joint == part.attachJoint ? "parent joint:" : "not parent joint:");
+				jointMotion.joint.dump();
 			}
 
 			lprint("--------------------");
@@ -974,7 +980,7 @@ namespace DockRotate
 			lastBasicSetupFrame = now;
 
 			activePart = proxyPart = null;
-			rotatingJoint = null;
+			jointMotion = null;
 			activeRotationModule = proxyRotationModule = otherRotationModule = null;
 			nodeRole = "None";
 			partNodePos = partNodeAxis = partNodeUp = undefV3;
@@ -993,6 +999,8 @@ namespace DockRotate
 
 		protected override void setup()
 		{
+			PartJoint rotatingJoint = null;
+
 			basicSetup();
 
 			if (!dockingNode)
@@ -1042,7 +1050,8 @@ namespace DockRotate
 			}
 
 			if (rotatingJoint) {
-				JointMotionMB.get(rotatingJoint).setAxis(part, partNodeAxis, partNodePos);
+				jointMotion = JointMotionMB.get(rotatingJoint);
+				jointMotion.setAxis(activePart, partNodeAxis, partNodePos);
 			}
 		}
 
@@ -1101,9 +1110,9 @@ namespace DockRotate
 		{
 			if (!activeRotationModule)
 				return 0;
-			if (!activeRotationModule.rotatingJoint)
+			if (!activeRotationModule.jointMotion)
 				return 0;
-			return activeRotationModule.rotatingJoint.joints.Count;
+			return activeRotationModule.jointMotion.joint.joints.Count;
 		}
 
 		public override bool useSmartAutoStruts()
@@ -1246,9 +1255,9 @@ namespace DockRotate
 				lprint("nodeTransform: " + dockingNode.nodeTransform.desc(8));
 			}
 
-			if (rotatingJoint) {
-				lprint(rotatingJoint == part.attachJoint ? "parent joint:" : "same vessel joint:");
-				rotatingJoint.dump();
+			if (jointMotion) {
+				lprint(jointMotion.joint == part.attachJoint ? "parent joint:" : "same vessel joint:");
+				jointMotion.joint.dump();
 			}
 
 			lprint("--------------------");

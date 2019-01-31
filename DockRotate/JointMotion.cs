@@ -5,7 +5,8 @@ namespace DockRotate
 {
 	public class JointMotionMB: MonoBehaviour
 	{
-		private PartJoint joint;
+		public PartJoint joint;
+
 		private Vector3 hostAxis, hostNode;
 		private Vector3 hostUp, targetUp;
 
