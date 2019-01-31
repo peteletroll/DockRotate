@@ -248,13 +248,7 @@ namespace DockRotate
 
 		public abstract bool useSmartAutoStruts();
 
-		protected abstract float rotationAngle(bool dynamic);
-
-		protected abstract float dynamicDeltaAngle();
-
 		protected abstract void dumpPart();
-
-		protected abstract int countJoints();
 
 		public void doStopRotation()
 		{
@@ -531,6 +525,21 @@ namespace DockRotate
 			return s >= 1f ? s : 1f;
 		}
 
+		protected float rotationAngle(bool dynamic)
+		{
+			return jointMotion ? jointMotion.rotationAngle(dynamic) : float.NaN;
+		}
+
+		protected float dynamicDeltaAngle()
+		{
+			return jointMotion ? jointMotion.dynamicDeltaAngle() : float.NaN;
+		}
+
+		protected int countJoints()
+		{
+			return jointMotion ? jointMotion.joint.joints.Count : 0;
+		}
+
 		protected bool enqueueRotation(Vector3 frozen)
 		{
 			return enqueueRotation(frozen[0], frozen[1], frozen[2]);
@@ -721,30 +730,6 @@ namespace DockRotate
 
 		public AttachNode rotatingNode;
 		public Vector3 otherPartUp;
-
-		protected override int countJoints()
-		{
-			return jointMotion ? jointMotion.joint.joints.Count : 0;
-		}
-
-		protected override float rotationAngle(bool dynamic)
-		{
-			if (!jointMotion)
-				return float.NaN;
-			return jointMotion.rotationAngle(dynamic);
-		}
-
-		protected override float dynamicDeltaAngle()
-		// = dynamic - static
-		{
-			if (!activePart || !proxyPart)
-				return float.NaN;
-
-			Vector3 a = partNodeAxis;
-			Vector3 vd = otherPartUp.Td(proxyPart.T(), activePart.T());
-			Vector3 vs = otherPartUp.STd(proxyPart, activePart);
-			return a.axisSignedAngle(vs, vd);
-		}
 
 		public override string GetModuleDisplayName()
 		{
@@ -1100,44 +1085,10 @@ namespace DockRotate
 			return activeRotationModule && base.canStartRotation();
 		}
 
-		protected override int countJoints()
-		{
-			if (!activeRotationModule)
-				return 0;
-			if (!activeRotationModule.jointMotion)
-				return 0;
-			return activeRotationModule.jointMotion.joint.joints.Count;
-		}
-
 		public override bool useSmartAutoStruts()
 		{
 			return (activeRotationModule && activeRotationModule.smartAutoStruts)
 				|| (proxyRotationModule && proxyRotationModule.smartAutoStruts);
-		}
-
-		protected override float rotationAngle(bool dynamic)
-		{
-			if (!activeRotationModule || !proxyRotationModule)
-				return float.NaN;
-
-			Vector3 a = activeRotationModule.partNodeAxis;
-			Vector3 v1 = activeRotationModule.partNodeUp;
-			Vector3 v2 = dynamic ?
-				proxyRotationModule.partNodeUp.Td(proxyRotationModule.part.T(), activeRotationModule.part.T()) :
-				proxyRotationModule.partNodeUp.STd(proxyRotationModule.part, activeRotationModule.part);
-			return a.axisSignedAngle(v1, v2);
-		}
-
-		protected override float dynamicDeltaAngle()
-		// = dynamic - static
-		{
-			if (!activeRotationModule || !proxyRotationModule)
-				return float.NaN;
-
-			Vector3 a = activeRotationModule.partNodeAxis;
-			Vector3 vd = proxyRotationModule.partNodeUp.Td(proxyRotationModule.part.T(), activeRotationModule.part.T());
-			Vector3 vs = proxyRotationModule.partNodeUp.STd(proxyRotationModule.part, activeRotationModule.part);
-			return a.axisSignedAngle(vs, vd);
 		}
 
 		protected override bool enqueueRotation(float angle, float speed, float startSpeed = 0f)

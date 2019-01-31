@@ -46,6 +46,15 @@ namespace DockRotate
 			return a.axisSignedAngle(v1, v2);
 		}
 
+		public float dynamicDeltaAngle()
+		// = dynamic - static
+		{
+			Vector3 a = hostAxis;
+			Vector3 vd = targetUp.Td(joint.Target.T(), joint.Host.T());
+			Vector3 vs = targetUp.STd(joint.Target, joint.Host);
+			return a.axisSignedAngle(vs, vd);
+		}
+
 		public void Awake()
 		{
 			lprint(nameof(JointMotionMB) + ".Awake()");
