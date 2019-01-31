@@ -729,15 +729,9 @@ namespace DockRotate
 
 		protected override float rotationAngle(bool dynamic)
 		{
-			if (!activePart || !proxyPart)
+			if (!jointMotion)
 				return float.NaN;
-
-			Vector3 a = partNodeAxis;
-			Vector3 v1 = partNodeUp;
-			Vector3 v2 = dynamic ?
-				otherPartUp.Td(proxyPart.T(), activePart.T()) :
-				otherPartUp.STd(proxyPart, activePart);
-			return a.axisSignedAngle(v1, v2);
+			return jointMotion.rotationAngle(dynamic);
 		}
 
 		protected override float dynamicDeltaAngle()
