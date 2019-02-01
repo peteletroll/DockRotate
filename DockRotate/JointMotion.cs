@@ -27,12 +27,13 @@ namespace DockRotate
 
 			JointMotionMB jm = j.gameObject.AddComponent<JointMotionMB>();
 			jm.joint = j;
-			lprint(nameof(JointMotionMB) + ".get(): created on " + jm.joint.desc());
+			lprint(nameof(JointMotionMB) + ".get(): created " + jm.desc());
 			return jm;
 		}
 
 		public void setAxis(Part part, Vector3 axis, Vector3 node)
 		{
+			lprint("setAxis(" + part.desc() + ", " + axis.desc() + ", " + node.desc() + ")");
 			hostAxis = axis.STd(part, joint.Host);
 			hostNode = node.STp(part, joint.Host);
 			hostUp = joint.Host.up(hostAxis);
@@ -72,18 +73,23 @@ namespace DockRotate
 
 		public void Awake()
 		{
-			lprint(nameof(JointMotionMB) + ".Awake() on " + joint.desc());
+			lprint(nameof(JointMotionMB) + ".Awake() on " + desc());
 			rotation = new SmoothMotionDispatcher(this);
 		}
 
 		public void Start()
 		{
-			lprint(nameof(JointMotionMB) + ".Start() on " + joint.desc());
+			lprint(nameof(JointMotionMB) + ".Start() on " + desc());
 		}
 
 		public void OnDestroy()
 		{
-			lprint(nameof(JointMotionMB) + ".OnDestroy() on " + joint.desc());
+			lprint(nameof(JointMotionMB) + ".OnDestroy() on " + desc());
+		}
+
+		public string desc()
+		{
+			return GetInstanceID() + ":" + joint.desc();
 		}
 
 		private static bool lprint(string msg)

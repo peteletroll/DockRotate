@@ -1031,6 +1031,8 @@ namespace DockRotate
 			if (rotatingJoint) {
 				jointMotion = JointMotionMB.get(rotatingJoint);
 				jointMotion.setAxis(activePart, partNodeAxis, partNodePos);
+				if (proxyRotationModule)
+					proxyRotationModule.jointMotion = jointMotion;
 			}
 		}
 
