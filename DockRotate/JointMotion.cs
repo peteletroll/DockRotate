@@ -33,6 +33,14 @@ namespace DockRotate
 
 		public void setAxis(Part part, Vector3 axis, Vector3 node)
 		{
+			if (part == joint.Host) {
+				// no conversion needed
+			} else if (part == joint.Target) {
+				axis = -axis.STd(part, joint.Host);
+				node = node.STp(part, joint.Host);
+			} else {
+				lprint(nameof(JointMotionMB) + ".setAxis(): part " + part.desc() + "not in " + joint.desc()); 
+			}
 			lprint("setAxis(" + part.desc() + ", " + axis.desc() + ", " + node.desc() + ")");
 			hostAxis = axis.STd(part, joint.Host);
 			hostNode = node.STp(part, joint.Host);

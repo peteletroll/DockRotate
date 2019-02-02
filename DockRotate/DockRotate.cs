@@ -306,7 +306,6 @@ namespace DockRotate
 
 		protected Vector3 partNodePos; // node position, relative to part
 		protected Vector3 partNodeAxis; // node rotation axis, relative to part
-		protected Vector3 partNodeUp; // node vector for measuring angle, relative to part
 		protected bool geometryOk;
 		protected abstract bool setupGeometry(StartState state);
 
@@ -762,9 +761,8 @@ namespace DockRotate
 
 			partNodePos = rotatingNode.position;
 			partNodeAxis = rotatingNode.orientation;
-			partNodeUp = part.up(partNodeAxis);
 			lprint(nameof(ModuleNodeRotate) + ".setupGeometry(" + state + ") done: "
-				+ partNodeAxis + "@" + partNodePos + "|" + partNodeUp);
+				+ partNodeAxis + "@" + partNodePos);
 			return true;
 		}
 
@@ -808,9 +806,9 @@ namespace DockRotate
 			} else if (other.parent == part) {
 				nodeRole = "Proxy";
 				activePart = other;
+				// FIXME: this should be computed in JointMotion with joint Host/Target info
 				partNodePos = partNodePos.STp(part, activePart);
 				partNodeAxis = -partNodeAxis.STd(part, activePart);
-				partNodeUp = activePart.up(partNodeAxis);
 			}
 
 			if (activePart)
@@ -864,7 +862,6 @@ namespace DockRotate
 			lprint("rotPart: " + activePart.desc());
 			lprint("rotAxis: " + partNodeAxis.ddesc(activePart));
 			lprint("rotPos: " + partNodePos.pdesc(activePart));
-			lprint("rotUp: " + partNodeUp.ddesc(activePart));
 			AttachNode[] nodes = part.FindAttachNodes("");
 			for (int i = 0; i < nodes.Length; i++) {
 				AttachNode n = nodes[i];
@@ -960,9 +957,8 @@ namespace DockRotate
 
 			partNodePos = Vector3.zero.Tp(dockingNode.T(), part.T());
 			partNodeAxis = Vector3.forward.Td(dockingNode.T(), part.T());
-			partNodeUp = Vector3.up.Td(dockingNode.T(), part.T());
 			lprint(nameof(ModuleDockRotate) + ".setupGeometry(" + state + ") done: "
-				+ partNodeAxis + "@" + partNodePos + "|" + partNodeUp);
+				+ partNodeAxis + "@" + partNodePos);
 			return true;
 		}
 
