@@ -190,7 +190,6 @@ namespace DockRotate
 				if (flipFlopMode)
 					reverseRotation = !reverseRotation;
 			}
-
 		}
 
 		[KSPAction(
@@ -302,7 +301,7 @@ namespace DockRotate
 
 		protected JointMotionMB jointMotion;
 
-		public Part activePart, proxyPart;
+		public Part activePart;
 		public string nodeRole = "Init";
 
 		protected Vector3 partNodePos; // node position, relative to part
@@ -731,7 +730,6 @@ namespace DockRotate
 		public string rotatingNodeName = "";
 
 		public AttachNode rotatingNode;
-		public Vector3 otherPartUp;
 
 		public override string GetModuleDisplayName()
 		{
@@ -775,7 +773,7 @@ namespace DockRotate
 			PartJoint rotatingJoint = null;
 
 			jointMotion = null;
-			activePart = proxyPart = null;
+			activePart = null;
 
 			nodeRole = "None";
 
@@ -807,11 +805,9 @@ namespace DockRotate
 			if (part.parent == other) {
 				nodeRole = "Active";
 				activePart = part;
-				proxyPart = other;
 			} else if (other.parent == part) {
 				nodeRole = "Proxy";
 				activePart = other;
-				proxyPart = part;
 				partNodePos = partNodePos.STp(part, activePart);
 				partNodeAxis = -partNodeAxis.STd(part, activePart);
 				partNodeUp = activePart.up(partNodeAxis);
@@ -819,9 +815,6 @@ namespace DockRotate
 
 			if (activePart)
 				rotatingJoint = activePart.attachJoint;
-
-			if (proxyPart)
-				otherPartUp = proxyPart.up(partNodeAxis.STd(part, proxyPart));
 
 			if (verboseEvents && rotatingJoint) {
 				lprint(part.desc()
@@ -872,7 +865,6 @@ namespace DockRotate
 			lprint("rotAxis: " + partNodeAxis.ddesc(activePart));
 			lprint("rotPos: " + partNodePos.pdesc(activePart));
 			lprint("rotUp: " + partNodeUp.ddesc(activePart));
-			lprint("other: " + proxyPart.desc());
 			AttachNode[] nodes = part.FindAttachNodes("");
 			for (int i = 0; i < nodes.Length; i++) {
 				AttachNode n = nodes[i];
@@ -984,7 +976,7 @@ namespace DockRotate
 			}
 			lastBasicSetupFrame = now;
 
-			activePart = proxyPart = null;
+			activePart = null;
 			jointMotion = null;
 			activeRotationModule = proxyRotationModule = otherRotationModule = null;
 			nodeRole = "None";
@@ -1026,7 +1018,6 @@ namespace DockRotate
 
 			if (activeRotationModule) {
 				activePart = activeRotationModule.part;
-				proxyPart = proxyRotationModule.part;
 			}
 
 			if (activeRotationModule == this) {
@@ -1034,8 +1025,6 @@ namespace DockRotate
 				proxyRotationModule.activeRotationModule = activeRotationModule;
 				proxyRotationModule.activePart = activePart;
 				proxyRotationModule.proxyRotationModule = proxyRotationModule;
-				proxyRotationModule.proxyPart = proxyPart;
-				proxyPart = proxyRotationModule.part;
 				otherRotationModule = proxyRotationModule;
 				proxyRotationModule.otherRotationModule = activeRotationModule;
 				if (verboseEvents)
