@@ -285,10 +285,10 @@ namespace DockRotate
 					// rotation count change
 					if (isRotating) {
 						// a new rotation is starting
-						VesselMotionManager.get(activePart).changeCount(+1);
+						VesselMotionManager.get(part).changeCount(+1);
 					} else {
 						// an old rotation is finishing
-						VesselMotionManager.get(activePart).changeCount(-1);
+						VesselMotionManager.get(part).changeCount(-1);
 					}
 					if (useSmartAutoStruts()) {
 
@@ -306,9 +306,10 @@ namespace DockRotate
 		public string nodeRole = "Init";
 
 		protected Vector3 partNodePos; // node position, relative to part
-		public Vector3 partNodeAxis; // node rotation axis, relative to part
+		protected Vector3 partNodeAxis; // node rotation axis, relative to part
 		protected Vector3 partNodeUp; // node vector for measuring angle, relative to part
-		public abstract bool setupGeometry(StartState state);
+		protected bool geometryOk;
+		protected abstract bool setupGeometry(StartState state);
 
 		// localized info cache
 		protected string cached_moduleDisplayName = "";
@@ -330,7 +331,7 @@ namespace DockRotate
 
 		private void doSetup()
 		{
-			if (!part || !vessel) {
+			if (!part || !vessel || !geometryOk) {
 				lprint("WARNING: doSetup() called at a bad time");
 				return;
 			}
@@ -454,7 +455,7 @@ namespace DockRotate
 				lprint(part.desc() + ": OnStart() with no vessel, state " + state);
 			}
 
-			setupGeometry(state);
+			geometryOk = setupGeometry(state);
 
 			setupGuiActive();
 
@@ -746,7 +747,7 @@ namespace DockRotate
 			return cached_info;
 		}
 
-		public override bool setupGeometry(StartState state)
+		protected override bool setupGeometry(StartState state)
 		{
 			rotatingNode = part.FindAttachNode(rotatingNodeName);
 
@@ -956,7 +957,7 @@ namespace DockRotate
 
 		private int lastBasicSetupFrame = -1;
 
-		public override bool setupGeometry(StartState state)
+		protected override bool setupGeometry(StartState state)
 		{
 			dockingNode = part.FindModuleImplementing<ModuleDockingNode>();
 
@@ -1065,7 +1066,7 @@ namespace DockRotate
 			return null;
 		}
 
-		private bool isDockedToParent(bool verbose) // must be used only after basicSetup()
+		private bool isDockedToParent(bool verbose) // must be used only after setupGeometry()
 		{
 			if (verbose)
 				lprint(part.desc() + ": isDockedToParent()");
