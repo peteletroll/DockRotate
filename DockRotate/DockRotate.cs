@@ -238,8 +238,6 @@ namespace DockRotate
 		}
 #endif
 
-		protected static Vector3 undefV3 = new Vector3(9.9f, 9.9f, 9.9f);
-
 		public abstract void doRotateClockwise();
 
 		public abstract void doRotateCounterclockwise();
@@ -306,9 +304,11 @@ namespace DockRotate
 
 		public Part activePart, proxyPart;
 		public string nodeRole = "Init";
+
 		protected Vector3 partNodePos; // node position, relative to part
 		public Vector3 partNodeAxis; // node rotation axis, relative to part
 		protected Vector3 partNodeUp; // node vector for measuring angle, relative to part
+		public abstract bool setupGeometry(StartState state);
 
 		// localized info cache
 		protected string cached_moduleDisplayName = "";
@@ -454,6 +454,8 @@ namespace DockRotate
 				lprint(part.desc() + ": OnStart() with no vessel, state " + state);
 			}
 
+			setupGeometry(state);
+
 			setupGuiActive();
 
 			checkGuiActive();
@@ -501,12 +503,11 @@ namespace DockRotate
 			return canStartRotation() ? this : null;
 		}
 
-		protected virtual bool canStartRotation()
+		protected bool canStartRotation()
 		{
-			return setupDone
-				&& rotationEnabled
-				&& vessel
-				&& vessel.CurrentControlLevel == Vessel.ControlLevel.FULL;
+			return rotationEnabled
+				&& setupDone && jointMotion
+				&& vessel && vessel.CurrentControlLevel == Vessel.ControlLevel.FULL;
 		}
 
 		public float step()
@@ -745,13 +746,35 @@ namespace DockRotate
 			return cached_info;
 		}
 
+		public override bool setupGeometry(StartState state)
+		{
+			rotatingNode = part.FindAttachNode(rotatingNodeName);
+
+			if (rotatingNode == null) {
+				lprint(nameof(ModuleNodeRotate) + ".setupGeometry(" + state + "): "
+					+ "no node \"" + rotatingNodeName + " in " + part.desc());
+				AttachNode[] nodes = part.FindAttachNodes("");
+				string nodeHelp = part.desc() + " available nodes:";
+				for (int i = 0; i < nodes.Length; i++)
+					nodeHelp += " \"" + nodes[i].id + "\"";
+				lprint(nodeHelp);
+				return false;
+			}
+
+			partNodePos = rotatingNode.position;
+			partNodeAxis = rotatingNode.orientation;
+			partNodeUp = part.up(partNodeAxis);
+			lprint(nameof(ModuleNodeRotate) + ".setupGeometry(" + state + ") done: "
+				+ partNodeAxis + "@" + partNodePos + "|" + partNodeUp);
+			return true;
+		}
+
 		protected override void setup()
 		{
 			PartJoint rotatingJoint = null;
 
 			jointMotion = null;
 			activePart = proxyPart = null;
-			partNodePos = partNodeAxis = partNodeUp = otherPartUp = undefV3;
 
 			nodeRole = "None";
 
@@ -765,20 +788,10 @@ namespace DockRotate
 				return;
 			}
 
-			rotatingNode = part.FindAttachNode(rotatingNodeName);
 			if (rotatingNode == null) {
-				lprint(part.desc() + " has no node named \"" + rotatingNodeName + "\"");
-				AttachNode[] nodes = part.FindAttachNodes("");
-				string nodeList = part.desc() + " available nodes:";
-				for (int i = 0; i < nodes.Length; i++)
-					nodeList += " \"" + nodes[i].id + "\"";
-				lprint(nodeList);
+				lprint(nameof(ModuleNodeRotate) + ".setup(): no rotatingNode");
 				return;
 			}
-
-			partNodePos = rotatingNode.position;
-			partNodeAxis = rotatingNode.orientation;
-			partNodeUp = part.up(partNodeAxis);
 
 			Part other = rotatingNode.attachedPart;
 			if (!other)
@@ -849,11 +862,6 @@ namespace DockRotate
 		protected override JointMotion currentRotation()
 		{
 			return rotCur;
-		}
-
-		protected override bool canStartRotation()
-		{
-			return jointMotion && base.canStartRotation();
 		}
 
 		protected override void dumpPart()
@@ -948,6 +956,23 @@ namespace DockRotate
 
 		private int lastBasicSetupFrame = -1;
 
+		public override bool setupGeometry(StartState state)
+		{
+			dockingNode = part.FindModuleImplementing<ModuleDockingNode>();
+
+			if (!dockingNode) {
+				lprint(nameof(ModuleDockRotate) + ".setupGeometry(" + state + "): no docking node in " + part.desc());
+				return false;
+			}
+
+			partNodePos = Vector3.zero.Tp(dockingNode.T(), part.T());
+			partNodeAxis = Vector3.forward.Td(dockingNode.T(), part.T());
+			partNodeUp = Vector3.up.Td(dockingNode.T(), part.T());
+			lprint(nameof(ModuleDockRotate) + ".setupGeometry(" + state + ") done: "
+				+ partNodeAxis + "@" + partNodePos + "|" + partNodeUp);
+			return true;
+		}
+
 		private void basicSetup()
 		{
 			int now = Time.frameCount;
@@ -962,28 +987,23 @@ namespace DockRotate
 			jointMotion = null;
 			activeRotationModule = proxyRotationModule = otherRotationModule = null;
 			nodeRole = "None";
-			partNodePos = partNodeAxis = partNodeUp = undefV3;
 #if DEBUG
 			nodeStatus = "";
 #endif
-
-			dockingNode = part.FindModuleImplementing<ModuleDockingNode>();
-
-			if (dockingNode) {
-				partNodePos = Vector3.zero.Tp(dockingNode.T(), part.T());
-				partNodeAxis = Vector3.forward.Td(dockingNode.T(), part.T());
-				partNodeUp = Vector3.up.Td(dockingNode.T(), part.T());
-			}
 		}
 
 		protected override void setup()
 		{
+			lprint(nameof(ModuleDockRotate) + ": STARTED setup()");
+
 			PartJoint rotatingJoint = null;
 
 			basicSetup();
 
-			if (!dockingNode)
+			if (!dockingNode) {
+				lprint(nameof(ModuleDockRotate) + ".setup(): no dockingNode");
 				return;
+			}
 
 			PartJoint svj = dockingNode.sameVesselDockJoint;
 			if (svj) {
@@ -1080,11 +1100,6 @@ namespace DockRotate
 				lprint(part.desc() + ": isDockedToParent() returns " + ret);
 
 			return ret;
-		}
-
-		protected override bool canStartRotation()
-		{
-			return activeRotationModule && base.canStartRotation();
 		}
 
 		public override bool useSmartAutoStruts()
