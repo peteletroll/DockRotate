@@ -143,12 +143,12 @@ namespace DockRotate
 			return ModuleBaseRotate.lprint(msg);
 		}
 
-		public JointMotion(Part part, Vector3 node, Vector3 axis, PartJoint joint, float pos, float tgt, float maxvel)
+		public JointMotion(JointMotionMB jm, Part part, Vector3 axis, Vector3 node, float pos, float tgt, float maxvel)
 		{
 			this.activePart = part;
-			this.node = node;
 			this.axis = axis;
-			this.joint = joint;
+			this.node = node;
+			this.joint = jm.joint;
 
 			this.proxyPart = joint.Host == part ? joint.Target : joint.Host;
 

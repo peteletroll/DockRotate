@@ -589,7 +589,7 @@ namespace DockRotate
 				}
 			} else {
 				lprint(part.desc() + ": creating rotation");
-				rotCur = new JointMotion(activePart, partNodePos, partNodeAxis, jointMotion.joint, 0, angle, speed);
+				rotCur = new JointMotion(jointMotion, activePart, partNodeAxis, partNodePos, 0, angle, speed);
 				rotCur.rot0 = rotationAngle(false);
 				rotCur.controller = this;
 				rotCur.electricityRate = electricityRate;
@@ -983,8 +983,6 @@ namespace DockRotate
 
 		protected override void setup()
 		{
-			lprint(nameof(ModuleDockRotate) + ": STARTED setup()");
-
 			PartJoint rotatingJoint = null;
 
 			basicSetup();
