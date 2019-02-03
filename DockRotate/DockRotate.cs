@@ -249,7 +249,7 @@ namespace DockRotate
 
 		public void doStopRotation()
 		{
-			JointMotion r = currentRotation();
+			JointMotionObj r = currentRotation();
 			if (r)
 				r.brake();
 		}
@@ -273,8 +273,8 @@ namespace DockRotate
 			return ret;
 		}
 
-		private JointMotion _rotCur = null;
-		protected JointMotion rotCur {
+		private JointMotionObj _rotCur = null;
+		protected JointMotionObj rotCur {
 			get { return _rotCur; }
 			set {
 				bool wasRotating = _rotCur;
@@ -299,7 +299,7 @@ namespace DockRotate
 			}
 		}
 
-		protected JointMotionMB jointMotion;
+		protected JointMotion jointMotion;
 
 		public Part activePart;
 		public string nodeRole = "Init";
@@ -468,7 +468,7 @@ namespace DockRotate
 				return;
 
 			bool guiActive = canStartRotation();
-			JointMotion cr = currentRotation();
+			JointMotionObj cr = currentRotation();
 
 #if DEBUG
 			nodeStatus = "";
@@ -589,7 +589,7 @@ namespace DockRotate
 				}
 			} else {
 				lprint(part.desc() + ": creating rotation");
-				rotCur = new JointMotion(jointMotion, activePart, partNodeAxis, partNodePos, 0, angle, speed);
+				rotCur = new JointMotionObj(jointMotion, activePart, partNodeAxis, partNodePos, 0, angle, speed);
 				rotCur.rot0 = rotationAngle(false);
 				rotCur.controller = this;
 				rotCur.electricityRate = electricityRate;
@@ -653,7 +653,7 @@ namespace DockRotate
 			}
 		}
 
-		protected abstract JointMotion currentRotation();
+		protected abstract JointMotionObj currentRotation();
 
 		protected void checkFrozenRotation()
 		{
@@ -662,7 +662,7 @@ namespace DockRotate
 
 			if (!Mathf.Approximately(frozenRotation[0], 0f) && !currentRotation()) {
 				enqueueRotation(frozenRotation);
-				JointMotion cr = currentRotation();
+				JointMotionObj cr = currentRotation();
 				if (cr)
 					cr.controller = controller(frozenRotationControllerID);
 			}
@@ -821,7 +821,7 @@ namespace DockRotate
 			}
 
 			if (rotatingJoint) {
-				jointMotion = JointMotionMB.get(rotatingJoint);
+				jointMotion = JointMotion.get(rotatingJoint);
 				jointMotion.setAxis(activePart, partNodeAxis, partNodePos);
 			}
 		}
@@ -851,7 +851,7 @@ namespace DockRotate
 			return smartAutoStruts;
 		}
 
-		protected override JointMotion currentRotation()
+		protected override JointMotionObj currentRotation()
 		{
 			return rotCur;
 		}
@@ -1033,7 +1033,7 @@ namespace DockRotate
 			}
 
 			if (rotatingJoint) {
-				jointMotion = JointMotionMB.get(rotatingJoint);
+				jointMotion = JointMotion.get(rotatingJoint);
 				jointMotion.setAxis(activePart, partNodeAxis, partNodePos);
 				if (proxyRotationModule)
 					proxyRotationModule.jointMotion = jointMotion;
@@ -1104,7 +1104,7 @@ namespace DockRotate
 					+ (activeRotationModule ? activeRotationModule.part.desc() : "null"));
 			}
 			if (ret) {
-				JointMotion cr = currentRotation();
+				JointMotionObj cr = currentRotation();
 				if (cr)
 					cr.controller = this;
 			}
@@ -1146,7 +1146,7 @@ namespace DockRotate
 			activeRotationModule.enqueueRotationToSnap(snap, speed());
 		}
 
-		protected override JointMotion currentRotation()
+		protected override JointMotionObj currentRotation()
 		{
 			return activeRotationModule ? activeRotationModule.rotCur : null;
 		}

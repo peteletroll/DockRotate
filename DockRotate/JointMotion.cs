@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace DockRotate
 {
-	public class JointMotionMB: MonoBehaviour, ISmoothMotionListener
+	public class JointMotion: MonoBehaviour, ISmoothMotionListener
 	{
 		public PartJoint joint;
 
@@ -12,22 +12,22 @@ namespace DockRotate
 
 		private SmoothMotionDispatcher rotation;
 
-		public static JointMotionMB get(PartJoint j)
+		public static JointMotion get(PartJoint j)
 		{
 			if (!j)
 				return null;
 
 			if (j.gameObject != j.Host.gameObject)
-				lprint(nameof(JointMotionMB) + ".get(): *** WARNING *** gameObject incoherency");
+				lprint(nameof(JointMotion) + ".get(): *** WARNING *** gameObject incoherency");
 
-			JointMotionMB[] jms = j.gameObject.GetComponents<JointMotionMB>();
+			JointMotion[] jms = j.gameObject.GetComponents<JointMotion>();
 			for (int i = 0; i < jms.Length; i++)
 				if (jms[i].joint == j)
 					return jms[i];
 
-			JointMotionMB jm = j.gameObject.AddComponent<JointMotionMB>();
+			JointMotion jm = j.gameObject.AddComponent<JointMotion>();
 			jm.joint = j;
-			lprint(nameof(JointMotionMB) + ".get(): created " + jm.desc());
+			lprint(nameof(JointMotion) + ".get(): created " + jm.desc());
 			return jm;
 		}
 
@@ -39,7 +39,7 @@ namespace DockRotate
 				axis = -axis.STd(part, joint.Host);
 				node = node.STp(part, joint.Host);
 			} else {
-				lprint(nameof(JointMotionMB) + ".setAxis(): part " + part.desc() + "not in " + joint.desc()); 
+				lprint(nameof(JointMotion) + ".setAxis(): part " + part.desc() + " not in " + joint.desc());
 			}
 			lprint("setAxis(" + part.desc() + ", " + axis.desc() + ", " + node.desc() + ")");
 			hostAxis = axis.STd(part, joint.Host);
@@ -81,18 +81,18 @@ namespace DockRotate
 
 		public void Awake()
 		{
-			lprint(nameof(JointMotionMB) + ".Awake() on " + desc());
+			lprint(nameof(JointMotion) + ".Awake() on " + desc());
 			rotation = new SmoothMotionDispatcher(this);
 		}
 
 		public void Start()
 		{
-			lprint(nameof(JointMotionMB) + ".Start() on " + desc());
+			lprint(nameof(JointMotion) + ".Start() on " + desc());
 		}
 
 		public void OnDestroy()
 		{
-			lprint(nameof(JointMotionMB) + ".OnDestroy() on " + desc());
+			lprint(nameof(JointMotion) + ".OnDestroy() on " + desc());
 		}
 
 		public string desc()
@@ -106,9 +106,9 @@ namespace DockRotate
 		}
 	}
 
-	public class JointMotion: SmoothMotion
+	public class JointMotionObj: SmoothMotion
 	{
-		public static implicit operator bool(JointMotion r)
+		public static implicit operator bool(JointMotionObj r)
 		{
 			return r != null;
 		}
@@ -143,7 +143,7 @@ namespace DockRotate
 			return ModuleBaseRotate.lprint(msg);
 		}
 
-		public JointMotion(JointMotionMB jm, Part part, Vector3 axis, Vector3 node, float pos, float tgt, float maxvel)
+		public JointMotionObj(JointMotion jm, Part part, Vector3 axis, Vector3 node, float pos, float tgt, float maxvel)
 		{
 			this.activePart = part;
 			this.axis = axis;
