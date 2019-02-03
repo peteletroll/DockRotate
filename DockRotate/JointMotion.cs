@@ -12,6 +12,35 @@ namespace DockRotate
 
 		private SmoothMotionDispatcher rotation;
 
+		private JointMotionObj _rotCur;
+		public JointMotionObj rotCur {
+			get { return _rotCur; }
+			set {
+				bool sas = (_rotCur ? _rotCur.smartAutoStruts : false)
+					|| (value ? value.smartAutoStruts : false);
+				bool wasRotating = _rotCur;
+				_rotCur = value;
+				bool isRotating = _rotCur;
+				if (isRotating != wasRotating && joint && joint.Host && joint.Host.vessel) {
+					// rotation count change
+					Vessel v = joint.Host.vessel;
+					if (isRotating) {
+						// a new rotation is starting
+						VesselMotionManager.get(v).changeCount(+1);
+					} else {
+						// an old rotation is finishing
+						VesselMotionManager.get(v).changeCount(-1);
+					}
+					if (sas) {
+
+					} else {
+						lprint(joint.Host.desc() + " triggered CycleAllAutoStruts()");
+						v.CycleAllAutoStrut();
+					}
+				}
+			}
+		}
+
 		public static JointMotion get(PartJoint j)
 		{
 			if (!j)
@@ -108,6 +137,8 @@ namespace DockRotate
 
 	public class JointMotionObj: SmoothMotion
 	{
+		public ModuleBaseRotate owner;
+
 		public static implicit operator bool(JointMotionObj r)
 		{
 			return r != null;

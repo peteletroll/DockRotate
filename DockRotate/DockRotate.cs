@@ -273,30 +273,8 @@ namespace DockRotate
 			return ret;
 		}
 
-		private JointMotionObj _rotCur = null;
 		protected JointMotionObj rotCur {
-			get { return _rotCur; }
-			set {
-				bool wasRotating = _rotCur;
-				_rotCur = value;
-				bool isRotating = _rotCur;
-				if (isRotating != wasRotating) {
-					// rotation count change
-					if (isRotating) {
-						// a new rotation is starting
-						VesselMotionManager.get(part).changeCount(+1);
-					} else {
-						// an old rotation is finishing
-						VesselMotionManager.get(part).changeCount(-1);
-					}
-					if (useSmartAutoStruts()) {
-
-					} else {
-						lprint(part.desc() + " triggered CycleAllAutoStruts()");
-						vessel.CycleAllAutoStrut();
-					}
-				}
-			}
+			get { return jointMotion && jointMotion.rotCur && jointMotion.rotCur.owner == this ? jointMotion.rotCur : null; }
 		}
 
 		protected JointMotion jointMotion;
@@ -589,7 +567,8 @@ namespace DockRotate
 				}
 			} else {
 				lprint(part.desc() + ": creating rotation");
-				rotCur = new JointMotionObj(jointMotion, activePart, partNodeAxis, partNodePos, 0, angle, speed);
+				jointMotion.rotCur = new JointMotionObj(jointMotion, activePart, partNodeAxis, partNodePos, 0, angle, speed);
+				jointMotion.rotCur.owner = this;
 				rotCur.rot0 = rotationAngle(false);
 				rotCur.controller = this;
 				rotCur.electricityRate = electricityRate;
@@ -632,7 +611,7 @@ namespace DockRotate
 
 			if (rotCur.done()) {
 				lprint(part.desc() + ": removing rotation (1)");
-				rotCur = null;
+				jointMotion.rotCur = null;
 				return;
 			}
 
@@ -649,7 +628,7 @@ namespace DockRotate
 				enqueueFrozenRotation(angle, rotCur.maxvel, keepSpeed ? rotCur.vel : 0f);
 				rotCur.abort();
 				lprint(part.desc() + ": removing rotation (2)");
-				rotCur = null;
+				jointMotion.rotCur = null;
 			}
 		}
 
@@ -1100,7 +1079,7 @@ namespace DockRotate
 			} else if (activeRotationModule && activeRotationModule.activeRotationModule == activeRotationModule) {
 				ret = activeRotationModule.enqueueRotation(angle, speed, startSpeed);
 			} else {
-				lprint("enqueueRotation() called on wrong module, ignoring, active part "
+				lprint(part.desc() + ".enqueueRotation() called on wrong module, ignoring, active part "
 					+ (activeRotationModule ? activeRotationModule.part.desc() : "null"));
 			}
 			if (ret) {
@@ -1113,13 +1092,14 @@ namespace DockRotate
 
 		protected override void advanceRotation(float deltat)
 		{
-			base.advanceRotation(deltat);
-
 			if (activeRotationModule != this) {
 				lprint("advanceRotation() called on wrong module, aborting");
-				lprint(part.desc() + ": removing rotation (3)");
-				rotCur = null;
+				lprint(part.desc() + ": not removing rotation (3)");
+				// rotCur = null;
+				return;
 			}
+
+			base.advanceRotation(deltat);
 		}
 
 		public override void doRotateClockwise()
