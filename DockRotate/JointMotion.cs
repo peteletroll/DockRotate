@@ -78,6 +78,66 @@ namespace DockRotate
 			targetUp = joint.Target.up(hostAxis.STd(joint.Host, joint.Target));
 		}
 
+		public virtual bool enqueueRotation(ModuleBaseRotate owner, float angle, float speed, float startSpeed = 0f)
+		{
+			if (!joint)
+				return false;
+
+			if (speed < 0.1f)
+				return false;
+
+			string action = "none";
+			bool showlog = true;
+			if (rotCur) {
+				bool trace = false;
+				if (rotCur.isBraking()) {
+					lprint(joint.desc() + ": enqueueRotation() canceled, braking");
+					return false;
+				}
+				rotCur.controller = rotCur.owner;
+				rotCur.maxvel = speed;
+				action = "updated";
+				if (SmoothMotion.isContinuous(ref angle)) {
+					if (rotCur.isContinuous() && angle * rotCur.tgt > 0f)
+						showlog = false; // already continuous the right way
+					if (trace && showlog)
+						lprint("MERGE CONTINUOUS " + angle + " -> " + rotCur.tgt);
+					rotCur.tgt = angle;
+					rotCur.owner.updateFrozenRotation("MERGECONT");
+				} else {
+					if (trace)
+						lprint("MERGE LIMITED " + angle + " -> " + rotCur.rot0 + " + " + rotCur.tgt);
+					if (rotCur.isContinuous()) {
+						if (trace)
+							lprint("MERGE INTO CONTINUOUS");
+						rotCur.tgt = rotCur.pos + rotCur.curBrakingSpace() + angle;
+					} else {
+						if (trace)
+							lprint("MERGE INTO LIMITED");
+						rotCur.tgt = rotCur.tgt + angle;
+					}
+					if (trace)
+						lprint("MERGED: POS " + rotCur.pos + " TGT " + rotCur.tgt);
+					rotCur.owner.updateFrozenRotation("MERGELIM");
+				}
+			} else {
+				lprint(joint.desc() + ": creating rotation");
+				rotCur = new JointMotionObj(this, joint.Host, hostAxis, hostNode, 0, angle, speed);
+				rotCur.owner = owner;
+				rotCur.rot0 = rotationAngle(false);
+				rotCur.controller = owner;
+				rotCur.electricityRate = owner.electricityRate;
+				rotCur.soundVolume = owner.soundVolume;
+				rotCur.vel = startSpeed;
+				rotCur.smartAutoStruts = owner.useSmartAutoStruts();
+				action = "added";
+			}
+			if (showlog)
+				lprint(String.Format("{0}: enqueueRotation({1}, {2:F4}\u00b0, {3}\u00b0/s, {4}\u00b0/s), {5}",
+					joint.desc(), hostAxis.desc(), rotCur.tgt, rotCur.maxvel, rotCur.vel, action));
+			return true;
+		}
+
 		public float rotationAngle(bool dynamic)
 		{
 			Vector3 a = hostAxis;
@@ -328,7 +388,7 @@ namespace DockRotate
 				sound.maxDistance = 1000f;
 				sound.playOnAwake = false;
 
-				uint pa = (33u * (activePart.flightID ^ proxyPart.flightID)) % 10000u;
+				uint pa = (33u * (joint.Host.flightID ^ joint.Target.flightID)) % 10000u;
 				pitchAlteration = 2f * pitchAlterationRateMax * (pa / 10000f)
 					+ (1f - pitchAlterationRateMax);
 

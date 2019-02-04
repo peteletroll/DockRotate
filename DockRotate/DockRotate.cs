@@ -518,62 +518,7 @@ namespace DockRotate
 
 		protected virtual bool enqueueRotation(float angle, float speed, float startSpeed = 0f)
 		{
-			if (!jointMotion)
-				return false;
-
-			if (speed < 0.1f)
-				return false;
-
-			string action = "none";
-			bool showlog = true;
-			if (rotCur) {
-				bool trace = false;
-				if (rotCur.isBraking()) {
-					lprint(part.desc() + ": enqueueRotation() canceled, braking");
-					return false;
-				}
-				rotCur.controller = this;
-				rotCur.maxvel = speed;
-				action = "updated";
-				if (SmoothMotion.isContinuous(ref angle)) {
-					if (rotCur.isContinuous() && angle * rotCur.tgt > 0f)
-						showlog = false; // already continuous the right way
-					if (trace && showlog)
-						lprint("MERGE CONTINUOUS " + angle + " -> " + rotCur.tgt);
-					rotCur.tgt = angle;
-					updateFrozenRotation("MERGECONT");
-				} else {
-					if (trace)
-						lprint("MERGE LIMITED " + angle + " -> " + rotCur.rot0 + " + " + rotCur.tgt);
-					if (rotCur.isContinuous()) {
-						if (trace)
-							lprint("MERGE INTO CONTINUOUS");
-						rotCur.tgt = rotCur.pos + rotCur.curBrakingSpace() + angle;
-					} else {
-						if (trace)
-							lprint("MERGE INTO LIMITED");
-						rotCur.tgt = rotCur.tgt + angle;
-					}
-					if (trace)
-						lprint("MERGED: POS " + rotCur.pos +" TGT " + rotCur.tgt);
-					updateFrozenRotation("MERGELIM");
-				}
-			} else {
-				lprint(part.desc() + ": creating rotation");
-				jointMotion.rotCur = new JointMotionObj(jointMotion, activePart, partNodeAxis, partNodePos, 0, angle, speed);
-				jointMotion.rotCur.owner = this;
-				rotCur.rot0 = rotationAngle(false);
-				rotCur.controller = this;
-				rotCur.electricityRate = electricityRate;
-				rotCur.soundVolume = soundVolume;
-				rotCur.vel = startSpeed;
-				rotCur.smartAutoStruts = useSmartAutoStruts();
-				action = "added";
-			}
-			if (showlog)
-				lprint(String.Format("{0}: enqueueRotation({1}, {2:F4}\u00b0, {3}\u00b0/s, {4}\u00b0/s), {5}",
-					activePart.desc(), partNodeAxis.desc(), rotCur.tgt, rotCur.maxvel, rotCur.vel, action));
-			return true;
+			return jointMotion && jointMotion.enqueueRotation(this, angle, speed, startSpeed);
 		}
 
 		protected float angleToSnap(float snap)
