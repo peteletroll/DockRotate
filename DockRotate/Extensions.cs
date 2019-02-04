@@ -105,6 +105,44 @@ namespace DockRotate
 			return node.FindOtherNode();
 		}
 
+		public static PartJoint dockingJoint(this ModuleDockingNode node)
+		{
+			if (!node || !node.part) {
+				log(node.part.desc() + ".dockingJoint(): no node");
+				return null;
+			}
+
+			PartJoint ret = node.sameVesselDockJoint;
+			if (ret) {
+				log(node.part.desc() + ".dockingJoint(): to same vessel " + ret.desc());
+				return ret;
+			}
+
+			ModuleDockingNode other = node.otherNode;
+			if (!other || !other.part) {
+				log(node.part.desc() + ".dockingJoint(): no otherNode");
+				return null;
+			}
+
+			log(node.part.desc() + ".dockingJoint(): otherNode() returns " + other.part.desc());
+
+			if (node.part.parent == other.part) {
+				ret = node.part.attachJoint;
+				log(node.part.desc() + ".dockingJoint(): to parent " + ret.desc());
+				return ret;
+			}
+
+			for (int i = 0; i < node.part.children.Count; i++) {
+				if (node.part.children[i].parent == node.part) {
+					ret = node.part.children[i].attachJoint;
+					log(node.part.desc() + ".dockingJoint(): to child " + ret.desc());
+					return ret;
+				}
+			}
+
+			return null;
+		}
+
 		public static string allTypes(this ModuleDockingNode node)
 		{
 			string lst = "";
