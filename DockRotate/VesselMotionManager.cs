@@ -288,8 +288,7 @@ namespace DockRotate
 				return;
 			if (isRepeated("JointUpdate"))
 				return;
-			structureChangeInfo.reset();
-			listeners().map(l => l.RightBeforeStructureChange());
+			RightBeforeStructureChange();
 		}
 
 		public void RightBeforeStructureChangeIds(uint id1, uint id2)
@@ -301,8 +300,7 @@ namespace DockRotate
 				return;
 			if (isRepeated("Ids"))
 				return;
-			structureChangeInfo.reset();
-			listeners().map(l => l.RightBeforeStructureChange());
+			RightBeforeStructureChange();
 		}
 
 		public void RightBeforeStructureChangeAction(GameEvents.FromToAction<Part, Part> action)
@@ -314,8 +312,7 @@ namespace DockRotate
 				return;
 			if (isRepeated("Action"))
 				return;
-			structureChangeInfo.reset();
-			listeners().map(l => l.RightBeforeStructureChange());
+			RightBeforeStructureChange();
 		}
 
 		public void RightBeforeStructureChangePart(Part p)
@@ -327,6 +324,13 @@ namespace DockRotate
 				return;
 			structureChangeInfo.part = p;
 			if (isRepeated("Part"))
+				return;
+			RightBeforeStructureChange();
+		}
+
+		private void RightBeforeStructureChange()
+		{
+			if (isRepeated("Generic"))
 				return;
 			structureChangeInfo.reset();
 			listeners().map(l => l.RightBeforeStructureChange());
@@ -340,7 +344,7 @@ namespace DockRotate
 					+ ") on " + desc());
 			if (!care(action, true))
 				return;
-			listeners().map(l => l.RightAfterStructureChange());
+			RightAfterStructureChange();
 		}
 
 		public void RightAfterStructureChangePart(Part p)
@@ -350,6 +354,11 @@ namespace DockRotate
 					+ desc(p.vessel) + ") on " + desc());
 			if (!care(p, true))
 				return;
+			RightAfterStructureChange();
+		}
+
+		private void RightAfterStructureChange()
+		{
 			listeners().map(l => l.RightAfterStructureChange());
 		}
 
