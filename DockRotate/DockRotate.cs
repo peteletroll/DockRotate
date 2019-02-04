@@ -643,7 +643,7 @@ namespace DockRotate
 			rotatingNode = part.FindAttachNode(rotatingNodeName);
 
 			if (rotatingNode == null) {
-				log(nameof(ModuleNodeRotate) + ".setupGeometry(" + state + "): "
+				log(GetType() + ".setupGeometry(" + state + "): "
 					+ "no node \"" + rotatingNodeName + " in " + part.desc());
 				AttachNode[] nodes = part.FindAttachNodes("");
 				string nodeHelp = part.desc() + " available nodes:";
@@ -655,7 +655,7 @@ namespace DockRotate
 
 			partNodePos = rotatingNode.position;
 			partNodeAxis = rotatingNode.orientation;
-			log(nameof(ModuleNodeRotate) + ".setupGeometry(" + state + ") done: "
+			log(GetType() + ".setupGeometry(" + state + ") done: "
 				+ partNodeAxis + "@" + partNodePos);
 			return true;
 		}
@@ -680,7 +680,7 @@ namespace DockRotate
 			}
 
 			if (rotatingNode == null) {
-				log(nameof(ModuleNodeRotate) + ".setup(): no rotatingNode");
+				log(GetType() + ".setup(): no rotatingNode");
 				return;
 			}
 
@@ -845,13 +845,13 @@ namespace DockRotate
 			dockingNode = part.FindModuleImplementing<ModuleDockingNode>();
 
 			if (!dockingNode) {
-				log(nameof(ModuleDockRotate) + ".setupGeometry(" + state + "): no docking node in " + part.desc());
+				log(GetType() + ".setupGeometry(" + state + "): no docking node in " + part.desc());
 				return false;
 			}
 
 			partNodePos = Vector3.zero.Tp(dockingNode.T(), part.T());
 			partNodeAxis = Vector3.forward.Td(dockingNode.T(), part.T());
-			log(nameof(ModuleDockRotate) + ".setupGeometry(" + state + ") done: "
+			log(GetType() + ".setupGeometry(" + state + ") done: "
 				+ partNodeAxis + "@" + partNodePos);
 			return true;
 		}
@@ -882,7 +882,7 @@ namespace DockRotate
 			basicSetup();
 
 			if (!dockingNode) {
-				log(nameof(ModuleDockRotate) + ".setup(): no dockingNode");
+				log(GetType() + ".setup(): no dockingNode");
 				return;
 			}
 

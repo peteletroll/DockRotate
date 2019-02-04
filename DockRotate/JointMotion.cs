@@ -47,7 +47,7 @@ namespace DockRotate
 				return null;
 
 			if (j.gameObject != j.Host.gameObject)
-				log(nameof(JointMotion) + ".get(): *** WARNING *** gameObject incoherency");
+				log(typeof(JointMotion) + ".get(): *** WARNING *** gameObject incoherency");
 
 			JointMotion[] jms = j.gameObject.GetComponents<JointMotion>();
 			for (int i = 0; i < jms.Length; i++)
@@ -57,7 +57,7 @@ namespace DockRotate
 			JointMotion jm = j.gameObject.AddComponent<JointMotion>();
 			jm.joint = j;
 			jm.vessel = j.Host.vessel;
-			log(nameof(JointMotion) + ".get(): created " + jm.desc());
+			log(jm.GetType() + ".get(): created " + jm.desc());
 			return jm;
 		}
 
@@ -69,7 +69,7 @@ namespace DockRotate
 				axis = -axis.STd(part, joint.Host);
 				node = node.STp(part, joint.Host);
 			} else {
-				log(nameof(JointMotion) + ".setAxis(): part " + part.desc() + " not in " + joint.desc());
+				log(GetType() + ".setAxis(): part " + part.desc() + " not in " + joint.desc());
 			}
 			log("setAxis(" + part.desc() + ", " + axis.desc() + ", " + node.desc() + ")");
 			hostAxis = axis.STd(part, joint.Host);
@@ -197,18 +197,18 @@ namespace DockRotate
 
 		public void Awake()
 		{
-			log(nameof(JointMotion) + ".Awake() on " + desc());
+			log(GetType() + ".Awake() on " + desc());
 			rotation = new SmoothMotionDispatcher(this);
 		}
 
 		public void Start()
 		{
-			log(nameof(JointMotion) + ".Start() on " + desc());
+			log(GetType() + ".Start() on " + desc());
 		}
 
 		public void OnDestroy()
 		{
-			log(nameof(JointMotion) + ".OnDestroy() on " + desc());
+			log(GetType() + ".OnDestroy() on " + desc());
 		}
 
 		public string desc()
