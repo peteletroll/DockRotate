@@ -78,7 +78,7 @@ namespace DockRotate
 			targetUp = joint.Target.up(hostAxis.STd(joint.Host, joint.Target));
 		}
 
-		public virtual bool enqueueRotation(ModuleBaseRotate owner, float angle, float speed, float startSpeed = 0f)
+		public virtual bool enqueueRotation(ModuleBaseRotate controller, float angle, float speed, float startSpeed = 0f)
 		{
 			if (!joint)
 				return false;
@@ -94,7 +94,6 @@ namespace DockRotate
 					log(joint.desc() + ": enqueueRotation() canceled, braking");
 					return false;
 				}
-				rotCur.controller = rotCur.owner;
 				rotCur.maxvel = speed;
 				action = "updated";
 				if (SmoothMotion.isContinuous(ref angle)) {
@@ -103,7 +102,7 @@ namespace DockRotate
 					if (trace && showlog)
 						log("MERGE CONTINUOUS " + angle + " -> " + rotCur.tgt);
 					rotCur.tgt = angle;
-					rotCur.owner.updateFrozenRotation("MERGECONT");
+					rotCur.controller.updateFrozenRotation("MERGECONT");
 				} else {
 					if (trace)
 						log("MERGE LIMITED " + angle + " -> " + rotCur.rot0 + " + " + rotCur.tgt);
@@ -118,18 +117,17 @@ namespace DockRotate
 					}
 					if (trace)
 						log("MERGED: POS " + rotCur.pos + " TGT " + rotCur.tgt);
-					rotCur.owner.updateFrozenRotation("MERGELIM");
+					rotCur.controller.updateFrozenRotation("MERGELIM");
 				}
 			} else {
 				log(joint.desc() + ": creating rotation");
 				rotCur = new JointMotionObj(this, joint.Host, hostAxis, hostNode, 0, angle, speed);
-				rotCur.owner = owner;
+				rotCur.controller = controller;
 				rotCur.rot0 = rotationAngle(false);
-				rotCur.controller = owner;
-				rotCur.electricityRate = owner.electricityRate;
-				rotCur.soundVolume = owner.soundVolume;
+				rotCur.electricityRate = controller.electricityRate;
+				rotCur.soundVolume = controller.soundVolume;
 				rotCur.vel = startSpeed;
-				rotCur.smartAutoStruts = owner.useSmartAutoStruts();
+				rotCur.smartAutoStruts = controller.useSmartAutoStruts();
 				action = "added";
 			}
 			if (showlog)
@@ -180,7 +178,7 @@ namespace DockRotate
 			if (brakeRotationKey())
 				rotCur.brake();
 			rotCur.advance(Time.fixedDeltaTime);
-			rotCur.owner.updateFrozenRotation("FIXED");
+			rotCur.controller.updateFrozenRotation("FIXED");
 		}
 
 		public void onStart(SmoothMotionDispatcher source)
@@ -224,7 +222,7 @@ namespace DockRotate
 
 	public class JointMotionObj: SmoothMotion
 	{
-		public ModuleBaseRotate owner;
+		public ModuleBaseRotate controller;
 
 		public static implicit operator bool(JointMotionObj r)
 		{
@@ -235,8 +233,6 @@ namespace DockRotate
 		private Vector3 node, axis;
 		private PartJoint joint;
 		public bool smartAutoStruts = false;
-
-		public ModuleBaseRotate controller = null;
 
 		public const float pitchAlterationRateMax = 0.1f;
 		public static string soundFile = "DockRotate/DockRotateMotor";

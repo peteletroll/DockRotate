@@ -267,7 +267,7 @@ namespace DockRotate
 		}
 
 		protected JointMotionObj rotCur {
-			get { return jointMotion && jointMotion.rotCur && jointMotion.rotCur.owner == this ? jointMotion.rotCur : null; }
+			get { return jointMotion && jointMotion.rotCur && jointMotion.rotCur.controller == this ? jointMotion.rotCur : null; }
 		}
 
 		protected JointMotion jointMotion;
@@ -516,7 +516,7 @@ namespace DockRotate
 			return enqueueRotation(frozen[0], frozen[1], frozen[2]);
 		}
 
-		protected virtual bool enqueueRotation(float angle, float speed, float startSpeed = 0f)
+		protected bool enqueueRotation(float angle, float speed, float startSpeed = 0f)
 		{
 			return jointMotion && jointMotion.enqueueRotation(this, angle, speed, startSpeed);
 		}
@@ -563,12 +563,8 @@ namespace DockRotate
 			if (!setupDone)
 				return;
 
-			if (!Mathf.Approximately(frozenRotation[0], 0f) && !currentRotation()) {
+			if (!Mathf.Approximately(frozenRotation[0], 0f) && !currentRotation())
 				enqueueRotation(frozenRotation);
-				JointMotionObj cr = currentRotation();
-				if (cr)
-					cr.controller = controller(frozenRotationControllerID);
-			}
 
 			updateFrozenRotation("CHECK");
 		}
@@ -984,25 +980,6 @@ namespace DockRotate
 		{
 			return (activeRotationModule && activeRotationModule.smartAutoStruts)
 				|| (proxyRotationModule && proxyRotationModule.smartAutoStruts);
-		}
-
-		protected override bool enqueueRotation(float angle, float speed, float startSpeed = 0f)
-		{
-			bool ret = false;
-			if (activeRotationModule == this) {
-				ret = base.enqueueRotation(angle, speed, startSpeed);
-			} else if (activeRotationModule && activeRotationModule.activeRotationModule == activeRotationModule) {
-				ret = activeRotationModule.enqueueRotation(angle, speed, startSpeed);
-			} else {
-				log(part.desc() + ".enqueueRotation() called on wrong module, ignoring, active part "
-					+ (activeRotationModule ? activeRotationModule.part.desc() : "null"));
-			}
-			if (ret) {
-				JointMotionObj cr = currentRotation();
-				if (cr)
-					cr.controller = this;
-			}
-			return ret;
 		}
 
 		public override void doRotateClockwise()
