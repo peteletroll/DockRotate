@@ -259,13 +259,6 @@ namespace DockRotate
 			return GameSettings.MODIFIER_KEY.GetKey();
 		}
 
-		protected bool brakeRotationKey()
-		{
-			return FlightGlobals.ActiveVessel == vessel
-				&& GameSettings.MODIFIER_KEY.GetKey()
-				&& GameSettings.BRAKES.GetKeyDown();
-		}
-
 		public bool IsJointUnlocked()
 		{
 			bool ret = currentRotation();
@@ -604,20 +597,6 @@ namespace DockRotate
 			return enqueueRotation(angleToSnap(snap), speed);
 		}
 
-		protected virtual void advanceRotation(float deltat)
-		{
-			if (!rotCur)
-				return;
-
-			if (rotCur.done()) {
-				lprint(part.desc() + ": removing rotation (1)");
-				jointMotion.rotCur = null;
-				return;
-			}
-
-			rotCur.advance(deltat);
-		}
-
 		protected void freezeCurrentRotation(string msg, bool keepSpeed)
 		{
 			if (rotCur) {
@@ -649,7 +628,7 @@ namespace DockRotate
 			updateFrozenRotation("CHECK");
 		}
 
-		protected void updateFrozenRotation(string context)
+		public void updateFrozenRotation(string context)
 		{
 			Vector3 prevRot = frozenRotation;
 			uint prevID = frozenRotationControllerID;
@@ -681,16 +660,7 @@ namespace DockRotate
 		{
 			if (!setupDone || HighLogic.LoadedScene != GameScenes.FLIGHT)
 				return;
-
 			checkFrozenRotation();
-
-			if (rotCur) {
-				rotCur.clampAngle();
-				if (brakeRotationKey())
-					rotCur.brake();
-				advanceRotation(Time.fixedDeltaTime);
-				updateFrozenRotation("FIXED");
-			}
 		}
 
 		/******** Debugging stuff ********/
@@ -1088,18 +1058,6 @@ namespace DockRotate
 					cr.controller = this;
 			}
 			return ret;
-		}
-
-		protected override void advanceRotation(float deltat)
-		{
-			if (activeRotationModule != this) {
-				lprint("advanceRotation() called on wrong module, aborting");
-				lprint(part.desc() + ": not removing rotation (3)");
-				// rotCur = null;
-				return;
-			}
-
-			base.advanceRotation(deltat);
 		}
 
 		public override void doRotateClockwise()

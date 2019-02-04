@@ -6,7 +6,7 @@ namespace DockRotate
 	public class JointMotion: MonoBehaviour, ISmoothMotionListener
 	{
 		public PartJoint joint;
-
+		private Vessel vessel;
 		private Vector3 hostAxis, hostNode;
 		private Vector3 hostUp, targetUp;
 
@@ -56,6 +56,7 @@ namespace DockRotate
 
 			JointMotion jm = j.gameObject.AddComponent<JointMotion>();
 			jm.joint = j;
+			jm.vessel = j.Host.vessel;
 			lprint(nameof(JointMotion) + ".get(): created " + jm.desc());
 			return jm;
 		}
@@ -94,6 +95,32 @@ namespace DockRotate
 			Vector3 vd = targetUp.Td(joint.Target.T(), joint.Host.T());
 			Vector3 vs = targetUp.STd(joint.Target, joint.Host);
 			return a.axisSignedAngle(vs, vd);
+		}
+
+		protected bool brakeRotationKey()
+		{
+			return joint && vessel
+				&& vessel == FlightGlobals.ActiveVessel
+				&& GameSettings.MODIFIER_KEY.GetKey()
+				&& GameSettings.BRAKES.GetKeyDown();
+		}
+
+		public void FixedUpdate()
+		{
+			if (HighLogic.LoadedScene != GameScenes.FLIGHT || !rotCur)
+				return;
+
+			if (rotCur.done()) {
+				lprint("removing rotation (1) of " + joint.desc());
+				rotCur = null;
+				return;
+			}
+
+			rotCur.clampAngle();
+			if (brakeRotationKey())
+				rotCur.brake();
+			rotCur.advance(Time.fixedDeltaTime);
+			rotCur.owner.updateFrozenRotation("FIXED");
 		}
 
 		public void onStart(SmoothMotionDispatcher source)
