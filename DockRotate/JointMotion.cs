@@ -458,7 +458,7 @@ namespace DockRotate
 			return true;
 		}
 
-		private void _propagate(Part p, Quaternion rot, Vector3 pos)
+		private static void _propagate(Part p, Quaternion rot, Vector3 pos)
 		{
 			p.orgPos = rot * (p.orgPos - pos) + pos;
 			p.orgRot = rot * p.orgRot;
