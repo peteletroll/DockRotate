@@ -359,6 +359,11 @@ namespace DockRotate
 
 		private void RightAfterStructureChange()
 		{
+			if (!vessel) {
+				lprint(nameof(VesselMotionManager) + ".RightAfterStructureChange(): vessel disappeared for " + desc());
+				MonoBehaviour.Destroy(this);
+				return;
+			}
 			listeners().map(l => l.RightAfterStructureChange());
 		}
 
