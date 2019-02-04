@@ -133,9 +133,9 @@ namespace DockRotate
 		{
 			if (j == null)
 				return "null";
-			string from = j.Host.desc() + "/" + (j.Child == j.Host ? "=" : j.Child.desc());
-			string to = j.Target.desc() + "/" + (j.Parent == j.Target ? "=" : j.Parent.desc());
-			return from + " -> " + to;
+			string host = j.Host.desc() + "/" + (j.Child == j.Host ? "=" : j.Child.desc());
+			string target = j.Target.desc() + "/" + (j.Parent == j.Target ? "=" : j.Parent.desc());
+			return host + " -> " + target;
 		}
 
 		public static void dump(this PartJoint j)
