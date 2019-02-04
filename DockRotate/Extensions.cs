@@ -6,9 +6,9 @@ namespace DockRotate
 
 	public static class Extensions
 	{
-		private static bool lprint(string msg)
+		private static bool log(string msg)
 		{
-			return ModuleBaseRotate.lprint(msg);
+			return ModuleBaseRotate.log(msg);
 		}
 
 		/******** Camera utilities ********/
@@ -62,7 +62,7 @@ namespace DockRotate
 		{
 			bool ret = (part.physicalSignificance == Part.PhysicalSignificance.FULL);
 			if (ret != part.rb) {
-				lprint(part.desc() + ": hasPhysics() Rigidbody incoherency: "
+				log(part.desc() + ": hasPhysics() Rigidbody incoherency: "
 					+ part.physicalSignificance + ", " + (part.rb ? "rb ok" : "rb null"));
 				ret = part.rb;
 			}
@@ -74,21 +74,21 @@ namespace DockRotate
 			if (!part || part.hasPhysics())
 				return false;
 
-			lprint(part.desc() + ": calling PromoteToPhysicalPart(), "
+			log(part.desc() + ": calling PromoteToPhysicalPart(), "
 				+ part.physicalSignificance + ", " + part.PhysicsSignificance);
 			part.PromoteToPhysicalPart();
-			lprint(part.desc() + ": called PromoteToPhysicalPart(), "
+			log(part.desc() + ": called PromoteToPhysicalPart(), "
 				+ part.physicalSignificance + ", " + part.PhysicsSignificance);
 			if (part.parent) {
 				if (part.attachJoint) {
-					lprint(part.desc() + ": parent joint exists already: " + part.attachJoint.desc());
+					log(part.desc() + ": parent joint exists already: " + part.attachJoint.desc());
 				} else {
 					AttachNode nodeHere = part.FindAttachNodeByPart(part.parent);
 					AttachNode nodeParent = part.parent.FindAttachNodeByPart(part);
 					AttachModes m = (nodeHere != null && nodeParent != null) ?
 						AttachModes.STACK : AttachModes.SRF_ATTACH;
 					part.CreateAttachJoint(m);
-					lprint(part.desc() + ": created joint " + m + " " + part.attachJoint.desc());
+					log(part.desc() + ": created joint " + m + " " + part.attachJoint.desc());
 				}
 			}
 
@@ -140,12 +140,12 @@ namespace DockRotate
 
 		public static void dump(this PartJoint j)
 		{
-			lprint("PartJoint " + j.desc());
-			lprint("jAxes: " + j.Axis.desc() + " " + j.SecAxis.desc());
-			lprint("jAnchors: " + j.HostAnchor.desc() + " " + j.TgtAnchor.desc());
+			log("PartJoint " + j.desc());
+			log("jAxes: " + j.Axis.desc() + " " + j.SecAxis.desc());
+			log("jAnchors: " + j.HostAnchor.desc() + " " + j.TgtAnchor.desc());
 
 			for (int i = 0; i < j.joints.Count; i++) {
-				lprint("ConfigurableJoint[" + i + "]:");
+				log("ConfigurableJoint[" + i + "]:");
 				j.joints[i].dump(j.Host);
 			}
 		}
@@ -196,26 +196,26 @@ namespace DockRotate
 				p = null;
 			}
 
-			lprint("  Link: " + j.gameObject + " to " + j.connectedBody);
-			lprint("  Axes: " + j.axis.desc() + ", " + j.secondaryAxis.desc());
+			log("  Link: " + j.gameObject + " to " + j.connectedBody);
+			log("  Axes: " + j.axis.desc() + ", " + j.secondaryAxis.desc());
 			if (p)
-				lprint("  AxesV: " + j.axis.Td(j.T(), j.T()).desc()
+				log("  AxesV: " + j.axis.Td(j.T(), j.T()).desc()
 					+ ", " + j.secondaryAxis.Td(j.T(), p.T()).desc());
 
-			lprint("  Anchors: " + j.anchor.desc()
+			log("  Anchors: " + j.anchor.desc()
 				+ " -> " + j.connectedAnchor.desc()
 				+ " [" + j.connectedAnchor.Tp(j.connectedBody.T(), j.T()).desc() + "]");
 
-			lprint("  Tgt: " + j.targetPosition.desc() + ", " + j.targetRotation.desc());
+			log("  Tgt: " + j.targetPosition.desc() + ", " + j.targetRotation.desc());
 
-			lprint("  angX: " + _jdump(j.angularXMotion, j.angularXDrive, j.lowAngularXLimit, j.angularXLimitSpring));
-			lprint("  angY: " + _jdump(j.angularYMotion, j.angularYZDrive, j.angularYLimit, j.angularYZLimitSpring));
-			lprint("  angZ: " + _jdump(j.angularZMotion, j.angularYZDrive, j.angularZLimit, j.angularYZLimitSpring));
-			lprint("  linX: " + _jdump(j.xMotion, j.xDrive, j.linearLimit, j.linearLimitSpring));
-			lprint("  linY: " + _jdump(j.yMotion, j.yDrive, j.linearLimit, j.linearLimitSpring));
-			lprint("  linZ: " + _jdump(j.zMotion, j.zDrive, j.linearLimit, j.linearLimitSpring));
+			log("  angX: " + _jdump(j.angularXMotion, j.angularXDrive, j.lowAngularXLimit, j.angularXLimitSpring));
+			log("  angY: " + _jdump(j.angularYMotion, j.angularYZDrive, j.angularYLimit, j.angularYZLimitSpring));
+			log("  angZ: " + _jdump(j.angularZMotion, j.angularYZDrive, j.angularZLimit, j.angularYZLimitSpring));
+			log("  linX: " + _jdump(j.xMotion, j.xDrive, j.linearLimit, j.linearLimitSpring));
+			log("  linY: " + _jdump(j.yMotion, j.yDrive, j.linearLimit, j.linearLimitSpring));
+			log("  linZ: " + _jdump(j.zMotion, j.zDrive, j.linearLimit, j.linearLimitSpring));
 
-			lprint("  proj: " + j.projectionMode + " ang=" + j.projectionAngle + " dst=" + j.projectionDistance);
+			log("  proj: " + j.projectionMode + " ang=" + j.projectionAngle + " dst=" + j.projectionDistance);
 		}
 
 		private static string _jdump(ConfigurableJointMotion mot, JointDrive drv, SoftJointLimit lim, SoftJointLimitSpring spr)

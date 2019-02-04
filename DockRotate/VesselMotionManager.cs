@@ -23,7 +23,7 @@ namespace DockRotate
 				try {
 					a(l[i]);
 				} catch (Exception e) {
-					ModuleBaseRotate.lprint(e.StackTrace);
+					ModuleBaseRotate.log(e.StackTrace);
 				}
 			}
 		}
@@ -46,18 +46,18 @@ namespace DockRotate
 		public static VesselMotionManager get(Vessel v)
 		{
 			if (!v) {
-				lprint("*** WARNING *** " + nameof(VesselMotionManager) + ".get() with null vessel");
+				log("*** WARNING *** " + nameof(VesselMotionManager) + ".get() with null vessel");
 				return null;
 			}
 
 			VesselMotionManager[] mgrs = v.gameObject.GetComponents<VesselMotionManager>();
 			if (mgrs != null && mgrs.Length > 1)
-				lprint(nameof(VesselMotionManager) + ".get(): *** WARNING *** found " + mgrs.Length);
+				log(nameof(VesselMotionManager) + ".get(): *** WARNING *** found " + mgrs.Length);
 
 			VesselMotionManager mgr = (mgrs != null && mgrs.Length > 0) ? mgrs[0] : null;
 			if (mgr) {
 				if (mgr.vessel != v)
-					lprint(nameof(VesselMotionManager) + ".get(): *** WARNING *** "
+					log(nameof(VesselMotionManager) + ".get(): *** WARNING *** "
 						+ mgr.desc() + " -> " + desc(v));
 				mgr.vessel = v;
 			}
@@ -65,7 +65,7 @@ namespace DockRotate
 			if (!mgr) {
 				mgr = v.gameObject.AddComponent<VesselMotionManager>();
 				mgr.vessel = v;
-				lprint(nameof(VesselMotionManager) + ".get(" + desc(v) + ") created " + mgr.desc());
+				log(nameof(VesselMotionManager) + ".get(" + desc(v) + ") created " + mgr.desc());
 			}
 			return mgr;
 		}
@@ -74,7 +74,7 @@ namespace DockRotate
 		{
 			int c = rotCount;
 			if (verboseEvents && c != 0)
-				ModuleBaseRotate.lprint("resetRotCount(): " + c + " -> RESET on " + desc());
+				ModuleBaseRotate.log("resetRotCount(): " + c + " -> RESET on " + desc());
 			rotCount = 0;
 		}
 
@@ -84,13 +84,13 @@ namespace DockRotate
 			if (ret < 0)
 				ret = 0;
 			if (verboseEvents && delta != 0)
-				ModuleBaseRotate.lprint("changeCount(" + delta + "): "
+				ModuleBaseRotate.log("changeCount(" + delta + "): "
 					+ rotCount + " -> " + ret + " on " + desc());
 
 			if (ret == 0 && rotCount > 0) {
 				// no action needed with IsJointUnlocked() logic (no smart autostruts)
 				// but IsJointUnlocked() logic is bugged now
-				lprint("securing autostruts on " + desc());
+				log("securing autostruts on " + desc());
 				vessel.secureAllAutoStruts();
 			}
 
@@ -105,12 +105,12 @@ namespace DockRotate
 		{
 			if (cmd == eventState) {
 				if (verboseEvents)
-					lprint(nameof(VesselMotionManager) + ".setEvents(" + cmd + ") repeated on " + desc());
+					log(nameof(VesselMotionManager) + ".setEvents(" + cmd + ") repeated on " + desc());
 				return;
 			}
 
 			if (verboseEvents)
-				lprint(nameof(VesselMotionManager) + ".setEvents(" + cmd + ") on " + desc());
+				log(nameof(VesselMotionManager) + ".setEvents(" + cmd + ") on " + desc());
 
 			if (cmd) {
 
@@ -183,7 +183,7 @@ namespace DockRotate
 		{
 			bool ret = structureChangeInfo.lastResetFrame == Time.frameCount;
 			if (ret && verboseEvents) {
-				lprint(nameof(VesselMotionManager) + ".isRepeated(): repeated " + label
+				log(nameof(VesselMotionManager) + ".isRepeated(): repeated " + label
 					+ " after " + structureChangeInfo.lastLabel
 					+ " on " + desc());
 			} else {
@@ -196,7 +196,7 @@ namespace DockRotate
 		{
 			bool ret = v && v == vessel;
 			if (verboseCare)
-				lprint(nameof(VesselMotionManager) + ".care("
+				log(nameof(VesselMotionManager) + ".care("
 					+ desc(v)
 					+ ") on "
 					+ desc()
@@ -208,7 +208,7 @@ namespace DockRotate
 		{
 			if (useStructureChangeInfo && p && p == structureChangeInfo.part) {
 				if (verboseCare)
-					lprint(nameof(VesselMotionManager) + ".care(" + p.desc() + ") on " + desc() + " = " + true);
+					log(nameof(VesselMotionManager) + ".care(" + p.desc() + ") on " + desc() + " = " + true);
 				return true;
 			}
 			return p && care(p.vessel, useStructureChangeInfo);
@@ -228,7 +228,7 @@ namespace DockRotate
 		{
 			bool ret = vessel && (vessel.persistentId == id1 || vessel.persistentId == id2);
 			if (verboseCare)
-				lprint(nameof(VesselMotionManager) + ".care(" + id1 + ", " + id2 + ") on " + desc() + " = " + ret);
+				log(nameof(VesselMotionManager) + ".care(" + id1 + ", " + id2 + ") on " + desc() + " = " + ret);
 			return ret;
 		}
 
@@ -236,7 +236,7 @@ namespace DockRotate
 		{
 			List<IStructureChangeListener> ret = vessel.FindPartModulesImplementing<IStructureChangeListener>();
 			if (verboseEvents)
-				lprint(nameof(VesselMotionManager) + ".listeners() on " + desc() + " finds " + ret.Count);
+				log(nameof(VesselMotionManager) + ".listeners() on " + desc() + " finds " + ret.Count);
 			return ret;
 		}
 
@@ -244,21 +244,21 @@ namespace DockRotate
 		{
 			List<IStructureChangeListener> ret = p.FindModulesImplementing<IStructureChangeListener>();
 			if (verboseEvents)
-				lprint(nameof(VesselMotionManager) + ".listeners(" + p.desc() + ") on " + desc() + " finds " + ret.Count);
+				log(nameof(VesselMotionManager) + ".listeners(" + p.desc() + ") on " + desc() + " finds " + ret.Count);
 			return ret;
 		}
 
 		public void OnVesselCreate(Vessel v)
 		{
 			if (verboseEvents)
-				lprint(nameof(VesselMotionManager) + ".OnVesselCreate(" + desc(v) + ") on " + desc());
+				log(nameof(VesselMotionManager) + ".OnVesselCreate(" + desc(v) + ") on " + desc());
 			get(v);
 		}
 
 		public void OnVesselGoOnRails(Vessel v)
 		{
 			if (verboseEvents)
-				lprint(nameof(VesselMotionManager) + ".OnVesselGoOnRails(" + desc(v) + ") on " + desc());
+				log(nameof(VesselMotionManager) + ".OnVesselGoOnRails(" + desc(v) + ") on " + desc());
 			if (!care(v, false))
 				return;
 			resetRotCount();
@@ -270,7 +270,7 @@ namespace DockRotate
 		public void OnVesselGoOffRails(Vessel v)
 		{
 			if (verboseEvents)
-				lprint(nameof(VesselMotionManager) + ".OnVesselGoOffRails(" + desc(v) + ") on " + desc());
+				log(nameof(VesselMotionManager) + ".OnVesselGoOffRails(" + desc(v) + ") on " + desc());
 			VesselMotionManager.get(v);
 			if (!care(v, false))
 				return;
@@ -283,7 +283,7 @@ namespace DockRotate
 		private void RightBeforeStructureChangeJointUpdate(Vessel v)
 		{
 			if (verboseEvents)
-				lprint(nameof(VesselMotionManager) + ".RightBeforeStructureChangeJointUpdate() on " + desc());
+				log(nameof(VesselMotionManager) + ".RightBeforeStructureChangeJointUpdate() on " + desc());
 			if (!care(v, false))
 				return;
 			if (isRepeated("JointUpdate"))
@@ -294,7 +294,7 @@ namespace DockRotate
 		public void RightBeforeStructureChangeIds(uint id1, uint id2)
 		{
 			if (verboseEvents)
-				lprint(nameof(VesselMotionManager) + ".RightBeforeStructureChangeIds("
+				log(nameof(VesselMotionManager) + ".RightBeforeStructureChangeIds("
 					+ id1 + ", " + id2 + ") on " + desc());
 			if (!care(id1, id2, false))
 				return;
@@ -306,7 +306,7 @@ namespace DockRotate
 		public void RightBeforeStructureChangeAction(GameEvents.FromToAction<Part, Part> action)
 		{
 			if (verboseEvents)
-				lprint(nameof(VesselMotionManager) + ".RightBeforeStructureChangeAction("
+				log(nameof(VesselMotionManager) + ".RightBeforeStructureChangeAction("
 					+ action.from.desc() + ", " + action.to.desc() + ") on " + desc());
 			if (!care(action, false))
 				return;
@@ -318,7 +318,7 @@ namespace DockRotate
 		public void RightBeforeStructureChangePart(Part p)
 		{
 			if (verboseEvents)
-				lprint(nameof(VesselMotionManager) + ".RightBeforeStructureChangePart("
+				log(nameof(VesselMotionManager) + ".RightBeforeStructureChangePart("
 					+ desc(p.vessel) + ") on " + desc());
 			if (!care(p, false))
 				return;
@@ -339,7 +339,7 @@ namespace DockRotate
 		public void RightAfterStructureChangeAction(GameEvents.FromToAction<Part, Part> action)
 		{
 			if (verboseEvents)
-				lprint(nameof(VesselMotionManager) + ".RightAfterStructureChangeAction("
+				log(nameof(VesselMotionManager) + ".RightAfterStructureChangeAction("
 					+ desc(action.from.vessel) + ", " + desc(action.to.vessel)
 					+ ") on " + desc());
 			if (!care(action, true))
@@ -350,7 +350,7 @@ namespace DockRotate
 		public void RightAfterStructureChangePart(Part p)
 		{
 			if (verboseEvents)
-				lprint(nameof(VesselMotionManager) + ".RightAfterStructureChangePart("
+				log(nameof(VesselMotionManager) + ".RightAfterStructureChangePart("
 					+ desc(p.vessel) + ") on " + desc());
 			if (!care(p, true))
 				return;
@@ -360,7 +360,7 @@ namespace DockRotate
 		private void RightAfterStructureChange()
 		{
 			if (!vessel) {
-				lprint(nameof(VesselMotionManager) + ".RightAfterStructureChange(): vessel disappeared for " + desc());
+				log(nameof(VesselMotionManager) + ".RightAfterStructureChange(): vessel disappeared for " + desc());
 				MonoBehaviour.Destroy(this);
 				return;
 			}
@@ -370,7 +370,7 @@ namespace DockRotate
 		public void RightAfterSameVesselDock(GameEvents.FromToAction<ModuleDockingNode, ModuleDockingNode> action)
 		{
 			if (verboseEvents)
-				lprint(nameof(VesselMotionManager) + ".RightAfterSameVesselDock("
+				log(nameof(VesselMotionManager) + ".RightAfterSameVesselDock("
 					+ desc(action.from.vessel) + ", " + desc(action.to.vessel)
 					+ ") on " + desc());
 			if (!care(action, false))
@@ -382,7 +382,7 @@ namespace DockRotate
 		public void RightAfterSameVesselUndock(GameEvents.FromToAction<ModuleDockingNode, ModuleDockingNode> action)
 		{
 			if (verboseEvents)
-				lprint(nameof(VesselMotionManager) + ".RightAfterSameVesselUndock("
+				log(nameof(VesselMotionManager) + ".RightAfterSameVesselUndock("
 					+ desc(action.from.vessel) + ", " + desc(action.to.vessel)
 					+ ") on " + desc());
 			if (!care(action, false))
@@ -395,32 +395,32 @@ namespace DockRotate
 		{
 			Camera camera = CameraManager.GetCurrentCamera();
 			if (verboseEvents && camera) {
-				lprint(nameof(VesselMotionManager) + ".OnCameraChange(" + mode + ") on " + desc());
+				log(nameof(VesselMotionManager) + ".OnCameraChange(" + mode + ") on " + desc());
 				Camera[] cameras = Camera.allCameras;
 				for (int i = 0; i < cameras.Length; i++)
-					lprint("camera[" + i + "] = " + cameras[i].desc());
+					log("camera[" + i + "] = " + cameras[i].desc());
 			}
 		}
 
 		public void Awake()
 		{
-			ModuleBaseRotate.lprint(nameof(VesselMotionManager) + ".Awake() on " + desc());
+			ModuleBaseRotate.log(nameof(VesselMotionManager) + ".Awake() on " + desc());
 			if (!vessel) {
 				vessel = gameObject.GetComponent<Vessel>();
 				if (verboseEvents && vessel)
-					lprint(nameof(VesselMotionManager) + ".Awake(): found vessel " + desc());
+					log(nameof(VesselMotionManager) + ".Awake(): found vessel " + desc());
 			}
 			setEvents(true);
 		}
 
 		public void Start()
 		{
-			ModuleBaseRotate.lprint(nameof(VesselMotionManager) + ".Start() on " + desc());
+			ModuleBaseRotate.log(nameof(VesselMotionManager) + ".Start() on " + desc());
 		}
 
 		public void OnDestroy()
 		{
-			ModuleBaseRotate.lprint(nameof(VesselMotionManager) + ".OnDestroy() on " + desc());
+			ModuleBaseRotate.log(nameof(VesselMotionManager) + ".OnDestroy() on " + desc());
 			setEvents(false);
 		}
 
@@ -434,9 +434,9 @@ namespace DockRotate
 			return GetInstanceID() + "-" + desc(vessel);
 		}
 
-		private static void lprint(string msg)
+		private static bool log(string msg)
 		{
-			ModuleBaseRotate.lprint(msg);
+			return ModuleBaseRotate.log(msg);
 		}
 	}
 }

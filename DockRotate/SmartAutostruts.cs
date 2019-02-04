@@ -6,7 +6,7 @@ namespace DockRotate
 {
 	public static class SmartAutostruts
 	{
-		private static bool lprint(string msg)
+		private static bool log(string msg)
 		{
 			Debug.Log("[SmartAutostruts:" + Time.frameCount + "]: " + msg);
 			return true;
@@ -112,7 +112,7 @@ namespace DockRotate
 					continue;
 
 				allAutostrutJoints.Add(j);
-				lprint("Autostrut [" + allAutostrutJoints.Count + "] " + j.desc());
+				log("Autostrut [" + allAutostrutJoints.Count + "] " + j.desc());
 			}
 
 			cached_allAutostrutJoints = allAutostrutJoints.ToArray();
@@ -137,7 +137,7 @@ namespace DockRotate
 				if (rotParts.contains(j.Host) == rotParts.contains(j.Target))
 					continue;
 
-				lprint(part.desc() + ": releasing [" + ++count + "] " + j.desc());
+				log(part.desc() + ": releasing [" + ++count + "] " + j.desc());
 				j.DestroyJoint();
 			}
 		}
