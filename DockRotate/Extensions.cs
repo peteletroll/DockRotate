@@ -97,52 +97,6 @@ namespace DockRotate
 
 		/******** ModuleDockingMode utilities ********/
 
-		public static ModuleDockingNode otherNode(this ModuleDockingNode node)
-		{
-			// this prevents a warning
-			if (node.dockedPartUId <= 0)
-				return null;
-			return node.FindOtherNode();
-		}
-
-		public static PartJoint dockingJoint(this ModuleDockingNode node)
-		{
-			if (!node || !node.part) {
-				log(node.part.desc() + ".dockingJoint(): no node");
-				return null;
-			}
-
-			PartJoint ret = node.sameVesselDockJoint;
-			if (ret) {
-				log(node.part.desc() + ".dockingJoint(): to same vessel " + ret.desc());
-				return ret;
-			}
-
-			ModuleDockingNode other = node.otherNode;
-			if (!other || !other.part) {
-				log(node.part.desc() + ".dockingJoint(): no otherNode");
-				return null;
-			}
-
-			log(node.part.desc() + ".dockingJoint(): otherNode() returns " + other.part.desc());
-
-			if (node.part.parent == other.part) {
-				ret = node.part.attachJoint;
-				log(node.part.desc() + ".dockingJoint(): to parent " + ret.desc());
-				return ret;
-			}
-
-			for (int i = 0; i < node.part.children.Count; i++) {
-				if (node.part.children[i].parent == node.part) {
-					ret = node.part.children[i].attachJoint;
-					log(node.part.desc() + ".dockingJoint(): to child " + ret.desc());
-					return ret;
-				}
-			}
-
-			return null;
-		}
-
 		public static string allTypes(this ModuleDockingNode node)
 		{
 			string lst = "";
@@ -173,7 +127,8 @@ namespace DockRotate
 				return "null";
 			string host = j.Host.desc() + "/" + (j.Child == j.Host ? "=" : j.Child.desc());
 			string target = j.Target.desc() + "/" + (j.Parent == j.Target ? "=" : j.Parent.desc());
-			return host + " -> " + target;
+			int n = j.joints.Count;
+			return host + " " + n + "> " + target;
 		}
 
 		public static void dump(this PartJoint j)

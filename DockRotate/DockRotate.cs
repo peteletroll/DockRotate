@@ -871,6 +871,68 @@ namespace DockRotate
 #endif
 		}
 
+		private static PartJoint dockingJoint(ModuleDockingNode node, bool verbose)
+		{
+			if (!node || !node.part) {
+				if (verbose)
+					log(node.part.desc() + ".dockingJoint(): no node");
+				return null;
+			}
+
+			if (verbose && node.state != "PreAttached" && !node.state.StartsWith("Docked"))
+				log(node.part.desc() + ".dockingJoint(): unconnected state " + node.state);
+
+			ModuleDockingNode other = node.otherNode;
+			if (other) {
+				if (verbose)
+					log(node.part.desc() + ".dockingJoint(): otherNode is " + other.part.desc());
+			} else if (node.dockedPartUId > 0) {
+				other = node.FindOtherNode();
+				if (verbose && other)
+					log(node.part.desc() + ".dockingJoint(): otherNode found " + other.part.desc());
+			}
+
+			if (!other || !other.part) {
+				if (verbose)
+					log(node.part.desc() + ".dockingJoint(): no otherNode, id = " + node.dockedPartUId);
+				return null;
+			}
+
+			PartJoint ret = node.sameVesselDockJoint;
+			if (ret) {
+				if (verbose)
+					log(node.part.desc() + ".dockingJoint(): to same vessel " + ret.desc());
+				return ret;
+			}
+
+			ret = other.sameVesselDockJoint;
+			if (ret && other.otherNode == node) {
+				if (verbose)
+					log(node.part.desc() + ".dockingJoint(): from same vessel " + ret.desc());
+				return ret;
+			}
+
+			if (node.part.parent == other.part) {
+				ret = node.part.attachJoint;
+				if (verbose)
+					log(node.part.desc() + ".dockingJoint(): to parent " + ret.desc());
+				return ret;
+			}
+
+			for (int i = 0; i < node.part.children.Count; i++) {
+				if (node.part.children[i].parent == node.part) {
+					ret = node.part.children[i].attachJoint;
+					if (verbose)
+						log(node.part.desc() + ".dockingJoint(): to child " + ret.desc());
+					return ret;
+				}
+			}
+
+			if (verbose)
+				log(node.part.desc() + ".dockingJoint(): nothing");
+			return null;
+		}
+
 		protected override void setup()
 		{
 			PartJoint rotatingJoint = null;
@@ -928,6 +990,12 @@ namespace DockRotate
 				if (proxyRotationModule)
 					proxyRotationModule.jointMotion = jointMotion;
 			}
+
+			PartJoint check = dockingJoint(dockingNode, true);
+			if (rotatingJoint != check)
+				log(part.desc() + " *** WARNING *** dockingJoint() incoherency:"
+					+ " old " + rotatingJoint.desc()
+					+ " new " + check.desc());
 		}
 
 		protected override ModuleBaseRotate controller(uint id)
@@ -1053,7 +1121,7 @@ namespace DockRotate
 
 				log("types: " + dockingNode.allTypes());
 
-				ModuleDockingNode other = dockingNode.otherNode();
+				ModuleDockingNode other = dockingNode.otherNode;
 				log("other: " + (other ? other.part.desc() : "none"));
 
 				log("partNodeAxisV: " + partNodeAxis.STd(part, vessel.rootPart).desc());

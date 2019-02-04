@@ -371,7 +371,8 @@ namespace DockRotate
 		{
 			if (verboseEvents)
 				log(GetType() + ".RightAfterSameVesselDock("
-					+ desc(action.from.vessel) + ", " + desc(action.to.vessel)
+					+ action.from.part.desc() + "@" + desc(action.from.vessel)
+					+ ", " + action.to.part.desc() + "@" + desc(action.to.vessel)
 					+ ") on " + desc());
 			if (!care(action, false))
 				return;
