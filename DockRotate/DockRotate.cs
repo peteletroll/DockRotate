@@ -656,6 +656,43 @@ namespace DockRotate
 			return true;
 		}
 
+		private static PartJoint nodeJoint(AttachNode node, bool verbose)
+		{
+			if (node == null || !node.owner) {
+				if (verbose)
+					log("nodeJoint(): no node");
+				return null;
+			}
+
+			Part part = node.owner;
+			Part other = node.attachedPart;
+			if (!other) {
+				if (verbose)
+					log(node.owner.desc() + ".nodeJoint(" + node.id + "): no attachedPart");
+				return null;
+			}
+			if (verbose)
+				log(node.owner.desc() + ".nodeJoint(" + node.id + "): attachedPart is " + other.desc());
+
+			if (part.parent == other) {
+				PartJoint ret = part.attachJoint;
+				if (verbose)
+					log(node.owner.desc() + ".nodeJoint(" + node.id + "): child " + ret.desc());
+				return ret;
+			}
+
+			if (other.parent == part) {
+				PartJoint ret = other.attachJoint;
+				if (verbose)
+					log(node.owner.desc() + ".nodeJoint(" + node.id + "): parent " + ret.desc());
+				return ret;
+			}
+
+			if (verbose)
+				log(node.owner.desc() + ".nodeJoint(" + node.id + "): nothing");
+			return null;
+		}
+
 		protected override void setup()
 		{
 			PartJoint rotatingJoint = null;
@@ -714,6 +751,12 @@ namespace DockRotate
 				jointMotion = JointMotion.get(rotatingJoint);
 				jointMotion.setAxis(activePart, partNodeAxis, partNodePos);
 			}
+
+			PartJoint check = nodeJoint(rotatingNode, true);
+			if (rotatingJoint != check)
+				log(part.desc() + " *** WARNING *** nodeJoint() incoherency:"
+					+ " old " + rotatingJoint.desc()
+					+ " new " + check.desc());
 		}
 
 		protected override ModuleBaseRotate controller(uint id)
