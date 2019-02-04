@@ -9,7 +9,7 @@ namespace DockRotate
 		void onStop(SmoothMotionDispatcher source);
 	}
 
-	public class SmoothMotionDispatcher : SmoothMotion
+	public class SmoothMotionDispatcher: SmoothMotion
 	{
 		private ISmoothMotionListener listener;
 
