@@ -463,7 +463,8 @@ namespace DockRotate
 			p.orgPos = rot * (p.orgPos - pos) + pos;
 			p.orgRot = rot * p.orgRot;
 
-			for (int i = 0; i < p.children.Count; i++)
+			int c = p.children.Count;
+			for (int i = 0; i < c; i++)
 				_propagate(p.children[i], rot, pos);
 		}
 	}

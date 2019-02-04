@@ -49,7 +49,8 @@ namespace DockRotate
 			private static void _collect(PartSet s, Part p)
 			{
 				s.add(p);
-				for (int i = 0; i < p.children.Count; i++)
+				int c = p.children.Count;
+				for (int i = 0; i < c; i++)
 					_collect(s, p.children[i]);
 			}
 		}
