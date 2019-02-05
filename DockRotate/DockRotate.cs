@@ -543,7 +543,10 @@ namespace DockRotate
 			}
 		}
 
-		protected abstract JointMotionObj currentRotation();
+		protected JointMotionObj currentRotation()
+		{
+			return jointMotion ? jointMotion.rotCur : null;
+		}
 
 		protected void checkFrozenRotation()
 		{
@@ -727,11 +730,6 @@ namespace DockRotate
 			return smartAutoStruts;
 		}
 
-		protected override JointMotionObj currentRotation()
-		{
-			return rotCur;
-		}
-
 		protected override void dumpPart()
 		{
 			log("--- DUMP " + part.desc() + " ---");
@@ -913,11 +911,6 @@ namespace DockRotate
 		public override bool useSmartAutoStruts()
 		{
 			return smartAutoStruts;
-		}
-
-		protected override JointMotionObj currentRotation()
-		{
-			return jointMotion ? jointMotion.rotCur : null;
 		}
 
 		/******** Debugging stuff ********/
