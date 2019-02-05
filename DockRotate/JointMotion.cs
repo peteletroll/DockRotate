@@ -124,7 +124,7 @@ namespace DockRotate
 				rotCur.vel = startSpeed;
 				rotCur.controller = controller;
 				rotCur.electricityRate = controller.electricityRate;
-				rotCur.soundVolume = controller.soundVolume;
+				soundVolume = controller.soundVolume;
 				rotCur.smartAutoStruts = controller.smartAutoStruts;
 				action = "added";
 			}
@@ -219,6 +219,72 @@ namespace DockRotate
 		public void OnDestroy()
 		{
 			log(GetType() + ".OnDestroy() on " + desc());
+			if (sound)
+				MonoBehaviour.Destroy(sound);
+		}
+
+		/******** sound stuff ********/
+
+		public const float pitchAlterationRateMax = 0.1f;
+		public static string soundFile = "DockRotate/DockRotateMotor";
+		public AudioSource sound;
+		public float soundVolume = 1f;
+		public float pitchAlteration = 1f;
+
+		public void startSound()
+		{
+			if (sound)
+				return;
+
+			try {
+				AudioClip clip = GameDatabase.Instance.GetAudioClip(soundFile);
+				if (!clip) {
+					log("clip " + soundFile + " not found");
+					return;
+				}
+
+				sound = joint.Host.gameObject.AddComponent<AudioSource>();
+				sound.clip = clip;
+				sound.volume = 0f;
+				sound.pitch = 0f;
+				sound.loop = true;
+				sound.rolloffMode = AudioRolloffMode.Logarithmic;
+				sound.spatialBlend = 1f;
+				sound.minDistance = 1f;
+				sound.maxDistance = 1000f;
+				sound.playOnAwake = false;
+
+				uint pa = (33u * (joint.Host.flightID ^ joint.Target.flightID)) % 10000u;
+				pitchAlteration = 2f * pitchAlterationRateMax * (pa / 10000f)
+					+ (1f - pitchAlterationRateMax);
+
+				sound.Play();
+
+				// log(activePart.desc() + ": added sound");
+			} catch (Exception e) {
+				log("sound: " + e.Message);
+				if (sound)
+					MonoBehaviour.Destroy(sound);
+				sound = null;
+			}
+		}
+
+		public void stepSound()
+		{
+			if (sound != null && rotCur) {
+				float p = Mathf.Sqrt(Mathf.Abs(rotCur.vel / rotCur.maxvel));
+				sound.volume = soundVolume * p * GameSettings.SHIP_VOLUME;
+				sound.pitch = p * pitchAlteration;
+			}
+		}
+
+		public void stopSound()
+		{
+			if (sound != null) {
+				sound.Stop();
+				MonoBehaviour.Destroy(sound);
+				sound = null;
+			}
 		}
 
 		public string desc()
@@ -238,12 +304,6 @@ namespace DockRotate
 		public ModuleBaseRotate controller;
 
 		public bool smartAutoStruts = false;
-
-		public const float pitchAlterationRateMax = 0.1f;
-		public static string soundFile = "DockRotate/DockRotateMotor";
-		public AudioSource sound;
-		public float soundVolume = 1f;
-		public float pitchAlteration = 1f;
 
 		public float electricityRate = 1f;
 		public float rot0 = 0f;
@@ -309,7 +369,7 @@ namespace DockRotate
 				j.reconfigureForRotation();
 			}
 
-			startSound();
+			jm.startSound();
 		}
 
 		protected override void onStep(float deltat)
@@ -323,7 +383,7 @@ namespace DockRotate
 				ji.cjm.setRotation(pos, ji.localAxis, ji.localNode);
 			}
 
-			stepSound();
+			jm.stepSound();
 
 			if (controller) {
 				float s = controller.speed();
@@ -345,7 +405,7 @@ namespace DockRotate
 
 		protected override void onStop()
 		{
-			stopSound();
+			jm.stopSound();
 
 			onStep(0);
 
@@ -354,60 +414,6 @@ namespace DockRotate
 			int c = VesselMotionManager.get(activePart).changeCount(0);
 			log(activePart.desc() + ": rotation stopped [" + c + "], "
 				+ electricity.ToString("F2") + " electricity");
-		}
-
-		public void startSound()
-		{
-			if (sound)
-				return;
-
-			try {
-				AudioClip clip = GameDatabase.Instance.GetAudioClip(soundFile);
-				if (!clip) {
-					log("clip " + soundFile + " not found");
-					return;
-				}
-
-				sound = activePart.gameObject.AddComponent<AudioSource>();
-				sound.clip = clip;
-				sound.volume = 0;
-				sound.pitch = 0;
-				sound.loop = true;
-				sound.rolloffMode = AudioRolloffMode.Logarithmic;
-				sound.spatialBlend = 1f;
-				sound.minDistance = 1f;
-				sound.maxDistance = 1000f;
-				sound.playOnAwake = false;
-
-				uint pa = (33u * (jm.joint.Host.flightID ^ jm.joint.Target.flightID)) % 10000u;
-				pitchAlteration = 2f * pitchAlterationRateMax * (pa / 10000f)
-					+ (1f - pitchAlterationRateMax);
-
-				sound.Play();
-
-				// log(activePart.desc() + ": added sound");
-			} catch (Exception e) {
-				sound = null;
-				log("sound: " + e.Message);
-			}
-		}
-
-		public void stepSound()
-		{
-			if (sound != null) {
-				float p = Mathf.Sqrt(Mathf.Abs(vel / maxvel));
-				sound.volume = soundVolume * p * GameSettings.SHIP_VOLUME;
-				sound.pitch = p * pitchAlteration;
-			}
-		}
-
-		public void stopSound()
-		{
-			if (sound != null) {
-				sound.Stop();
-				MonoBehaviour.Destroy(sound);
-				sound = null;
-			}
 		}
 
 		public void staticize()
