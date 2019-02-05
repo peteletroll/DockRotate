@@ -119,7 +119,7 @@ namespace DockRotate
 				}
 			} else {
 				log(joint.desc() + ": creating rotation");
-				rotCur = new JointMotionObj(this, joint.Host, hostAxis, hostNode, 0, angle, speed);
+				rotCur = new JointMotionObj(this, hostAxis, hostNode, 0, angle, speed);
 				rotCur.controller = controller;
 				rotCur.rot0 = rotationAngle(false);
 				rotCur.electricityRate = controller.electricityRate;
@@ -234,16 +234,11 @@ namespace DockRotate
 
 	public class JointMotionObj: SmoothMotion
 	{
+		private JointMotion jm;
 		public ModuleBaseRotate controller;
-
-		public static implicit operator bool(JointMotionObj r)
-		{
-			return r != null;
-		}
 
 		private Part activePart, proxyPart;
 		private Vector3 node, axis;
-		private PartJoint joint;
 		public bool smartAutoStruts = false;
 
 		public const float pitchAlterationRateMax = 0.1f;
@@ -257,26 +252,21 @@ namespace DockRotate
 
 		private struct RotJointInfo
 		{
-			public ConfigurableJointManager jm;
+			public ConfigurableJointManager cjm;
 			public Vector3 localAxis, localNode;
 			public Vector3 jointAxis, jointNode;
 			public Vector3 connectedBodyAxis, connectedBodyNode;
 		}
 		private RotJointInfo[] rji;
 
-		private static bool log(string msg)
+		public JointMotionObj(JointMotion jm, Vector3 axis, Vector3 node, float pos, float tgt, float maxvel)
 		{
-			return ModuleBaseRotate.log(msg);
-		}
-
-		public JointMotionObj(JointMotion jm, Part part, Vector3 axis, Vector3 node, float pos, float tgt, float maxvel)
-		{
-			this.activePart = part;
+			this.jm = jm;
 			this.axis = axis;
 			this.node = node;
-			this.joint = jm.joint;
 
-			this.proxyPart = joint.Host == part ? joint.Target : joint.Host;
+			this.activePart = jm.joint.Host;
+			this.proxyPart = jm.joint.Target;
 
 			this.pos = pos;
 			this.tgt = tgt;
@@ -294,21 +284,21 @@ namespace DockRotate
 				// but IsJointUnlocked() logic is bugged now :-(
 				activePart.vessel.releaseAllAutoStruts();
 			}
-			int c = joint.joints.Count;
+			int c = jm.joint.joints.Count;
 			rji = new RotJointInfo[c];
 			for (int i = 0; i < c; i++) {
-				ConfigurableJoint j = joint.joints[i];
+				ConfigurableJoint j = jm.joint.joints[i];
 
 				RotJointInfo ji;
 
-				ji.jm = new ConfigurableJointManager();
-				ji.jm.setup(j);
+				ji.cjm = new ConfigurableJointManager();
+				ji.cjm.setup(j);
 
 				ji.localAxis = axis.Td(activePart.T(), j.T());
 				ji.localNode = node.Tp(activePart.T(), j.T());
 
-				ji.jointAxis = ji.jm.L2Jd(ji.localAxis);
-				ji.jointNode = ji.jm.L2Jp(ji.localNode);
+				ji.jointAxis = ji.cjm.L2Jd(ji.localAxis);
+				ji.jointNode = ji.cjm.L2Jp(ji.localNode);
 
 				ji.connectedBodyAxis = axis.STd(activePart, proxyPart)
 					.Td(proxyPart.T(), proxyPart.rb.T());
@@ -330,12 +320,13 @@ namespace DockRotate
 
 		protected override void onStep(float deltat)
 		{
-			for (int i = 0; i < joint.joints.Count; i++) {
-				ConfigurableJoint j = joint.joints[i];
+			int c = jm.joint.joints.Count;
+			for (int i = 0; i < c; i++) {
+				ConfigurableJoint j = jm.joint.joints[i];
 				if (!j)
 					continue;
 				RotJointInfo ji = rji[i];
-				ji.jm.setRotation(pos, ji.localAxis, ji.localNode);
+				ji.cjm.setRotation(pos, ji.localAxis, ji.localNode);
 			}
 
 			stepSound();
@@ -360,8 +351,6 @@ namespace DockRotate
 
 		protected override void onStop()
 		{
-			// log("stop rot axis " + currentRotation(0).desc());
-
 			stopSound();
 
 			onStep(0);
@@ -396,7 +385,7 @@ namespace DockRotate
 				sound.maxDistance = 1000f;
 				sound.playOnAwake = false;
 
-				uint pa = (33u * (joint.Host.flightID ^ joint.Target.flightID)) % 10000u;
+				uint pa = (33u * (jm.joint.Host.flightID ^ jm.joint.Target.flightID)) % 10000u;
 				pitchAlteration = 2f * pitchAlterationRateMax * (pa / 10000f)
 					+ (1f - pitchAlterationRateMax);
 
@@ -422,7 +411,7 @@ namespace DockRotate
 		{
 			if (sound != null) {
 				sound.Stop();
-				AudioSource.Destroy(sound);
+				MonoBehaviour.Destroy(sound);
 				sound = null;
 			}
 		}
@@ -436,29 +425,30 @@ namespace DockRotate
 
 		private void staticizeJoints()
 		{
-			for (int i = 0; i < joint.joints.Count; i++) {
-				ConfigurableJoint j = joint.joints[i];
+			int c = jm.joint.joints.Count;
+			for (int i = 0; i < c; i++) {
+				ConfigurableJoint j = jm.joint.joints[i];
 				if (j) {
 					RotJointInfo ji = rji[i];
 
 					// staticize joint rotation
 
-					ji.jm.staticizeRotation();
+					ji.cjm.staticizeRotation();
 
 					// FIXME: this should be moved to JointManager
 					Quaternion connectedBodyRot = ji.connectedBodyAxis.rotation(-pos);
 					j.connectedAnchor = connectedBodyRot * (j.connectedAnchor - ji.connectedBodyNode)
 						+ ji.connectedBodyNode;
-					j.targetPosition = ji.jm.tgtPos0;
+					j.targetPosition = ji.cjm.tgtPos0;
 
-					ji.jm.setup();
+					ji.cjm.setup();
 				}
 			}
 		}
 
 		private bool staticizeOrgInfo()
 		{
-			if (joint != activePart.attachJoint) {
+			if (jm.joint != activePart.attachJoint) {
 				log(activePart.desc() + ": skip staticize, same vessel joint");
 				return false;
 			}
@@ -478,6 +468,16 @@ namespace DockRotate
 			int c = p.children.Count;
 			for (int i = 0; i < c; i++)
 				_propagate(p.children[i], rot, pos);
+		}
+
+		public static implicit operator bool(JointMotionObj r)
+		{
+			return r != null;
+		}
+
+		private static bool log(string msg)
+		{
+			return ModuleBaseRotate.log(msg);
 		}
 	}
 }
