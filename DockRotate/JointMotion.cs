@@ -119,13 +119,14 @@ namespace DockRotate
 				}
 			} else {
 				log(joint.desc() + ": creating rotation");
-				rotCur = new JointMotionObj(this, 0, angle, speed);
-				rotCur.rot0 = rotationAngle(false);
-				rotCur.vel = startSpeed;
-				rotCur.controller = controller;
-				rotCur.electricityRate = controller.electricityRate;
+				JointMotionObj r = new JointMotionObj(this, 0, angle, speed);
+				r.rot0 = rotationAngle(false);
+				r.vel = startSpeed;
+				r.controller = controller;
+				r.electricityRate = controller.electricityRate;
+				r.smartAutoStruts = controller.smartAutoStruts;
+				rotCur = r;
 				soundVolume = controller.soundVolume;
-				rotCur.smartAutoStruts = controller.smartAutoStruts;
 				action = "added";
 			}
 			if (showlog)
