@@ -43,7 +43,7 @@ namespace DockRotate
 		public static string desc(this Part part)
 		{
 			if (!part)
-				return "<null>";
+				return "null";
 			ModuleBaseRotate mbr = part.FindModuleImplementing<ModuleBaseRotate>();
 			return part.name + "_" + part.flightID
 				+ (mbr ? "_" + mbr.nodeRole : "");
