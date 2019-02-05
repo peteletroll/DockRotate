@@ -806,20 +806,6 @@ namespace DockRotate
 
 		private ModuleDockingNode dockingNode;
 
-#if DEBUG
-		[KSPEvent(
-			guiName = "#DCKROT_redock",
-			guiActive = false,
-			guiActiveEditor = false,
-			requireFullControl = true
-		)]
-		public void ReDock()
-		{
-			if (dockingNode)
-				dockingNode.state = "Ready";
-		}
-#endif
-
 		public override string GetModuleDisplayName()
 		{
 			if (cached_moduleDisplayName.Length <= 0)
@@ -971,16 +957,6 @@ namespace DockRotate
 			if (rotationEnabled)
 				return this;
 			return null;
-		}
-
-		public override void OnUpdate()
-		{
-			base.OnUpdate();
-			BaseEvent ev = Events["ReDock"];
-			if (ev != null) {
-				ev.guiActive = dockingNode
-					&& dockingNode.state == "Disengage";
-			}
 		}
 
 		/******** Debugging stuff ********/
