@@ -691,6 +691,10 @@ namespace DockRotate
 
 		protected override void setup()
 		{
+			jointMotion = null;
+			activePart = null;
+			nodeRole = "None";
+
 			if (part.FindModuleImplementing<ModuleDockRotate>()) {
 				log(part.desc() + ": has DockRotate, NodeRotate disabled");
 				return;
@@ -842,8 +846,6 @@ namespace DockRotate
 			return cached_info;
 		}
 
-		private int lastBasicSetupFrame = -1;
-
 		protected override bool setupGeometry(StartState state)
 		{
 			dockingNode = part.FindModuleImplementing<ModuleDockingNode>();
@@ -858,24 +860,6 @@ namespace DockRotate
 			log(GetType() + ".setupGeometry(" + state + ") done: "
 				+ partNodeAxis + "@" + partNodePos);
 			return true;
-		}
-
-		private void basicSetup()
-		{
-			int now = Time.frameCount;
-			if (lastBasicSetupFrame == now) {
-				if (false && verboseEvents)
-					log(part.desc() + ": skip repeated basicSetup()");
-				return;
-			}
-			lastBasicSetupFrame = now;
-
-			activePart = null;
-			jointMotion = null;
-			nodeRole = "None";
-#if DEBUG
-			nodeStatus = "";
-#endif
 		}
 
 		private static PartJoint dockingJoint(ModuleDockingNode node, bool verbose)
@@ -942,14 +926,15 @@ namespace DockRotate
 
 		protected override void setup()
 		{
-			basicSetup();
+			jointMotion = null;
+			activePart = null;
+			nodeRole = "None";
 
 			if (!dockingNode) {
 				log(GetType() + ".setup(): no dockingNode");
 				return;
 			}
 
-			activePart = null;
 			PartJoint rotatingJoint = dockingJoint(dockingNode, true);
 			if (rotatingJoint) {
 				activePart = rotatingJoint.Host;
