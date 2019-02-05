@@ -242,8 +242,6 @@ namespace DockRotate
 			enqueueRotationToSnap(rotationStep, speed());
 		}
 
-		public abstract bool useSmartAutoStruts();
-
 		protected abstract void dumpPart();
 
 		public void doStopRotation()
@@ -725,11 +723,6 @@ namespace DockRotate
 			}
 		}
 
-		public override bool useSmartAutoStruts()
-		{
-			return smartAutoStruts;
-		}
-
 		protected override void dumpPart()
 		{
 			log("--- DUMP " + part.desc() + " ---");
@@ -906,11 +899,6 @@ namespace DockRotate
 				&& jointMotion && activePart == part && rotationEnabled) {
 				enqueueFrozenRotation(jointMotion.angleToSnap(dockingNode.snapOffset), rotationSpeed);
 			}
-		}
-
-		public override bool useSmartAutoStruts()
-		{
-			return smartAutoStruts;
 		}
 
 		/******** Debugging stuff ********/

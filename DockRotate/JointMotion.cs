@@ -134,7 +134,7 @@ namespace DockRotate
 				rotCur.electricityRate = controller.electricityRate;
 				rotCur.soundVolume = controller.soundVolume;
 				rotCur.vel = startSpeed;
-				rotCur.smartAutoStruts = controller.useSmartAutoStruts();
+				rotCur.smartAutoStruts = controller.smartAutoStruts;
 				action = "added";
 			}
 			if (showlog)
