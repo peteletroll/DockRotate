@@ -18,25 +18,16 @@ namespace DockRotate
 			set {
 				bool sas = (_rotCur ? _rotCur.smartAutoStruts : false)
 					|| (value ? value.smartAutoStruts : false);
-				bool wasRotating = _rotCur;
+				int delta = (value && !_rotCur) ? +1
+					: (!value && _rotCur) ? -1
+					: 0;
 				_rotCur = value;
-				bool isRotating = _rotCur;
-				if (isRotating != wasRotating && joint && joint.Host && joint.Host.vessel) {
-					// rotation count change
-					Vessel v = joint.Host.vessel;
-					if (isRotating) {
-						// a new rotation is starting
-						VesselMotionManager.get(v).changeCount(+1);
-					} else {
-						// an old rotation is finishing
-						VesselMotionManager.get(v).changeCount(-1);
-					}
-					if (sas) {
-
-					} else {
-						log(joint.Host.desc() + " triggered CycleAllAutoStruts()");
-						v.CycleAllAutoStrut();
-					}
+				if (!joint || !joint.Host || !joint.Host.vessel)
+					return;
+				VesselMotionManager.get(joint.Host.vessel).changeCount(delta);
+				if (!sas) {
+					log(joint.Host.desc() + " triggered CycleAllAutoStruts()");
+					joint.Host.vessel.CycleAllAutoStrut();
 				}
 			}
 		}
