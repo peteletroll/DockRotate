@@ -703,13 +703,6 @@ namespace DockRotate
 
 		protected override void setup()
 		{
-			PartJoint rotatingJoint = null;
-
-			jointMotion = null;
-			activePart = null;
-
-			nodeRole = "None";
-
 			if (part.FindModuleImplementing<ModuleDockRotate>()) {
 				log(part.desc() + ": has DockRotate, NodeRotate disabled");
 				return;
@@ -721,7 +714,7 @@ namespace DockRotate
 			}
 
 			if (rotatingNode == null) {
-				log(GetType() + ".setup(): no rotatingNode");
+				log(part.desc() + ".setup(): no rotatingNode");
 				return;
 			}
 
@@ -730,41 +723,20 @@ namespace DockRotate
 				return;
 
 			other.forcePhysics();
-			if (!other.rb) {
-				log(part.desc() + ": other part " + other.desc() + " has no Rigidbody");
-				// return;
-			}
 
-			if (part.parent == other) {
-				nodeRole = "Active";
-				activePart = part;
-			} else if (other.parent == part) {
-				nodeRole = "Proxy";
-				activePart = other;
-				// FIXME: this should be computed in JointMotion with joint Host/Target info
-				partNodePos = partNodePos.STp(part, activePart);
-				partNodeAxis = -partNodeAxis.STd(part, activePart);
-			}
-
-			if (activePart)
-				rotatingJoint = activePart.attachJoint;
-
-			if (verboseEvents && rotatingJoint) {
-				log(part.desc()
-					+ ": on "
-					+ (activePart == part ? "itself" : activePart.desc()));
-			}
-
+			activePart = null;
+			nodeRole = "None";
+			PartJoint rotatingJoint = nodeJoint(rotatingNode, true);
 			if (rotatingJoint) {
+				activePart = rotatingJoint.Host;
+				nodeRole = part == rotatingJoint.Host ? "Host"
+					: part == rotatingJoint.Target ? "Target"
+					: "Unknown";
+				if (verboseEvents)
+					log(part.desc() + ".setup(): on " + rotatingJoint.desc());
 				jointMotion = JointMotion.get(rotatingJoint);
 				jointMotion.setAxis(part, partNodeAxis, partNodePos);
 			}
-
-			PartJoint check = nodeJoint(rotatingNode, true);
-			if (rotatingJoint != check)
-				log(part.desc() + " *** WARNING *** nodeJoint() incoherency:"
-					+ " old " + rotatingJoint.desc()
-					+ " new " + check.desc());
 		}
 
 		protected override ModuleBaseRotate controller(uint id)
