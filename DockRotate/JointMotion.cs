@@ -6,8 +6,8 @@ namespace DockRotate
 	public class JointMotion: MonoBehaviour, ISmoothMotionListener
 	{
 		public PartJoint joint;
+		public Vector3 hostAxis, hostNode;
 		private Vessel vessel;
-		private Vector3 hostAxis, hostNode;
 		private Vector3 hostUp, targetUp;
 
 		private SmoothMotionDispatcher rotation;
@@ -119,12 +119,12 @@ namespace DockRotate
 				}
 			} else {
 				log(joint.desc() + ": creating rotation");
-				rotCur = new JointMotionObj(this, hostAxis, hostNode, 0, angle, speed);
-				rotCur.controller = controller;
+				rotCur = new JointMotionObj(this, 0, angle, speed);
 				rotCur.rot0 = rotationAngle(false);
+				rotCur.vel = startSpeed;
+				rotCur.controller = controller;
 				rotCur.electricityRate = controller.electricityRate;
 				rotCur.soundVolume = controller.soundVolume;
-				rotCur.vel = startSpeed;
 				rotCur.smartAutoStruts = controller.smartAutoStruts;
 				action = "added";
 			}
@@ -237,8 +237,6 @@ namespace DockRotate
 		private JointMotion jm;
 		public ModuleBaseRotate controller;
 
-		private Part activePart, proxyPart;
-		private Vector3 node, axis;
 		public bool smartAutoStruts = false;
 
 		public const float pitchAlterationRateMax = 0.1f;
@@ -250,6 +248,12 @@ namespace DockRotate
 		public float electricityRate = 1f;
 		public float rot0 = 0f;
 
+		private Part activePart { get { return jm.joint.Host; } }
+		private Part proxyPart { get { return jm.joint.Target; } }
+
+		private Vector3 axis { get { return jm.hostAxis; } }
+		private Vector3 node { get { return jm.hostNode; } }
+
 		private struct RotJointInfo
 		{
 			public ConfigurableJointManager cjm;
@@ -259,14 +263,9 @@ namespace DockRotate
 		}
 		private RotJointInfo[] rji;
 
-		public JointMotionObj(JointMotion jm, Vector3 axis, Vector3 node, float pos, float tgt, float maxvel)
+		public JointMotionObj(JointMotion jm, float pos, float tgt, float maxvel)
 		{
 			this.jm = jm;
-			this.axis = axis;
-			this.node = node;
-
-			this.activePart = jm.joint.Host;
-			this.proxyPart = jm.joint.Target;
 
 			this.pos = pos;
 			this.tgt = tgt;
@@ -311,11 +310,6 @@ namespace DockRotate
 			}
 
 			startSound();
-
-			/*
-			log(String.Format("{0}: started {1:F4}\u00b0 at {2}\u00b0/s",
-				part.desc(), tgt, maxvel));
-			*/
 		}
 
 		protected override void onStep(float deltat)
@@ -340,7 +334,7 @@ namespace DockRotate
 			}
 
 			if (deltat > 0f && electricityRate > 0f) {
-				double el = activePart.RequestResource("ElectricCharge", (double)electricityRate * deltat);
+				double el = activePart.RequestResource("ElectricCharge", (double) electricityRate * deltat);
 				electricity += el;
 				if (el <= 0d) {
 					log("no electricity, braking rotation");
