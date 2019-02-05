@@ -227,11 +227,20 @@ namespace DockRotate
 		}
 #endif
 
-		public abstract void doRotateClockwise();
+		public void doRotateClockwise()
+		{
+			enqueueRotation(step(), speed());
+		}
 
-		public abstract void doRotateCounterclockwise();
+		public void doRotateCounterclockwise()
+		{
+			enqueueRotation(-step(), speed());
+		}
 
-		public abstract void doRotateToSnap();
+		public void doRotateToSnap()
+		{
+			enqueueRotationToSnap(rotationStep, speed());
+		}
 
 		public abstract bool useSmartAutoStruts();
 
@@ -713,21 +722,6 @@ namespace DockRotate
 			}
 		}
 
-		public override void doRotateClockwise()
-		{
-			enqueueRotation(step(), speed());
-		}
-
-		public override void doRotateCounterclockwise()
-		{
-			enqueueRotation(-step(), speed());
-		}
-
-		public override void doRotateToSnap()
-		{
-			enqueueRotationToSnap(rotationStep, speed());
-		}
-
 		public override bool useSmartAutoStruts()
 		{
 			return smartAutoStruts;
@@ -919,21 +913,6 @@ namespace DockRotate
 		public override bool useSmartAutoStruts()
 		{
 			return smartAutoStruts;
-		}
-
-		public override void doRotateClockwise()
-		{
-			enqueueRotation(step(), speed());
-		}
-
-		public override void doRotateCounterclockwise()
-		{
-			enqueueRotation(-step(), speed());
-		}
-
-		public override void doRotateToSnap()
-		{
-			enqueueRotationToSnap(rotationStep, speed());
 		}
 
 		protected override JointMotionObj currentRotation()
