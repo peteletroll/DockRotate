@@ -825,9 +825,6 @@ namespace DockRotate
 		*/
 
 		private ModuleDockingNode dockingNode;
-		public ModuleDockRotate activeRotationModule;
-		public ModuleDockRotate proxyRotationModule;
-		public ModuleDockRotate otherRotationModule;
 
 #if DEBUG
 		[KSPEvent(
@@ -887,7 +884,6 @@ namespace DockRotate
 
 			activePart = null;
 			jointMotion = null;
-			activeRotationModule = proxyRotationModule = otherRotationModule = null;
 			nodeRole = "None";
 #if DEBUG
 			nodeStatus = "";
@@ -958,8 +954,6 @@ namespace DockRotate
 
 		protected override void setup()
 		{
-			PartJoint rotatingJoint = null;
-
 			basicSetup();
 
 			if (!dockingNode) {
@@ -967,154 +961,71 @@ namespace DockRotate
 				return;
 			}
 
-			PartJoint svj = dockingNode.sameVesselDockJoint;
-			if (svj) {
-				ModuleDockRotate otherModule = svj.Target.FindModuleImplementing<ModuleDockRotate>();
-				if (otherModule) {
-					activeRotationModule = this;
-					proxyRotationModule = otherModule;
-					rotatingJoint = svj;
-					nodeRole = "ActiveSame";
-				}
-			} else if (isDockedToParent(false)) {
-				proxyRotationModule = part.parent.FindModuleImplementing<ModuleDockRotate>();
-				if (proxyRotationModule) {
-					activeRotationModule = this;
-					rotatingJoint = part.attachJoint;
-					nodeRole = "Active";
-				}
-			}
-
-			if (activeRotationModule) {
-				activePart = activeRotationModule.part;
-			}
-
-			if (activeRotationModule == this) {
-				proxyRotationModule.nodeRole = svj ? "ProxySame" : "Proxy";
-				proxyRotationModule.activeRotationModule = activeRotationModule;
-				proxyRotationModule.activePart = activePart;
-				proxyRotationModule.proxyRotationModule = proxyRotationModule;
-				otherRotationModule = proxyRotationModule;
-				proxyRotationModule.otherRotationModule = activeRotationModule;
+			activePart = null;
+			PartJoint rotatingJoint = dockingJoint(dockingNode, true);
+			if (rotatingJoint) {
+				activePart = rotatingJoint.Host;
+				nodeRole = part == rotatingJoint.Host ? "Host"
+					: part == rotatingJoint.Target ? "Target"
+					: "Unknown";
 				if (verboseEvents)
-					log(activeRotationModule.part.desc()
-						+ ": on " + proxyRotationModule.part.desc());
+					log(part.desc() + ".setup(): on " + rotatingJoint.desc());
+				jointMotion = JointMotion.get(rotatingJoint);
+				jointMotion.setAxis(part, partNodeAxis, partNodePos);
 			}
 
 			if (dockingNode.snapRotation && dockingNode.snapOffset > 0f
-				&& activeRotationModule == this
-				&& (rotationEnabled || proxyRotationModule.rotationEnabled)) {
+				&& activePart == part
+				&& rotationEnabled) {
 				enqueueFrozenRotation(angleToSnap(dockingNode.snapOffset), rotationSpeed);
 			}
-
-			if (rotatingJoint) {
-				jointMotion = JointMotion.get(rotatingJoint);
-				jointMotion.setAxis(part, partNodeAxis, partNodePos);
-				if (proxyRotationModule)
-					proxyRotationModule.jointMotion = jointMotion;
-			}
-
-			PartJoint check = dockingJoint(dockingNode, true);
-			if (rotatingJoint != check)
-				log(part.desc() + " *** WARNING *** dockingJoint() incoherency:"
-					+ " old " + rotatingJoint.desc()
-					+ " new " + check.desc());
 		}
 
 		protected override ModuleBaseRotate controller(uint id)
 		{
-			if (activeRotationModule && activeRotationModule.part.flightID == id)
-				return activeRotationModule;
-			if (proxyRotationModule && proxyRotationModule.part.flightID == id)
-				return proxyRotationModule;
+			if (!jointMotion)
+				return null;
+			Part controllerPart = null;
+			if (jointMotion.joint.Host.flightID == id) {
+				controllerPart = jointMotion.joint.Host;
+			} else if (jointMotion.joint.Target.flightID == id) {
+				controllerPart = jointMotion.joint.Target;
+			}
+			if (controllerPart)
+				return controllerPart.FindModuleImplementing<ModuleDockRotate>();
 			return null;
-		}
-
-		private bool isDockedToParent(bool verbose) // must be used only after setupGeometry()
-		{
-			if (verbose)
-				log(part.desc() + ": isDockedToParent()");
-
-			if (!part || !part.parent) {
-				if (verbose)
-					log(part.desc() + ": isDockedToParent() finds no parent");
-				return false;
-			}
-
-			ModuleDockingNode parentNode = part.parent.FindModuleImplementing<ModuleDockingNode>();
-			ModuleDockRotate parentRotate = part.parent.FindModuleImplementing<ModuleDockRotate>();
-			if (parentRotate)
-				parentRotate.basicSetup();
-
-			if (!dockingNode || !parentNode || !parentRotate) {
-				if (verbose)
-					log(part.desc() + ": isDockedToParent() has missing modules");
-				return false;
-			}
-
-			float nodeDist = (partNodePos - parentRotate.partNodePos.Tp(parentRotate.part.T(), part.T())).magnitude;
-			float nodeAngle = Vector3.Angle(partNodeAxis, Vector3.back.Td(parentNode.T(), part.parent.T()).STd(part.parent, part));
-			if (verbose)
-				log(part.desc() + ": isDockedToParent(): dist " + nodeDist + ", angle " + nodeAngle
-					+ ", types " + dockingNode.allTypes() + "/" + parentNode.allTypes());
-
-			bool ret = dockingNode.nodeTypes.Overlaps(parentNode.nodeTypes)
-				&& nodeDist < 1f && nodeAngle < 5f;
-
-			if (verbose)
-				log(part.desc() + ": isDockedToParent() returns " + ret);
-
-			return ret;
 		}
 
 		public override bool useSmartAutoStruts()
 		{
-			return (activeRotationModule && activeRotationModule.smartAutoStruts)
-				|| (proxyRotationModule && proxyRotationModule.smartAutoStruts);
+			return smartAutoStruts;
 		}
 
 		public override void doRotateClockwise()
 		{
-			if (!activeRotationModule)
-				return;
 			enqueueRotation(step(), speed());
 		}
 
 		public override void doRotateCounterclockwise()
 		{
-			if (!activeRotationModule)
-				return;
 			enqueueRotation(-step(), speed());
 		}
 
 		public override void doRotateToSnap()
 		{
-			if (!activeRotationModule)
-				return;
-			float snap = rotationStep;
-			if (snap < 0.1f && otherRotationModule)
-				snap = otherRotationModule.rotationStep;
-			activeRotationModule.enqueueRotationToSnap(snap, speed());
+			enqueueRotationToSnap(rotationStep, speed());
 		}
 
 		protected override JointMotionObj currentRotation()
 		{
-			return activeRotationModule ? activeRotationModule.rotCur : null;
+			return jointMotion ? jointMotion.rotCur : null;
 		}
 
 		protected override ModuleBaseRotate actionTarget()
 		{
 			if (rotationEnabled)
 				return this;
-			ModuleDockRotate ret = null;
-			if (activeRotationModule && activeRotationModule.rotationEnabled) {
-				ret = activeRotationModule;
-			} else if (proxyRotationModule && proxyRotationModule.rotationEnabled) {
-				ret = proxyRotationModule;
-			}
-			if (ret)
-				log(part.desc() + ": forwards to " + ret.part.desc());
-			return ret;
+			return null;
 		}
 
 		public override void OnUpdate()
