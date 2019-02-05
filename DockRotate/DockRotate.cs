@@ -265,7 +265,6 @@ namespace DockRotate
 
 		protected JointMotion jointMotion;
 
-		public Part activePart;
 		public string nodeRole = "Init";
 
 		protected Vector3 partNodePos; // node position, relative to part
@@ -306,8 +305,7 @@ namespace DockRotate
 				log(sep);
 			}
 
-			log(GetType() + ".doSetup(): active " + activePart.desc()
-				+ " joint " + (jointMotion ? jointMotion.joint.desc() : "null"));
+			log(GetType() + ".doSetup(): joint " + (jointMotion ? jointMotion.joint.desc() : "null"));
 
 			setupDone = true;
 		}
@@ -682,7 +680,6 @@ namespace DockRotate
 		protected override void setup()
 		{
 			jointMotion = null;
-			activePart = null;
 			nodeRole = "None";
 
 			if (part.FindModuleImplementing<ModuleDockRotate>()) {
@@ -706,11 +703,9 @@ namespace DockRotate
 
 			other.forcePhysics();
 
-			activePart = null;
 			nodeRole = "None";
 			PartJoint rotatingJoint = nodeJoint(rotatingNode, true);
 			if (rotatingJoint) {
-				activePart = rotatingJoint.Host;
 				nodeRole = part == rotatingJoint.Host ? "Host"
 					: part == rotatingJoint.Target ? "Target"
 					: "Unknown";
@@ -723,6 +718,7 @@ namespace DockRotate
 
 		protected override void dumpPart()
 		{
+			Part activePart = jointMotion ? jointMotion.joint.Host : null;
 			log("--- DUMP " + part.desc() + " ---");
 			log("rotPart: " + activePart.desc());
 			log("rotAxis: " + partNodeAxis.ddesc(activePart));
@@ -808,8 +804,10 @@ namespace DockRotate
 			return true;
 		}
 
-		private static PartJoint dockingJoint(ModuleDockingNode node, bool verbose)
+		private static PartJoint dockingJoint(ModuleDockingNode node, out bool sameVessel, bool verbose)
 		{
+			sameVessel = false;
+
 			if (!node || !node.part) {
 				if (verbose)
 					log(node.part.desc() + ".dockingJoint(): no node");
@@ -837,6 +835,7 @@ namespace DockRotate
 
 			PartJoint ret = node.sameVesselDockJoint;
 			if (ret) {
+				sameVessel = true;
 				if (verbose)
 					log(node.part.desc() + ".dockingJoint(): to same vessel " + ret.desc());
 				return ret;
@@ -844,6 +843,7 @@ namespace DockRotate
 
 			ret = other.sameVesselDockJoint;
 			if (ret && other.otherNode == node) {
+				sameVessel = true;
 				if (verbose)
 					log(node.part.desc() + ".dockingJoint(): from same vessel " + ret.desc());
 				return ret;
@@ -873,7 +873,6 @@ namespace DockRotate
 		protected override void setup()
 		{
 			jointMotion = null;
-			activePart = null;
 			nodeRole = "None";
 
 			if (!dockingNode) {
@@ -881,9 +880,9 @@ namespace DockRotate
 				return;
 			}
 
-			PartJoint rotatingJoint = dockingJoint(dockingNode, true);
+			bool sameVessel;
+			PartJoint rotatingJoint = dockingJoint(dockingNode, out sameVessel, true);
 			if (rotatingJoint) {
-				activePart = rotatingJoint.Host;
 				nodeRole = part == rotatingJoint.Host ? "Host"
 					: part == rotatingJoint.Target ? "Target"
 					: "Unknown";
@@ -893,8 +892,11 @@ namespace DockRotate
 				jointMotion.setAxis(part, partNodeAxis, partNodePos);
 			}
 
+			if (sameVessel)
+				nodeRole += "Same";
+
 			if (dockingNode.snapRotation && dockingNode.snapOffset > 0f
-				&& jointMotion && activePart == part && rotationEnabled) {
+			    && jointMotion && rotatingJoint.Host == part && rotationEnabled) {
 				enqueueFrozenRotation(jointMotion.angleToSnap(dockingNode.snapOffset), rotationSpeed);
 			}
 		}
@@ -903,6 +905,7 @@ namespace DockRotate
 
 		protected override void dumpPart()
 		{
+			Part activePart = jointMotion ? jointMotion.joint.Host : null;
 			log("--- DUMP " + part.desc() + " ---");
 			log("rotPart: " + activePart.desc());
 			log("role: " + nodeRole);
