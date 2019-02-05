@@ -529,25 +529,13 @@ namespace DockRotate
 			return jointMotion.enqueueRotation(this, angle, speed, startSpeed);
 		}
 
-		protected float angleToSnap(float snap)
-		{
-			snap = Mathf.Abs(snap);
-			if (snap < 0.5f)
-				return 0f;
-			float a = !rotCur ? rotationAngle(false) :
-				rotCur.isContinuous() ? rotCur.rot0 + rotCur.pos :
-				rotCur.rot0 + rotCur.tgt;
-			if (float.IsNaN(a))
-				return 0f;
-			float f = snap * Mathf.Floor(a / snap + 0.5f);
-			return f - a;
-		}
-
 		protected bool enqueueRotationToSnap(float snap, float speed)
 		{
+			if (!jointMotion)
+				return false;
 			if (snap < 0.1f)
 				snap = 15f;
-			return enqueueRotation(angleToSnap(snap), speed);
+			return enqueueRotation(jointMotion.angleToSnap(snap), speed);
 		}
 
 		protected void freezeCurrentRotation(string msg, bool keepSpeed)
@@ -975,9 +963,8 @@ namespace DockRotate
 			}
 
 			if (dockingNode.snapRotation && dockingNode.snapOffset > 0f
-				&& activePart == part
-				&& rotationEnabled) {
-				enqueueFrozenRotation(angleToSnap(dockingNode.snapOffset), rotationSpeed);
+				&& jointMotion && activePart == part && rotationEnabled) {
+				enqueueFrozenRotation(jointMotion.angleToSnap(dockingNode.snapOffset), rotationSpeed);
 			}
 		}
 

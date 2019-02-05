@@ -162,6 +162,20 @@ namespace DockRotate
 			return a.axisSignedAngle(vs, vd);
 		}
 
+		public float angleToSnap(float snap)
+		{
+			snap = Mathf.Abs(snap);
+			if (snap < 0.1f)
+				return 0f;
+			float a = !rotCur ? rotationAngle(false) :
+				rotCur.isContinuous() ? rotCur.rot0 + rotCur.pos :
+				rotCur.rot0 + rotCur.tgt;
+			if (float.IsNaN(a))
+				return 0f;
+			float f = snap * Mathf.Floor(a / snap + 0.5f);
+			return f - a;
+		}
+
 		protected bool brakeRotationKey()
 		{
 			return joint && vessel
