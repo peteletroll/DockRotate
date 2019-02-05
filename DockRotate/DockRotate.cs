@@ -444,7 +444,7 @@ namespace DockRotate
 
 #if DEBUG
 			nodeStatus = "";
-			int nJoints = countJoints();
+			int nJoints = jointMotion ? jointMotion.joint.joints.Count : 0;
 			nodeStatus = nodeRole + " [" + nJoints + "]";
 			if (cr)
 				nodeStatus += " " + cr.pos + "\u00b0 -> "+ cr.tgt + "\u00b0";
@@ -505,11 +505,6 @@ namespace DockRotate
 		protected float dynamicDeltaAngle()
 		{
 			return jointMotion ? jointMotion.dynamicDeltaAngle() : float.NaN;
-		}
-
-		protected int countJoints()
-		{
-			return jointMotion ? jointMotion.joint.joints.Count : 0;
 		}
 
 		protected bool enqueueRotation(Vector3 frozen)
