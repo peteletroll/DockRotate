@@ -273,7 +273,7 @@ namespace DockRotate
 			q.ToAngleAxis(out angle, out axis);
 			if (angle == 0f)
 				axis = Vector3.zero;
-			return angle.ToString(angle == 0 ? "F0" : "F1") + "\u00b0" + axis.desc();
+			return angle.ToString(angle == 0f ? "F0" : "F1") + "\u00b0" + axis.desc();
 		}
 	}
 }
