@@ -293,8 +293,6 @@ namespace DockRotate
 		[KSPField(isPersistant = true)]
 		public float electricityRate = 1f;
 
-		protected abstract ModuleBaseRotate controller(uint id);
-
 		protected bool setupDone = false;
 		protected abstract void setup();
 
@@ -731,11 +729,6 @@ namespace DockRotate
 			}
 		}
 
-		protected override ModuleBaseRotate controller(uint id)
-		{
-			return part.flightID == id ? this : null;
-		}
-
 		public override void doRotateClockwise()
 		{
 			enqueueRotation(step(), speed());
@@ -951,21 +944,6 @@ namespace DockRotate
 				&& jointMotion && activePart == part && rotationEnabled) {
 				enqueueFrozenRotation(jointMotion.angleToSnap(dockingNode.snapOffset), rotationSpeed);
 			}
-		}
-
-		protected override ModuleBaseRotate controller(uint id)
-		{
-			if (!jointMotion)
-				return null;
-			Part controllerPart = null;
-			if (jointMotion.joint.Host.flightID == id) {
-				controllerPart = jointMotion.joint.Host;
-			} else if (jointMotion.joint.Target.flightID == id) {
-				controllerPart = jointMotion.joint.Target;
-			}
-			if (controllerPart)
-				return controllerPart.FindModuleImplementing<ModuleDockRotate>();
-			return null;
 		}
 
 		public override bool useSmartAutoStruts()
