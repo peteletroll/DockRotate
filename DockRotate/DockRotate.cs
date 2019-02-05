@@ -263,10 +263,6 @@ namespace DockRotate
 			return ret;
 		}
 
-		protected JointMotionObj rotCur {
-			get { return jointMotion && jointMotion.rotCur && jointMotion.rotCur.controller == this ? jointMotion.rotCur : null; }
-		}
-
 		protected JointMotion jointMotion;
 
 		public Part activePart;
@@ -529,16 +525,17 @@ namespace DockRotate
 
 		protected void freezeCurrentRotation(string msg, bool keepSpeed)
 		{
-			if (rotCur) {
-				log(part.desc() + ": freezeCurrentRotation("
-					+ msg + ", " + keepSpeed + ")");
-				rotCur.isContinuous();
-				float angle = rotCur.tgt - rotCur.pos;
-				enqueueFrozenRotation(angle, rotCur.maxvel, keepSpeed ? rotCur.vel : 0f);
-				rotCur.abort();
-				log(part.desc() + ": removing rotation (2)");
-				jointMotion.rotCur = null;
-			}
+			JointMotionObj r = currentRotation();
+			if (!r)
+				return;
+			log(part.desc() + ": freezeCurrentRotation("
+				+ msg + ", " + keepSpeed + ")");
+			r.isContinuous();
+			float angle = r.tgt - r.pos;
+			enqueueFrozenRotation(angle, r.maxvel, keepSpeed ? r.vel : 0f);
+			r.abort();
+			log(part.desc() + ": removing rotation (2)");
+			jointMotion.rotCur = null;
 		}
 
 		protected JointMotionObj currentRotation()
@@ -561,9 +558,10 @@ namespace DockRotate
 		{
 			Vector3 prevRot = frozenRotation;
 			uint prevID = frozenRotationControllerID;
-			if (rotCur && rotCur.isContinuous()) {
-				frozenRotation.Set(rotCur.tgt, rotCur.maxvel, 0f);
-				frozenRotationControllerID = (rotCur && rotCur.controller) ? rotCur.controller.part.flightID : 0;
+			JointMotionObj r = currentRotation();
+			if (r && r.isContinuous()) {
+				frozenRotation.Set(r.tgt, r.maxvel, 0f);
+				frozenRotationControllerID = (r && r.controller) ? r.controller.part.flightID : 0;
 			} else {
 				frozenRotation = Vector3.zero;
 				frozenRotationControllerID = 0;
