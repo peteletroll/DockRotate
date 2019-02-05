@@ -521,7 +521,12 @@ namespace DockRotate
 
 		protected bool enqueueRotation(float angle, float speed, float startSpeed = 0f)
 		{
-			return jointMotion && jointMotion.enqueueRotation(this, angle, speed, startSpeed);
+			if (!jointMotion) {
+				log(part.desc() + ".enqueueRotation(): no rotating joint, skipped");
+				return false;
+			}
+			jointMotion.setAxis(part, partNodeAxis, partNodePos);
+			return jointMotion.enqueueRotation(this, angle, speed, startSpeed);
 		}
 
 		protected float angleToSnap(float snap)
@@ -752,7 +757,7 @@ namespace DockRotate
 
 			if (rotatingJoint) {
 				jointMotion = JointMotion.get(rotatingJoint);
-				jointMotion.setAxis(activePart, partNodeAxis, partNodePos);
+				jointMotion.setAxis(part, partNodeAxis, partNodePos);
 			}
 
 			PartJoint check = nodeJoint(rotatingNode, true);
@@ -1032,7 +1037,7 @@ namespace DockRotate
 
 			if (rotatingJoint) {
 				jointMotion = JointMotion.get(rotatingJoint);
-				jointMotion.setAxis(activePart, partNodeAxis, partNodePos);
+				jointMotion.setAxis(part, partNodeAxis, partNodePos);
 				if (proxyRotationModule)
 					proxyRotationModule.jointMotion = jointMotion;
 			}

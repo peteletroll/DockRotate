@@ -63,15 +63,23 @@ namespace DockRotate
 
 		public void setAxis(Part part, Vector3 axis, Vector3 node)
 		{
+			if (rotCur) {
+				log(part.desc() + ".setAxis(): rotating, skipped");
+				return;
+			}
+
+			string state = "none";
 			if (part == joint.Host) {
+				state = "direct";
 				// no conversion needed
 			} else if (part == joint.Target) {
+				state = "inverse";
 				axis = -axis.STd(part, joint.Host);
 				node = node.STp(part, joint.Host);
 			} else {
 				log(GetType() + ".setAxis(): part " + part.desc() + " not in " + joint.desc());
 			}
-			log("setAxis(" + part.desc() + ", " + axis.desc() + ", " + node.desc() + ")");
+			log("setAxis(" + part.desc() + ", " + axis.desc() + ", " + node.desc() + "), " + state);
 			hostAxis = axis.STd(part, joint.Host);
 			hostNode = node.STp(part, joint.Host);
 			hostUp = joint.Host.up(hostAxis);
