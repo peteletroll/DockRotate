@@ -74,8 +74,7 @@ namespace DockRotate
 				// no conversion needed
 			} else if (part == joint.Target) {
 				state = "inverse";
-				axis = -axis.STd(part, joint.Host);
-				node = node.STp(part, joint.Host);
+				axis = -axis;
 			} else {
 				log(GetType() + ".setAxis(): part " + part.desc() + " not in " + joint.desc());
 			}
