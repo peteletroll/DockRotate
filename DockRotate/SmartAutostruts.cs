@@ -12,7 +12,7 @@ namespace DockRotate
 			return true;
 		}
 
-		public class PartJointSet: Dictionary<int, PartJoint>
+		private class PartJointSet: Dictionary<int, PartJoint>
 		{
 			public void add(PartJoint j)
 			{
@@ -27,7 +27,7 @@ namespace DockRotate
 			}
 		}
 
-		public class PartSet: Dictionary<uint, Part>
+		private class PartSet: Dictionary<uint, Part>
 		{
 			public void add(Part part)
 			{
