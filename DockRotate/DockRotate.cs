@@ -110,9 +110,7 @@ namespace DockRotate
 		)]
 		public void StopRotation(KSPActionParam param)
 		{
-			ModuleBaseRotate tgt = actionTarget();
-			if (tgt)
-				tgt.doStopRotation();
+			doStopRotation();
 		}
 
 		[KSPEvent(
@@ -132,16 +130,13 @@ namespace DockRotate
 		)]
 		public void RotateClockwise(KSPActionParam param)
 		{
-			ModuleBaseRotate tgt = actionTarget();
-			if (tgt) {
-				if (reverseActionRotationKey()) {
-					tgt.doRotateCounterclockwise();
-				} else {
-					tgt.doRotateClockwise();
-				}
-				if (tgt.flipFlopMode)
-					tgt.reverseRotation = !tgt.reverseRotation;
+			if (reverseActionRotationKey()) {
+				doRotateCounterclockwise();
+			} else {
+				doRotateClockwise();
 			}
+			if (flipFlopMode)
+				reverseRotation = !reverseRotation;
 		}
 
 		[KSPEvent(
@@ -165,16 +160,13 @@ namespace DockRotate
 		)]
 		public void RotateCounterclockwise(KSPActionParam param)
 		{
-			ModuleBaseRotate tgt = actionTarget();
-			if (tgt) {
-				if (reverseActionRotationKey()) {
-					tgt.doRotateClockwise();
-				} else {
-					tgt.doRotateCounterclockwise();
-				}
-				if (tgt.flipFlopMode)
-					tgt.reverseRotation = !tgt.reverseRotation;
+			if (reverseActionRotationKey()) {
+				doRotateClockwise();
+			} else {
+				doRotateCounterclockwise();
 			}
+			if (flipFlopMode)
+				reverseRotation = !reverseRotation;
 		}
 
 		[KSPEvent(
@@ -198,9 +190,7 @@ namespace DockRotate
 		)]
 		public void RotateToSnap(KSPActionParam param)
 		{
-			ModuleBaseRotate tgt = actionTarget();
-			if (tgt)
-				tgt.doRotateToSnap();
+			doRotateToSnap();
 		}
 
 		[KSPEvent(
@@ -469,11 +459,6 @@ namespace DockRotate
 #endif
 		}
 
-		protected virtual ModuleBaseRotate actionTarget()
-		{
-			return canStartRotation() ? this : null;
-		}
-
 		protected bool canStartRotation()
 		{
 			return rotationEnabled
@@ -514,6 +499,10 @@ namespace DockRotate
 
 		protected bool enqueueRotation(float angle, float speed, float startSpeed = 0f)
 		{
+			if (!rotationEnabled) {
+				log(part.desc() + ".enqueueRotation(): rotation disabled, skipped");
+				return false;
+			}
 			if (!jointMotion) {
 				log(part.desc() + ".enqueueRotation(): no rotating joint, skipped");
 				return false;
@@ -950,13 +939,6 @@ namespace DockRotate
 		protected override JointMotionObj currentRotation()
 		{
 			return jointMotion ? jointMotion.rotCur : null;
-		}
-
-		protected override ModuleBaseRotate actionTarget()
-		{
-			if (rotationEnabled)
-				return this;
-			return null;
 		}
 
 		/******** Debugging stuff ********/
