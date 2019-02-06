@@ -14,14 +14,18 @@ namespace DockRotate
 
 	public static class StructureChangeMapper
 	{
-		public static void map(this List<IStructureChangeListener> l, Action<IStructureChangeListener> a)
+		public static void map(this List<IStructureChangeListener> ls, Action<IStructureChangeListener> a)
 		{
-			int c = l.Count;
-			for (int i = 0; i < c; i++) {
-				if (l[i] == null)
-					continue;
+			int c = ls.Count;
+			int i = 0;
+			while (i < c) {
 				try {
-					a(l[i]);
+					while (i < c) {
+						IStructureChangeListener l = ls[i++];
+						if (l == null)
+							continue;
+						a(l);
+					}
 				} catch (Exception e) {
 					ModuleBaseRotate.log(e.StackTrace);
 				}
