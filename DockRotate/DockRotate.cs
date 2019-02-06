@@ -828,21 +828,21 @@ namespace DockRotate
 			ModuleDockingNode other = node.otherNode;
 			if (other) {
 				if (verbose)
-					log(node.part.desc() + ".dockingJoint(): otherNode is " + other.part.desc());
+					log(node.part.desc() + ".dockingJoint(): other is " + other.part.desc());
 			} else if (node.dockedPartUId > 0) {
 				other = node.FindOtherNode();
 				if (verbose && other)
-					log(node.part.desc() + ".dockingJoint(): otherNode found " + other.part.desc());
+					log(node.part.desc() + ".dockingJoint(): other found " + other.part.desc());
 			}
 
 			if (!other || !other.part) {
 				if (verbose)
-					log(node.part.desc() + ".dockingJoint(): no otherNode, id = " + node.dockedPartUId);
+					log(node.part.desc() + ".dockingJoint(): no other, id = " + node.dockedPartUId);
 				return null;
 			}
 
 			PartJoint ret = node.sameVesselDockJoint;
-			if (ret) {
+			if (ret && ret.Target == other.part) {
 				sameVessel = true;
 				if (verbose)
 					log(node.part.desc() + ".dockingJoint(): to same vessel " + ret.desc());
@@ -850,7 +850,7 @@ namespace DockRotate
 			}
 
 			ret = other.sameVesselDockJoint;
-			if (ret && other.otherNode == node) {
+			if (ret && ret.Host == other.part) {
 				sameVessel = true;
 				if (verbose)
 					log(node.part.desc() + ".dockingJoint(): from same vessel " + ret.desc());
@@ -865,8 +865,9 @@ namespace DockRotate
 			}
 
 			for (int i = 0; i < node.part.children.Count; i++) {
-				if (node.part.children[i].parent == node.part) {
-					ret = node.part.children[i].attachJoint;
+				Part child = node.part.children[i];
+				if (child == other.part) {
+					ret = child.attachJoint;
 					if (verbose)
 						log(node.part.desc() + ".dockingJoint(): to child " + ret.desc());
 					return ret;
