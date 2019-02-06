@@ -305,7 +305,7 @@ namespace DockRotate
 				log(sep);
 			}
 
-			log(GetType() + ".doSetup(): joint " + (jointMotion ? jointMotion.joint.desc() : "null"));
+			log(part.desc() + ".doSetup(): joint " + (jointMotion ? jointMotion.joint.desc() : "null"));
 
 			setupDone = true;
 		}

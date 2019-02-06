@@ -133,13 +133,13 @@ namespace DockRotate
 			int count = 0;
 			for (int ii = 0; ii < allAutostrutJoints.Length; ii++) {
 				PartJoint j = allAutostrutJoints[ii];
-				if (!j)
+				if (!j || !j.Host || !j.Target)
 					continue;
 				if (rotParts.contains(j.Host) == rotParts.contains(j.Target))
 					continue;
-
 				log(part.desc() + ": releasing [" + ++count + "] " + j.desc());
-				j.DestroyJoint();
+				j.Host.ReleaseAutoStruts();
+				log(part.desc() + ": released " + j.desc());
 			}
 		}
 	}

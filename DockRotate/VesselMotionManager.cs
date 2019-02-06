@@ -95,7 +95,7 @@ namespace DockRotate
 				// no action needed with IsJointUnlocked() logic (no smart autostruts)
 				// but IsJointUnlocked() logic is bugged now
 				log("securing autostruts on " + desc());
-				vessel.secureAllAutoStruts();
+				vessel.CycleAllAutoStrut();
 			}
 
 			return rotCount = ret;
