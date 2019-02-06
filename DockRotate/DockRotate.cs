@@ -495,14 +495,18 @@ namespace DockRotate
 
 		protected bool enqueueRotation(Vector3 frozen)
 		{
-			return enqueueRotation(frozen[0], frozen[1], frozen[2]);
+			return enqueueRotation(frozen[0], frozen[1], frozen[2], true);
 		}
 
-		protected bool enqueueRotation(float angle, float speed, float startSpeed = 0f)
+		protected bool enqueueRotation(float angle, float speed, float startSpeed = 0f, bool force = false)
 		{
 			if (!rotationEnabled) {
-				log(part.desc() + ".enqueueRotation(): rotation disabled, skipped");
-				return false;
+				if (force) {
+					log(part.desc() + ".enqueueRotation(): rotation disabled, forced");
+				} else {
+					log(part.desc() + ".enqueueRotation(): rotation disabled, skipped");
+					return false;
+				}
 			}
 			if (!jointMotion) {
 				log(part.desc() + ".enqueueRotation(): no rotating joint, skipped");
