@@ -87,7 +87,7 @@ namespace DockRotate
 #if DEBUG
 		[KSPField(
 			guiName = "#DCKROT_status",
-			guiActive = false,
+			guiActive = true,
 			guiActiveEditor = false
 		)]
 		public string nodeStatus = "";
@@ -434,12 +434,10 @@ namespace DockRotate
 			JointMotionObj cr = currentRotation();
 
 #if DEBUG
-			nodeStatus = "";
 			int nJoints = jointMotion ? jointMotion.joint.joints.Count : 0;
 			nodeStatus = part.flightID + ":" + nodeRole + "[" + nJoints + "]";
 			if (cr)
 				nodeStatus += " " + cr.pos + "\u00b0 -> "+ cr.tgt + "\u00b0";
-			Fields["nodeStatus"].guiActive = guiActive && nodeStatus.Length > 0;
 #endif
 
 			if (cr) {

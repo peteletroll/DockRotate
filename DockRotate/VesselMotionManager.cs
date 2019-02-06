@@ -36,6 +36,7 @@ namespace DockRotate
 	public class VesselMotionManager: MonoBehaviour
 	{
 		private Vessel vessel = null;
+		private Part vesselRoot = null;
 		private int rotCount = 0;
 		public bool onRails = false;
 
@@ -71,6 +72,10 @@ namespace DockRotate
 				mgr.vessel = v;
 				log(typeof(VesselMotionManager) + ".get(" + desc(v) + ") created " + mgr.desc());
 			}
+
+			if (mgr.vessel)
+				mgr.vesselRoot = mgr.vessel.rootPart;
+
 			return mgr;
 		}
 
@@ -78,7 +83,7 @@ namespace DockRotate
 		{
 			int c = rotCount;
 			if (verboseEvents && c != 0)
-				ModuleBaseRotate.log("resetRotCount(): " + c + " -> RESET on " + desc());
+				log("resetRotCount(): " + c + " -> RESET on " + desc());
 			rotCount = 0;
 		}
 
@@ -88,7 +93,7 @@ namespace DockRotate
 			if (ret < 0)
 				ret = 0;
 			if (verboseEvents && delta != 0)
-				ModuleBaseRotate.log("changeCount(" + delta + "): "
+				log("changeCount(" + delta + "): "
 					+ rotCount + " -> " + ret + " on " + desc());
 
 			if (ret == 0 && rotCount > 0) {
@@ -252,6 +257,27 @@ namespace DockRotate
 			return ret;
 		}
 
+		private bool deadVessel()
+		{
+			string deadMsg = "";
+
+			if (!vessel) {
+				deadMsg = "no vessel";
+			} else if (!vesselRoot) {
+				deadMsg = "no original root";
+			} else if (!vessel.rootPart) {
+				deadMsg = "no vessel root";
+			} else if (vessel.rootPart != vesselRoot) {
+				deadMsg = "root changed";
+			}
+
+			if (deadMsg.Length <= 0)
+				return false;
+
+			log(desc() + ".deadVessel(" + desc() + "): " + deadMsg);
+			return true;
+		}
+
 		public void OnVesselCreate(Vessel v)
 		{
 			if (verboseEvents)
@@ -263,6 +289,8 @@ namespace DockRotate
 		{
 			if (verboseEvents)
 				log(GetType() + ".OnVesselGoOnRails(" + desc(v) + ") on " + desc());
+			if (deadVessel())
+				return;
 			if (!care(v, false))
 				return;
 			// resetRotCount(); // useless here, rotCount will go to 0 after freezing rotations
@@ -275,6 +303,8 @@ namespace DockRotate
 		{
 			if (verboseEvents)
 				log(GetType() + ".OnVesselGoOffRails(" + desc(v) + ") on " + desc());
+			if (deadVessel())
+				return;
 			VesselMotionManager.get(v);
 			if (!care(v, false))
 				return;
@@ -334,6 +364,8 @@ namespace DockRotate
 
 		private void RightBeforeStructureChange()
 		{
+			if (deadVessel())
+				return;
 			if (isRepeated("Generic"))
 				return;
 			structureChangeInfo.reset();
@@ -363,11 +395,8 @@ namespace DockRotate
 
 		private void RightAfterStructureChange()
 		{
-			if (!vessel) {
-				log(GetType() + ".RightAfterStructureChange(): vessel disappeared for " + desc());
-				MonoBehaviour.Destroy(this);
+			if (deadVessel())
 				return;
-			}
 			listeners().map(l => l.RightAfterStructureChange());
 		}
 
@@ -378,6 +407,8 @@ namespace DockRotate
 					+ action.from.part.desc() + "@" + desc(action.from.vessel)
 					+ ", " + action.to.part.desc() + "@" + desc(action.to.vessel)
 					+ ") on " + desc());
+			if (deadVessel())
+				return;
 			if (!care(action, false))
 				return;
 			listeners(action.from.part).map(l => l.RightAfterStructureChange());
@@ -390,6 +421,8 @@ namespace DockRotate
 				log(GetType() + ".RightAfterSameVesselUndock("
 					+ desc(action.from.vessel) + ", " + desc(action.to.vessel)
 					+ ") on " + desc());
+			if (deadVessel())
+				return;
 			if (!care(action, false))
 				return;
 			listeners(action.from.part).map(l => l.RightAfterStructureChange());
@@ -411,7 +444,7 @@ namespace DockRotate
 
 		public void Awake()
 		{
-			ModuleBaseRotate.log(GetType() + ".Awake() on " + desc());
+			log(GetType() + ".Awake() on " + desc());
 			if (!vessel) {
 				vessel = gameObject.GetComponent<Vessel>();
 				if (verboseEvents && vessel)
@@ -422,12 +455,12 @@ namespace DockRotate
 
 		public void Start()
 		{
-			ModuleBaseRotate.log(GetType() + ".Start() on " + desc());
+			log(GetType() + ".Start() on " + desc());
 		}
 
 		public void OnDestroy()
 		{
-			ModuleBaseRotate.log(GetType() + ".OnDestroy() on " + desc());
+			log(GetType() + ".OnDestroy() on " + desc());
 			setEvents(false);
 		}
 
