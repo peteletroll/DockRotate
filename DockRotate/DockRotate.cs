@@ -550,7 +550,7 @@ namespace DockRotate
 			if (!setupDone)
 				return;
 
-			if (!Mathf.Approximately(frozenRotation[0], 0f) && !currentRotation()) {
+			if (!Mathf.Approximately(frozenRotation[0], 0f)) {
 				log(part.desc() + ": thaw frozen rotation " + frozenRotation.desc()
 					+ "@" + frozenRotationControllerID);
 				enqueueRotation(frozenRotation);
