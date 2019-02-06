@@ -402,8 +402,10 @@ namespace DockRotate
 			if (verboseEvents && camera) {
 				log(GetType() + ".OnCameraChange(" + mode + ") on " + desc());
 				Camera[] cameras = Camera.allCameras;
-				for (int i = 0; i < cameras.Length; i++)
+				for (int i = 0; i < cameras.Length; i++) {
 					log("camera[" + i + "] = " + cameras[i].desc());
+					log(cameras[i].transform.desc());
+				}
 			}
 		}
 
