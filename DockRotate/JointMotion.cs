@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace DockRotate
@@ -356,7 +357,9 @@ namespace DockRotate
 			} else {
 				// not needed with new IsJointUnlocked() logic
 				// but IsJointUnlocked() logic is bugged now :-(
-				activePart.vessel.releaseAllAutoStruts();
+				List<Part> parts = activePart.vessel.parts;
+				for (int i = 0; i < parts.Count; i++)
+					parts[i].ReleaseAutoStruts();
 			}
 			int c = jm.joint.joints.Count;
 			rji = new RotJointInfo[c];

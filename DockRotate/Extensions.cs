@@ -20,16 +20,6 @@ namespace DockRotate
 			return c.name + "(" + c.cameraType + ") @ " + c.gameObject;
 		}
 
-		/******** Vessel utilities ********/
-
-		public static void releaseAllAutoStruts(this Vessel v)
-		{
-			List<Part> parts = v.parts;
-			for (int i = 0; i < parts.Count; i++) {
-				parts[i].ReleaseAutoStruts();
-			}
-		}
-
 		/******** Part utilities ********/
 
 		public static string desc(this Part part)
