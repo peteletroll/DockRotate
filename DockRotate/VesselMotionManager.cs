@@ -263,12 +263,12 @@ namespace DockRotate
 
 			if (!vessel) {
 				deadMsg = "no vessel";
-			} else if (!vesselRoot) {
-				deadMsg = "no original root";
 			} else if (!vessel.rootPart) {
 				deadMsg = "no vessel root";
+			} else if (!vesselRoot) {
+				deadMsg = "no original root";
 			} else if (vessel.rootPart != vesselRoot) {
-				deadMsg = "root changed";
+				deadMsg = "root changed " + vesselRoot.desc() + " -> " + vessel.rootPart.desc();
 			}
 
 			if (deadMsg.Length <= 0)

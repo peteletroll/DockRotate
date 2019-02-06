@@ -92,6 +92,7 @@ namespace DockRotate
 					log(joint.desc() + ": enqueueRotation() canceled, braking");
 					return false;
 				}
+				rotCur.controller = controller;
 				rotCur.maxvel = speed;
 				action = "updated";
 				if (SmoothMotion.isContinuous(ref angle)) {
@@ -302,7 +303,20 @@ namespace DockRotate
 	public class JointMotionObj: SmoothMotion
 	{
 		private JointMotion jm;
-		public ModuleBaseRotate controller;
+		private ModuleBaseRotate _controller;
+		public ModuleBaseRotate controller {
+			get { return _controller; }
+			set {
+				if (value != _controller) {
+					if (_controller) {
+						log(jm.joint.desc() + " change controller " + _controller.part.desc() + " -> " + value.part.desc());
+					} else {
+						log(jm.joint.desc() + " set controller " + value.part.desc());
+					}
+				}
+				_controller = value;
+			}
+		}
 
 		public bool smartAutoStruts = false;
 

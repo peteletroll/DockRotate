@@ -717,7 +717,6 @@ namespace DockRotate
 				if (verboseEvents)
 					log(part.desc() + ".setup(): on " + rotatingJoint.desc());
 				jointMotion = JointMotion.get(rotatingJoint);
-				jointMotion.setAxis(part, partNodeAxis, partNodePos);
 			}
 		}
 
@@ -896,7 +895,6 @@ namespace DockRotate
 				if (verboseEvents)
 					log(part.desc() + ".setup(): on " + rotatingJoint.desc());
 				jointMotion = JointMotion.get(rotatingJoint);
-				jointMotion.setAxis(part, partNodeAxis, partNodePos);
 			}
 
 			if (sameVessel)
