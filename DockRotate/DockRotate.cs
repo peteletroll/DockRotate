@@ -850,7 +850,7 @@ namespace DockRotate
 			}
 
 			ret = other.sameVesselDockJoint;
-			if (ret && ret.Host == other.part) {
+			if (ret && ret.Target == node.part) {
 				sameVessel = true;
 				if (verbose)
 					log(node.part.desc() + ".dockingJoint(): from same vessel " + ret.desc());
