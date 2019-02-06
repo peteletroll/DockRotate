@@ -425,8 +425,10 @@ namespace DockRotate
 				return;
 			if (!care(action, false))
 				return;
+			phase("BEGIN AFTER SV DOCK");
 			listeners(action.from.part).map(l => l.RightAfterStructureChange());
 			listeners(action.to.part).map(l => l.RightAfterStructureChange());
+			phase("END AFTER SV DOCK");
 		}
 
 		public void RightAfterSameVesselUndock(GameEvents.FromToAction<ModuleDockingNode, ModuleDockingNode> action)
@@ -439,8 +441,10 @@ namespace DockRotate
 				return;
 			if (!care(action, false))
 				return;
+			phase("BEGIN AFTER SV UNDOCK");
 			listeners(action.from.part).map(l => l.RightAfterStructureChange());
 			listeners(action.to.part).map(l => l.RightAfterStructureChange());
+			phase("END AFTER SV UNDOCK");
 		}
 
 		public void OnCameraChange(CameraManager.CameraMode mode)
