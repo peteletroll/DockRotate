@@ -265,7 +265,7 @@ namespace DockRotate
 				log(GetType() + ".OnVesselGoOnRails(" + desc(v) + ") on " + desc());
 			if (!care(v, false))
 				return;
-			resetRotCount();
+			// resetRotCount(); // useless here, rotCount will go to 0 after freezing rotations
 			structureChangeInfo.reset();
 			listeners().map(l => l.OnVesselGoOnRails());
 			onRails = true;
