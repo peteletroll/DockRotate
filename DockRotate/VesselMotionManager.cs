@@ -92,6 +92,10 @@ namespace DockRotate
 			int ret = rotCount + delta;
 			if (ret < 0)
 				ret = 0;
+
+			if (rotCount == 0 && delta > 0)
+				phase("START");
+
 			if (verboseEvents && delta != 0)
 				log("changeCount(" + delta + "): "
 					+ rotCount + " -> " + ret + " on " + desc());
@@ -102,6 +106,9 @@ namespace DockRotate
 				log("securing autostruts on " + desc());
 				vessel.CycleAllAutoStrut();
 			}
+
+			if (ret == 0 && delta < 0)
+				phase("STOP");
 
 			return rotCount = ret;
 		}
@@ -191,8 +198,8 @@ namespace DockRotate
 		private bool isRepeated(string label)
 		{
 			bool ret = structureChangeInfo.lastResetFrame == Time.frameCount;
-			if (ret && verboseEvents) {
-				log(GetType() + ".isRepeated(): repeated " + label
+			if (ret) {
+				log(GetType() + ".isRepeated(): " + label
 					+ " after " + structureChangeInfo.lastLabel
 					+ " on " + desc());
 			} else {
@@ -271,7 +278,7 @@ namespace DockRotate
 				deadMsg = "root changed " + vesselRoot.desc() + " -> " + vessel.rootPart.desc();
 			}
 
-			if (deadMsg.Length <= 0)
+			if (deadMsg == "")
 				return false;
 
 			log(desc() + ".deadVessel(" + desc() + "): " + deadMsg);
@@ -293,9 +300,10 @@ namespace DockRotate
 				return;
 			if (!care(v, false))
 				return;
-			// resetRotCount(); // useless here, rotCount will go to 0 after freezing rotations
+			phase("BEGIN ON RAILS");
 			structureChangeInfo.reset();
 			listeners().map(l => l.OnVesselGoOnRails());
+			phase("END ON RAILS");
 			onRails = true;
 		}
 
@@ -308,10 +316,12 @@ namespace DockRotate
 			VesselMotionManager.get(v);
 			if (!care(v, false))
 				return;
+			phase("BEGIN OFF RAILS");
 			resetRotCount();
 			structureChangeInfo.reset();
 			onRails = false;
 			listeners().map(l => l.OnVesselGoOffRails());
+			phase("END OFF RAILS");
 		}
 
 		private void RightBeforeStructureChangeJointUpdate(Vessel v)
@@ -368,8 +378,10 @@ namespace DockRotate
 				return;
 			if (isRepeated("Generic"))
 				return;
+			phase("BEGIN BEFORE CHANGE");
 			structureChangeInfo.reset();
 			listeners().map(l => l.RightBeforeStructureChange());
+			phase("END BEFORE CHANGE");
 		}
 
 		public void RightAfterStructureChangeAction(GameEvents.FromToAction<Part, Part> action)
@@ -397,7 +409,9 @@ namespace DockRotate
 		{
 			if (deadVessel())
 				return;
+			phase("BEGIN AFTER CHANGE");
 			listeners().map(l => l.RightAfterStructureChange());
+			phase("END AFTER CHANGE");
 		}
 
 		public void RightAfterSameVesselDock(GameEvents.FromToAction<ModuleDockingNode, ModuleDockingNode> action)
@@ -472,6 +486,12 @@ namespace DockRotate
 		private string desc()
 		{
 			return GetInstanceID() + "-" + desc(vessel);
+		}
+
+		private void phase(string msg)
+		{
+			if (verboseEvents)
+				log(new string('-', 10) + " " + msg + " " + new string('-', 50));
 		}
 
 		private static bool log(string msg)

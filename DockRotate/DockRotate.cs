@@ -611,14 +611,14 @@ namespace DockRotate
 
 		public override string GetModuleDisplayName()
 		{
-			if (cached_moduleDisplayName.Length <= 0)
+			if (cached_moduleDisplayName == "")
 				cached_moduleDisplayName = Localizer.Format("#DCKROT_node_displayname");
 			return cached_moduleDisplayName;
 		}
 
 		public override string GetInfo()
 		{
-			if (cached_info.Length <= 0)
+			if (cached_info == "")
 				cached_info = Localizer.Format("#DCKROT_node_info", rotatingNodeName);
 			return cached_info;
 		}
@@ -780,14 +780,14 @@ namespace DockRotate
 
 		public override string GetModuleDisplayName()
 		{
-			if (cached_moduleDisplayName.Length <= 0)
+			if (cached_moduleDisplayName == "")
 				cached_moduleDisplayName = Localizer.Format("#DCKROT_port_displayname");
 			return cached_moduleDisplayName;
 		}
 
 		public override string GetInfo()
 		{
-			if (cached_info.Length <= 0)
+			if (cached_info == "")
 				cached_info = Localizer.Format("#DCKROT_port_info");
 			return cached_info;
 		}

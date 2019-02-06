@@ -83,7 +83,7 @@ namespace DockRotate
 		{
 			string lst = "";
 			foreach (string t in node.nodeTypes) {
-				if (lst.Length > 0)
+				if (lst != "")
 					lst += ",";
 				lst += t;
 			}
