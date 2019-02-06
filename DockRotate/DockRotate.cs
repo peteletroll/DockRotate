@@ -639,8 +639,9 @@ namespace DockRotate
 
 			partNodePos = rotatingNode.position;
 			partNodeAxis = rotatingNode.orientation;
-			log(GetType() + ".setupGeometry(" + state + ") done: "
-				+ partNodeAxis + "@" + partNodePos);
+			if (verboseEvents)
+				log(GetType() + ".setupGeometry(" + state + ") done: "
+					+ partNodeAxis + "@" + partNodePos);
 			return true;
 		}
 
@@ -803,8 +804,9 @@ namespace DockRotate
 
 			partNodePos = Vector3.zero.Tp(dockingNode.T(), part.T());
 			partNodeAxis = Vector3.forward.Td(dockingNode.T(), part.T());
-			log(GetType() + ".setupGeometry(" + state + ") done: "
-				+ partNodeAxis + "@" + partNodePos);
+			if (verboseEvents)
+				log(GetType() + ".setupGeometry(" + state + ") done: "
+					+ partNodeAxis + "@" + partNodePos);
 			return true;
 		}
 
