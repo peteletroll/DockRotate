@@ -436,7 +436,7 @@ namespace DockRotate
 #if DEBUG
 			nodeStatus = "";
 			int nJoints = jointMotion ? jointMotion.joint.joints.Count : 0;
-			nodeStatus = nodeRole + " [" + nJoints + "]";
+			nodeStatus = part.flightID + ":" + nodeRole + "[" + nJoints + "]";
 			if (cr)
 				nodeStatus += " " + cr.pos + "\u00b0 -> "+ cr.tgt + "\u00b0";
 			Fields["nodeStatus"].guiActive = guiActive && nodeStatus.Length > 0;
@@ -550,8 +550,11 @@ namespace DockRotate
 			if (!setupDone)
 				return;
 
-			if (!Mathf.Approximately(frozenRotation[0], 0f) && !currentRotation())
+			if (!Mathf.Approximately(frozenRotation[0], 0f) && !currentRotation()) {
+				log(part.desc() + ": thaw frozen rotation " + frozenRotation.desc()
+					+ "@" + frozenRotationControllerID);
 				enqueueRotation(frozenRotation);
+			}
 
 			updateFrozenRotation("CHECK");
 		}
@@ -708,7 +711,6 @@ namespace DockRotate
 
 			other.forcePhysics();
 
-			nodeRole = "None";
 			PartJoint rotatingJoint = nodeJoint(rotatingNode, true);
 			if (rotatingJoint) {
 				nodeRole = part == rotatingJoint.Host ? "Host"
@@ -903,7 +905,7 @@ namespace DockRotate
 
 			if (dockingNode.snapRotation && dockingNode.snapOffset > 0f
 			    && jointMotion && rotatingJoint.Host == part && rotationEnabled) {
-				enqueueFrozenRotation(jointMotion.angleToSnap(dockingNode.snapOffset), rotationSpeed);
+				enqueueFrozenRotation(jointMotion.angleToSnap(dockingNode.snapOffset), speed());
 			}
 		}
 
