@@ -65,6 +65,9 @@ namespace DockRotate
 		public bool flipFlopMode = false;
 
 		[KSPField(isPersistant = true)]
+		public string soundClip = "";
+
+		[KSPField(isPersistant = true)]
 		public float soundVolume = 0.5f;
 
 		[UI_Toggle()]
