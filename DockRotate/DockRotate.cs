@@ -207,16 +207,6 @@ namespace DockRotate
 
 #if DEBUG
 		[KSPEvent(
-			guiName = "Dump",
-			guiActive = true,
-			guiActiveEditor = false
-		)]
-		public void Dump()
-		{
-			dumpPart();
-		}
-
-		[KSPEvent(
 			guiName = "Toggle Autostrut Display",
 			guiActive = true,
 			guiActiveEditor = false
@@ -241,8 +231,6 @@ namespace DockRotate
 		{
 			enqueueRotationToSnap(rotationStep, speed());
 		}
-
-		protected abstract void dumpPart();
 
 		public void doStopRotation()
 		{
@@ -719,43 +707,6 @@ namespace DockRotate
 				jointMotion = JointMotion.get(rotatingJoint);
 			}
 		}
-
-		protected override void dumpPart()
-		{
-			Part activePart = jointMotion ? jointMotion.joint.Host : null;
-			log("--- DUMP " + part.desc() + " ---");
-			log("rotPart: " + activePart.desc());
-			log("rotAxis: " + partNodeAxis.ddesc(activePart));
-			log("rotPos: " + partNodePos.pdesc(activePart));
-			AttachNode[] nodes = part.FindAttachNodes("");
-			for (int i = 0; i < nodes.Length; i++) {
-				AttachNode n = nodes[i];
-				if (rotatingNode != null && rotatingNode.id != n.id)
-					continue;
-				log("  node [" + i + "/" + nodes.Length + "] \"" + n.id + "\""
-					+ ", size " + n.size
-					+ ", type " + n.nodeType
-					+ ", method " + n.attachMethod);
-				// log("    dirV: " + n.orientation.STd(part, vessel.rootPart).desc());
-				_dumpv("dir", n.orientation, n.originalOrientation);
-				_dumpv("sec", n.secondaryAxis, n.originalSecondaryAxis);
-				_dumpv("pos", n.position, n.originalPosition);
-			}
-			if (jointMotion) {
-				log(jointMotion.joint == part.attachJoint ? "parent joint:" : "not parent joint:");
-				jointMotion.joint.dump();
-			}
-
-			log("--------------------");
-		}
-
-		private void _dumpv(string label, Vector3 v, Vector3 orgv)
-		{
-			log("    "
-				+ label + ": "
-				+ v.desc()
-				+ ", org " + (orgv == v ? "=" : orgv.desc()));
-		}
 	}
 
 	public class ModuleDockRotate: ModuleBaseRotate
@@ -904,40 +855,6 @@ namespace DockRotate
 			    && jointMotion && rotatingJoint.Host == part && rotationEnabled) {
 				enqueueFrozenRotation(jointMotion.angleToSnap(dockingNode.snapOffset), speed());
 			}
-		}
-
-		/******** Debugging stuff ********/
-
-		protected override void dumpPart()
-		{
-			Part activePart = jointMotion ? jointMotion.joint.Host : null;
-			log("--- DUMP " + part.desc() + " ---");
-			log("rotPart: " + activePart.desc());
-			log("role: " + nodeRole);
-#if DEBUG
-			log("status: " + nodeStatus);
-#endif
-			log("org: " + part.descOrg());
-
-			if (dockingNode) {
-				log("state: " + dockingNode.state);
-
-				log("types: " + dockingNode.allTypes());
-
-				ModuleDockingNode other = dockingNode.otherNode;
-				log("other: " + (other ? other.part.desc() : "none"));
-
-				log("partNodeAxisV: " + partNodeAxis.STd(part, vessel.rootPart).desc());
-				log("GetFwdVector(): " + dockingNode.GetFwdVector().desc());
-				log("nodeTransform: " + dockingNode.nodeTransform.desc(8));
-			}
-
-			if (jointMotion) {
-				log(jointMotion.joint == part.attachJoint ? "parent joint:" : "same vessel joint:");
-				jointMotion.joint.dump();
-			}
-
-			log("--------------------");
 		}
 	}
 }

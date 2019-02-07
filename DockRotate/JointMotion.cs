@@ -299,7 +299,7 @@ namespace DockRotate
 
 		public string desc()
 		{
-			return GetInstanceID() + ":" + joint.desc();
+			return "JM:" + GetInstanceID() + ":" + joint.desc();
 		}
 
 		private static bool log(string msg)

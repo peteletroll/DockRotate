@@ -436,7 +436,7 @@ namespace DockRotate
 				Camera[] cameras = Camera.allCameras;
 				for (int i = 0; i < cameras.Length; i++) {
 					log("camera[" + i + "] = " + cameras[i].desc());
-					log(cameras[i].transform.desc());
+					log(cameras[i].transform.desc(10));
 				}
 			}
 		}
