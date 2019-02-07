@@ -6,9 +6,11 @@ namespace DockRotate
 {
 	public class JointMotion: MonoBehaviour, ISmoothMotionListener
 	{
-		public PartJoint joint;
+		private PartJoint _joint;
+		public PartJoint joint { get => _joint; }
+		public Vessel vessel { get => joint ? joint.Host.vessel : null; }
+
 		public Vector3 hostAxis, hostNode;
-		private Vessel vessel;
 		private Vector3 hostUp, targetUp;
 
 		private SmoothMotionDispatcher rotation;
@@ -17,14 +19,17 @@ namespace DockRotate
 		public JointMotionObj rotCur {
 			get { return _rotCur; }
 			set {
+				if (!joint || !joint.Host || !joint.Host.vessel)
+					return;
+
 				bool sas = (_rotCur ? _rotCur.smartAutoStruts : false)
 					|| (value ? value.smartAutoStruts : false);
+
 				int delta = (value && !_rotCur) ? +1
 					: (!value && _rotCur) ? -1
 					: 0;
+
 				_rotCur = value;
-				if (!joint || !joint.Host || !joint.Host.vessel)
-					return;
 				VesselMotionManager.get(joint.Host.vessel).changeCount(delta);
 				if (!sas) {
 					log(joint.Host.desc() + " triggered CycleAllAutoStruts()");
@@ -47,8 +52,7 @@ namespace DockRotate
 					return jms[i];
 
 			JointMotion jm = j.gameObject.AddComponent<JointMotion>();
-			jm.joint = j;
-			jm.vessel = j.Host.vessel;
+			jm._joint = j;
 			log(jm.GetType() + ".get(): created " + jm.desc());
 			return jm;
 		}
@@ -172,14 +176,16 @@ namespace DockRotate
 
 		protected bool brakeRotationKey()
 		{
-			return joint && vessel
-				&& vessel == FlightGlobals.ActiveVessel
+			return vessel && vessel == FlightGlobals.ActiveVessel
 				&& GameSettings.MODIFIER_KEY.GetKey()
 				&& GameSettings.BRAKES.GetKeyDown();
 		}
 
 		public void FixedUpdate()
 		{
+			if (!vessel)
+				MonoBehaviour.Destroy(this);
+
 			if (HighLogic.LoadedScene != GameScenes.FLIGHT || !rotCur)
 				return;
 
@@ -222,6 +228,7 @@ namespace DockRotate
 		public void OnDestroy()
 		{
 			log(GetType() + ".OnDestroy() on " + desc());
+			rotCur = null;
 			if (sound)
 				MonoBehaviour.Destroy(sound);
 		}

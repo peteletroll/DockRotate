@@ -413,7 +413,7 @@ namespace DockRotate
 			if (vessel) {
 				VesselMotionManager.get(vessel); // force creation of VesselMotionManager
 			} else if (state != StartState.Editor) {
-				log(part.desc() + ": OnStart() with no vessel, state " + state);
+				log(part.desc() + ": OnStart(" + state + ") with no vessel");
 			}
 
 			geometryOk = setupGeometry(state);

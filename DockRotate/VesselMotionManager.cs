@@ -35,8 +35,9 @@ namespace DockRotate
 
 	public class VesselMotionManager: MonoBehaviour
 	{
-		private Vessel vessel = null;
-		private Part vesselRoot = null;
+		private Vessel _vessel = null;
+		public Vessel vessel { get => _vessel; }
+
 		private int rotCount = 0;
 		public bool onRails = false;
 
@@ -45,36 +46,20 @@ namespace DockRotate
 
 		public static VesselMotionManager get(Part p)
 		{
-			return get(p.vessel);
+			return p ? get(p.vessel) : null;
 		}
 
 		public static VesselMotionManager get(Vessel v)
 		{
-			if (!v) {
-				log("*** WARNING *** " + typeof(VesselMotionManager) + ".get() with null vessel");
+			if (!v)
 				return null;
-			}
 
-			VesselMotionManager[] mgrs = v.gameObject.GetComponents<VesselMotionManager>();
-			if (mgrs != null && mgrs.Length > 1)
-				log(typeof(VesselMotionManager) + ".get(): *** WARNING *** found " + mgrs.Length);
-
-			VesselMotionManager mgr = (mgrs != null && mgrs.Length > 0) ? mgrs[0] : null;
-			if (mgr) {
-				if (mgr.vessel != v)
-					log(mgr.GetType() + ".get(): *** WARNING *** "
-						+ mgr.desc() + " -> " + desc(v));
-				mgr.vessel = v;
-			}
-
+			VesselMotionManager mgr = v.gameObject.GetComponent<VesselMotionManager>();
 			if (!mgr) {
 				mgr = v.gameObject.AddComponent<VesselMotionManager>();
-				mgr.vessel = v;
+				mgr._vessel = v;
 				log(typeof(VesselMotionManager) + ".get(" + desc(v) + ") created " + mgr.desc());
 			}
-
-			if (mgr.vessel)
-				mgr.vesselRoot = mgr.vessel.rootPart;
 
 			return mgr;
 		}
@@ -202,7 +187,7 @@ namespace DockRotate
 					lastLabel = "Init";
 				bool ret = lastResetFrame == Time.frameCount;
 				if (ret) {
-					log(GetType() + ".isRepeated(): got " + label
+					log(GetType() + ".isRepeated(): repeated " + label
 						+ " after " + lastLabel);
 				} else {
 					log(GetType() + ".isRepeated(): set " + label
@@ -279,16 +264,13 @@ namespace DockRotate
 				deadMsg = "no vessel";
 			} else if (!vessel.rootPart) {
 				deadMsg = "no vessel root";
-			} else if (!vesselRoot) {
-				deadMsg = "no original root";
-			} else if (vessel.rootPart != vesselRoot) {
-				deadMsg = "root changed " + vesselRoot.desc() + " -> " + vessel.rootPart.desc();
 			}
 
 			if (deadMsg == "")
 				return false;
 
 			log(desc() + ".deadVessel(" + desc() + "): " + deadMsg);
+			MonoBehaviour.Destroy(this);
 			return true;
 		}
 
@@ -320,7 +302,7 @@ namespace DockRotate
 				log(GetType() + ".OnVesselGoOffRails(" + desc(v) + ") on " + desc());
 			if (deadVessel())
 				return;
-			VesselMotionManager.get(v);
+			get(v);
 			if (!care(v, false))
 				return;
 			phase("BEGIN OFF RAILS");
@@ -463,7 +445,7 @@ namespace DockRotate
 		{
 			log(GetType() + ".Awake() on " + desc());
 			if (!vessel) {
-				vessel = gameObject.GetComponent<Vessel>();
+				_vessel = gameObject.GetComponent<Vessel>();
 				if (verboseEvents && vessel)
 					log(GetType() + ".Awake(): found vessel " + desc());
 			}
@@ -494,7 +476,7 @@ namespace DockRotate
 		private void phase(string msg)
 		{
 			if (verboseEvents)
-				log(new string('-', 10) + " " + msg + " " + new string('-', 50));
+				log(new string('-', 10) + " " + msg + " " + new string('-', 60 - msg.Length));
 		}
 
 		private static bool log(string msg)
