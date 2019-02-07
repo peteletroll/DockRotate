@@ -455,14 +455,16 @@ namespace DockRotate
 			setEvents(false);
 		}
 
-		private static string desc(Vessel v)
+		private static string desc(Vessel v, bool terse = false)
 		{
-			return "V:" + (v ? "-" + v.rootPart.flightID + ":" + v.vesselName.Replace(' ', '_') : "null");
+			uint id = (v && v.rootPart) ? v.rootPart.flightID : 0;
+			string name = v ? v.vesselName : "no-vessel";
+			return (terse ? "" : "V:") + id + ":" + name.Replace(' ', '_');
 		}
 
 		private string desc()
 		{
-			return "VMM:" + GetInstanceID() + "-" + desc(vessel);
+			return "VMM:" + GetInstanceID() + "-" + desc(vessel, true);
 		}
 
 		private void phase(string msg)
