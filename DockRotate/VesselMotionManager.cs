@@ -455,11 +455,11 @@ namespace DockRotate
 			setEvents(false);
 		}
 
-		private static string desc(Vessel v, bool terse = false)
+		private static string desc(Vessel v, bool bare = false)
 		{
 			uint id = (v && v.rootPart) ? v.rootPart.flightID : 0;
 			string name = v ? v.name : "no-vessel";
-			return (terse ? "" : "V:") + id + ":" + name.Replace(' ', '_');
+			return (bare ? "" : "V:") + id + ":" + name.Replace(' ', '_');
 		}
 
 		private string desc()

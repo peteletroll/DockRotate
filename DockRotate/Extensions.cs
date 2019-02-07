@@ -38,17 +38,21 @@ namespace DockRotate
 
 		/******** Part utilities ********/
 
-		public static string desc(this Part part)
+		public static string desc(this Part part, bool bare = false)
 		{
 			if (!part)
 				return "null";
-			string name = part.name;
-			int s = name.IndexOf(' ');
-			if (s > 1)
-				name = name.Remove(s);
 			ModuleBaseRotate mbr = part.FindModuleImplementing<ModuleBaseRotate>();
-			return name + ":" + part.flightID
+			return (bare ? "" : "P:") + part.bareName() + ":" + part.flightID
 				+ (mbr ? ":" + mbr.nodeRole : "");
+		}
+
+		public static string bareName(this Part part)
+		{
+			if (!part)
+				return "null";
+			int s = part.name.IndexOf(' ');
+			return s > 1 ? part.name.Remove(s) : part.name;
 		}
 
 		public static Vector3 up(this Part part, Vector3 axis)
@@ -127,8 +131,8 @@ namespace DockRotate
 		{
 			if (j == null)
 				return "null";
-			string host = j.Host.desc() + (j.Child == j.Host ? "" : "/" + j.Child.desc());
-			string target = j.Target.desc() + (j.Parent == j.Target ? "" : "/" + j.Parent.desc());
+			string host = j.Host.desc(true) + (j.Child == j.Host ? "" : "/" + j.Child.desc(true));
+			string target = j.Target.desc(true) + (j.Parent == j.Target ? "" : "/" + j.Parent.desc(true));
 			int n = j.joints.Count;
 			return host + new string('>', n) + target;
 		}
