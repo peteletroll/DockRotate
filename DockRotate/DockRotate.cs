@@ -65,7 +65,7 @@ namespace DockRotate
 		public bool flipFlopMode = false;
 
 		[KSPField(isPersistant = true)]
-		public string soundClip = "";
+		public string soundClip = "DockRotateMotor";
 
 		[KSPField(isPersistant = true)]
 		public float soundVolume = 0.5f;

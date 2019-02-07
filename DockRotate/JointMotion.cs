@@ -234,7 +234,6 @@ namespace DockRotate
 
 		/******** sound stuff ********/
 
-		public const string soundClipDefault = "DockRotateMotor";
 		public const float pitchAlterationRateMax = 0.1f;
 
 		public AudioSource sound;
@@ -242,32 +241,23 @@ namespace DockRotate
 		public float soundVolume = 1f;
 		public float pitchAlteration = 1f;
 
-		private AudioClip soundClip()
-		{
-			string soundClip = soundClipDefault;
-			if (rotCur && rotCur.controller) {
-				if (rotCur.controller.soundClip != "") {
-					soundClip = rotCur.controller.soundClip;
-					soundVolume = rotCur.controller.soundVolume;
-				} else {
-					rotCur.controller.soundClip = soundClip;
-				}
-			}
-			AudioClip clip = GameDatabase.Instance.GetAudioClip(soundClip);
-			if (!clip)
-				log("clip " + soundClip + " not found");
-			return clip;
-		}
-
 		public void startSound()
 		{
 			if (sound)
 				return;
 
+			if (!rotCur || !rotCur.controller) {
+				log("sound: no " + (rotCur ? "controller" : "rotation"));
+				return;
+			}
+
 			try {
-				AudioClip clip = soundClip();
-				if (!clip)
+				soundVolume = rotCur.controller.soundVolume;
+				AudioClip clip = GameDatabase.Instance.GetAudioClip(rotCur.controller.soundClip);
+				if (!clip) {
+					log("sound: clip \"" + rotCur.controller.soundClip + "\" not found");
 					return;
+				}
 
 				sound = joint.Host.gameObject.AddComponent<AudioSource>();
 				sound.clip = clip;
@@ -285,8 +275,6 @@ namespace DockRotate
 					+ (1f - pitchAlterationRateMax);
 
 				sound.Play();
-
-				// log(activePart.desc() + ": added sound");
 			} catch (Exception e) {
 				log("sound: " + e.Message);
 				if (sound)
