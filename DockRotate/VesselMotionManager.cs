@@ -42,7 +42,7 @@ namespace DockRotate
 		public bool onRails = false;
 
 		private bool verboseEvents = true;
-		private bool verboseCare = false;
+		private bool verboseCare = true;
 
 		public static VesselMotionManager get(Part p)
 		{
@@ -439,7 +439,7 @@ namespace DockRotate
 			if (!vessel) {
 				_vessel = gameObject.GetComponent<Vessel>();
 				if (verboseEvents && vessel)
-					log("" + GetType(), ".Awake(): found vessel " + desc());
+					log(desc(), ".Awake(): found vessel");
 			}
 			setEvents(true);
 		}
@@ -457,12 +457,12 @@ namespace DockRotate
 
 		private static string desc(Vessel v)
 		{
-			return v ? v.name + "[" + v.rootPart.flightID + "]": "null";
+			return "V:" + (v ? "-" + v.rootPart.flightID + ":" + v.vesselName.Replace(' ', '_') : "null");
 		}
 
 		private string desc()
 		{
-			return GetInstanceID() + "-" + desc(vessel);
+			return "VMM:" + GetInstanceID() + "-" + desc(vessel);
 		}
 
 		private void phase(string msg)

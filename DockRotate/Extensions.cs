@@ -7,20 +7,23 @@ namespace DockRotate
 	{
 		/******** logging ********/
 
+		private static int framelast = 0;
 		private static string msg1last = "";
 
 		public static bool log(string msg1, string msg2 = "")
 		{
+			int now = Time.frameCount;
 			if (msg2 == "") {
 				msg1last = "";
 			} else {
-				if (msg1 == msg1last) {
-					msg1 = "... ";
+				if (msg1 == msg1last && framelast == now) {
+					msg1 = "    ... ";
 				} else {
+					framelast = now;
 					msg1last = msg1;
 				}
 			}
-			Debug.Log("[DockRotate:" + Time.frameCount + "]: " + msg1 + msg2);
+			Debug.Log("[DR:" + now + "] " + msg1 + msg2);
 			return true;
 		}
 
@@ -40,8 +43,8 @@ namespace DockRotate
 			if (!part)
 				return "null";
 			ModuleBaseRotate mbr = part.FindModuleImplementing<ModuleBaseRotate>();
-			return part.name + "_" + part.flightID
-				+ (mbr ? "_" + mbr.nodeRole : "");
+			return part.name + ":" + part.flightID
+				+ (mbr ? ":" + mbr.nodeRole : "");
 		}
 
 		public static Vector3 up(this Part part, Vector3 axis)
@@ -120,10 +123,10 @@ namespace DockRotate
 		{
 			if (j == null)
 				return "null";
-			string host = j.Host.desc() + "/" + (j.Child == j.Host ? "=" : j.Child.desc());
-			string target = j.Target.desc() + "/" + (j.Parent == j.Target ? "=" : j.Parent.desc());
+			string host = j.Host.desc() + (j.Child == j.Host ? "" : "/" + j.Child.desc());
+			string target = j.Target.desc() + (j.Parent == j.Target ? "" : "/" + j.Parent.desc());
 			int n = j.joints.Count;
-			return host + " " + n + "> " + target;
+			return host + new string('>', n) + target;
 		}
 
 		public static void dump(this PartJoint j)

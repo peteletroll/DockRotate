@@ -72,9 +72,9 @@ namespace DockRotate
 				state = "inverse";
 				axis = -axis;
 			} else {
-				log(part.desc(), ".setAxis(): part " + part.desc() + " not in " + joint.desc());
+				log(desc(), ".setAxis(): part " + part.desc() + " not in " + joint.desc());
 			}
-			log(part.desc(), ".setAxis(): " + axis.desc() + "@" + node.desc() + "), " + state);
+			log(desc(), ".setAxis(): " + axis.desc() + "@" + node.desc() + "), " + state);
 			hostAxis = axis.STd(part, joint.Host);
 			hostNode = node.STp(part, joint.Host);
 			hostUp = joint.Host.up(hostAxis);
@@ -215,18 +215,18 @@ namespace DockRotate
 
 		public void Awake()
 		{
-			log("" + GetType(), ".Awake() on " + desc());
+			log(desc(), ".Awake()");
 			rotation = new SmoothMotionDispatcher(this);
 		}
 
 		public void Start()
 		{
-			log("" + GetType(), ".Start() on " + desc());
+			log(desc(), ".Start()");
 		}
 
 		public void OnDestroy()
 		{
-			log("" + GetType(), ".OnDestroy() on " + desc());
+			log(desc(), ".OnDestroy()");
 			rotCur = null;
 			if (sound)
 				MonoBehaviour.Destroy(sound);
@@ -321,9 +321,9 @@ namespace DockRotate
 			set {
 				if (value != _controller) {
 					if (_controller) {
-						log(jm.joint.desc(), " change controller " + _controller.part.desc() + " -> " + value.part.desc());
+						log(jm.joint.desc(), ": change controller " + _controller.part.desc() + " -> " + value.part.desc());
 					} else {
-						log(jm.joint.desc(), " set controller " + value.part.desc());
+						log(jm.joint.desc(), ": set controller " + value.part.desc());
 					}
 				}
 				_controller = value;

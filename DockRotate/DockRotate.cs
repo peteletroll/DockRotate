@@ -65,7 +65,7 @@ namespace DockRotate
 		public bool flipFlopMode = false;
 
 		[KSPField(isPersistant = true)]
-		public string soundClip = "DockRotateMotor";
+		public string soundClip = "DockRotate/DockRotateMotor";
 
 		[KSPField(isPersistant = true)]
 		public float soundVolume = 0.5f;
@@ -705,6 +705,7 @@ namespace DockRotate
 				if (verboseEvents)
 					log(part.desc(), ".setup(): on " + rotatingJoint.desc());
 				jointMotion = JointMotion.get(rotatingJoint);
+				jointMotion.setAxis(part, partNodeAxis, partNodePos);
 			}
 		}
 	}
@@ -766,26 +767,26 @@ namespace DockRotate
 
 			if (!node || !node.part) {
 				if (verbose)
-					log(node.part.desc() + ".dockingJoint(): no node");
+					log(node.part.desc(), ".dockingJoint(): no node");
 				return null;
 			}
 
 			if (verbose && node.state != "PreAttached" && !node.state.StartsWith("Docked"))
-				log(node.part.desc() + ".dockingJoint(): unconnected state " + node.state);
+				log(node.part.desc(), ".dockingJoint(): unconnected state " + node.state);
 
 			ModuleDockingNode other = node.otherNode;
 			if (other) {
 				if (verbose)
-					log(node.part.desc() + ".dockingJoint(): other is " + other.part.desc());
+					log(node.part.desc(), ".dockingJoint(): other is " + other.part.desc());
 			} else if (node.dockedPartUId > 0) {
 				other = node.FindOtherNode();
 				if (verbose && other)
-					log(node.part.desc() + ".dockingJoint(): other found " + other.part.desc());
+					log(node.part.desc(), ".dockingJoint(): other found " + other.part.desc());
 			}
 
 			if (!other || !other.part) {
 				if (verbose)
-					log(node.part.desc() + ".dockingJoint(): no other, id = " + node.dockedPartUId);
+					log(node.part.desc(), ".dockingJoint(): no other, id = " + node.dockedPartUId);
 				return null;
 			}
 
@@ -793,7 +794,7 @@ namespace DockRotate
 			if (ret && ret.Target == other.part) {
 				sameVessel = true;
 				if (verbose)
-					log(node.part.desc() + ".dockingJoint(): to same vessel " + ret.desc());
+					log(node.part.desc(), ".dockingJoint(): to same vessel " + ret.desc());
 				return ret;
 			}
 
@@ -801,14 +802,14 @@ namespace DockRotate
 			if (ret && ret.Target == node.part) {
 				sameVessel = true;
 				if (verbose)
-					log(node.part.desc() + ".dockingJoint(): from same vessel " + ret.desc());
+					log(node.part.desc(), ".dockingJoint(): from same vessel " + ret.desc());
 				return ret;
 			}
 
 			if (node.part.parent == other.part) {
 				ret = node.part.attachJoint;
 				if (verbose)
-					log(node.part.desc() + ".dockingJoint(): to parent " + ret.desc());
+					log(node.part.desc(), ".dockingJoint(): to parent " + ret.desc());
 				return ret;
 			}
 
@@ -817,13 +818,13 @@ namespace DockRotate
 				if (child == other.part) {
 					ret = child.attachJoint;
 					if (verbose)
-						log(node.part.desc() + ".dockingJoint(): to child " + ret.desc());
+						log(node.part.desc(), ".dockingJoint(): to child " + ret.desc());
 					return ret;
 				}
 			}
 
 			if (verbose)
-				log(node.part.desc() + ".dockingJoint(): nothing");
+				log(node.part.desc(), ".dockingJoint(): nothing");
 			return null;
 		}
 
@@ -837,7 +838,7 @@ namespace DockRotate
 				return;
 			}
 
-			bool sameVessel;
+			bool sameVessel = false;
 			PartJoint rotatingJoint = dockingJoint(dockingNode, out sameVessel, true);
 			if (rotatingJoint) {
 				nodeRole = part == rotatingJoint.Host ? "Host"
@@ -846,6 +847,8 @@ namespace DockRotate
 				if (verboseEvents)
 					log(part.desc(), ".setup(): on " + rotatingJoint.desc());
 				jointMotion = JointMotion.get(rotatingJoint);
+				if (part == rotatingJoint.Host)
+					jointMotion.setAxis(part, partNodeAxis, partNodePos);
 			}
 
 			if (sameVessel)
