@@ -121,11 +121,48 @@ namespace DockRotate
 
 			for (int i = 0; i < j.joints.Count; i++) {
 				log("ConfigurableJoint[" + i + "]:");
-				j.joints[i].dump(j.Host);
+				j.joints[i].dump();
 			}
 		}
 
 		/******** ConfigurableJoint utilities ********/
+
+		public static void reconfigureForRotation(this ConfigurableJoint joint)
+		{
+			ConfigurableJointMotion f = ConfigurableJointMotion.Free;
+			joint.angularXMotion = f;
+			joint.angularYMotion = f;
+			joint.angularZMotion = f;
+			joint.xMotion = f;
+			joint.yMotion = f;
+			joint.zMotion = f;
+		}
+
+		public static void dump(this ConfigurableJoint j)
+		{
+			log("  Link: " + j.gameObject + " to " + j.connectedBody);
+			log("  Axes: " + j.axis.desc() + ", " + j.secondaryAxis.desc());
+
+			log("  Anchors: " + j.anchor.desc()
+				+ " -> " + j.connectedAnchor.desc()
+				+ " [" + j.connectedAnchor.Tp(j.connectedBody.T(), j.T()).desc() + "]");
+
+			log("  Tgt: " + j.targetPosition.desc() + ", " + j.targetRotation.desc());
+
+			log("  angX: " + desc(j.angularXMotion, j.angularXDrive, j.lowAngularXLimit, j.angularXLimitSpring));
+			log("  angY: " + desc(j.angularYMotion, j.angularYZDrive, j.angularYLimit, j.angularYZLimitSpring));
+			log("  angZ: " + desc(j.angularZMotion, j.angularYZDrive, j.angularZLimit, j.angularYZLimitSpring));
+			log("  linX: " + desc(j.xMotion, j.xDrive, j.linearLimit, j.linearLimitSpring));
+			log("  linY: " + desc(j.yMotion, j.yDrive, j.linearLimit, j.linearLimitSpring));
+			log("  linZ: " + desc(j.zMotion, j.zDrive, j.linearLimit, j.linearLimitSpring));
+
+			log("  proj: " + j.projectionMode + " ang=" + j.projectionAngle + " dst=" + j.projectionDistance);
+		}
+
+		public static string desc(ConfigurableJointMotion mot, JointDrive drv, SoftJointLimit lim, SoftJointLimitSpring spr)
+		{
+			return mot.ToString() + " " + drv.desc() + " " + lim.desc() + " " + spr.desc();
+		}
 
 		public static string desc(this JointDrive drive)
 		{
@@ -148,54 +185,6 @@ namespace DockRotate
 			return "spr(spr=" + spring.spring
 				+ " dmp=" + spring.damper
 				+ ")";
-		}
-
-		public static void reconfigureForRotation(this ConfigurableJoint joint)
-		{
-			ConfigurableJointMotion f = ConfigurableJointMotion.Free;
-			joint.angularXMotion = f;
-			joint.angularYMotion = f;
-			joint.angularZMotion = f;
-			joint.xMotion = f;
-			joint.yMotion = f;
-			joint.zMotion = f;
-		}
-
-		public static void dump(this ConfigurableJoint j, Part p = null)
-		{
-			// Quaternion localToJoint = j.localToJoint();
-
-			if (p && p.vessel) {
-				p = p.vessel.rootPart;
-			} else {
-				p = null;
-			}
-
-			log("  Link: " + j.gameObject + " to " + j.connectedBody);
-			log("  Axes: " + j.axis.desc() + ", " + j.secondaryAxis.desc());
-			if (p)
-				log("  AxesV: " + j.axis.Td(j.T(), j.T()).desc()
-					+ ", " + j.secondaryAxis.Td(j.T(), p.T()).desc());
-
-			log("  Anchors: " + j.anchor.desc()
-				+ " -> " + j.connectedAnchor.desc()
-				+ " [" + j.connectedAnchor.Tp(j.connectedBody.T(), j.T()).desc() + "]");
-
-			log("  Tgt: " + j.targetPosition.desc() + ", " + j.targetRotation.desc());
-
-			log("  angX: " + _jdump(j.angularXMotion, j.angularXDrive, j.lowAngularXLimit, j.angularXLimitSpring));
-			log("  angY: " + _jdump(j.angularYMotion, j.angularYZDrive, j.angularYLimit, j.angularYZLimitSpring));
-			log("  angZ: " + _jdump(j.angularZMotion, j.angularYZDrive, j.angularZLimit, j.angularYZLimitSpring));
-			log("  linX: " + _jdump(j.xMotion, j.xDrive, j.linearLimit, j.linearLimitSpring));
-			log("  linY: " + _jdump(j.yMotion, j.yDrive, j.linearLimit, j.linearLimitSpring));
-			log("  linZ: " + _jdump(j.zMotion, j.zDrive, j.linearLimit, j.linearLimitSpring));
-
-			log("  proj: " + j.projectionMode + " ang=" + j.projectionAngle + " dst=" + j.projectionDistance);
-		}
-
-		private static string _jdump(ConfigurableJointMotion mot, JointDrive drv, SoftJointLimit lim, SoftJointLimitSpring spr)
-		{
-			return mot.ToString() + " " + drv.desc() + " " + lim.desc() + " " + spr.desc();
 		}
 
 		/******** Vector3 utilities ********/
