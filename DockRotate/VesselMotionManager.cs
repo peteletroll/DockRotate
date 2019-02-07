@@ -188,27 +188,32 @@ namespace DockRotate
 
 			public void reset(string label)
 			{
-				log(GetType() + ".reset() " + label);
+				if (lastLabel == "")
+					lastLabel = "Init";
+				log(GetType() + ".reset() " + label + " after " + lastLabel);
 				this = new StructureChangeInfo();
 				this.lastResetFrame = Time.frameCount;
 				this.lastLabel = "reset " + label;
 			}
+
+			public bool isRepeated(string label)
+			{
+				if (lastLabel == "")
+					lastLabel = "Init";
+				bool ret = lastResetFrame == Time.frameCount;
+				if (ret) {
+					log(GetType() + ".isRepeated(): got " + label
+						+ " after " + lastLabel);
+				} else {
+					log(GetType() + ".isRepeated(): set " + label
+						+ " after " + lastLabel);
+					lastLabel = label;
+				}
+				return ret;
+			}
 		}
 
 		StructureChangeInfo structureChangeInfo;
-
-		private bool isRepeated(string label)
-		{
-			bool ret = structureChangeInfo.lastResetFrame == Time.frameCount;
-			if (ret) {
-				log(GetType() + ".isRepeated(): " + label
-					+ " after " + structureChangeInfo.lastLabel
-					+ " on " + desc());
-			} else {
-				structureChangeInfo.lastLabel = label;
-			}
-			return ret;
-		}
 
 		private bool care(Vessel v, bool useStructureChangeInfo)
 		{
@@ -303,7 +308,7 @@ namespace DockRotate
 			if (!care(v, false))
 				return;
 			phase("BEGIN ON RAILS");
-			structureChangeInfo.reset("on rails");
+			structureChangeInfo.reset("OnRails");
 			listeners().map(l => l.OnVesselGoOnRails());
 			phase("END ON RAILS");
 			onRails = true;
@@ -320,7 +325,7 @@ namespace DockRotate
 				return;
 			phase("BEGIN OFF RAILS");
 			resetRotCount();
-			structureChangeInfo.reset("off rails");
+			structureChangeInfo.reset("OffRails");
 			onRails = false;
 			listeners().map(l => l.OnVesselGoOffRails());
 			phase("END OFF RAILS");
@@ -332,7 +337,7 @@ namespace DockRotate
 				log(GetType() + ".RightBeforeStructureChangeJointUpdate() on " + desc());
 			if (!care(v, false))
 				return;
-			if (isRepeated("JointUpdate"))
+			if (structureChangeInfo.isRepeated("JointUpdate"))
 				return;
 			RightBeforeStructureChange();
 		}
@@ -344,7 +349,7 @@ namespace DockRotate
 					+ id1 + ", " + id2 + ") on " + desc());
 			if (!care(id1, id2, false))
 				return;
-			if (isRepeated("Ids"))
+			if (structureChangeInfo.isRepeated("Ids"))
 				return;
 			RightBeforeStructureChange();
 		}
@@ -356,7 +361,7 @@ namespace DockRotate
 					+ action.from.desc() + ", " + action.to.desc() + ") on " + desc());
 			if (!care(action, false))
 				return;
-			if (isRepeated("Action"))
+			if (structureChangeInfo.isRepeated("Action"))
 				return;
 			RightBeforeStructureChange();
 		}
@@ -369,7 +374,7 @@ namespace DockRotate
 			if (!care(p, false))
 				return;
 			structureChangeInfo.part = p;
-			if (isRepeated("Part"))
+			if (structureChangeInfo.isRepeated("Part"))
 				return;
 			RightBeforeStructureChange();
 		}
@@ -378,10 +383,10 @@ namespace DockRotate
 		{
 			if (deadVessel())
 				return;
-			if (isRepeated("Generic"))
+			if (structureChangeInfo.isRepeated("Generic"))
 				return;
 			phase("BEGIN BEFORE CHANGE");
-			structureChangeInfo.reset("before change");
+			structureChangeInfo.reset("BeforeChange");
 			listeners().map(l => l.RightBeforeStructureChange());
 			phase("END BEFORE CHANGE");
 		}
