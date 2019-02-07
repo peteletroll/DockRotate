@@ -45,11 +45,11 @@ namespace DockRotate
 
 			tgtPos0 = joint.targetPosition;
 			if (tgtPos0 != Vector3.zero)
-				Debug.Log("JointManager: tgtPos0 = " + tgtPos0.desc());
+				Extensions.log("JointManager: tgtPos0 = " + tgtPos0.desc());
 
 			tgtRot0 = joint.targetRotation;
 			if (tgtRot0 != Quaternion.identity)
-				Debug.Log("JointManager: tgtRot0 = " + tgtRot0.desc());
+				Extensions.log("JointManager: tgtRot0 = " + tgtRot0.desc());
 
 			axis0 = joint.axis;
 			secAxis0 = joint.secondaryAxis;

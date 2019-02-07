@@ -584,12 +584,9 @@ namespace DockRotate
 			checkFrozenRotation();
 		}
 
-		/******** Debugging stuff ********/
-
-		public static bool log(string msg)
+		protected static bool log(string msg1, string msg2 = "")
 		{
-			print("[DockRotate:" + Time.frameCount + "]: " + msg);
-			return true;
+			return Extensions.log(msg1, msg2);
 		}
 	}
 

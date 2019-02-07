@@ -6,12 +6,6 @@ namespace DockRotate
 {
 	public static class SmartAutostruts
 	{
-		private static bool log(string msg)
-		{
-			Debug.Log("[SmartAutostruts:" + Time.frameCount + "]: " + msg);
-			return true;
-		}
-
 		private class PartJointSet: Dictionary<int, PartJoint>
 		{
 			public void add(PartJoint j)
@@ -141,6 +135,11 @@ namespace DockRotate
 				j.Host.ReleaseAutoStruts();
 				log(part.desc() + ": released " + j.desc());
 			}
+		}
+
+		private static bool log(string msg1, string msg2 = "")
+		{
+			return Extensions.log(msg1, msg2);
 		}
 	}
 }

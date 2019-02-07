@@ -306,9 +306,9 @@ namespace DockRotate
 			return "JM:" + GetInstanceID() + ":" + joint.desc();
 		}
 
-		private static bool log(string msg)
+		protected static bool log(string msg1, string msg2 = "")
 		{
-			return ModuleBaseRotate.log(msg);
+			return Extensions.log(msg1, msg2);
 		}
 	}
 
@@ -504,9 +504,9 @@ namespace DockRotate
 			return r != null;
 		}
 
-		private static bool log(string msg)
+		protected static bool log(string msg1, string msg2 = "")
 		{
-			return ModuleBaseRotate.log(msg);
+			return Extensions.log(msg1, msg2);
 		}
 	}
 }

@@ -3,12 +3,25 @@ using UnityEngine;
 
 namespace DockRotate
 {
-
 	public static class Extensions
 	{
-		private static bool log(string msg)
+		/******** logging ********/
+
+		private static string msg1last = "";
+
+		public static bool log(string msg1, string msg2 = "")
 		{
-			return ModuleBaseRotate.log(msg);
+			if (msg2 == "") {
+				msg1last = "";
+			} else {
+				if (msg1 == msg1last) {
+					msg1 = "... ";
+				} else {
+					msg1last = msg1;
+				}
+			}
+			Debug.Log("[DockRotate:" + Time.frameCount + "]: " + msg1 + msg2);
+			return true;
 		}
 
 		/******** Camera utilities ********/

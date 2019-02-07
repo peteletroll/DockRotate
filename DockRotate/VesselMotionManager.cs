@@ -27,7 +27,7 @@ namespace DockRotate
 						a(l);
 					}
 				} catch (Exception e) {
-					ModuleBaseRotate.log(e.StackTrace);
+					Extensions.log(e.StackTrace);
 				}
 			}
 		}
@@ -479,9 +479,9 @@ namespace DockRotate
 				log(new string('-', 10) + " " + msg + " " + new string('-', 60 - msg.Length));
 		}
 
-		private static bool log(string msg)
+		protected static bool log(string msg1, string msg2 = "")
 		{
-			return ModuleBaseRotate.log(msg);
+			return Extensions.log(msg1, msg2);
 		}
 	}
 }
