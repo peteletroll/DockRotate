@@ -337,9 +337,7 @@ namespace DockRotate
 				log(GetType() + ".RightBeforeStructureChangeJointUpdate() on " + desc());
 			if (!care(v, false))
 				return;
-			if (structureChangeInfo.isRepeated("JointUpdate"))
-				return;
-			RightBeforeStructureChange();
+			RightBeforeStructureChange("JointUpdate");
 		}
 
 		public void RightBeforeStructureChangeIds(uint id1, uint id2)
@@ -349,9 +347,7 @@ namespace DockRotate
 					+ id1 + ", " + id2 + ") on " + desc());
 			if (!care(id1, id2, false))
 				return;
-			if (structureChangeInfo.isRepeated("Ids"))
-				return;
-			RightBeforeStructureChange();
+			RightBeforeStructureChange("Ids");
 		}
 
 		public void RightBeforeStructureChangeAction(GameEvents.FromToAction<Part, Part> action)
@@ -361,9 +357,7 @@ namespace DockRotate
 					+ action.from.desc() + ", " + action.to.desc() + ") on " + desc());
 			if (!care(action, false))
 				return;
-			if (structureChangeInfo.isRepeated("Action"))
-				return;
-			RightBeforeStructureChange();
+			RightBeforeStructureChange("Action");
 		}
 
 		public void RightBeforeStructureChangePart(Part p)
@@ -374,16 +368,14 @@ namespace DockRotate
 			if (!care(p, false))
 				return;
 			structureChangeInfo.part = p;
-			if (structureChangeInfo.isRepeated("Part"))
-				return;
-			RightBeforeStructureChange();
+			RightBeforeStructureChange("Part");
 		}
 
-		private void RightBeforeStructureChange()
+		private void RightBeforeStructureChange(string label)
 		{
 			if (deadVessel())
 				return;
-			if (structureChangeInfo.isRepeated("Generic"))
+			if (structureChangeInfo.isRepeated(label))
 				return;
 			phase("BEGIN BEFORE CHANGE");
 			structureChangeInfo.reset("BeforeChange");
