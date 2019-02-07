@@ -484,24 +484,21 @@ namespace DockRotate
 
 		protected bool enqueueRotation(Vector3 frozen)
 		{
-			return enqueueRotation(frozen[0], frozen[1], frozen[2], true);
+			return enqueueRotation(frozen[0], frozen[1], frozen[2]);
 		}
 
-		protected bool enqueueRotation(float angle, float speed, float startSpeed = 0f, bool force = false)
+		protected bool enqueueRotation(float angle, float speed, float startSpeed = 0f)
 		{
 			if (!rotationEnabled) {
-				if (force) {
-					log(part.desc(), ".enqueueRotation(): rotation disabled, forced");
-				} else {
-					log(part.desc(), ".enqueueRotation(): rotation disabled, skipped");
-					return false;
-				}
+				log(part.desc(), ".enqueueRotation(): rotation disabled, skipped");
+				return false;
 			}
 			if (!jointMotion) {
 				log(part.desc(), ".enqueueRotation(): no rotating joint, skipped");
 				return false;
 			}
-			jointMotion.setAxis(part, partNodeAxis, partNodePos);
+			if (!jointMotion.rotCur)
+				jointMotion.setAxis(part, partNodeAxis, partNodePos);
 			return jointMotion.enqueueRotation(this, angle, speed, startSpeed);
 		}
 
@@ -540,8 +537,10 @@ namespace DockRotate
 				return;
 
 			if (!Mathf.Approximately(frozenRotation[0], 0f)) {
+				/* // logging disabled, it always happens during continuous rotation
 				log(part.desc(), ": thaw frozen rotation " + frozenRotation.desc()
 					+ "@" + frozenRotationControllerID);
+				*/
 				enqueueRotation(frozenRotation);
 			}
 

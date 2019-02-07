@@ -97,7 +97,6 @@ namespace DockRotate
 					log(joint.desc(), ".enqueueRotation(): canceled, braking");
 					return false;
 				}
-				rotCur.controller = controller;
 				rotCur.maxvel = speed;
 				action = "updated";
 				if (SmoothMotion.isContinuous(ref angle)) {
