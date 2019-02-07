@@ -32,7 +32,7 @@ namespace DockRotate
 				_rotCur = value;
 				VesselMotionManager.get(joint.Host.vessel).changeCount(delta);
 				if (!sas) {
-					log(joint.Host.desc() + " triggered CycleAllAutoStruts()");
+					log(joint.Host.desc(), ": triggered CycleAllAutoStruts()");
 					joint.Host.vessel.CycleAllAutoStrut();
 				}
 			}
@@ -44,7 +44,7 @@ namespace DockRotate
 				return null;
 
 			if (j.gameObject != j.Host.gameObject)
-				log(typeof(JointMotion) + ".get(): *** WARNING *** gameObject incoherency");
+				log(nameof(JointMotion), ".get(): *** WARNING *** gameObject incoherency");
 
 			JointMotion[] jms = j.gameObject.GetComponents<JointMotion>();
 			for (int i = 0; i < jms.Length; i++)
@@ -53,14 +53,14 @@ namespace DockRotate
 
 			JointMotion jm = j.gameObject.AddComponent<JointMotion>();
 			jm._joint = j;
-			log(jm.GetType() + ".get(): created " + jm.desc());
+			log(nameof(JointMotion), ".get(): created " + jm.desc());
 			return jm;
 		}
 
 		public void setAxis(Part part, Vector3 axis, Vector3 node)
 		{
 			if (rotCur) {
-				log(part.desc() + ".setAxis(): rotating, skipped");
+				log(part.desc(), ".setAxis(): rotating, skipped");
 				return;
 			}
 
@@ -72,9 +72,9 @@ namespace DockRotate
 				state = "inverse";
 				axis = -axis;
 			} else {
-				log(part.desc() + ".setAxis(): part " + part.desc() + " not in " + joint.desc());
+				log(part.desc(), ".setAxis(): part " + part.desc() + " not in " + joint.desc());
 			}
-			log(part.desc() + ".setAxis(): " + axis.desc() + "@" + node.desc() + "), " + state);
+			log(part.desc(), ".setAxis(): " + axis.desc() + "@" + node.desc() + "), " + state);
 			hostAxis = axis.STd(part, joint.Host);
 			hostNode = node.STp(part, joint.Host);
 			hostUp = joint.Host.up(hostAxis);
@@ -94,7 +94,7 @@ namespace DockRotate
 			if (rotCur) {
 				bool trace = false;
 				if (rotCur.isBraking()) {
-					log(joint.desc() + ": enqueueRotation() canceled, braking");
+					log(joint.desc(), ".enqueueRotation(): canceled, braking");
 					return false;
 				}
 				rotCur.controller = controller;
@@ -104,27 +104,27 @@ namespace DockRotate
 					if (rotCur.isContinuous() && angle * rotCur.tgt > 0f)
 						showlog = false; // already continuous the right way
 					if (trace && showlog)
-						log("MERGE CONTINUOUS " + angle + " -> " + rotCur.tgt);
+						log(joint.desc(), "MERGE CONTINUOUS " + angle + " -> " + rotCur.tgt);
 					rotCur.tgt = angle;
 					rotCur.controller.updateFrozenRotation("MERGECONT");
 				} else {
 					if (trace)
-						log("MERGE LIMITED " + angle + " -> " + rotCur.rot0 + " + " + rotCur.tgt);
+						log(joint.desc(), "MERGE LIMITED " + angle + " -> " + rotCur.rot0 + " + " + rotCur.tgt);
 					if (rotCur.isContinuous()) {
 						if (trace)
-							log("MERGE INTO CONTINUOUS");
+							log(joint.desc(), "MERGE INTO CONTINUOUS");
 						rotCur.tgt = rotCur.pos + rotCur.curBrakingSpace() + angle;
 					} else {
 						if (trace)
-							log("MERGE INTO LIMITED");
+							log(joint.desc(), "MERGE INTO LIMITED");
 						rotCur.tgt = rotCur.tgt + angle;
 					}
 					if (trace)
-						log("MERGED: POS " + rotCur.pos + " TGT " + rotCur.tgt);
+						log(joint.desc(), "MERGED: POS " + rotCur.pos + " TGT " + rotCur.tgt);
 					rotCur.controller.updateFrozenRotation("MERGELIM");
 				}
 			} else {
-				log(joint.desc() + ": creating rotation");
+				log(joint.desc(), ": creating rotation");
 				JointMotionObj r = new JointMotionObj(this, 0, angle, speed);
 				r.rot0 = rotationAngle(false);
 				r.vel = startSpeed;
@@ -135,8 +135,8 @@ namespace DockRotate
 				action = "added";
 			}
 			if (showlog)
-				log(String.Format("{0}: enqueueRotation({1}, {2:F4}\u00b0, {3}\u00b0/s, {4}\u00b0/s), {5}",
-					joint.desc(), hostAxis.desc(), rotCur.tgt, rotCur.maxvel, rotCur.vel, action));
+				log(joint.desc(), String.Format(": enqueueRotation({0}, {1:F4}\u00b0, {2}\u00b0/s, {3}\u00b0/s), {4}",
+					hostAxis.desc(), rotCur.tgt, rotCur.maxvel, rotCur.vel, action));
 			return true;
 		}
 
@@ -189,7 +189,7 @@ namespace DockRotate
 				return;
 
 			if (rotCur.done()) {
-				log("removing rotation (1) of " + joint.desc());
+				log(joint.desc(), ": removing rotation (1)");
 				rotCur = null;
 				return;
 			}
@@ -215,18 +215,18 @@ namespace DockRotate
 
 		public void Awake()
 		{
-			log(GetType() + ".Awake() on " + desc());
+			log("" + GetType(), ".Awake() on " + desc());
 			rotation = new SmoothMotionDispatcher(this);
 		}
 
 		public void Start()
 		{
-			log(GetType() + ".Start() on " + desc());
+			log("" + GetType(), ".Start() on " + desc());
 		}
 
 		public void OnDestroy()
 		{
-			log(GetType() + ".OnDestroy() on " + desc());
+			log("" + GetType(), ".OnDestroy() on " + desc());
 			rotCur = null;
 			if (sound)
 				MonoBehaviour.Destroy(sound);
@@ -321,9 +321,9 @@ namespace DockRotate
 			set {
 				if (value != _controller) {
 					if (_controller) {
-						log(jm.joint.desc() + " change controller " + _controller.part.desc() + " -> " + value.part.desc());
+						log(jm.joint.desc(), " change controller " + _controller.part.desc() + " -> " + value.part.desc());
 					} else {
-						log(jm.joint.desc() + " set controller " + value.part.desc());
+						log(jm.joint.desc(), " set controller " + value.part.desc());
 					}
 				}
 				_controller = value;
@@ -426,7 +426,7 @@ namespace DockRotate
 				double el = activePart.RequestResource("ElectricCharge", (double) electricityRate * deltat);
 				electricity += el;
 				if (el <= 0d) {
-					log("no electricity, braking rotation");
+					log(jm.joint.desc(), "no electricity, braking rotation");
 					brake();
 				}
 			}
@@ -441,13 +441,13 @@ namespace DockRotate
 			staticize();
 
 			int c = VesselMotionManager.get(activePart).changeCount(0);
-			log(activePart.desc() + ": rotation stopped [" + c + "], "
+			log(activePart.desc(), ": rotation stopped [" + c + "], "
 				+ electricity.ToString("F2") + " electricity");
 		}
 
 		public void staticize()
 		{
-			log("staticize() at pos = " + pos + "\u00b0");
+			log(jm.joint.desc(), ".staticize() at pos = " + pos + "\u00b0");
 			staticizeJoints();
 			staticizeOrgInfo();
 		}
@@ -478,7 +478,7 @@ namespace DockRotate
 		private bool staticizeOrgInfo()
 		{
 			if (jm.joint != activePart.attachJoint) {
-				log(activePart.desc() + ": skip staticize, same vessel joint");
+				log(activePart.desc(), ": skip staticize, same vessel joint");
 				return false;
 			}
 			float angle = pos;

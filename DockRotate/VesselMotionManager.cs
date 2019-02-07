@@ -58,7 +58,7 @@ namespace DockRotate
 			if (!mgr) {
 				mgr = v.gameObject.AddComponent<VesselMotionManager>();
 				mgr._vessel = v;
-				log(typeof(VesselMotionManager) + ".get(" + desc(v) + ") created " + mgr.desc());
+				log(nameof(VesselMotionManager) + ".get(" + desc(v) + ") created " + mgr.desc());
 			}
 
 			return mgr;
@@ -106,12 +106,12 @@ namespace DockRotate
 		{
 			if (cmd == eventState) {
 				if (verboseEvents)
-					log(GetType() + ".setEvents(" + cmd + ") repeated on " + desc());
+					log("" + GetType(), ".setEvents(" + cmd + ") repeated on " + desc());
 				return;
 			}
 
 			if (verboseEvents)
-				log(GetType() + ".setEvents(" + cmd + ") on " + desc());
+				log("" + GetType(), ".setEvents(" + cmd + ") on " + desc());
 
 			if (cmd) {
 
@@ -175,7 +175,7 @@ namespace DockRotate
 			{
 				if (lastLabel == "")
 					lastLabel = "Init";
-				log(GetType() + ".reset() " + label + " after " + lastLabel);
+				log("" + GetType(), ".reset() " + label + " after " + lastLabel);
 				this = new StructureChangeInfo();
 				this.lastResetFrame = Time.frameCount;
 				this.lastLabel = "reset " + label;
@@ -187,10 +187,10 @@ namespace DockRotate
 					lastLabel = "Init";
 				bool ret = lastResetFrame == Time.frameCount;
 				if (ret) {
-					log(GetType() + ".isRepeated(): repeated " + label
+					log("" + GetType(), ".isRepeated(): repeated " + label
 						+ " after " + lastLabel);
 				} else {
-					log(GetType() + ".isRepeated(): set " + label
+					log("" + GetType(), ".isRepeated(): set " + label
 						+ " after " + lastLabel);
 					lastLabel = label;
 				}
@@ -204,11 +204,7 @@ namespace DockRotate
 		{
 			bool ret = v && v == vessel;
 			if (verboseCare)
-				log(GetType() + ".care("
-					+ desc(v)
-					+ ") on "
-					+ desc()
-					+ " = " + ret);
+				log("" + GetType(), ".care(" + desc(v) + ") on " + desc() + " = " + ret);
 			return ret;
 		}
 
@@ -216,7 +212,7 @@ namespace DockRotate
 		{
 			if (useStructureChangeInfo && p && p == structureChangeInfo.part) {
 				if (verboseCare)
-					log(GetType() + ".care(" + p.desc() + ") on " + desc() + " = " + true);
+					log("" + GetType(), ".care(" + p.desc() + ") on " + desc() + " = " + true);
 				return true;
 			}
 			return p && care(p.vessel, useStructureChangeInfo);
@@ -236,7 +232,7 @@ namespace DockRotate
 		{
 			bool ret = vessel && (vessel.persistentId == id1 || vessel.persistentId == id2);
 			if (verboseCare)
-				log(GetType() + ".care(" + id1 + ", " + id2 + ") on " + desc() + " = " + ret);
+				log("" + GetType(), ".care(" + id1 + ", " + id2 + ") on " + desc() + " = " + ret);
 			return ret;
 		}
 
@@ -244,7 +240,7 @@ namespace DockRotate
 		{
 			List<IStructureChangeListener> ret = vessel.FindPartModulesImplementing<IStructureChangeListener>();
 			if (verboseEvents)
-				log(GetType() + ".listeners() on " + desc() + " finds " + ret.Count);
+				log("" + GetType(), ".listeners() on " + desc() + " finds " + ret.Count);
 			return ret;
 		}
 
@@ -252,7 +248,7 @@ namespace DockRotate
 		{
 			List<IStructureChangeListener> ret = p.FindModulesImplementing<IStructureChangeListener>();
 			if (verboseEvents)
-				log(GetType() + ".listeners(" + p.desc() + ") on " + desc() + " finds " + ret.Count);
+				log("" + GetType(), ".listeners(" + p.desc() + ") on " + desc() + " finds " + ret.Count);
 			return ret;
 		}
 
@@ -277,14 +273,14 @@ namespace DockRotate
 		public void OnVesselCreate(Vessel v)
 		{
 			if (verboseEvents)
-				log(GetType() + ".OnVesselCreate(" + desc(v) + ") on " + desc());
+				log("" + GetType(), ".OnVesselCreate(" + desc(v) + ") on " + desc());
 			get(v);
 		}
 
 		public void OnVesselGoOnRails(Vessel v)
 		{
 			if (verboseEvents)
-				log(GetType() + ".OnVesselGoOnRails(" + desc(v) + ") on " + desc());
+				log("" + GetType(), ".OnVesselGoOnRails(" + desc(v) + ") on " + desc());
 			if (deadVessel())
 				return;
 			if (!care(v, false))
@@ -299,7 +295,7 @@ namespace DockRotate
 		public void OnVesselGoOffRails(Vessel v)
 		{
 			if (verboseEvents)
-				log(GetType() + ".OnVesselGoOffRails(" + desc(v) + ") on " + desc());
+				log("" + GetType(), ".OnVesselGoOffRails(" + desc(v) + ") on " + desc());
 			if (deadVessel())
 				return;
 			get(v);
@@ -316,7 +312,7 @@ namespace DockRotate
 		private void RightBeforeStructureChangeJointUpdate(Vessel v)
 		{
 			if (verboseEvents)
-				log(GetType() + ".RightBeforeStructureChangeJointUpdate() on " + desc());
+				log("" + GetType(), ".RightBeforeStructureChangeJointUpdate() on " + desc());
 			if (!care(v, false))
 				return;
 			RightBeforeStructureChange("JointUpdate");
@@ -325,7 +321,7 @@ namespace DockRotate
 		public void RightBeforeStructureChangeIds(uint id1, uint id2)
 		{
 			if (verboseEvents)
-				log(GetType() + ".RightBeforeStructureChangeIds("
+				log("" + GetType(), ".RightBeforeStructureChangeIds("
 					+ id1 + ", " + id2 + ") on " + desc());
 			if (!care(id1, id2, false))
 				return;
@@ -335,7 +331,7 @@ namespace DockRotate
 		public void RightBeforeStructureChangeAction(GameEvents.FromToAction<Part, Part> action)
 		{
 			if (verboseEvents)
-				log(GetType() + ".RightBeforeStructureChangeAction("
+				log("" + GetType(), ".RightBeforeStructureChangeAction("
 					+ action.from.desc() + ", " + action.to.desc() + ") on " + desc());
 			if (!care(action, false))
 				return;
@@ -345,7 +341,7 @@ namespace DockRotate
 		public void RightBeforeStructureChangePart(Part p)
 		{
 			if (verboseEvents)
-				log(GetType() + ".RightBeforeStructureChangePart("
+				log("" + GetType(), ".RightBeforeStructureChangePart("
 					+ desc(p.vessel) + ") on " + desc());
 			if (!care(p, false))
 				return;
@@ -368,7 +364,7 @@ namespace DockRotate
 		public void RightAfterStructureChangeAction(GameEvents.FromToAction<Part, Part> action)
 		{
 			if (verboseEvents)
-				log(GetType() + ".RightAfterStructureChangeAction("
+				log("" + GetType(), ".RightAfterStructureChangeAction("
 					+ desc(action.from.vessel) + ", " + desc(action.to.vessel)
 					+ ") on " + desc());
 			if (!care(action, true))
@@ -379,7 +375,7 @@ namespace DockRotate
 		public void RightAfterStructureChangePart(Part p)
 		{
 			if (verboseEvents)
-				log(GetType() + ".RightAfterStructureChangePart("
+				log("" + GetType(), ".RightAfterStructureChangePart("
 					+ desc(p.vessel) + ") on " + desc());
 			if (!care(p, true))
 				return;
@@ -398,7 +394,7 @@ namespace DockRotate
 		public void RightAfterSameVesselDock(GameEvents.FromToAction<ModuleDockingNode, ModuleDockingNode> action)
 		{
 			if (verboseEvents)
-				log(GetType() + ".RightAfterSameVesselDock("
+				log("" + GetType(), ".RightAfterSameVesselDock("
 					+ action.from.part.desc() + "@" + desc(action.from.vessel)
 					+ ", " + action.to.part.desc() + "@" + desc(action.to.vessel)
 					+ ") on " + desc());
@@ -415,7 +411,7 @@ namespace DockRotate
 		public void RightAfterSameVesselUndock(GameEvents.FromToAction<ModuleDockingNode, ModuleDockingNode> action)
 		{
 			if (verboseEvents)
-				log(GetType() + ".RightAfterSameVesselUndock("
+				log("" + GetType(), ".RightAfterSameVesselUndock("
 					+ desc(action.from.vessel) + ", " + desc(action.to.vessel)
 					+ ") on " + desc());
 			if (deadVessel())
@@ -432,7 +428,7 @@ namespace DockRotate
 		{
 			Camera camera = CameraManager.GetCurrentCamera();
 			if (verboseEvents && camera) {
-				log(GetType() + ".OnCameraChange(" + mode + ") on " + desc());
+				log("" + GetType(), ".OnCameraChange(" + mode + ") on " + desc());
 				Camera[] cameras = Camera.allCameras;
 				for (int i = 0; i < cameras.Length; i++) {
 					log("camera[" + i + "] = " + cameras[i].desc());
@@ -443,23 +439,23 @@ namespace DockRotate
 
 		public void Awake()
 		{
-			log(GetType() + ".Awake() on " + desc());
+			log("" + GetType(), ".Awake() on " + desc());
 			if (!vessel) {
 				_vessel = gameObject.GetComponent<Vessel>();
 				if (verboseEvents && vessel)
-					log(GetType() + ".Awake(): found vessel " + desc());
+					log("" + GetType(), ".Awake(): found vessel " + desc());
 			}
 			setEvents(true);
 		}
 
 		public void Start()
 		{
-			log(GetType() + ".Start() on " + desc());
+			log("" + GetType(), ".Start() on " + desc());
 		}
 
 		public void OnDestroy()
 		{
-			log(GetType() + ".OnDestroy() on " + desc());
+			log("" + GetType(), ".OnDestroy() on " + desc());
 			setEvents(false);
 		}
 
