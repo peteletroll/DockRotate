@@ -42,8 +42,12 @@ namespace DockRotate
 		{
 			if (!part)
 				return "null";
+			string name = part.name;
+			int s = name.IndexOf(' ');
+			if (s > 1)
+				name = name.Remove(s);
 			ModuleBaseRotate mbr = part.FindModuleImplementing<ModuleBaseRotate>();
-			return part.name + ":" + part.flightID
+			return name + ":" + part.flightID
 				+ (mbr ? ":" + mbr.nodeRole : "");
 		}
 
