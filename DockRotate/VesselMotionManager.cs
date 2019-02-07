@@ -458,7 +458,7 @@ namespace DockRotate
 		private static string desc(Vessel v, bool terse = false)
 		{
 			uint id = (v && v.rootPart) ? v.rootPart.flightID : 0;
-			string name = v ? v.vesselName : "no-vessel";
+			string name = v ? v.name : "no-vessel";
 			return (terse ? "" : "V:") + id + ":" + name.Replace(' ', '_');
 		}
 
