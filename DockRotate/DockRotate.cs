@@ -138,8 +138,6 @@ namespace DockRotate
 			} else {
 				doRotateClockwise();
 			}
-			if (flipFlopMode)
-				reverseRotation = !reverseRotation;
 		}
 
 		[KSPEvent(
@@ -150,11 +148,7 @@ namespace DockRotate
 		)]
 		public void RotateClockwise()
 		{
-			if (canStartRotation()) {
-				doRotateClockwise();
-				if (flipFlopMode)
-					reverseRotation = !reverseRotation;
-			}
+			doRotateClockwise();
 		}
 
 		[KSPAction(
@@ -168,8 +162,6 @@ namespace DockRotate
 			} else {
 				doRotateCounterclockwise();
 			}
-			if (flipFlopMode)
-				reverseRotation = !reverseRotation;
 		}
 
 		[KSPEvent(
@@ -180,11 +172,7 @@ namespace DockRotate
 		)]
 		public void RotateCounterclockwise()
 		{
-			if (canStartRotation()) {
-				doRotateCounterclockwise();
-				if (flipFlopMode)
-					reverseRotation = !reverseRotation;
-			}
+			doRotateCounterclockwise();
 		}
 
 		[KSPAction(
@@ -204,8 +192,7 @@ namespace DockRotate
 		)]
 		public void RotateToSnap()
 		{
-			if (canStartRotation())
-				doRotateToSnap();
+			doRotateToSnap();
 		}
 
 #if DEBUG
@@ -222,16 +209,26 @@ namespace DockRotate
 
 		public void doRotateClockwise()
 		{
+			if (!canStartRotation())
+				return;
 			enqueueRotation(step(), speed());
+			if (flipFlopMode)
+				reverseRotation = !reverseRotation;
 		}
 
 		public void doRotateCounterclockwise()
 		{
+			if (!canStartRotation())
+				return;
 			enqueueRotation(-step(), speed());
+			if (flipFlopMode)
+				reverseRotation = !reverseRotation;
 		}
 
 		public void doRotateToSnap()
 		{
+			if (!canStartRotation())
+				return;
 			enqueueRotationToSnap(rotationStep, speed());
 		}
 
@@ -427,6 +424,8 @@ namespace DockRotate
 #if DEBUG
 			int nJoints = jointMotion ? jointMotion.joint.joints.Count : 0;
 			nodeStatus = part.flightID + ":" + nodeRole + "[" + nJoints + "]";
+			if (frozenRotation[0] != 0f)
+				nodeStatus += " [F]";
 			if (cr)
 				nodeStatus += " " + cr.pos + "\u00b0 -> "+ cr.tgt + "\u00b0";
 #endif
@@ -489,10 +488,6 @@ namespace DockRotate
 
 		protected bool enqueueRotation(float angle, float speed, float startSpeed = 0f)
 		{
-			if (!rotationEnabled) {
-				log(part.desc(), ".enqueueRotation(): rotation disabled, skipped");
-				return false;
-			}
 			if (!jointMotion) {
 				log(part.desc(), ".enqueueRotation(): no rotating joint, skipped");
 				return false;
