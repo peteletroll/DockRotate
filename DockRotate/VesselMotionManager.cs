@@ -186,10 +186,12 @@ namespace DockRotate
 			public int lastResetFrame;
 			public string lastLabel;
 
-			public void reset()
+			public void reset(string label)
 			{
+				log(GetType() + ".reset() " + label);
 				this = new StructureChangeInfo();
 				this.lastResetFrame = Time.frameCount;
+				this.lastLabel = "reset " + label;
 			}
 		}
 
@@ -301,7 +303,7 @@ namespace DockRotate
 			if (!care(v, false))
 				return;
 			phase("BEGIN ON RAILS");
-			structureChangeInfo.reset();
+			structureChangeInfo.reset("on rails");
 			listeners().map(l => l.OnVesselGoOnRails());
 			phase("END ON RAILS");
 			onRails = true;
@@ -318,7 +320,7 @@ namespace DockRotate
 				return;
 			phase("BEGIN OFF RAILS");
 			resetRotCount();
-			structureChangeInfo.reset();
+			structureChangeInfo.reset("off rails");
 			onRails = false;
 			listeners().map(l => l.OnVesselGoOffRails());
 			phase("END OFF RAILS");
@@ -379,7 +381,7 @@ namespace DockRotate
 			if (isRepeated("Generic"))
 				return;
 			phase("BEGIN BEFORE CHANGE");
-			structureChangeInfo.reset();
+			structureChangeInfo.reset("before change");
 			listeners().map(l => l.RightBeforeStructureChange());
 			phase("END BEFORE CHANGE");
 		}
