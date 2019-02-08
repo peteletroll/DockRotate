@@ -127,14 +127,14 @@ namespace DockRotate
 
 		/******** PartJoint utilities ********/
 
-		public static string desc(this PartJoint j)
+		public static string desc(this PartJoint j, bool bare = false)
 		{
 			if (j == null)
 				return "null";
 			string host = j.Host.desc(true) + (j.Child == j.Host ? "" : "/" + j.Child.desc(true));
 			string target = j.Target.desc(true) + (j.Parent == j.Target ? "" : "/" + j.Parent.desc(true));
 			int n = j.joints.Count;
-			return host + new string('>', n) + target;
+			return (bare ? "" : "PJ:") + host + new string('>', n) + target;
 		}
 
 		public static void dump(this PartJoint j)

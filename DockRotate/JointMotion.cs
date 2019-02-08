@@ -300,9 +300,9 @@ namespace DockRotate
 			}
 		}
 
-		public string desc()
+		public string desc(bool bare = false)
 		{
-			return "JM:" + GetInstanceID() + ":" + joint.desc();
+			return (bare ? "" : "JM:") + GetInstanceID() + ":" + joint.desc(true);
 		}
 
 		protected static bool log(string msg1, string msg2 = "")
@@ -326,6 +326,8 @@ namespace DockRotate
 					}
 				}
 				_controller = value;
+				if (_controller)
+					_controller.putAxis(jm);
 			}
 		}
 

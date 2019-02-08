@@ -481,6 +481,11 @@ namespace DockRotate
 			return jointMotion ? jointMotion.dynamicDeltaAngle() : float.NaN;
 		}
 
+		public void putAxis(JointMotion jm)
+		{
+			jm.setAxis(part, partNodeAxis, partNodePos);
+		}
+
 		protected bool enqueueRotation(Vector3 frozen)
 		{
 			return enqueueRotation(frozen[0], frozen[1], frozen[2]);
@@ -492,8 +497,6 @@ namespace DockRotate
 				log(part.desc(), ".enqueueRotation(): no rotating joint, skipped");
 				return false;
 			}
-			if (!jointMotion.rotCur)
-				jointMotion.setAxis(part, partNodeAxis, partNodePos);
 			return jointMotion.enqueueRotation(this, angle, speed, startSpeed);
 		}
 
@@ -699,7 +702,7 @@ namespace DockRotate
 				if (verboseEvents)
 					log(part.desc(), ".setup(): on " + rotatingJoint.desc());
 				jointMotion = JointMotion.get(rotatingJoint);
-				jointMotion.setAxis(part, partNodeAxis, partNodePos);
+				putAxis(jointMotion);
 			}
 		}
 	}
@@ -842,7 +845,7 @@ namespace DockRotate
 					log(part.desc(), ".setup(): on " + rotatingJoint.desc());
 				jointMotion = JointMotion.get(rotatingJoint);
 				if (part == rotatingJoint.Host)
-					jointMotion.setAxis(part, partNodeAxis, partNodePos);
+					putAxis(jointMotion);
 			}
 
 			if (sameVessel)
