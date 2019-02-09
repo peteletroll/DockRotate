@@ -42,7 +42,7 @@ namespace DockRotate
 		private int rotCount = 0;
 		public bool onRails = false;
 
-		private bool verboseEvents = true;
+		private bool verboseEvents = false;
 		private bool verboseCamera = false;
 
 		public static VesselMotionManager get(Part p)
