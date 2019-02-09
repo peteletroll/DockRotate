@@ -567,14 +567,16 @@ namespace DockRotate
 		{
 			Vector3 prevRot = frozenRotation;
 			uint prevID = frozenRotationControllerID;
+
 			JointMotionObj r = currentRotation();
-			if (r && r.isContinuous()) {
+			if (r && r.isContinuous() && jointMotion.controller == this) {
 				frozenRotation.Set(r.tgt, r.maxvel, 0f);
 				frozenRotationControllerID = (jointMotion && jointMotion.controller) ? jointMotion.controller.part.flightID : 0;
 			} else {
 				frozenRotation = Vector3.zero;
 				frozenRotationControllerID = 0;
 			}
+
 			if (frozenRotation != prevRot || frozenRotationControllerID != prevID)
 				log(part.desc(), ": updateFrozenRotation("
 					+ context + "): "
