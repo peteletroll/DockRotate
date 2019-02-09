@@ -245,6 +245,7 @@ namespace DockRotate
 		public void Awake()
 		{
 			log(desc(), ".Awake()");
+			// FIXME: all the stuff JointMotionObj does should go into SmoothMotionDispatcher
 			rotation = new SmoothMotionDispatcher(this);
 		}
 

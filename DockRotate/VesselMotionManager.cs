@@ -44,6 +44,7 @@ namespace DockRotate
 
 		private bool verboseEvents = true;
 		private bool verboseCare = true;
+		private bool verboseCamera = false;
 
 		public static VesselMotionManager get(Part p)
 		{
@@ -431,15 +432,17 @@ namespace DockRotate
 
 		public void OnCameraChange(CameraManager.CameraMode mode)
 		{
-			phase("BEGIN CAMERA CHANGE");
+			if (!verboseCamera)
+				return;
 			Camera camera = CameraManager.GetCurrentCamera();
-			if (verboseEvents && camera) {
-				log(desc(), ".OnCameraChange(" + mode + ")");
-				Camera[] cameras = Camera.allCameras;
-				for (int i = 0; i < cameras.Length; i++) {
-					log("camera[" + i + "] = " + cameras[i].desc());
-					log(cameras[i].transform.desc(10));
-				}
+			if (!camera)
+				return;
+			phase("BEGIN CAMERA CHANGE");
+			log(desc(), ".OnCameraChange(" + mode + ")");
+			Camera[] cameras = Camera.allCameras;
+			for (int i = 0; i < cameras.Length; i++) {
+				log("camera[" + i + "] = " + cameras[i].desc());
+				log(cameras[i].transform.desc(10));
 			}
 			phase("END CAMERA CHANGE");
 		}
