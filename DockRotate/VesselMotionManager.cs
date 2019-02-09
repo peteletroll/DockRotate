@@ -461,6 +461,7 @@ namespace DockRotate
 		public void Start()
 		{
 			log(desc(), ".Start()");
+			listeners(); // just to set verboseEvents
 		}
 
 		public void OnDestroy()
