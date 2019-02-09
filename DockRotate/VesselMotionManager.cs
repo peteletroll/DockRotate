@@ -235,26 +235,27 @@ namespace DockRotate
 			return ret;
 		}
 
-		private List<IStructureChangeListener> listeners()
+		public List<IStructureChangeListener> listeners(bool forceVerbose = false)
 		{
 			List<IStructureChangeListener> ret = vessel.FindPartModulesImplementing<IStructureChangeListener>();
-			if (verboseEvents)
+			if (verboseEvents || forceVerbose)
 				log(desc(), ".listeners() finds " + ret.Count);
+
 			bool verboseEventsPrev = verboseEvents;
-			verboseEvents = true;
+			verboseEvents = false;
 			int l = ret.Count;
 			for (int i = 0; i < l; i++) {
-				if (ret[i] != null && !ret[i].wantsVerboseEvents()) {
-					verboseEvents = false;
+				if (ret[i] != null && ret[i].wantsVerboseEvents()) {
+					verboseEvents = true;
 					break;
 				}
 			}
-			if (verboseEvents != verboseEventsPrev)
+			if (verboseEvents || verboseEventsPrev)
 				log(desc(), ": verboseEvents = " + verboseEvents);
 			return ret;
 		}
 
-		private List<IStructureChangeListener> listeners(Part p)
+		public List<IStructureChangeListener> listeners(Part p)
 		{
 			List<IStructureChangeListener> ret = p.FindModulesImplementing<IStructureChangeListener>();
 			if (verboseEvents)
@@ -275,7 +276,8 @@ namespace DockRotate
 			if (deadMsg == "")
 				return false;
 
-			log(desc(), ".deadVessel(): " + deadMsg);
+			if (verboseEvents)
+				log(desc(), ".deadVessel(): " + deadMsg);
 			MonoBehaviour.Destroy(this);
 			return true;
 		}

@@ -106,6 +106,7 @@ namespace DockRotate
 		)]
 #endif
 		public bool verboseEvents = false;
+		public bool verboseEventsPrev = false;
 		public bool wantsVerboseEvents() { return verboseEvents; }
 
 		[KSPAction(
@@ -348,6 +349,7 @@ namespace DockRotate
 
 		public override void OnAwake()
 		{
+			verboseEventsPrev = verboseEvents;
 			setupDone = false;
 
 			base.OnAwake();
@@ -591,6 +593,8 @@ namespace DockRotate
 		{
 			if (!setupDone || HighLogic.LoadedScene != GameScenes.FLIGHT)
 				return;
+			if (verboseEvents != verboseEventsPrev)
+				VesselMotionManager.get(vessel).listeners(true);
 			checkFrozenRotation();
 		}
 
