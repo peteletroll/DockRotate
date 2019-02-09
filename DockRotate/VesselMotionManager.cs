@@ -422,6 +422,7 @@ namespace DockRotate
 
 		public void OnCameraChange(CameraManager.CameraMode mode)
 		{
+			phase("BEGIN CAMERA CHANGE");
 			Camera camera = CameraManager.GetCurrentCamera();
 			if (verboseEvents && camera) {
 				log(desc(), ".OnCameraChange(" + mode + ")");
@@ -431,6 +432,7 @@ namespace DockRotate
 					log(cameras[i].transform.desc(10));
 				}
 			}
+			phase("END CAMERA CHANGE");
 		}
 
 		public void Awake()

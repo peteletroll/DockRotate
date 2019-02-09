@@ -184,7 +184,7 @@ namespace DockRotate
 			if (!vessel)
 				MonoBehaviour.Destroy(this);
 
-			if (HighLogic.LoadedScene != GameScenes.FLIGHT || !rotCur)
+			if (!rotCur || HighLogic.LoadedScene != GameScenes.FLIGHT)
 				return;
 
 			if (rotCur.done()) {
