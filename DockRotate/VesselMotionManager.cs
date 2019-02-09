@@ -43,7 +43,6 @@ namespace DockRotate
 		public bool onRails = false;
 
 		private bool verboseEvents = true;
-		private bool verboseCare = true;
 		private bool verboseCamera = false;
 
 		public static VesselMotionManager get(Part p)
@@ -203,7 +202,7 @@ namespace DockRotate
 		private bool care(Vessel v, bool useStructureChangeInfo)
 		{
 			bool ret = v && v == vessel;
-			if (verboseCare)
+			if (verboseEvents)
 				log(desc(), ".care(" + desc(v) + ") = " + ret);
 			return ret;
 		}
@@ -211,7 +210,7 @@ namespace DockRotate
 		private bool care(Part p, bool useStructureChangeInfo)
 		{
 			if (useStructureChangeInfo && p && p == structureChangeInfo.part) {
-				if (verboseCare)
+				if (verboseEvents)
 					log(desc(), ".care(" + p.desc() + ") = " + true);
 				return true;
 			}
@@ -231,7 +230,7 @@ namespace DockRotate
 		private bool care(uint id1, uint id2, bool useStructureChangeInfo)
 		{
 			bool ret = vessel && (vessel.persistentId == id1 || vessel.persistentId == id2);
-			if (verboseCare)
+			if (verboseEvents)
 				log(desc(), ".care(" + id1 + ", " + id2 + ") = " + ret);
 			return ret;
 		}
@@ -241,14 +240,17 @@ namespace DockRotate
 			List<IStructureChangeListener> ret = vessel.FindPartModulesImplementing<IStructureChangeListener>();
 			if (verboseEvents)
 				log(desc(), ".listeners() finds " + ret.Count);
-			verboseEvents = verboseCare = true;
+			bool verboseEventsPrev = verboseEvents;
+			verboseEvents = true;
 			int l = ret.Count;
 			for (int i = 0; i < l; i++) {
 				if (ret[i] != null && !ret[i].wantsVerboseEvents()) {
-					verboseEvents = verboseCare = false;
+					verboseEvents = false;
 					break;
 				}
 			}
+			if (verboseEvents != verboseEventsPrev)
+				log(desc(), ": verboseEvents = " + verboseEvents);
 			return ret;
 		}
 
