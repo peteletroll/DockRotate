@@ -235,14 +235,15 @@ namespace DockRotate
 			return ret;
 		}
 
-		public List<IStructureChangeListener> listeners(bool forceVerbose = false)
+		public List<IStructureChangeListener> listeners()
 		{
 			List<IStructureChangeListener> ret = vessel.FindPartModulesImplementing<IStructureChangeListener>();
-			if (verboseEvents || forceVerbose)
+			if (verboseEvents)
 				log(desc(), ".listeners() finds " + ret.Count);
 
 			bool verboseEventsPrev = verboseEvents;
 			verboseEvents = false;
+
 			int l = ret.Count;
 			for (int i = 0; i < l; i++) {
 				if (ret[i] != null && ret[i].wantsVerboseEvents()) {
@@ -250,8 +251,10 @@ namespace DockRotate
 					break;
 				}
 			}
-			if (verboseEvents || verboseEventsPrev)
-				log(desc(), ": verboseEvents = " + verboseEvents);
+
+			if (verboseEvents != verboseEventsPrev)
+				log(desc(), ".listeners(): verboseEvents changed to " + verboseEvents);
+
 			return ret;
 		}
 

@@ -593,8 +593,10 @@ namespace DockRotate
 		{
 			if (!setupDone || HighLogic.LoadedScene != GameScenes.FLIGHT)
 				return;
-			if (verboseEvents != verboseEventsPrev)
-				VesselMotionManager.get(vessel).listeners(true);
+			if (verboseEvents != verboseEventsPrev) {
+				VesselMotionManager.get(vessel).listeners();
+				verboseEventsPrev = verboseEvents;
+			}
 			checkFrozenRotation();
 		}
 
