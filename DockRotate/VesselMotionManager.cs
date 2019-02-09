@@ -10,6 +10,7 @@ namespace DockRotate
 		void OnVesselGoOffRails();
 		void RightBeforeStructureChange();
 		void RightAfterStructureChange();
+		bool verboseEvents();
 	}
 
 	public static class StructureChangeMapper
@@ -239,6 +240,14 @@ namespace DockRotate
 			List<IStructureChangeListener> ret = vessel.FindPartModulesImplementing<IStructureChangeListener>();
 			if (verboseEvents)
 				log(desc(), ".listeners() finds " + ret.Count);
+			verboseEvents = verboseCare = true;
+			int l = ret.Count;
+			for (int i = 0; i < l; i++) {
+				if (ret[i] != null && !ret[i].verboseEvents()) {
+					verboseEvents = verboseCare = false;
+					break;
+				}
+			}
 			return ret;
 		}
 

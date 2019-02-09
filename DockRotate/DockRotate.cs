@@ -286,9 +286,6 @@ namespace DockRotate
 		}
 
 		[KSPField(isPersistant = true)]
-		public uint frozenRotationControllerID = 0;
-
-		[KSPField(isPersistant = true)]
 		public float electricityRate = 1f;
 
 		protected bool setupDone = false;
@@ -566,22 +563,17 @@ namespace DockRotate
 		public void updateFrozenRotation(string context)
 		{
 			Vector3 prevRot = frozenRotation;
-			uint prevID = frozenRotationControllerID;
 
 			JointMotionObj r = currentRotation();
 			if (r && r.isContinuous() && jointMotion.controller == this) {
 				frozenRotation.Set(r.tgt, r.maxvel, 0f);
-				frozenRotationControllerID = (jointMotion && jointMotion.controller) ? jointMotion.controller.part.flightID : 0;
 			} else {
 				frozenRotation = Vector3.zero;
-				frozenRotationControllerID = 0;
 			}
 
-			if (frozenRotation != prevRot || frozenRotationControllerID != prevID)
+			if (frozenRotation != prevRot)
 				log(part.desc(), ": updateFrozenRotation("
-					+ context + "): "
-					+ prevRot + "@" + prevID
-					+ " -> " + frozenRotation + "@" + frozenRotationControllerID);
+					+ context + "): " + prevRot + " -> " + frozenRotation);
 		}
 
 		protected void enqueueFrozenRotation(float angle, float speed, float startSpeed = 0f)
