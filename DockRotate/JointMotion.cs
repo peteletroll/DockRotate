@@ -135,7 +135,7 @@ namespace DockRotate
 					if (trace && showlog)
 						log(joint.desc(), "MERGE CONTINUOUS " + angle + " -> " + rotCur.tgt);
 					rotCur.tgt = angle;
-					rotCur.controller.updateFrozenRotation("MERGECONT");
+					controller.updateFrozenRotation("MERGECONT");
 				} else {
 					if (trace)
 						log(joint.desc(), "MERGE LIMITED " + angle + " -> " + rotCur.rot0 + " + " + rotCur.tgt);
@@ -150,14 +150,14 @@ namespace DockRotate
 					}
 					if (trace)
 						log(joint.desc(), "MERGED: POS " + rotCur.pos + " TGT " + rotCur.tgt);
-					rotCur.controller.updateFrozenRotation("MERGELIM");
+					controller.updateFrozenRotation("MERGELIM");
 				}
 			} else {
 				log(joint.desc(), ": creating rotation");
 				JointMotionObj r = new JointMotionObj(this, 0, angle, speed);
 				r.rot0 = rotationAngle(false);
 				r.vel = startSpeed;
-				controller = r.controller = source;
+				controller = source;
 				r.electricityRate = source.electricityRate;
 				r.smartAutoStruts = source.smartAutoStruts;
 				rotCur = r;
@@ -227,7 +227,7 @@ namespace DockRotate
 			if (brakeRotationKey())
 				rotCur.brake();
 			rotCur.advance(Time.fixedDeltaTime);
-			rotCur.controller.updateFrozenRotation("FIXED");
+			controller.updateFrozenRotation("FIXED");
 		}
 
 		public void onStart(SmoothMotionDispatcher source)
@@ -275,16 +275,16 @@ namespace DockRotate
 			if (sound)
 				return;
 
-			if (!rotCur || !rotCur.controller) {
+			if (!rotCur || !controller) {
 				log("sound: no " + (rotCur ? "controller" : "rotation"));
 				return;
 			}
 
 			try {
-				soundVolume = rotCur.controller.soundVolume;
-				AudioClip clip = GameDatabase.Instance.GetAudioClip(rotCur.controller.soundClip);
+				soundVolume = controller.soundVolume;
+				AudioClip clip = GameDatabase.Instance.GetAudioClip(controller.soundClip);
 				if (!clip) {
-					log("sound: clip \"" + rotCur.controller.soundClip + "\" not found");
+					log("sound: clip \"" + controller.soundClip + "\" not found");
 					return;
 				}
 
@@ -344,22 +344,6 @@ namespace DockRotate
 	public class JointMotionObj: SmoothMotion
 	{
 		private JointMotion jm;
-		private ModuleBaseRotate _controller;
-		public ModuleBaseRotate controller {
-			get { return _controller; }
-			set {
-				if (value != _controller) {
-					if (_controller) {
-						log(jm.joint.desc(), ": change controller " + _controller.part.desc() + " -> " + value.part.desc());
-					} else {
-						log(jm.joint.desc(), ": set controller " + value.part.desc());
-					}
-				}
-				_controller = value;
-				if (_controller)
-					_controller.putAxis(jm);
-			}
-		}
 
 		public bool smartAutoStruts = false;
 
@@ -445,10 +429,10 @@ namespace DockRotate
 
 			jm.stepSound();
 
-			if (controller) {
-				float s = controller.speed();
+			if (jm.controller) {
+				float s = jm.controller.speed();
 				if (!Mathf.Approximately(s, maxvel)) {
-					log(controller.part.desc() + ": speed change " + maxvel + " -> " + s);
+					log(jm.controller.part.desc() + ": speed change " + maxvel + " -> " + s);
 					maxvel = s;
 				}
 			}

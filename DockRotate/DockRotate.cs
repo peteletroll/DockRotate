@@ -433,7 +433,7 @@ namespace DockRotate
 			if (cr) {
 				angleInfo = String.Format("{0:+0.00;-0.00;0.00}\u00b0 ({1:+0.00;-0.00;0.00}\u00b0/s){2}",
 					rotationAngle(true), cr.vel,
-					(cr.controller == this ? " CTL" : ""));
+						((jointMotion.controller == this) ? " CTL" : ""));
 			} else {
 				angleInfo = String.Format("{0:+0.00;-0.00;0.00}\u00b0 ({1:+0.0000;-0.0000;0.0000}\u00b0\u0394)",
 					rotationAngle(false), dynamicDeltaAngle());
@@ -552,7 +552,7 @@ namespace DockRotate
 			JointMotionObj r = currentRotation();
 			if (r && r.isContinuous()) {
 				frozenRotation.Set(r.tgt, r.maxvel, 0f);
-				frozenRotationControllerID = (r && r.controller) ? r.controller.part.flightID : 0;
+				frozenRotationControllerID = (jointMotion && jointMotion.controller) ? jointMotion.controller.part.flightID : 0;
 			} else {
 				frozenRotation = Vector3.zero;
 				frozenRotationControllerID = 0;
@@ -614,7 +614,7 @@ namespace DockRotate
 
 			if (rotatingNode == null) {
 				log(part.desc(), ".setupGeometry(" + state + "): "
-				    + "no node \"" + rotatingNodeName + "\"");
+					+ "no node \"" + rotatingNodeName + "\"");
 				AttachNode[] nodes = part.FindAttachNodes("");
 				string nodeHelp = part.desc() + " available nodes:";
 				for (int i = 0; i < nodes.Length; i++)
@@ -852,7 +852,7 @@ namespace DockRotate
 				nodeRole += "Same";
 
 			if (dockingNode.snapRotation && dockingNode.snapOffset > 0f
-			    && jointMotion && rotatingJoint.Host == part && rotationEnabled) {
+				&& jointMotion && rotatingJoint.Host == part && rotationEnabled) {
 				enqueueFrozenRotation(jointMotion.angleToSnap(dockingNode.snapOffset), speed());
 			}
 		}
