@@ -267,6 +267,24 @@ namespace DockRotate
 		[KSPField(isPersistant = true)]
 		public Vector3 frozenRotation = Vector3.zero;
 
+		private bool frozenFlag {
+			get => !Mathf.Approximately(frozenAngle, 0f);
+		}
+		private float frozenAngle {
+			get => frozenRotation[0];
+			set => frozenRotation[0] = value;
+		}
+
+		private float frozenSpeed {
+			get => frozenRotation[1];
+			set => frozenRotation[1] = value;
+		}
+
+		private float frozenStartSpeed {
+			get => frozenRotation[2];
+			set => frozenRotation[2] = value;
+		}
+
 		[KSPField(isPersistant = true)]
 		public uint frozenRotationControllerID = 0;
 
@@ -312,7 +330,7 @@ namespace DockRotate
 				log(part.desc(), ": OnVesselGoOffRails()");
 			setupDone = false;
 			// start speed always 0 when going off rails
-			frozenRotation[2] = 0f;
+			frozenStartSpeed = 0f;
 			doSetup();
 		}
 
@@ -424,7 +442,7 @@ namespace DockRotate
 #if DEBUG
 			int nJoints = jointMotion ? jointMotion.joint.joints.Count : 0;
 			nodeStatus = part.flightID + ":" + nodeRole + "[" + nJoints + "]";
-			if (frozenRotation[0] != 0f)
+			if (frozenFlag)
 				nodeStatus += " [F]";
 			if (cr)
 				nodeStatus += " " + cr.pos + "\u00b0 -> "+ cr.tgt + "\u00b0";
@@ -534,7 +552,7 @@ namespace DockRotate
 			if (!setupDone)
 				return;
 
-			if (!Mathf.Approximately(frozenRotation[0], 0f)) {
+			if (frozenFlag) {
 				/* // logging disabled, it always happens during continuous rotation
 				log(part.desc(), ": thaw frozen rotation " + frozenRotation.desc()
 					+ "@" + frozenRotationControllerID);
@@ -567,7 +585,7 @@ namespace DockRotate
 		protected void enqueueFrozenRotation(float angle, float speed, float startSpeed = 0f)
 		{
 			Vector3 prev = frozenRotation;
-			angle += frozenRotation[0];
+			angle += frozenAngle;
 			SmoothMotion.isContinuous(ref angle);
 			frozenRotation.Set(angle, speed, startSpeed);
 			log(part.desc(), ": enqueueFrozenRotation(): "
