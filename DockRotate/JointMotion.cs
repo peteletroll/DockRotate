@@ -38,6 +38,36 @@ namespace DockRotate
 			}
 		}
 
+		private ModuleBaseRotate _controller;
+		public ModuleBaseRotate controller {
+			get {
+				if (!_controller)
+					log(joint.desc(), ": *** WARNING *** null controller");
+				return _controller;
+			}
+			set {
+				if (!value) {
+					log(joint.desc(), ": *** WARNING *** refusing to set null controller");
+					return;
+				}
+				if (value != _controller) {
+					if (_controller) {
+						log(joint.desc(), ": change controller " + _controller.part.desc() + " -> " + value.part.desc());
+					} else {
+						log(joint.desc(), ": set controller " + value.part.desc());
+					}
+					if (_rotCur) {
+						log(joint.desc(), ": refusing to set controller while moving");
+						return;
+					}
+				}
+
+				_controller = value;
+				if (_controller)
+					_controller.putAxis(this);
+			}
+		}
+
 		public static JointMotion get(PartJoint j)
 		{
 			if (!j)
@@ -127,6 +157,7 @@ namespace DockRotate
 				JointMotionObj r = new JointMotionObj(this, 0, angle, speed);
 				r.rot0 = rotationAngle(false);
 				r.vel = startSpeed;
+				_controller = controller;
 				r.controller = controller;
 				r.electricityRate = controller.electricityRate;
 				r.smartAutoStruts = controller.smartAutoStruts;
