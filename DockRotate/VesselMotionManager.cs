@@ -10,7 +10,7 @@ namespace DockRotate
 		void OnVesselGoOffRails();
 		void RightBeforeStructureChange();
 		void RightAfterStructureChange();
-		bool verboseEvents();
+		bool wantsVerboseEvents();
 	}
 
 	public static class StructureChangeMapper
@@ -243,7 +243,7 @@ namespace DockRotate
 			verboseEvents = verboseCare = true;
 			int l = ret.Count;
 			for (int i = 0; i < l; i++) {
-				if (ret[i] != null && !ret[i].verboseEvents()) {
+				if (ret[i] != null && !ret[i].wantsVerboseEvents()) {
 					verboseEvents = verboseCare = false;
 					break;
 				}

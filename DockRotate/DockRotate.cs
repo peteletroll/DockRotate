@@ -106,6 +106,7 @@ namespace DockRotate
 		)]
 #endif
 		public bool verboseEvents = false;
+		public bool wantsVerboseEvents() { return verboseEvents; }
 
 		[KSPAction(
 			guiName = "#DCKROT_stop_rotation",
