@@ -111,7 +111,7 @@ namespace DockRotate
 			targetUp = joint.Target.up(hostAxis.STd(joint.Host, joint.Target));
 		}
 
-		public virtual bool enqueueRotation(ModuleBaseRotate controller, float angle, float speed, float startSpeed = 0f)
+		public virtual bool enqueueRotation(ModuleBaseRotate source, float angle, float speed, float startSpeed = 0f)
 		{
 			if (!joint)
 				return false;
@@ -157,10 +157,9 @@ namespace DockRotate
 				JointMotionObj r = new JointMotionObj(this, 0, angle, speed);
 				r.rot0 = rotationAngle(false);
 				r.vel = startSpeed;
-				_controller = controller;
-				r.controller = controller;
-				r.electricityRate = controller.electricityRate;
-				r.smartAutoStruts = controller.smartAutoStruts;
+				controller = r.controller = source;
+				r.electricityRate = source.electricityRate;
+				r.smartAutoStruts = source.smartAutoStruts;
 				rotCur = r;
 				action = "added";
 			}
