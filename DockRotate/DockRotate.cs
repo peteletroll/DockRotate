@@ -290,6 +290,11 @@ namespace DockRotate
 		[KSPField(isPersistant = true)]
 		public float electricityRate = 1f;
 
+		public Part getPart()
+		{
+			return part;
+		}
+
 		protected bool setupDone = false;
 		protected abstract void setup();
 
@@ -721,6 +726,7 @@ namespace DockRotate
 				if (verboseEvents)
 					log(part.desc(), ".setup(): on " + rotatingJoint.desc());
 				jointMotion = JointMotion.get(rotatingJoint);
+				jointMotion.controller = this;
 				putAxis(jointMotion);
 			}
 		}
@@ -863,8 +869,10 @@ namespace DockRotate
 				if (verboseEvents)
 					log(part.desc(), ".setup(): on " + rotatingJoint.desc());
 				jointMotion = JointMotion.get(rotatingJoint);
-				if (part == rotatingJoint.Host)
+				if (part == rotatingJoint.Host) {
+					jointMotion.controller = this;
 					putAxis(jointMotion);
+				}
 			}
 
 			if (sameVessel)

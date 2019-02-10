@@ -11,6 +11,7 @@ namespace DockRotate
 		void RightBeforeStructureChange();
 		void RightAfterStructureChange();
 		bool wantsVerboseEvents();
+		Part getPart();
 	}
 
 	public static class StructureChangeMapper
@@ -238,8 +239,6 @@ namespace DockRotate
 		public List<IStructureChangeListener> listeners()
 		{
 			List<IStructureChangeListener> ret = vessel.FindPartModulesImplementing<IStructureChangeListener>();
-			if (verboseEvents)
-				log(desc(), ".listeners() finds " + ret.Count);
 
 			bool verboseEventsPrev = verboseEvents;
 			verboseEvents = false;
@@ -247,6 +246,8 @@ namespace DockRotate
 			int l = ret.Count;
 			for (int i = 0; i < l; i++) {
 				if (ret[i] != null && ret[i].wantsVerboseEvents()) {
+					log(desc(), ".listeners() finds " + ret.Count);
+					log(desc(), ": " + ret[i].getPart().desc() + " wants verboseEvents");
 					verboseEvents = true;
 					break;
 				}
