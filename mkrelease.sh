@@ -36,6 +36,12 @@ dllname=`basename $dll`
 foundnewer=0
 for f in `find . -name \*.cs`
 do
+	if grep -Hn '	 \| 	\|[ 	]$' $f 1>&2
+	then
+		echo "ABORTING: found bad spacing, see above" 1>&2
+		exit 1
+	fi
+
 	for d in $dll $debugdll
 	do
 		if [ $f -nt $d ]
