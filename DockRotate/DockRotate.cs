@@ -713,7 +713,7 @@ namespace DockRotate
 
 			other.forcePhysics();
 
-			PartJoint rotatingJoint = nodeJoint(rotatingNode, true);
+			PartJoint rotatingJoint = nodeJoint(rotatingNode, verboseEvents);
 			if (rotatingJoint) {
 				nodeRole = part == rotatingJoint.Host ? "Host"
 					: part == rotatingJoint.Target ? "Target"
@@ -855,7 +855,7 @@ namespace DockRotate
 			}
 
 			bool sameVessel = false;
-			PartJoint rotatingJoint = dockingJoint(dockingNode, out sameVessel, true);
+			PartJoint rotatingJoint = dockingJoint(dockingNode, out sameVessel, verboseEvents);
 			if (rotatingJoint) {
 				nodeRole = part == rotatingJoint.Host ? "Host"
 					: part == rotatingJoint.Target ? "Target"

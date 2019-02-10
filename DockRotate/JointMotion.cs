@@ -104,7 +104,8 @@ namespace DockRotate
 			} else {
 				log(desc(), ".setAxis(): part " + part.desc() + " not in " + joint.desc());
 			}
-			log(desc(), ".setAxis(): " + axis.desc() + "@" + node.desc() + "), " + state);
+			if (!controller || controller.verboseEvents)
+				log(desc(), ".setAxis(): " + axis.desc() + "@" + node.desc() + "), " + state);
 			hostAxis = axis.STd(part, joint.Host);
 			hostNode = node.STp(part, joint.Host);
 			hostUp = joint.Host.up(hostAxis);
