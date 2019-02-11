@@ -249,7 +249,7 @@ namespace DockRotate
 		public bool IsJointUnlocked()
 		{
 			bool ret = currentRotation();
-			// log(part.desc(), ".IsJointUnlocked() is " + ret);
+			// log(desc(), ".IsJointUnlocked() is " + ret);
 			return ret;
 		}
 
@@ -315,7 +315,7 @@ namespace DockRotate
 				log(sep);
 			}
 
-			log(part.desc(), ".doSetup(): joint " + (jointMotion ? jointMotion.joint.desc() : "null"));
+			log(desc(), ".doSetup(): joint " + (jointMotion ? jointMotion.joint.desc() : "null"));
 
 			setupDone = true;
 		}
@@ -323,7 +323,7 @@ namespace DockRotate
 		public void OnVesselGoOnRails()
 		{
 			if (verboseEvents)
-				log(part.desc(), ": OnVesselGoOnRails()");
+				log(desc(), ": OnVesselGoOnRails()");
 			freezeCurrentRotation("go on rails", false);
 			setupDone = false;
 		}
@@ -331,7 +331,7 @@ namespace DockRotate
 		public void OnVesselGoOffRails()
 		{
 			if (verboseEvents)
-				log(part.desc(), ": OnVesselGoOffRails()");
+				log(desc(), ": OnVesselGoOffRails()");
 			setupDone = false;
 			// start speed always 0 when going off rails
 			frozenStartSpeed = 0f;
@@ -341,14 +341,14 @@ namespace DockRotate
 		public void RightBeforeStructureChange()
 		{
 			if (verboseEvents)
-				log(part.desc(), ": RightBeforeStructureChange()");
+				log(desc(), ": RightBeforeStructureChange()");
 			freezeCurrentRotation("structure change", true);
 		}
 
 		public void RightAfterStructureChange()
 		{
 			if (verboseEvents)
-				log(part.desc(), ": RightAfterStructureChange()");
+				log(desc(), ": RightAfterStructureChange()");
 			doSetup();
 		}
 
@@ -399,7 +399,7 @@ namespace DockRotate
 			fld = fl.ToArray();
 			evt = el.ToArray();
 
-			// log(part.desc(), ": " + fld.Length + " fields, " + evt.Length + " events");
+			// log(desc(), ": " + fld.Length + " fields, " + evt.Length + " events");
 		}
 
 		private void checkGuiActive()
@@ -424,7 +424,7 @@ namespace DockRotate
 			if (vessel) {
 				VesselMotionManager.get(vessel); // force creation of VesselMotionManager
 			} else if (state != StartState.Editor) {
-				log(part.desc(), ": OnStart(" + state + ") with no vessel");
+				log(desc(), ": OnStart(" + state + ") with no vessel");
 			}
 
 			geometryOk = setupGeometry(state);
@@ -517,7 +517,7 @@ namespace DockRotate
 		protected bool enqueueRotation(float angle, float speed, float startSpeed = 0f)
 		{
 			if (!jointMotion) {
-				log(part.desc(), ".enqueueRotation(): no rotating joint, skipped");
+				log(desc(), ".enqueueRotation(): no rotating joint, skipped");
 				return false;
 			}
 			return jointMotion.enqueueRotation(this, angle, speed, startSpeed);
@@ -537,13 +537,13 @@ namespace DockRotate
 			JointMotionObj r = currentRotation();
 			if (!r)
 				return;
-			log(part.desc(), ": freezeCurrentRotation("
+			log(desc(), ": freezeCurrentRotation("
 				+ msg + ", " + keepSpeed + ")");
 			r.isContinuous();
 			float angle = r.tgt - r.pos;
 			enqueueFrozenRotation(angle, r.maxvel, keepSpeed ? r.vel : 0f);
 			r.abort();
-			log(part.desc(), ": removing rotation (2)");
+			log(desc(), ": removing rotation (2)");
 			jointMotion.rotCur = null;
 		}
 
@@ -559,7 +559,7 @@ namespace DockRotate
 
 			if (frozenFlag) {
 				/* // logging disabled, it always happens during continuous rotation
-				log(part.desc(), ": thaw frozen rotation " + frozenRotation.desc()
+				log(desc(), ": thaw frozen rotation " + frozenRotation.desc()
 					+ "@" + frozenRotationControllerID);
 				*/
 				enqueueRotation(frozenRotation);
@@ -580,7 +580,7 @@ namespace DockRotate
 			}
 
 			if (frozenRotation != prevRot)
-				log(part.desc(), ": updateFrozenRotation("
+				log(desc(), ": updateFrozenRotation("
 					+ context + "): " + prevRot + " -> " + frozenRotation);
 		}
 
@@ -590,7 +590,7 @@ namespace DockRotate
 			angle += frozenAngle;
 			SmoothMotion.isContinuous(ref angle);
 			frozenRotation.Set(angle, speed, startSpeed);
-			log(part.desc(), ": enqueueFrozenRotation(): "
+			log(desc(), ": enqueueFrozenRotation(): "
 				+ prev.desc() + " -> " + frozenRotation.desc());
 		}
 
@@ -607,8 +607,7 @@ namespace DockRotate
 
 		public string desc(bool bare = false)
 		{
-			return (bare ? "" : descPrefix() + ":")
-				+ (jointMotion ? jointMotion.desc() : "null");
+			return (bare ? "" : descPrefix() + ":") + part.desc(true);
 		}
 
 		public abstract string descPrefix();
@@ -645,20 +644,20 @@ namespace DockRotate
 			rotatingNode = part.FindAttachNode(rotatingNodeName);
 
 			if (rotatingNode == null) {
-				log(part.desc(), ".setupGeometry(" + state + "): "
+				log(desc(), ".setupGeometry(" + state + "): "
 					+ "no node \"" + rotatingNodeName + "\"");
 				AttachNode[] nodes = part.FindAttachNodes("");
-				string nodeHelp = part.desc() + " available nodes:";
+				string nodeHelp = desc() + " available nodes:";
 				for (int i = 0; i < nodes.Length; i++)
 					nodeHelp += " \"" + nodes[i].id + "\"";
-				log(part.desc(), nodeHelp);
+				log(desc(), nodeHelp);
 				return false;
 			}
 
 			partNodePos = rotatingNode.position;
 			partNodeAxis = rotatingNode.orientation;
 			if (verboseEvents)
-				log(part.desc(), ".setupGeometry(" + state + ") done: "
+				log(desc(), ".setupGeometry(" + state + ") done: "
 					+ partNodeAxis + "@" + partNodePos);
 			return true;
 		}
@@ -706,17 +705,17 @@ namespace DockRotate
 			nodeRole = "None";
 
 			if (part.FindModuleImplementing<ModuleDockRotate>()) {
-				log(part.desc(), ": has DockRotate, NodeRotate disabled");
+				log(desc(), ": has DockRotate, NodeRotate disabled");
 				return;
 			}
 
 			if (!part.hasPhysics()) {
-				log(part.desc(), ": physicsless, NodeRotate disabled");
+				log(desc(), ": physicsless, NodeRotate disabled");
 				return;
 			}
 
 			if (rotatingNode == null) {
-				log(part.desc(), ".setup(): no rotatingNode");
+				log(desc(), ".setup(): no rotatingNode");
 				return;
 			}
 
@@ -732,7 +731,7 @@ namespace DockRotate
 					: part == rotatingJoint.Target ? "Target"
 					: "Unknown";
 				if (verboseEvents)
-					log(part.desc(), ".setup(): on " + rotatingJoint.desc());
+					log(desc(), ".setup(): on " + rotatingJoint.desc());
 				jointMotion = JointMotion.get(rotatingJoint);
 				jointMotion.controller = this;
 				putAxis(jointMotion);
@@ -784,14 +783,14 @@ namespace DockRotate
 			dockingNode = part.FindModuleImplementing<ModuleDockingNode>();
 
 			if (!dockingNode) {
-				log(part.desc(), ".setupGeometry(" + state + "): no docking node");
+				log(desc(), ".setupGeometry(" + state + "): no docking node");
 				return false;
 			}
 
 			partNodePos = Vector3.zero.Tp(dockingNode.T(), part.T());
 			partNodeAxis = Vector3.forward.Td(dockingNode.T(), part.T());
 			if (verboseEvents)
-				log(part.desc(), ".setupGeometry(" + state + ") done: "
+				log(desc(), ".setupGeometry(" + state + ") done: "
 					+ partNodeAxis + "@" + partNodePos);
 			return true;
 		}
@@ -869,7 +868,7 @@ namespace DockRotate
 			nodeRole = "None";
 
 			if (!dockingNode) {
-				log(part.desc(), ".setup(): no dockingNode");
+				log(desc(), ".setup(): no dockingNode");
 				return;
 			}
 
@@ -880,7 +879,7 @@ namespace DockRotate
 					: part == rotatingJoint.Target ? "Target"
 					: "Unknown";
 				if (verboseEvents)
-					log(part.desc(), ".setup(): on " + rotatingJoint.desc());
+					log(desc(), ".setup(): on " + rotatingJoint.desc());
 				jointMotion = JointMotion.get(rotatingJoint);
 				if (part == rotatingJoint.Host) {
 					jointMotion.controller = this;
