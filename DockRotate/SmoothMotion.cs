@@ -50,7 +50,6 @@ namespace DockRotate
 		private bool started = false, finished = false;
 
 		public float elapsed = 0f;
-		public double electricity = 0d;
 
 		private const float accelTime = 2f;
 		private const float stopMargin = 1.5f;

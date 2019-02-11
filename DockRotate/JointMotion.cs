@@ -349,6 +349,7 @@ namespace DockRotate
 
 		public bool smartAutoStruts = false;
 
+		public double electricity = 0d;
 		public float electricityRate = 1f;
 		public float rot0 = 0f;
 
@@ -460,6 +461,7 @@ namespace DockRotate
 			int c = VesselMotionManager.get(activePart).changeCount(0);
 			log(activePart.desc(), ": rotation stopped [" + c + "], "
 				+ electricity.ToString("F2") + " electricity");
+			electricity = 0d;
 		}
 
 		public void staticize()
