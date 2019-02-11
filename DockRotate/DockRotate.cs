@@ -605,6 +605,14 @@ namespace DockRotate
 			checkFrozenRotation();
 		}
 
+		public string desc(bool bare = false)
+		{
+			return (bare ? "" : descPrefix() + ":")
+				+ (jointMotion ? jointMotion.desc() : "null");
+		}
+
+		public abstract string descPrefix();
+
 		protected static bool log(string msg1, string msg2 = "")
 		{
 			return Extensions.log(msg1, msg2);
@@ -729,6 +737,11 @@ namespace DockRotate
 				jointMotion.controller = this;
 				putAxis(jointMotion);
 			}
+		}
+
+		public override string descPrefix()
+		{
+			return "MNR";
 		}
 	}
 
@@ -882,6 +895,11 @@ namespace DockRotate
 				&& jointMotion && rotatingJoint.Host == part && rotationEnabled) {
 				enqueueFrozenRotation(jointMotion.angleToSnap(dockingNode.snapOffset), speed());
 			}
+		}
+
+		public override string descPrefix()
+		{
+			return "MDR";
 		}
 	}
 }
