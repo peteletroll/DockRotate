@@ -444,7 +444,7 @@ namespace DockRotate
 				double el = activePart.RequestResource("ElectricCharge", (double) electricityRate * deltat);
 				electricity += el;
 				if (el <= 0d) {
-					log(jm.joint.desc(), "no electricity, braking rotation");
+					log(jm.desc(), "no electricity, braking rotation");
 					brake();
 				}
 			}
@@ -466,7 +466,7 @@ namespace DockRotate
 
 		public void staticize()
 		{
-			log(jm.joint.desc(), ".staticize() at pos = " + pos + "\u00b0");
+			log(jm.desc(), ".staticize() at pos = " + pos + "\u00b0");
 			staticizeJoints();
 			staticizeOrgInfo();
 		}
@@ -476,28 +476,28 @@ namespace DockRotate
 			int c = jm.joint.joints.Count;
 			for (int i = 0; i < c; i++) {
 				ConfigurableJoint j = jm.joint.joints[i];
-				if (j) {
-					RotJointInfo ji = rji[i];
+				if (!j)
+					continue;
+				RotJointInfo ji = rji[i];
 
-					// staticize joint rotation
+				// staticize joint rotation
 
-					ji.cjm.staticizeRotation();
+				ConfigurableJointManager.staticizeRotation(ji.cjm);
 
-					// FIXME: this should be moved to JointManager
-					Quaternion connectedBodyRot = ji.connectedBodyAxis.rotation(-pos);
-					j.connectedAnchor = connectedBodyRot * (j.connectedAnchor - ji.connectedBodyNode)
-						+ ji.connectedBodyNode;
-					j.targetPosition = ji.cjm.tgtPos0;
+				// FIXME: this should be moved to JointManager
+				Quaternion connectedBodyRot = ji.connectedBodyAxis.rotation(-pos);
+				j.connectedAnchor = connectedBodyRot * (j.connectedAnchor - ji.connectedBodyNode)
+					+ ji.connectedBodyNode;
+				j.targetPosition = ji.cjm.tgtPos0;
 
-					ji.cjm.setup();
-				}
+				ji.cjm.setup();
 			}
 		}
 
 		private bool staticizeOrgInfo()
 		{
 			if (jm.joint != activePart.attachJoint) {
-				log(activePart.desc(), ": skip staticize, same vessel joint");
+				log(jm.desc(), ": skip staticize, same vessel joint");
 				return false;
 			}
 			float angle = pos;

@@ -67,12 +67,12 @@ namespace DockRotate
 		}
 
 		// FIXME: this must include position staticization
-		public void staticizeRotation()
+		public static void staticizeRotation(ConfigurableJointManager cjm)
 		{
-			Quaternion localRotation = J2Lr(tgtRot0.inverse() * joint.targetRotation);
-			joint.axis = localRotation * joint.axis;
-			joint.secondaryAxis = localRotation * joint.secondaryAxis;
-			joint.targetRotation = tgtRot0;
+			Quaternion localRotation = cjm.J2Lr(cjm.tgtRot0.inverse() * cjm.joint.targetRotation);
+			cjm.joint.axis = localRotation * cjm.joint.axis;
+			cjm.joint.secondaryAxis = localRotation * cjm.joint.secondaryAxis;
+			cjm.joint.targetRotation = cjm.tgtRot0;
 		}
 
 		public Vector3 L2Jd(Vector3 v)
