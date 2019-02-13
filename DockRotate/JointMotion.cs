@@ -478,13 +478,20 @@ namespace DockRotate
 				ConfigurableJoint j = jm.joint.joints[i];
 				if (!j)
 					continue;
+
 				RotJointInfo ji = rji[i];
 
 				// staticize joint rotation
 
-				ConfigurableJointManager.staticizeRotation(ji.cjm);
+				Quaternion localRotation = ji.cjm.J2Lr(ji.cjm.tgtRot0.inverse() * j.targetRotation);
+				Quaternion localRotation2 = ji.localAxis.rotation(pos);
+				log("LOCAL ROTATION CHECK: " + localRotation.desc() + " " + localRotation2.desc());
+				j.axis = localRotation * j.axis;
+				j.secondaryAxis = localRotation * j.secondaryAxis;
+				j.targetRotation = ji.cjm.tgtRot0;
 
-				// FIXME: this should be moved to JointManager
+				// staticize joint position
+
 				Quaternion connectedBodyRot = ji.connectedBodyAxis.rotation(-pos);
 				j.connectedAnchor = connectedBodyRot * (j.connectedAnchor - ji.connectedBodyNode)
 					+ ji.connectedBodyNode;
