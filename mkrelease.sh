@@ -36,7 +36,7 @@ dllname=`basename $dll`
 foundbadspacing=0
 for f in `find . -name \*.cs`
 do
-	if grep -Hn '	 \| 	\|[ 	]$' $f 1>&2
+	if grep -Hn '	 \| 	\|[^	]	|[ 	]$' $f 1>&2
 	then
 		foundbadspacing=1
 	fi
