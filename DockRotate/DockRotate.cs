@@ -87,6 +87,13 @@ namespace DockRotate
 		)]
 		public string angleInfo;
 
+		[KSPField(
+			guiName = "#DCKROT_angle",
+			guiActive = false,
+			guiActiveEditor = true
+		)]
+		public string angleInfoEditor = "Init";
+
 #if DEBUG
 		[KSPField(
 			guiName = "#DCKROT_status",
@@ -355,6 +362,7 @@ namespace DockRotate
 		public override void OnAwake()
 		{
 			verboseEventsPrev = verboseEvents;
+			setEvents(true);
 			setupDone = false;
 
 			base.OnAwake();
@@ -362,6 +370,25 @@ namespace DockRotate
 
 		public virtual void OnDestroy()
 		{
+			setEvents(false);
+		}
+
+		private bool eventState = false;
+
+		private void setEvents(bool cmd)
+		{
+			if (cmd == eventState) {
+				if (verboseEvents)
+					log(desc(), ".setEvents(" + cmd + ") repeated");
+				return;
+			}
+
+			if (verboseEvents)
+				log(desc(), ".setEvents(" + cmd + ")");
+
+			if (cmd) {
+			} else {
+			}
 		}
 
 		protected static string[] guiList = {
@@ -421,16 +448,20 @@ namespace DockRotate
 		{
 			base.OnStart(state);
 
+			geometryOk = setupGeometry(state);
+
+			if (state == StartState.Editor) {
+				log(desc(), ".OnStart(" + state + ")");
+				return;
+			}
+
 			if (vessel) {
 				VesselMotionManager.get(vessel); // force creation of VesselMotionManager
 			} else if (state != StartState.Editor) {
 				log(desc(), ": OnStart(" + state + ") with no vessel");
 			}
 
-			geometryOk = setupGeometry(state);
-
 			setupGuiActive();
-
 			checkGuiActive();
 		}
 
