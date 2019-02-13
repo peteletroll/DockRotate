@@ -33,15 +33,25 @@ debugdll=DockRotate/bin/Debug/DockRotate.dll
 
 dllname=`basename $dll`
 
-foundnewer=0
+foundbadspacing=0
 for f in `find . -name \*.cs`
 do
 	if grep -Hn '	 \| 	\|[ 	]$' $f 1>&2
 	then
-		echo "ABORTING: found bad spacing, see above" 1>&2
-		exit 1
+		foundbadspacing=1
 	fi
+done
+if [ $foundbadspacing -ne 0 ]
+then
+	echo "ABORTING: found bad spacing, see above" 1>&2
+	exit 1
+fi
 
+[ $foundbadspacing -eq 0 ] || exit 1
+
+foundnewer=0
+for f in `find . -name \*.cs`
+do
 	for d in $dll $debugdll
 	do
 		if [ $f -nt $d ]
