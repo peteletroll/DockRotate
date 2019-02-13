@@ -487,7 +487,7 @@ namespace DockRotate
 
 		private string desc()
 		{
-			return "VMM:" + GetInstanceID() + "-" + desc(vessel, true);
+			return "VMM:" + GetInstanceID() + ":" + desc(vessel, true);
 		}
 
 		private void phase(string msg)
