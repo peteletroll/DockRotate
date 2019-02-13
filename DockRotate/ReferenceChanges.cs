@@ -56,6 +56,41 @@ namespace DockRotate
 		}
 	}
 
+	public struct StaticTransform
+	{
+		Quaternion rotation;
+		Vector3 position;
+
+		public static implicit operator StaticTransform(Part p)
+		{
+			StaticTransform ret;
+			ret.rotation = p.orgRot;
+			ret.position = p.orgPos;
+			return ret;
+		}
+
+		public static implicit operator StaticTransform(Transform t)
+		{
+			StaticTransform ret;
+			ret.rotation = t.rotation;
+			ret.position = t.position;
+			return ret;
+		}
+
+		public Quaternion inverse()
+		{
+			StaticTransform ret;
+			ret.rotation = rotation.inverse();
+			ret.position = -(ret.rotation * position);
+			return rotation;
+		}
+
+		public string desc()
+		{
+			return rotation.desc() + "@" + position.desc();
+		}
+	}
+
 	public static class StaticReferenceChanges
 	{
 		public static string descOrg(this Part p)

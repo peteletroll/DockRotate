@@ -330,7 +330,7 @@ namespace DockRotate
 		public void OnVesselGoOnRails()
 		{
 			if (verboseEvents)
-				log(desc(), ": OnVesselGoOnRails()");
+				log(desc(), ".OnVesselGoOnRails()");
 			freezeCurrentRotation("go on rails", false);
 			setupDone = false;
 		}
@@ -338,24 +338,44 @@ namespace DockRotate
 		public void OnVesselGoOffRails()
 		{
 			if (verboseEvents)
-				log(desc(), ": OnVesselGoOffRails()");
+				log(desc(), ".OnVesselGoOffRails()");
 			setupDone = false;
 			// start speed always 0 when going off rails
 			frozenStartSpeed = 0f;
 			doSetup();
 		}
 
+		public void RightAfterEditorChange(ConstructionEventType t, Part p)
+		{
+			log(desc(), ".RightAfterStructureChangeEditor("
+				+ t + ", " + p.desc());
+
+			BaseField f = Fields["angleInfoEditor"];
+			if (f == null)
+				return;
+
+			if (part.parent == p || p.parent == part) {
+				float angle = partNodeAxis.axisSignedAngle(part.up(partNodeAxis),
+					p.up(partNodeAxis.STd(part, p)).STd(p, part));
+				angleInfoEditor = String.Format("{0:+0.00;-0.00;0.00}\u00b0", angle);
+				f.guiActiveEditor = true;
+			} else {
+				angleInfoEditor = "NaN\u00b0";
+				f.guiActiveEditor = false;
+			}
+		}
+
 		public void RightBeforeStructureChange()
 		{
 			if (verboseEvents)
-				log(desc(), ": RightBeforeStructureChange()");
+				log(desc(), ".RightBeforeStructureChange()");
 			freezeCurrentRotation("structure change", true);
 		}
 
 		public void RightAfterStructureChange()
 		{
 			if (verboseEvents)
-				log(desc(), ": RightAfterStructureChange()");
+				log(desc(), ".RightAfterStructureChange()");
 			doSetup();
 		}
 
@@ -387,8 +407,12 @@ namespace DockRotate
 				log(desc(), ".setEvents(" + cmd + ")");
 
 			if (cmd) {
+				GameEvents.onEditorPartEvent.Add(RightAfterEditorChange);
 			} else {
+				GameEvents.onEditorPartEvent.Remove(RightAfterEditorChange);
 			}
+
+			eventState = cmd;
 		}
 
 		protected static string[] guiList = {
@@ -458,7 +482,7 @@ namespace DockRotate
 			if (vessel) {
 				VesselMotionManager.get(vessel); // force creation of VesselMotionManager
 			} else if (state != StartState.Editor) {
-				log(desc(), ": OnStart(" + state + ") with no vessel");
+				log(desc(), ".OnStart(" + state + ") with no vessel");
 			}
 
 			setupGuiActive();
@@ -487,7 +511,7 @@ namespace DockRotate
 			if (cr) {
 				angleInfo = String.Format("{0:+0.00;-0.00;0.00}\u00b0 ({1:+0.00;-0.00;0.00}\u00b0/s){2}",
 					rotationAngle(true), cr.vel,
-						((jointMotion.controller == this) ? " CTL" : ""));
+					(jointMotion.controller == this ? " CTL" : ""));
 			} else {
 				angleInfo = String.Format("{0:+0.00;-0.00;0.00}\u00b0 ({1:+0.0000;-0.0000;0.0000}\u00b0\u0394)",
 					rotationAngle(false), dynamicDeltaAngle());
@@ -568,7 +592,7 @@ namespace DockRotate
 			JointMotionObj r = currentRotation();
 			if (!r)
 				return;
-			log(desc(), ": freezeCurrentRotation("
+			log(desc(), ".freezeCurrentRotation("
 				+ msg + ", " + keepSpeed + ")");
 			r.isContinuous();
 			float angle = r.tgt - r.pos;
@@ -611,7 +635,7 @@ namespace DockRotate
 			}
 
 			if (frozenRotation != prevRot)
-				log(desc(), ": updateFrozenRotation("
+				log(desc(), ".updateFrozenRotation("
 					+ context + "): " + prevRot + " -> " + frozenRotation);
 		}
 
@@ -621,7 +645,7 @@ namespace DockRotate
 			angle += frozenAngle;
 			SmoothMotion.isContinuous(ref angle);
 			frozenRotation.Set(angle, speed, startSpeed);
-			log(desc(), ": enqueueFrozenRotation(): "
+			log(desc(), ".enqueueFrozenRotation(): "
 				+ prev.desc() + " -> " + frozenRotation.desc());
 		}
 
