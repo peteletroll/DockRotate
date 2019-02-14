@@ -395,7 +395,6 @@ namespace DockRotate
 		public override void OnAwake()
 		{
 			verboseEventsPrev = verboseEvents;
-			setupGeometry(StartState.None);
 			setupDone = false;
 
 			base.OnAwake();
