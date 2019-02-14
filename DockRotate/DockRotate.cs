@@ -347,21 +347,34 @@ namespace DockRotate
 
 		public void RightAfterEditorChange(ConstructionEventType t, Part p)
 		{
+			if (t == ConstructionEventType.PartDragging
+				|| t == ConstructionEventType.PartOffsetting
+				|| t == ConstructionEventType.PartRotating)
+				return;
+
+			if (p != part)
+				return;
+
 			log(desc(), ".RightAfterStructureChangeEditor("
-				+ t + ", " + p.desc());
+				+ t + ", " + p.desc()
+				+ "): parent " + p.parent.desc());
+
+			if (!part.parent || part.children.Count <= 0)
+				return;
 
 			BaseField f = Fields["angleInfoEditor"];
 			if (f == null)
 				return;
 
+			string suf = " [" + Time.frameCount + "]";
 			if (part.parent == p || p.parent == part) {
 				float angle = partNodeAxis.axisSignedAngle(part.up(partNodeAxis),
 					p.up(partNodeAxis.STd(part, p)).STd(p, part));
-				angleInfoEditor = String.Format("{0:+0.00;-0.00;0.00}\u00b0", angle);
+				angleInfoEditor = String.Format("{0:+0.00;-0.00;0.00}\u00b0", angle) + suf;
 				f.guiActiveEditor = true;
 			} else {
-				angleInfoEditor = "NaN\u00b0";
-				f.guiActiveEditor = false;
+				angleInfoEditor = "-" + suf;
+				f.guiActiveEditor = true;
 			}
 		}
 
@@ -382,7 +395,7 @@ namespace DockRotate
 		public override void OnAwake()
 		{
 			verboseEventsPrev = verboseEvents;
-			setEvents(true);
+			setupGeometry(StartState.None);
 			setupDone = false;
 
 			base.OnAwake();
@@ -398,12 +411,12 @@ namespace DockRotate
 		private void setEvents(bool cmd)
 		{
 			if (cmd == eventState) {
-				if (verboseEvents)
+				if (true || verboseEvents)
 					log(desc(), ".setEvents(" + cmd + ") repeated");
 				return;
 			}
 
-			if (verboseEvents)
+			if (true || verboseEvents)
 				log(desc(), ".setEvents(" + cmd + ")");
 
 			if (cmd) {
@@ -476,6 +489,7 @@ namespace DockRotate
 
 			if (state == StartState.Editor) {
 				log(desc(), ".OnStart(" + state + ")");
+				setEvents(true);
 				return;
 			}
 
