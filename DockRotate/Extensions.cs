@@ -116,13 +116,12 @@ namespace DockRotate
 
 		/******** AttachNode utilities ********/
 
-		public static string desc(this AttachNode n)
+		public static string desc(this AttachNode n, bool bare = false)
 		{
 			if (n == null)
 				return "null";
-			return "[\"" + n.id + "\": "
-				+ n.owner.desc() + " -> " + n.attachedPart.desc()
-				+ ", size " + n.size + "]";
+			return (bare ? "" : "AN:") + n.id + ":" + n.size
+				+ n.owner.desc() + ":" + n.attachedPart.desc();
 		}
 
 		/******** PartJoint utilities ********/

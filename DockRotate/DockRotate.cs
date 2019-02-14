@@ -268,6 +268,7 @@ namespace DockRotate
 		protected Vector3 partNodeAxis; // node rotation axis, relative to part
 		protected bool geometryOk;
 		protected abstract bool setupGeometry(StartState state);
+		protected abstract AttachNode referenceNode();
 
 		// localized info cache
 		protected string cached_moduleDisplayName = "";
@@ -345,37 +346,39 @@ namespace DockRotate
 			doSetup();
 		}
 
-		public void RightAfterEditorChange(ConstructionEventType t, Part p)
+		public void RightAfterEditorChange(ShipConstruct ship)
 		{
-			if (t == ConstructionEventType.PartDragging
-				|| t == ConstructionEventType.PartOffsetting
-				|| t == ConstructionEventType.PartRotating)
+			int c = ship.parts.Count;
+			log(desc(), ".RightAfterStructureChangeEditor(" + ship + " [" + c + "])");
+
+			AttachNode node = referenceNode();
+			if (node == null) {
+				log(desc(), ": no node");
 				return;
+			}
 
-			if (p != part)
-				return;
-
-			log(desc(), ".RightAfterStructureChangeEditor("
-				+ t + ", " + p.desc()
-				+ "): parent " + p.parent.desc());
-
-			if (!part.parent || part.children.Count <= 0)
+			Part other = node.attachedPart;
+			if (other) {
+				log(desc(), ": " + node.desc());
+			} else {
+				node.FindAttachedPart(ship.parts);
+				other = node.attachedPart;
+				log(desc(), ": " + node.desc() + " after FindAttachedPart()");
+			}
+			if (!other)
 				return;
 
 			BaseField f = Fields["angleInfoEditor"];
-			if (f == null)
+			if (f == null) {
+				log(desc(), ": no angleInfoEditor");
 				return;
-
-			string suf = " [" + Time.frameCount + "]";
-			if (part.parent == p || p.parent == part) {
-				float angle = partNodeAxis.axisSignedAngle(part.up(partNodeAxis),
-					p.up(partNodeAxis.STd(part, p)).STd(p, part));
-				angleInfoEditor = String.Format("{0:+0.00;-0.00;0.00}\u00b0", angle) + suf;
-				f.guiActiveEditor = true;
-			} else {
-				angleInfoEditor = "-" + suf;
-				f.guiActiveEditor = true;
 			}
+
+			float angle = partNodeAxis.axisSignedAngle(part.up(partNodeAxis),
+				other.up(partNodeAxis.STd(part, other)).STd(other, part));
+
+			angleInfoEditor = String.Format("{0:+0.00;-0.00;0.00}\u00b0", angle);
+			f.guiActiveEditor = true;
 		}
 
 		public void RightBeforeStructureChange()
@@ -419,9 +422,9 @@ namespace DockRotate
 				log(desc(), ".setEvents(" + cmd + ")");
 
 			if (cmd) {
-				GameEvents.onEditorPartEvent.Add(RightAfterEditorChange);
+				GameEvents.onEditorShipModified.Add(RightAfterEditorChange);
 			} else {
-				GameEvents.onEditorPartEvent.Remove(RightAfterEditorChange);
+				GameEvents.onEditorShipModified.Remove(RightAfterEditorChange);
 			}
 
 			eventState = cmd;
@@ -707,6 +710,11 @@ namespace DockRotate
 			return cached_info;
 		}
 
+		protected override AttachNode referenceNode()
+		{
+			return rotatingNode;
+		}
+
 		protected override bool setupGeometry(StartState state)
 		{
 			rotatingNode = part.FindAttachNode(rotatingNodeName);
@@ -844,6 +852,11 @@ namespace DockRotate
 			if (cached_info == "")
 				cached_info = Localizer.Format("#DCKROT_port_info");
 			return cached_info;
+		}
+
+		protected override AttachNode referenceNode()
+		{
+			return dockingNode ? dockingNode.referenceNode : null;
 		}
 
 		protected override bool setupGeometry(StartState state)
