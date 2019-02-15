@@ -381,7 +381,7 @@ namespace DockRotate
 				return;
 
 			float angle = partNodeAxis.axisSignedAngle(part.up(partNodeAxis),
-				other.up(partNodeAxis.STd(part, other)).STd(other, part));
+				other.up(partNodeAxis.Td(part.T(), other.T())).Td(other.T(), part.T()));
 
 			angleInfoEditor = String.Format("{0:+0.00;-0.00;0.00}\u00b0", angle);
 			f.guiActiveEditor = true;
