@@ -109,7 +109,7 @@ namespace DockRotate
 		[KSPField(
 			guiName = "Verbose Events",
 			guiActive = true,
-			guiActiveEditor = false,
+			guiActiveEditor = true,
 			isPersistant = true
 		)]
 #endif
@@ -358,47 +358,32 @@ namespace DockRotate
 
 		public void RightAfterEditorChange(string msg)
 		{
-			log(desc(), ".RightAfterEditorChange(" + msg + ")"
-				+ " > [" + part.children.Count + "]"
-				+ " < " + part.parent.desc() + " " + part.parent.descOrg());
+			if (verboseEvents)
+				log(desc(), ".RightAfterEditorChange(" + msg + ")"
+					+ " > [" + part.children.Count + "]"
+					+ " < " + part.parent.desc() + " " + part.parent.descOrg());
+
+			BaseField f = Fields["angleInfoEditor"];
+			if (f == null) {
+				log(desc(), ".RightAfterEditorChange(): no angleInfoEditor");
+				return;
+			}
+			f.guiActiveEditor = false;
 
 			AttachNode node = referenceNode();
 			if (node == null) {
-				// log(desc(), ": no node");
+				log(desc(), ".RightAfterEditorChange(): no node");
 				return;
 			}
 
-			// log(desc(), ": node " + node.desc());
 			Part other = node.attachedPart;
 			if (!other)
 				return;
 
-			BaseField f = Fields["angleInfoEditor"];
-			if (f == null) {
-				log(desc(), ": no angleInfoEditor");
-				return;
-			}
-
-			// log(desc(), ": node position " + partNodePos.desc() + " " + partNodeAxis.desc());
-			// log(desc(), ": part " + part.desc() + " " + part.descOrg());
-			// log(desc(), ": other " + other.desc() + " " + other.descOrg());
-
-			Vector3 partUp = part.up(partNodeAxis);
-			// log(desc(), partUp.desc() + " part up");
-
-			Vector3 otherAxis = partNodeAxis.STd(part, other);
-			// log(desc(), otherAxis.desc() + " other axis");
-
-			Vector3 otherLocalUp = other.up(otherAxis);
-			// log(desc(), otherLocalUp.desc() + " other local up");
-
-			Vector3 otherUp = otherLocalUp.STd(other, part);
-			// log(desc(), otherUp.desc() + " other up");
-
-			float angle = partNodeAxis.axisSignedAngle(partUp, otherUp);
+			float angle = partNodeAxis.axisSignedAngle(part.up(partNodeAxis),
+				other.up(partNodeAxis.STd(part, other)).STd(other, part));
 
 			angleInfoEditor = String.Format("{0:+0.00;-0.00;0.00}\u00b0", angle);
-			log(desc(), ": angle " + angleInfoEditor);
 			f.guiActiveEditor = true;
 		}
 
