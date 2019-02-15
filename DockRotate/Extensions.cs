@@ -42,8 +42,9 @@ namespace DockRotate
 		{
 			if (!part)
 				return "null";
+			string id = part.flightID > 0 ? part.flightID.ToString() : "I" + part.GetInstanceID();
 			ModuleBaseRotate mbr = part.FindModuleImplementing<ModuleBaseRotate>();
-			return (bare ? "" : "P:") + part.bareName() + ":" + part.flightID
+			return (bare ? "" : "P:") + part.bareName() + ":" + id
 				+ (mbr ? ":" + mbr.nodeRole : "");
 		}
 
@@ -121,7 +122,8 @@ namespace DockRotate
 			if (n == null)
 				return "null";
 			return (bare ? "" : "AN:") + n.id + ":" + n.size
-				+ n.owner.desc() + ":" + n.attachedPart.desc();
+				+ ":" + n.owner.desc(true)
+				+ ":" + (n.attachedPart ? n.attachedPart.desc(true) : "I" + n.attachedPartId);
 		}
 
 		/******** PartJoint utilities ********/

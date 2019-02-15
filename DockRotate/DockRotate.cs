@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using KSP.UI.Screens;
 using KSP.Localization;
 
 namespace DockRotate
@@ -346,25 +347,29 @@ namespace DockRotate
 			doSetup();
 		}
 
-		public void RightAfterEditorChange(ShipConstruct ship)
+		public void RightAfterEditorEvent(ConstructionEventType type, Part part)
 		{
-			int c = ship.parts.Count;
-			log(desc(), ".RightAfterStructureChangeEditor(" + ship + " [" + c + "])");
+			if (type == ConstructionEventType.PartDragging
+				|| type == ConstructionEventType.PartOffsetting
+				|| type == ConstructionEventType.PartRotating)
+				return;
+			RightAfterEditorChange("EVENT " + type);
+		}
+
+		public void RightAfterEditorChange(string msg)
+		{
+			log(desc(), ".RightAfterEditorChange(" + msg + ")"
+				+ " > [" + part.children.Count + "]"
+				+ " < " + part.parent.desc() + " " + part.parent.descOrg());
 
 			AttachNode node = referenceNode();
 			if (node == null) {
-				log(desc(), ": no node");
+				// log(desc(), ": no node");
 				return;
 			}
 
+			// log(desc(), ": node " + node.desc());
 			Part other = node.attachedPart;
-			if (other) {
-				log(desc(), ": " + node.desc());
-			} else {
-				node.FindAttachedPart(ship.parts);
-				other = node.attachedPart;
-				log(desc(), ": " + node.desc() + " after FindAttachedPart()");
-			}
 			if (!other)
 				return;
 
@@ -374,10 +379,26 @@ namespace DockRotate
 				return;
 			}
 
-			float angle = partNodeAxis.axisSignedAngle(part.up(partNodeAxis),
-				other.up(partNodeAxis.STd(part, other)).STd(other, part));
+			// log(desc(), ": node position " + partNodePos.desc() + " " + partNodeAxis.desc());
+			// log(desc(), ": part " + part.desc() + " " + part.descOrg());
+			// log(desc(), ": other " + other.desc() + " " + other.descOrg());
+
+			Vector3 partUp = part.up(partNodeAxis);
+			// log(desc(), partUp.desc() + " part up");
+
+			Vector3 otherAxis = partNodeAxis.STd(part, other);
+			// log(desc(), otherAxis.desc() + " other axis");
+
+			Vector3 otherLocalUp = other.up(otherAxis);
+			// log(desc(), otherLocalUp.desc() + " other local up");
+
+			Vector3 otherUp = otherLocalUp.STd(other, part);
+			// log(desc(), otherUp.desc() + " other up");
+
+			float angle = partNodeAxis.axisSignedAngle(partUp, otherUp);
 
 			angleInfoEditor = String.Format("{0:+0.00;-0.00;0.00}\u00b0", angle);
+			log(desc(), ": angle " + angleInfoEditor);
 			f.guiActiveEditor = true;
 		}
 
@@ -422,9 +443,9 @@ namespace DockRotate
 				log(desc(), ".setEvents(" + cmd + ")");
 
 			if (cmd) {
-				GameEvents.onEditorShipModified.Add(RightAfterEditorChange);
+				GameEvents.onEditorPartEvent.Add(RightAfterEditorEvent);
 			} else {
-				GameEvents.onEditorShipModified.Remove(RightAfterEditorChange);
+				GameEvents.onEditorPartEvent.Remove(RightAfterEditorEvent);
 			}
 
 			eventState = cmd;
@@ -492,6 +513,7 @@ namespace DockRotate
 			if (state == StartState.Editor) {
 				log(desc(), ".OnStart(" + state + ")");
 				setEvents(true);
+				RightAfterEditorChange("START");
 				return;
 			}
 
