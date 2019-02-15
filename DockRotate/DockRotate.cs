@@ -268,7 +268,7 @@ namespace DockRotate
 		protected Vector3 partNodePos; // node position, relative to part
 		protected Vector3 partNodeAxis; // node rotation axis, relative to part
 		protected bool geometryOk;
-		protected abstract bool setupGeometry(StartState state);
+		protected abstract bool setupLocalAxis(StartState state);
 		protected abstract AttachNode referenceNode();
 
 		// localized info cache
@@ -493,7 +493,7 @@ namespace DockRotate
 		{
 			base.OnStart(state);
 
-			geometryOk = setupGeometry(state);
+			geometryOk = setupLocalAxis(state);
 
 			if (state == StartState.Editor) {
 				log(desc(), ".OnStart(" + state + ")");
@@ -722,7 +722,7 @@ namespace DockRotate
 			return rotatingNode;
 		}
 
-		protected override bool setupGeometry(StartState state)
+		protected override bool setupLocalAxis(StartState state)
 		{
 			rotatingNode = part.FindAttachNode(rotatingNodeName);
 
@@ -866,7 +866,7 @@ namespace DockRotate
 			return dockingNode ? dockingNode.referenceNode : null;
 		}
 
-		protected override bool setupGeometry(StartState state)
+		protected override bool setupLocalAxis(StartState state)
 		{
 			dockingNode = part.FindModuleImplementing<ModuleDockingNode>();
 
