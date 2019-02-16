@@ -747,7 +747,7 @@ namespace DockRotate
 			return true;
 		}
 
-		private static PartJoint nodeJoint(AttachNode node, bool verbose)
+		private PartJoint nodeJoint(AttachNode node, bool verbose)
 		{
 			if (node == null || !node.owner) {
 				if (verbose)
@@ -885,7 +885,7 @@ namespace DockRotate
 			return true;
 		}
 
-		private static PartJoint dockingJoint(ModuleDockingNode node, out bool sameVessel, bool verbose)
+		private PartJoint dockingJoint(ModuleDockingNode node, out bool sameVessel, bool verbose)
 		{
 			sameVessel = false;
 
@@ -912,6 +912,14 @@ namespace DockRotate
 				if (verbose)
 					log(node.part.desc(), ".dockingJoint(): no other, id = " + node.dockedPartUId);
 				return null;
+			}
+
+			ModuleBaseRotate otherModule = other.part.FindModuleImplementing<ModuleBaseRotate>();
+			if (otherModule) {
+				if (!smartAutoStruts && otherModule.smartAutoStruts) {
+					smartAutoStruts = true;
+					log(desc(), ": smartAutoStruts activated by " + otherModule.desc());
+				}
 			}
 
 			PartJoint ret = node.sameVesselDockJoint;
