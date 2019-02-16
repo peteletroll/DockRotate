@@ -221,7 +221,8 @@ namespace DockRotate
 		{
 			if (!canStartRotation())
 				return;
-			enqueueRotation(step(), speed());
+			if (!enqueueRotation(step(), speed()))
+				return;
 			if (flipFlopMode)
 				reverseRotation = !reverseRotation;
 		}
@@ -230,7 +231,8 @@ namespace DockRotate
 		{
 			if (!canStartRotation())
 				return;
-			enqueueRotation(-step(), speed());
+			if (!enqueueRotation(-step(), speed()))
+				return;
 			if (flipFlopMode)
 				reverseRotation = !reverseRotation;
 		}
