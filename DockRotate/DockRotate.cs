@@ -387,6 +387,7 @@ namespace DockRotate
 
 			angleInfoEditor = String.Format("{0:+0.00;-0.00;0.00}\u00b0", angle);
 			f.guiActiveEditor = true;
+			checkGuiActive();
 		}
 
 		public void RightBeforeStructureChange()
@@ -479,16 +480,25 @@ namespace DockRotate
 		private void checkGuiActive()
 		{
 			bool newGuiActive = FlightGlobals.ActiveVessel == vessel && canStartRotation();
+			bool newGuiActiveEditor = rotationEnabled;
 
-			if (fld != null)
-				for (int i = 0; i < fld.Length; i++)
-					if (fld[i] != null)
-						fld[i].guiActive = newGuiActive;
+			if (fld != null) {
+				for (int i = 0; i < fld.Length; i++) {
+					if (fld[i] == null)
+						continue;
+					fld[i].guiActive = newGuiActive;
+					fld[i].guiActiveEditor = newGuiActiveEditor;
+				}
+			}
 
-			if (evt != null)
-				for (int i = 0; i < evt.Length; i++)
-					if (evt[i] != null)
-						evt[i].guiActive = newGuiActive;
+			if (evt != null) {
+				for (int i = 0; i < evt.Length; i++) {
+					if (evt[i] == null)
+						continue;
+					evt[i].guiActive = newGuiActive;
+					evt[i].guiActiveEditor = newGuiActiveEditor;
+				}
+			}
 		}
 
 		public override void OnStart(StartState state)
@@ -496,6 +506,8 @@ namespace DockRotate
 			base.OnStart(state);
 
 			geometryOk = setupLocalAxis(state);
+
+			setupGuiActive();
 
 			if (state == StartState.Editor) {
 				log(desc(), ".OnStart(" + state + ")");
@@ -510,7 +522,6 @@ namespace DockRotate
 				log(desc(), ".OnStart(" + state + ") with no vessel");
 			}
 
-			setupGuiActive();
 			checkGuiActive();
 		}
 
