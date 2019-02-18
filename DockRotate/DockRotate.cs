@@ -755,43 +755,38 @@ namespace DockRotate
 
 		protected override PartJoint findMovingJoint(bool verbose)
 		{
-			return nodeJoint(rotatingNode, verbose);
-		}
-
-		private PartJoint nodeJoint(AttachNode node, bool verbose)
-		{
-			if (node == null || !node.owner) {
+			if (rotatingNode == null || !rotatingNode.owner) {
 				if (verbose)
 					log(desc(), ".nodeJoint(): no node");
 				return null;
 			}
 
-			Part part = node.owner;
-			Part other = node.attachedPart;
+			Part part = rotatingNode.owner;
+			Part other = rotatingNode.attachedPart;
 			if (!other) {
 				if (verbose)
-					log(desc(), ".nodeJoint(" + node.id + "): no attachedPart");
+					log(desc(), ".nodeJoint(" + rotatingNode.id + "): no attachedPart");
 				return null;
 			}
 			if (verbose)
-				log(desc(), ".nodeJoint(" + node.id + "): attachedPart is " + other.desc());
+				log(desc(), ".nodeJoint(" + rotatingNode.id + "): attachedPart is " + other.desc());
 
 			if (part.parent == other) {
 				PartJoint ret = part.attachJoint;
 				if (verbose)
-					log(desc(), ".nodeJoint(" + node.id + "): child " + ret.desc());
+					log(desc(), ".nodeJoint(" + rotatingNode.id + "): child " + ret.desc());
 				return ret;
 			}
 
 			if (other.parent == part) {
 				PartJoint ret = other.attachJoint;
 				if (verbose)
-					log(desc(), ".nodeJoint(" + node.id + "): parent " + ret.desc());
+					log(desc(), ".nodeJoint(" + rotatingNode.id + "): parent " + ret.desc());
 				return ret;
 			}
 
 			if (verbose)
-				log(desc(), ".nodeJoint(" + node.id + "): nothing");
+				log(desc(), ".nodeJoint(" + rotatingNode.id + "): nothing");
 			return null;
 		}
 
@@ -898,33 +893,28 @@ namespace DockRotate
 
 		protected override PartJoint findMovingJoint(bool verbose)
 		{
-			return dockingJoint(dockingNode, verbose);
-		}
-
-		private PartJoint dockingJoint(ModuleDockingNode node, bool verbose)
-		{
-			if (!node || !node.part) {
+			if (!dockingNode || !dockingNode.part) {
 				if (verbose)
 					log(desc(), ".dockingJoint(): no node");
 				return null;
 			}
 
-			if (verbose && node.state != "PreAttached" && !node.state.StartsWith("Docked"))
-				log(desc(), ".dockingJoint(): unconnected state " + node.state);
+			if (verbose && dockingNode.state != "PreAttached" && !dockingNode.state.StartsWith("Docked"))
+				log(desc(), ".dockingJoint(): unconnected state " + dockingNode.state);
 
-			ModuleDockingNode other = node.otherNode;
+			ModuleDockingNode other = dockingNode.otherNode;
 			if (other) {
 				if (verbose)
 					log(desc(), ".dockingJoint(): other is " + other.part.desc());
-			} else if (node.dockedPartUId > 0) {
-				other = node.FindOtherNode();
+			} else if (dockingNode.dockedPartUId > 0) {
+				other = dockingNode.FindOtherNode();
 				if (verbose && other)
 					log(desc(), ".dockingJoint(): other found " + other.part.desc());
 			}
 
 			if (!other || !other.part) {
 				if (verbose)
-					log(desc(), ".dockingJoint(): no other, id = " + node.dockedPartUId);
+					log(desc(), ".dockingJoint(): no other, id = " + dockingNode.dockedPartUId);
 				return null;
 			}
 
@@ -936,7 +926,7 @@ namespace DockRotate
 				}
 			}
 
-			PartJoint ret = node.sameVesselDockJoint;
+			PartJoint ret = dockingNode.sameVesselDockJoint;
 			if (ret && ret.Target == other.part) {
 				if (verbose)
 					log(desc(), ".dockingJoint(): to same vessel " + ret.desc());
@@ -944,21 +934,21 @@ namespace DockRotate
 			}
 
 			ret = other.sameVesselDockJoint;
-			if (ret && ret.Target == node.part) {
+			if (ret && ret.Target == dockingNode.part) {
 				if (verbose)
 					log(desc(), ".dockingJoint(): from same vessel " + ret.desc());
 				return ret;
 			}
 
-			if (node.part.parent == other.part) {
-				ret = node.part.attachJoint;
+			if (dockingNode.part.parent == other.part) {
+				ret = dockingNode.part.attachJoint;
 				if (verbose)
 					log(desc(), ".dockingJoint(): to parent " + ret.desc());
 				return ret;
 			}
 
-			for (int i = 0; i < node.part.children.Count; i++) {
-				Part child = node.part.children[i];
+			for (int i = 0; i < dockingNode.part.children.Count; i++) {
+				Part child = dockingNode.part.children[i];
 				if (child == other.part) {
 					ret = child.attachJoint;
 					if (verbose)
