@@ -262,7 +262,8 @@ namespace DockRotate
 
 		protected Vector3 partNodePos; // node position, relative to part
 		protected Vector3 partNodeAxis; // node rotation axis, relative to part
-		protected bool geometryOk;
+
+		protected bool setupLocalAxisDone;
 		protected abstract bool setupLocalAxis(StartState state);
 		protected abstract AttachNode referenceNode();
 
@@ -304,7 +305,7 @@ namespace DockRotate
 
 		private void doSetup()
 		{
-			if (!part || !vessel || !geometryOk) {
+			if (!part || !vessel || !setupLocalAxisDone) {
 				log("" + GetType(), ": *** WARNING *** doSetup() called at a bad time");
 				return;
 			}
@@ -498,7 +499,7 @@ namespace DockRotate
 		{
 			base.OnStart(state);
 
-			geometryOk = setupLocalAxis(state);
+			setupLocalAxisDone = setupLocalAxis(state);
 
 			setupGuiActive();
 
@@ -733,7 +734,7 @@ namespace DockRotate
 			rotatingNode = part.FindAttachNode(rotatingNodeName);
 
 			if (rotatingNode == null) {
-				log(desc(), ".setupGeometry(" + state + "): "
+				log(desc(), ".setupLocalAxis(" + state + "): "
 					+ "no node \"" + rotatingNodeName + "\"");
 				AttachNode[] nodes = part.FindAttachNodes("");
 				string nodeHelp = desc() + " available nodes:";
@@ -746,7 +747,7 @@ namespace DockRotate
 			partNodePos = rotatingNode.position;
 			partNodeAxis = rotatingNode.orientation;
 			if (verboseEvents)
-				log(desc(), ".setupGeometry(" + state + ") done: "
+				log(desc(), ".setupLocalAxis(" + state + ") done: "
 					+ partNodeAxis + "@" + partNodePos);
 			return true;
 		}
@@ -877,14 +878,14 @@ namespace DockRotate
 			dockingNode = part.FindModuleImplementing<ModuleDockingNode>();
 
 			if (!dockingNode) {
-				log(desc(), ".setupGeometry(" + state + "): no docking node");
+				log(desc(), ".setupLocalAxis(" + state + "): no docking node");
 				return false;
 			}
 
 			partNodePos = Vector3.zero.Tp(dockingNode.T(), part.T());
 			partNodeAxis = Vector3.forward.Td(dockingNode.T(), part.T());
 			if (verboseEvents)
-				log(desc(), ".setupGeometry(" + state + ") done: "
+				log(desc(), ".setupLocalAxis(" + state + ") done: "
 					+ partNodeAxis + "@" + partNodePos);
 			return true;
 		}
