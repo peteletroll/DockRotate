@@ -88,13 +88,6 @@ namespace DockRotate
 		)]
 		public string angleInfo;
 
-		[KSPField(
-			guiName = "#DCKROT_angle",
-			guiActive = false,
-			guiActiveEditor = true
-		)]
-		public string angleInfoEditor = "Init";
-
 #if DEBUG
 		[KSPField(
 			guiName = "#DCKROT_status",
@@ -365,9 +358,9 @@ namespace DockRotate
 					+ " > [" + part.children.Count + "]"
 					+ " < " + part.parent.desc() + " " + part.parent.descOrg());
 
-			BaseField f = Fields["angleInfoEditor"];
+			BaseField f = Fields["angleInfo"];
 			if (f == null) {
-				log(desc(), ".RightAfterEditorChange(): no angleInfoEditor");
+				log(desc(), ".RightAfterEditorChange(): no angleInfo");
 				return;
 			}
 			f.guiActiveEditor = false;
@@ -385,7 +378,7 @@ namespace DockRotate
 			float angle = partNodeAxis.axisSignedAngle(part.up(partNodeAxis),
 				other.up(partNodeAxis.Td(part.T(), other.T())).Td(other.T(), part.T()));
 
-			angleInfoEditor = String.Format("{0:+0.00;-0.00;0.00}\u00b0", angle);
+			angleInfo = String.Format("{0:+0.00;-0.00;0.00}\u00b0", angle);
 			f.guiActiveEditor = true;
 			checkGuiActive();
 		}
