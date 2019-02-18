@@ -891,9 +891,6 @@ namespace DockRotate
 				return null;
 			}
 
-			if (verbose && dockingNode.state != "PreAttached" && !dockingNode.state.StartsWith("Docked"))
-				log(desc(), ".findMovingJoint(): unconnected state \"" + dockingNode.state + "\"");
-
 			ModuleDockingNode other = dockingNode.otherNode;
 			if (other) {
 				if (verbose)
@@ -909,6 +906,9 @@ namespace DockRotate
 					log(desc(), ".findMovingJoint(): no other, id = " + dockingNode.dockedPartUId);
 				return null;
 			}
+
+			if (verbose && dockingNode.state != "PreAttached" && !dockingNode.state.StartsWith("Docked"))
+				log(desc(), ".findMovingJoint(): unconnected state \"" + dockingNode.state + "\"");
 
 			ModuleBaseRotate otherModule = other.part.FindModuleImplementing<ModuleBaseRotate>();
 			if (otherModule) {
