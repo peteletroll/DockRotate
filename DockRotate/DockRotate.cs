@@ -821,7 +821,7 @@ namespace DockRotate
 
 			other.forcePhysics();
 
-			PartJoint rotatingJoint = nodeJoint(rotatingNode, verboseEvents);
+			PartJoint rotatingJoint = findMovingJoint(verboseEvents);
 			if (rotatingJoint) {
 				nodeRole = part == rotatingJoint.Host ? "Host"
 					: part == rotatingJoint.Target ? "Target"
@@ -982,7 +982,7 @@ namespace DockRotate
 				return;
 			}
 
-			PartJoint rotatingJoint = dockingJoint(dockingNode, verboseEvents);
+			PartJoint rotatingJoint = findMovingJoint(verboseEvents);
 			if (rotatingJoint) {
 				nodeRole = part == rotatingJoint.Host ? "Host"
 					: part == rotatingJoint.Target ? "Target"
