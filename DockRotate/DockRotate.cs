@@ -306,6 +306,9 @@ namespace DockRotate
 
 		private void doSetup()
 		{
+			jointMotion = null;
+			nodeRole = "None";
+
 			if (!part || !vessel || !setupLocalAxisDone) {
 				log("" + GetType(), ": *** WARNING *** doSetup() called at a bad time");
 				return;
@@ -771,6 +774,8 @@ namespace DockRotate
 			if (verbose)
 				log(desc(), ".findMovingJoint(" + rotatingNode.id + "): attachedPart is " + other.desc());
 
+			other.forcePhysics();
+
 			if (part.parent == other) {
 				PartJoint ret = part.attachJoint;
 				if (verbose)
@@ -792,29 +797,19 @@ namespace DockRotate
 
 		protected override void setup()
 		{
-			jointMotion = null;
-			nodeRole = "None";
-
 			if (part.FindModuleImplementing<ModuleDockRotate>()) {
 				log(desc(), ": has DockRotate, NodeRotate disabled");
 				return;
 			}
 
 			if (!part.hasPhysics()) {
-				log(desc(), ": physicsless, NodeRotate disabled");
-				return;
-			}
-
-			if (rotatingNode == null) {
-				log(desc(), ".setup(): no rotatingNode");
+				log(desc(), ": physicsless part, NodeRotate disabled");
 				return;
 			}
 
 			Part other = rotatingNode.attachedPart;
 			if (!other)
 				return;
-
-			other.forcePhysics();
 
 			PartJoint rotatingJoint = findMovingJoint(verboseEvents);
 			if (rotatingJoint) {
@@ -961,14 +956,6 @@ namespace DockRotate
 
 		protected override void setup()
 		{
-			jointMotion = null;
-			nodeRole = "None";
-
-			if (!dockingNode) {
-				log(desc(), ".setup(): no dockingNode");
-				return;
-			}
-
 			PartJoint rotatingJoint = findMovingJoint(verboseEvents);
 			if (rotatingJoint) {
 				nodeRole = part == rotatingJoint.Host ? "Host"
