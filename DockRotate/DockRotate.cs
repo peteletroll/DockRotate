@@ -828,7 +828,6 @@ namespace DockRotate
 
 			jointMotion = JointMotion.get(rotatingJoint);
 			jointMotion.controller = this;
-			putAxis(jointMotion);
 		}
 
 		public override string descPrefix()
@@ -960,10 +959,8 @@ namespace DockRotate
 				return;
 
 			jointMotion = JointMotion.get(rotatingJoint);
-			if (part == rotatingJoint.Host) {
+			if (part == rotatingJoint.Host)
 				jointMotion.controller = this;
-				putAxis(jointMotion);
-			}
 
 			if (dockingNode.snapRotation && dockingNode.snapOffset > 0f
 				&& jointMotion && rotatingJoint.Host == part && rotationEnabled) {
