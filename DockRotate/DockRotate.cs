@@ -329,6 +329,14 @@ namespace DockRotate
 				log(sep);
 			}
 
+			if (jointMotion) {
+				nodeRole = part == jointMotion.joint.Host ? "Host"
+					: part == jointMotion.joint.Target ? "Target"
+					: "Unknown";
+				if (jointMotion.joint.Host.parent != jointMotion.joint.Target)
+					nodeRole += "NoTree";
+			}
+
 			log(desc(), ".doSetup(): joint " + (jointMotion ? jointMotion.joint.desc() : "null"));
 
 			setupDone = true;
@@ -811,11 +819,6 @@ namespace DockRotate
 			if (!rotatingJoint)
 				return;
 
-			nodeRole = part == rotatingJoint.Host ? "Host"
-				: part == rotatingJoint.Target ? "Target"
-				: "Unknown";
-			if (verboseEvents)
-				log(desc(), ".setup(): on " + rotatingJoint.desc());
 			jointMotion = JointMotion.get(rotatingJoint);
 			jointMotion.controller = this;
 			putAxis(jointMotion);
@@ -957,13 +960,6 @@ namespace DockRotate
 			if (!rotatingJoint)
 				return;
 
-			nodeRole = part == rotatingJoint.Host ? "Host"
-				: part == rotatingJoint.Target ? "Target"
-				: "Unknown";
-			if (rotatingJoint.Host.parent != rotatingJoint.Target)
-				nodeRole += "NoTree";
-			if (verboseEvents)
-				log(desc(), ".setup(): on " + rotatingJoint.desc());
 			jointMotion = JointMotion.get(rotatingJoint);
 			if (part == rotatingJoint.Host) {
 				jointMotion.controller = this;
