@@ -808,16 +808,17 @@ namespace DockRotate
 		protected override void setup()
 		{
 			PartJoint rotatingJoint = findMovingJoint(verboseEvents);
-			if (rotatingJoint) {
-				nodeRole = part == rotatingJoint.Host ? "Host"
-					: part == rotatingJoint.Target ? "Target"
-					: "Unknown";
-				if (verboseEvents)
-					log(desc(), ".setup(): on " + rotatingJoint.desc());
-				jointMotion = JointMotion.get(rotatingJoint);
-				jointMotion.controller = this;
-				putAxis(jointMotion);
-			}
+			if (!rotatingJoint)
+				return;
+
+			nodeRole = part == rotatingJoint.Host ? "Host"
+				: part == rotatingJoint.Target ? "Target"
+				: "Unknown";
+			if (verboseEvents)
+				log(desc(), ".setup(): on " + rotatingJoint.desc());
+			jointMotion = JointMotion.get(rotatingJoint);
+			jointMotion.controller = this;
+			putAxis(jointMotion);
 		}
 
 		public override string descPrefix()
@@ -953,19 +954,20 @@ namespace DockRotate
 		protected override void setup()
 		{
 			PartJoint rotatingJoint = findMovingJoint(verboseEvents);
-			if (rotatingJoint) {
-				nodeRole = part == rotatingJoint.Host ? "Host"
-					: part == rotatingJoint.Target ? "Target"
-					: "Unknown";
-				if (rotatingJoint.Host.parent != rotatingJoint.Target)
-					nodeRole += "NoTree";
-				if (verboseEvents)
-					log(desc(), ".setup(): on " + rotatingJoint.desc());
-				jointMotion = JointMotion.get(rotatingJoint);
-				if (part == rotatingJoint.Host) {
-					jointMotion.controller = this;
-					putAxis(jointMotion);
-				}
+			if (!rotatingJoint)
+				return;
+
+			nodeRole = part == rotatingJoint.Host ? "Host"
+				: part == rotatingJoint.Target ? "Target"
+				: "Unknown";
+			if (rotatingJoint.Host.parent != rotatingJoint.Target)
+				nodeRole += "NoTree";
+			if (verboseEvents)
+				log(desc(), ".setup(): on " + rotatingJoint.desc());
+			jointMotion = JointMotion.get(rotatingJoint);
+			if (part == rotatingJoint.Host) {
+				jointMotion.controller = this;
+				putAxis(jointMotion);
 			}
 
 			if (dockingNode.snapRotation && dockingNode.snapOffset > 0f
