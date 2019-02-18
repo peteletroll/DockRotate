@@ -889,10 +889,8 @@ namespace DockRotate
 			return true;
 		}
 
-		private PartJoint dockingJoint(ModuleDockingNode node, out bool sameVessel, bool verbose)
+		private PartJoint dockingJoint(ModuleDockingNode node, bool verbose)
 		{
-			sameVessel = false;
-
 			if (!node || !node.part) {
 				if (verbose)
 					log(node.part.desc(), ".dockingJoint(): no node");
@@ -928,7 +926,6 @@ namespace DockRotate
 
 			PartJoint ret = node.sameVesselDockJoint;
 			if (ret && ret.Target == other.part) {
-				sameVessel = true;
 				if (verbose)
 					log(node.part.desc(), ".dockingJoint(): to same vessel " + ret.desc());
 				return ret;
@@ -936,7 +933,6 @@ namespace DockRotate
 
 			ret = other.sameVesselDockJoint;
 			if (ret && ret.Target == node.part) {
-				sameVessel = true;
 				if (verbose)
 					log(node.part.desc(), ".dockingJoint(): from same vessel " + ret.desc());
 				return ret;
@@ -974,12 +970,13 @@ namespace DockRotate
 				return;
 			}
 
-			bool sameVessel = false;
-			PartJoint rotatingJoint = dockingJoint(dockingNode, out sameVessel, verboseEvents);
+			PartJoint rotatingJoint = dockingJoint(dockingNode, verboseEvents);
 			if (rotatingJoint) {
 				nodeRole = part == rotatingJoint.Host ? "Host"
 					: part == rotatingJoint.Target ? "Target"
 					: "Unknown";
+				if (rotatingJoint.Host.parent != rotatingJoint.Target)
+					nodeRole += "NoTree";
 				if (verboseEvents)
 					log(desc(), ".setup(): on " + rotatingJoint.desc());
 				jointMotion = JointMotion.get(rotatingJoint);
@@ -988,9 +985,6 @@ namespace DockRotate
 					putAxis(jointMotion);
 				}
 			}
-
-			if (sameVessel)
-				nodeRole += "Same";
 
 			if (dockingNode.snapRotation && dockingNode.snapOffset > 0f
 				&& jointMotion && rotatingJoint.Host == part && rotationEnabled) {
