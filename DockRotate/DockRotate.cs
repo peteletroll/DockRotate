@@ -887,12 +887,12 @@ namespace DockRotate
 		{
 			if (!dockingNode || !dockingNode.part) {
 				if (verbose)
-					log(desc(), ".findMovingJoint(): no node");
+					log(desc(), ".findMovingJoint(): no docking node");
 				return null;
 			}
 
 			if (verbose && dockingNode.state != "PreAttached" && !dockingNode.state.StartsWith("Docked"))
-				log(desc(), ".findMovingJoint(): unconnected state " + dockingNode.state);
+				log(desc(), ".findMovingJoint(): unconnected state \"" + dockingNode.state + "\"");
 
 			ModuleDockingNode other = dockingNode.otherNode;
 			if (other) {
