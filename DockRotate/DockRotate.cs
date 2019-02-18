@@ -269,8 +269,23 @@ namespace DockRotate
 		protected abstract AttachNode referenceNode();
 
 		// localized info cache
-		protected string cached_moduleDisplayName = "";
-		protected string cached_info = "";
+		protected string storedModuleDisplayName = "";
+		protected string storedInfo = "";
+		protected abstract void fillInfo();
+
+		public override string GetModuleDisplayName()
+		{
+			if (storedModuleDisplayName == "")
+				fillInfo();
+			return storedModuleDisplayName;
+		}
+
+		public override string GetInfo()
+		{
+			if (storedModuleDisplayName == "")
+				fillInfo();
+			return storedInfo;
+		}
 
 		[KSPField(isPersistant = true)]
 		public Vector3 frozenRotation = Vector3.zero;
@@ -727,18 +742,10 @@ namespace DockRotate
 
 		public AttachNode rotatingNode;
 
-		public override string GetModuleDisplayName()
+		protected override void fillInfo()
 		{
-			if (cached_moduleDisplayName == "")
-				cached_moduleDisplayName = Localizer.Format("#DCKROT_node_displayname");
-			return cached_moduleDisplayName;
-		}
-
-		public override string GetInfo()
-		{
-			if (cached_info == "")
-				cached_info = Localizer.Format("#DCKROT_node_info", rotatingNodeName);
-			return cached_info;
+			storedModuleDisplayName = Localizer.Format("#DCKROT_node_displayname");
+			storedInfo = Localizer.Format("#DCKROT_node_info", rotatingNodeName);
 		}
 
 		protected override AttachNode referenceNode()
@@ -847,18 +854,10 @@ namespace DockRotate
 
 		private ModuleDockingNode dockingNode;
 
-		public override string GetModuleDisplayName()
+		protected override void fillInfo()
 		{
-			if (cached_moduleDisplayName == "")
-				cached_moduleDisplayName = Localizer.Format("#DCKROT_port_displayname");
-			return cached_moduleDisplayName;
-		}
-
-		public override string GetInfo()
-		{
-			if (cached_info == "")
-				cached_info = Localizer.Format("#DCKROT_port_info");
-			return cached_info;
+			storedModuleDisplayName = Localizer.Format("#DCKROT_port_displayname");
+			storedInfo = Localizer.Format("#DCKROT_port_info");
 		}
 
 		protected override AttachNode referenceNode()
