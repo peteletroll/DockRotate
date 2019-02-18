@@ -314,6 +314,11 @@ namespace DockRotate
 				return;
 			}
 
+			if (!part.hasPhysics()) {
+				log(desc(), ".doSetup(): physicsless part, disabled");
+				return;
+			}
+
 			try {
 				setupGuiActive();
 				setup();
@@ -764,7 +769,12 @@ namespace DockRotate
 				return null;
 			}
 
-			Part part = rotatingNode.owner;
+			if (part.FindModuleImplementing<ModuleDockRotate>()) {
+				log(desc(), ": has DockRotate, NodeRotate disabled");
+				return null;
+			}
+
+			Part owner = rotatingNode.owner;
 			Part other = rotatingNode.attachedPart;
 			if (!other) {
 				if (verbose)
@@ -776,14 +786,14 @@ namespace DockRotate
 
 			other.forcePhysics();
 
-			if (part.parent == other) {
-				PartJoint ret = part.attachJoint;
+			if (owner.parent == other) {
+				PartJoint ret = owner.attachJoint;
 				if (verbose)
 					log(desc(), ".findMovingJoint(" + rotatingNode.id + "): child " + ret.desc());
 				return ret;
 			}
 
-			if (other.parent == part) {
+			if (other.parent == owner) {
 				PartJoint ret = other.attachJoint;
 				if (verbose)
 					log(desc(), ".findMovingJoint(" + rotatingNode.id + "): parent " + ret.desc());
@@ -797,20 +807,6 @@ namespace DockRotate
 
 		protected override void setup()
 		{
-			if (part.FindModuleImplementing<ModuleDockRotate>()) {
-				log(desc(), ": has DockRotate, NodeRotate disabled");
-				return;
-			}
-
-			if (!part.hasPhysics()) {
-				log(desc(), ": physicsless part, NodeRotate disabled");
-				return;
-			}
-
-			Part other = rotatingNode.attachedPart;
-			if (!other)
-				return;
-
 			PartJoint rotatingJoint = findMovingJoint(verboseEvents);
 			if (rotatingJoint) {
 				nodeRole = part == rotatingJoint.Host ? "Host"
