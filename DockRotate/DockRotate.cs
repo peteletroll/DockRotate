@@ -839,9 +839,6 @@ namespace DockRotate
 	{
 		/*
 
-			the active module of the couple is the farthest from the root part
-			the proxy module of the couple is the closest to the root part
-
 			docking node states:
 
 			* PreAttached

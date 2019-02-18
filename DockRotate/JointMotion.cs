@@ -353,8 +353,8 @@ namespace DockRotate
 		public float electricityRate = 1f;
 		public float rot0 = 0f;
 
-		private Part activePart { get { return jm.joint.Host; } }
-		private Part proxyPart { get { return jm.joint.Target; } }
+		private Part hostPart { get { return jm.joint.Host; } }
+		private Part targetPart { get { return jm.joint.Target; } }
 
 		private Vector3 axis { get { return jm.hostAxis; } }
 		private Vector3 node { get { return jm.hostNode; } }
@@ -382,11 +382,11 @@ namespace DockRotate
 		protected override void onStart()
 		{
 			if (smartAutoStruts) {
-				activePart.releaseCrossAutoStruts();
+				hostPart.releaseCrossAutoStruts();
 			} else {
 				// not needed with new IsJointUnlocked() logic
 				// but IsJointUnlocked() logic is bugged now :-(
-				List<Part> parts = activePart.vessel.parts;
+				List<Part> parts = hostPart.vessel.parts;
 				for (int i = 0; i < parts.Count; i++)
 					parts[i].ReleaseAutoStruts();
 			}
@@ -400,16 +400,16 @@ namespace DockRotate
 				ji.cjm = new ConfigurableJointManager();
 				ji.cjm.setup(j);
 
-				ji.localAxis = axis.Td(activePart.T(), j.T());
-				ji.localNode = node.Tp(activePart.T(), j.T());
+				ji.localAxis = axis.Td(hostPart.T(), j.T());
+				ji.localNode = node.Tp(hostPart.T(), j.T());
 
 				ji.jointAxis = ji.cjm.L2Jd(ji.localAxis);
 				ji.jointNode = ji.cjm.L2Jp(ji.localNode);
 
-				ji.connectedBodyAxis = axis.STd(activePart, proxyPart)
-					.Td(proxyPart.T(), proxyPart.rb.T());
-				ji.connectedBodyNode = node.STp(activePart, proxyPart)
-					.Tp(proxyPart.T(), proxyPart.rb.T());
+				ji.connectedBodyAxis = axis.STd(hostPart, targetPart)
+					.Td(targetPart.T(), targetPart.rb.T());
+				ji.connectedBodyNode = node.STp(hostPart, targetPart)
+					.Tp(targetPart.T(), targetPart.rb.T());
 
 				rji[i] = ji;
 
@@ -441,7 +441,7 @@ namespace DockRotate
 			}
 
 			if (deltat > 0f && electricityRate > 0f) {
-				double el = activePart.RequestResource("ElectricCharge", (double) electricityRate * deltat);
+				double el = hostPart.RequestResource("ElectricCharge", (double) electricityRate * deltat);
 				electricity += el;
 				if (el <= 0d) {
 					log(jm.desc(), "no electricity, braking rotation");
@@ -458,8 +458,8 @@ namespace DockRotate
 
 			staticize();
 
-			int c = VesselMotionManager.get(activePart).changeCount(0);
-			log(activePart.desc(), ": rotation stopped [" + c + "], "
+			int c = VesselMotionManager.get(hostPart).changeCount(0);
+			log(hostPart.desc(), ": rotation stopped [" + c + "], "
 				+ electricity.ToString("F2") + " electricity");
 			electricity = 0d;
 		}
@@ -501,15 +501,15 @@ namespace DockRotate
 
 		private bool staticizeOrgInfo()
 		{
-			if (jm.joint != activePart.attachJoint) {
+			if (jm.joint != hostPart.attachJoint) {
 				log(jm.desc(), ": skip staticize, same vessel joint");
 				return false;
 			}
 			float angle = pos;
-			Vector3 nodeAxis = -axis.STd(activePart, activePart.vessel.rootPart);
+			Vector3 nodeAxis = -axis.STd(hostPart, hostPart.vessel.rootPart);
 			Quaternion nodeRot = nodeAxis.rotation(angle);
-			Vector3 nodePos = node.STp(activePart, activePart.vessel.rootPart);
-			_propagate(activePart, nodeRot, nodePos);
+			Vector3 nodePos = node.STp(hostPart, hostPart.vessel.rootPart);
+			_propagate(hostPart, nodeRot, nodePos);
 			return true;
 		}
 
