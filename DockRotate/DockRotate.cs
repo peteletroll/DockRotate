@@ -257,6 +257,7 @@ namespace DockRotate
 		}
 
 		protected JointMotion jointMotion;
+		protected abstract PartJoint findMovingJoint(bool verbose);
 
 		public string nodeRole = "Init";
 
@@ -752,6 +753,11 @@ namespace DockRotate
 			return true;
 		}
 
+		protected override PartJoint findMovingJoint(bool verbose)
+		{
+			return nodeJoint(rotatingNode, verbose);
+		}
+
 		private PartJoint nodeJoint(AttachNode node, bool verbose)
 		{
 			if (node == null || !node.owner) {
@@ -888,6 +894,11 @@ namespace DockRotate
 				log(desc(), ".setupLocalAxis(" + state + ") done: "
 					+ partNodeAxis + "@" + partNodePos);
 			return true;
+		}
+
+		protected override PartJoint findMovingJoint(bool verbose)
+		{
+			return dockingJoint(dockingNode, verbose);
 		}
 
 		private PartJoint dockingJoint(ModuleDockingNode node, bool verbose)
