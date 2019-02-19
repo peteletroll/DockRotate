@@ -293,6 +293,7 @@ namespace DockRotate
 		private bool frozenFlag {
 			get => !Mathf.Approximately(frozenAngle, 0f);
 		}
+
 		private float frozenAngle {
 			get => frozenRotation[0];
 			set => frozenRotation[0] = value;
@@ -966,8 +967,7 @@ namespace DockRotate
 				return;
 
 			jointMotion = JointMotion.get(rotatingJoint);
-			if (part == rotatingJoint.Host)
-				jointMotion.controller = this;
+			jointMotion.controller = this;
 
 			if (dockingNode.snapRotation && dockingNode.snapOffset > 0f
 				&& jointMotion && rotatingJoint.Host == part && rotationEnabled) {
