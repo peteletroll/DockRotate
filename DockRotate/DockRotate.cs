@@ -407,18 +407,9 @@ namespace DockRotate
 			}
 			f.guiActiveEditor = false;
 
-			AttachNode node = referenceNode();
-			if (node == null) {
-				log(desc(), ".RightAfterEditorChange(): no node");
+			float angle = rotationAngle(true);
+			if (float.IsNaN(angle))
 				return;
-			}
-
-			Part other = node.attachedPart;
-			if (!other)
-				return;
-
-			float angle = partNodeAxis.axisSignedAngle(part.up(partNodeAxis),
-				other.up(partNodeAxis.Td(part.T(), other.T())).Td(other.T(), part.T()));
 
 			angleInfo = String.Format("{0:+0.00;-0.00;0.00}\u00b0", angle);
 			f.guiActiveEditor = true;
@@ -624,6 +615,21 @@ namespace DockRotate
 
 		protected float rotationAngle(bool dynamic)
 		{
+			if (HighLogic.LoadedSceneIsEditor) {
+				AttachNode node = referenceNode();
+				if (node == null) {
+					log(desc(), ".rotationAngle(): no node in editor");
+					return float.NaN;
+				}
+
+				Part other = node.attachedPart;
+				if (!other)
+					return float.NaN;
+
+				return partNodeAxis.axisSignedAngle(part.up(partNodeAxis),
+					other.up(partNodeAxis.Td(part.T(), other.T())).Td(other.T(), part.T()));
+			}
+
 			return jointMotion ? jointMotion.rotationAngle(dynamic) : float.NaN;
 		}
 
