@@ -614,14 +614,29 @@ namespace DockRotate
 			return s >= 1f ? s : 1f;
 		}
 
+		private Part hostInEditor()
+		{
+			AttachNode node = referenceNode();
+			if (node == null)
+				return null;
+			Part other = node.attachedPart;
+			if (!other)
+				return null;
+			return other.parent == part ? other :
+				part.parent == other ? part :
+				null;
+		}
+
 		protected float rotationAngle(bool dynamic)
 		{
 			if (HighLogic.LoadedSceneIsEditor) {
-				AttachNode node = referenceNode();
-				Part other = node == null ? null : node.attachedPart;
-				return other == null ? float.NaN :
-					partNodeAxis.axisSignedAngle(part.up(partNodeAxis),
-						other.up(partNodeAxis.Td(part.T(), other.T())).Td(other.T(), part.T()));
+				Part host = hostInEditor();
+				if (!host || !host.parent)
+					return float.NaN;
+				Part target = host.parent;
+				Vector3 hostNodeAxis = partNodeAxis.Td(part.T(), host.T());
+				return hostNodeAxis.axisSignedAngle(host.up(hostNodeAxis),
+					target.up(hostNodeAxis.Td(host.T(), target.T())).Td(target.T(), host.T()));
 			}
 
 			return jointMotion ? jointMotion.rotationAngle(dynamic) : float.NaN;
