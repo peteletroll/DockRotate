@@ -375,6 +375,11 @@ namespace DockRotate
 			doSetup();
 		}
 
+		public void RightAfterEditorShipModified(ShipConstruct ship)
+		{
+			RightAfterEditorChange("MODIFIED");
+		}
+
 		public void RightAfterEditorEvent(ConstructionEventType type, Part part)
 		{
 			if (type == ConstructionEventType.PartDragging
@@ -386,7 +391,7 @@ namespace DockRotate
 
 		public void RightAfterEditorChange(string msg)
 		{
-			if (verboseEvents)
+			if (true || verboseEvents)
 				log(desc(), ".RightAfterEditorChange(" + msg + ")"
 					+ " > [" + part.children.Count + "]"
 					+ " < " + part.parent.desc() + " " + part.parent.descOrg());
@@ -457,8 +462,10 @@ namespace DockRotate
 				log(desc(), ".setEvents(" + cmd + ")");
 
 			if (cmd) {
+				GameEvents.onEditorShipModified.Add(RightAfterEditorShipModified);
 				GameEvents.onEditorPartEvent.Add(RightAfterEditorEvent);
 			} else {
+				GameEvents.onEditorShipModified.Remove(RightAfterEditorShipModified);
 				GameEvents.onEditorPartEvent.Remove(RightAfterEditorEvent);
 			}
 
