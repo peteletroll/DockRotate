@@ -337,6 +337,11 @@ namespace DockRotate
 
 			try {
 				setupGuiActive();
+				PartJoint rotatingJoint = findMovingJoint(verboseEvents);
+				if (rotatingJoint) {
+					jointMotion = JointMotion.get(rotatingJoint);
+					jointMotion.controller = this;
+				}
 				setup();
 			} catch (Exception e) {
 				string sep = new string('-', 80);
@@ -830,12 +835,6 @@ namespace DockRotate
 
 		protected override void setup()
 		{
-			PartJoint rotatingJoint = findMovingJoint(verboseEvents);
-			if (!rotatingJoint)
-				return;
-
-			jointMotion = JointMotion.get(rotatingJoint);
-			jointMotion.controller = this;
 		}
 
 		public override string descPrefix()
@@ -962,17 +961,9 @@ namespace DockRotate
 
 		protected override void setup()
 		{
-			PartJoint rotatingJoint = findMovingJoint(verboseEvents);
-			if (!rotatingJoint)
-				return;
-
-			jointMotion = JointMotion.get(rotatingJoint);
-			jointMotion.controller = this;
-
 			if (dockingNode.snapRotation && dockingNode.snapOffset > 0f
-				&& jointMotion && rotatingJoint.Host == part && rotationEnabled) {
+				&& jointMotion && jointMotion.joint.Host == part && rotationEnabled)
 				enqueueFrozenRotation(jointMotion.angleToSnap(dockingNode.snapOffset), speed());
-			}
 		}
 
 		public override string descPrefix()
