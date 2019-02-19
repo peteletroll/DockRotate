@@ -408,6 +408,8 @@ namespace DockRotate
 				return;
 			}
 			f.guiActiveEditor = false;
+			if (!rotationEnabled)
+				return;
 
 			float angle = rotationAngle(true);
 			if (float.IsNaN(angle))
@@ -474,6 +476,8 @@ namespace DockRotate
 			"rotationStep",
 			"rotationSpeed",
 			"reverseRotation",
+			"flipFlopMode",
+			"smartAutoStruts",
 			"RotateClockwise",
 			"RotateCounterclockwise",
 			"RotateToSnap"
@@ -634,7 +638,8 @@ namespace DockRotate
 				if (!host || !host.parent)
 					return float.NaN;
 				Part target = host.parent;
-				Vector3 hostNodeAxis = partNodeAxis.Td(part.T(), host.T());
+				Vector3 axis = host == part ? partNodeAxis : -partNodeAxis;
+				Vector3 hostNodeAxis = axis.Td(part.T(), host.T());
 				return hostNodeAxis.axisSignedAngle(host.up(hostNodeAxis),
 					target.up(hostNodeAxis.Td(host.T(), target.T())).Td(target.T(), host.T()));
 			}
