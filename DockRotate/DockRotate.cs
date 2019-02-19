@@ -282,7 +282,7 @@ namespace DockRotate
 
 		public override string GetInfo()
 		{
-			if (storedModuleDisplayName == "")
+			if (storedInfo == "")
 				fillInfo();
 			return storedInfo;
 		}
