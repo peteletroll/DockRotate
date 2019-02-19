@@ -318,9 +318,8 @@ namespace DockRotate
 		}
 
 		protected bool setupDone = false;
-		protected abstract void setup();
 
-		private void doSetup()
+		protected virtual void doSetup()
 		{
 			jointMotion = null;
 			nodeRole = "None";
@@ -342,7 +341,6 @@ namespace DockRotate
 					jointMotion = JointMotion.get(rotatingJoint);
 					jointMotion.controller = this;
 				}
-				setup();
 			} catch (Exception e) {
 				string sep = new string('-', 80);
 				log(sep);
@@ -833,10 +831,6 @@ namespace DockRotate
 			return null;
 		}
 
-		protected override void setup()
-		{
-		}
-
 		public override string descPrefix()
 		{
 			return "MNR";
@@ -959,8 +953,10 @@ namespace DockRotate
 			return null;
 		}
 
-		protected override void setup()
+		protected override void doSetup()
 		{
+			base.doSetup();
+
 			if (dockingNode.snapRotation && dockingNode.snapOffset > 0f
 				&& jointMotion && jointMotion.joint.Host == part && rotationEnabled)
 				enqueueFrozenRotation(jointMotion.angleToSnap(dockingNode.snapOffset), speed());
