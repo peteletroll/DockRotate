@@ -47,8 +47,6 @@ then
 	exit 1
 fi
 
-[ $foundbadspacing -eq 0 ] || exit 1
-
 foundnewer=0
 for f in `find . -name \*.cs`
 do
