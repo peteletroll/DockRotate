@@ -513,7 +513,10 @@ namespace DockRotate
 		private void checkGuiActive()
 		{
 			bool newGuiActive = FlightGlobals.ActiveVessel == vessel && canStartRotation();
-			bool newGuiActiveEditor = rotationEnabled;
+			bool newGuiActiveEditor = rotationEnabled && hostInEditor();
+
+			if (HighLogic.LoadedSceneIsEditor)
+				log(desc(), ": newGuiActiveEditor = " + newGuiActiveEditor);
 
 			if (fld != null) {
 				for (int i = 0; i < fld.Length; i++) {
@@ -597,6 +600,9 @@ namespace DockRotate
 
 		protected bool canStartRotation()
 		{
+			if (HighLogic.LoadedSceneIsEditor)
+				return hostInEditor();
+
 			return rotationEnabled
 				&& setupDone && jointMotion
 				&& vessel && vessel.CurrentControlLevel == Vessel.ControlLevel.FULL;
@@ -664,6 +670,11 @@ namespace DockRotate
 
 		protected bool enqueueRotation(float angle, float speed, float startSpeed = 0f)
 		{
+			if (HighLogic.LoadedSceneIsEditor) {
+				log(desc(), ".equeueRotation(): " + angle + "\u00b0 in editor");
+				return false;
+			}
+
 			if (!jointMotion) {
 				log(desc(), ".enqueueRotation(): no rotating joint, skipped");
 				return false;
@@ -673,10 +684,17 @@ namespace DockRotate
 
 		protected bool enqueueRotationToSnap(float snap, float speed)
 		{
-			if (!jointMotion)
-				return false;
 			if (snap < 0.1f)
 				snap = 15f;
+
+			if (HighLogic.LoadedSceneIsEditor) {
+				float a = rotationAngle(false);
+				float f = snap * Mathf.Floor(a / snap + 0.5f);
+				return enqueueRotation(f - a, speed);
+			}
+
+			if (!jointMotion)
+				return false;
 			return enqueueRotation(jointMotion.angleToSnap(snap), speed);
 		}
 
