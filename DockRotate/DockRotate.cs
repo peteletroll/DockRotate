@@ -672,7 +672,24 @@ namespace DockRotate
 		{
 			if (HighLogic.LoadedSceneIsEditor) {
 				log(desc(), ".equeueRotation(): " + angle + "\u00b0 in editor");
-				return false;
+
+				Part root = EditorLogic.RootPart;
+				Part host = hostInEditor();
+				if (!root || !host || !host.parent)
+					return false;
+				Part target = host.parent;
+
+				Vector3 axis = host == part ? -partNodeAxis : partNodeAxis;
+				axis = axis.Td(part.T(), null);
+				Vector3 pos = partNodePos.Tp(part.T(), null);
+				Quaternion rot = axis.rotation(angle);
+
+				Transform t = host.transform;
+				t.position = rot * (t.position - pos) + pos;
+				t.rotation = rot * t.rotation;
+
+				GameEvents.onEditorPartEvent.Fire(ConstructionEventType.PartRotated, host);
+				return true;
 			}
 
 			if (!jointMotion) {
