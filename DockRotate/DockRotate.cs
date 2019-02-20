@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
-using KSP.UI.Screens;
 using KSP.Localization;
 
 namespace DockRotate
@@ -202,7 +201,7 @@ namespace DockRotate
 		[KSPEvent(
 			guiName = "Toggle Autostrut Display",
 			guiActive = true,
-			guiActiveEditor = false
+			guiActiveEditor = true
 		)]
 		public void ToggleAutoStrutDisplay()
 		{
@@ -395,28 +394,19 @@ namespace DockRotate
 
 		public void RightAfterEditorChange(string msg)
 		{
-			if (true || verboseEvents)
+			if (verboseEvents)
 				log(desc(), ".RightAfterEditorChange(" + msg + ")"
 					+ " > [" + part.children.Count + "]"
 					+ " < " + part.parent.desc() + " " + part.parent.descOrg());
 
-			checkGuiActive();
-
-			BaseField f = Fields["angleInfo"];
-			if (f == null) {
-				log(desc(), ".RightAfterEditorChange(): no angleInfo");
-				return;
-			}
-			f.guiActiveEditor = false;
-			if (!rotationEnabled)
-				return;
-
 			float angle = rotationAngle(true);
-			if (float.IsNaN(angle))
-				return;
+			if (rotationEnabled && !float.IsNaN(angle)) {
+				angleInfo = String.Format("{0:+0.00;-0.00;0.00}\u00b0", angle);
+			} else {
+				angleInfo = "";
+			}
 
-			angleInfo = String.Format("{0:+0.00;-0.00;0.00}\u00b0", angle);
-			f.guiActiveEditor = true;
+			checkGuiActive();
 		}
 
 		public void RightBeforeStructureChange()
@@ -451,12 +441,12 @@ namespace DockRotate
 		private void setEvents(bool cmd)
 		{
 			if (cmd == eventState) {
-				if (true || verboseEvents)
+				if (verboseEvents)
 					log(desc(), ".setEvents(" + cmd + ") repeated");
 				return;
 			}
 
-			if (true || verboseEvents)
+			if (verboseEvents)
 				log(desc(), ".setEvents(" + cmd + ")");
 
 			if (cmd) {
@@ -472,7 +462,6 @@ namespace DockRotate
 
 		protected static string[] guiList = {
 			"nodeRole",
-			"angleInfo",
 			"rotationStep",
 			"rotationSpeed",
 			"reverseRotation",
@@ -485,6 +474,12 @@ namespace DockRotate
 
 		private BaseField[] fld;
 		private BaseEvent[] evt;
+
+		private BaseEvent StopRotationEvent;
+		private BaseField angleInfoField;
+#if DEBUG
+		private BaseEvent ToggleAutoStrutDisplayEvent;
+#endif
 
 		protected void setupGuiActive()
 		{
@@ -507,34 +502,35 @@ namespace DockRotate
 			fld = fl.ToArray();
 			evt = el.ToArray();
 
-			// log(desc(), ": " + fld.Length + " fields, " + evt.Length + " events");
+			StopRotationEvent = Events["StopRotation"];
+			angleInfoField = Fields["angleInfo"];
+#if DEBUG
+			ToggleAutoStrutDisplayEvent = Events["ToggleAutoStrutDisplay"];
+#endif
 		}
 
 		private void checkGuiActive()
 		{
-			bool newGuiActive = FlightGlobals.ActiveVessel == vessel && canStartRotation();
-			bool newGuiActiveEditor = rotationEnabled && hostInEditor();
-
-			if (HighLogic.LoadedSceneIsEditor)
-				log(desc(), ": newGuiActiveEditor = " + newGuiActiveEditor);
-
 			if (fld != null) {
 				for (int i = 0; i < fld.Length; i++) {
-					if (fld[i] == null)
-						continue;
-					fld[i].guiActive = newGuiActive;
-					fld[i].guiActiveEditor = newGuiActiveEditor;
+					if (fld[i] != null)
+						fld[i].guiActive = fld[i].guiActiveEditor = rotationEnabled;
 				}
 			}
 
 			if (evt != null) {
+				bool csr = canStartRotation();
 				for (int i = 0; i < evt.Length; i++) {
-					if (evt[i] == null)
-						continue;
-					evt[i].guiActive = newGuiActive;
-					evt[i].guiActiveEditor = newGuiActiveEditor;
+					if (evt[i] != null)
+						evt[i].guiActive = evt[i].guiActiveEditor = csr;
 				}
 			}
+
+			if (angleInfoField != null)
+				angleInfoField.guiActive = angleInfoField.guiActiveEditor = angleInfo != "";
+
+			if (StopRotationEvent != null)
+				StopRotationEvent.guiActive = currentRotation();
 		}
 
 		public override void OnStart(StartState state)
@@ -585,23 +581,27 @@ namespace DockRotate
 					rotationAngle(true), cr.vel,
 					(jointMotion.controller == this ? " CTL" : ""));
 			} else {
-				angleInfo = String.Format("{0:+0.00;-0.00;0.00}\u00b0 ({1:+0.0000;-0.0000;0.0000}\u00b0\u0394)",
-					rotationAngle(false), dynamicDeltaAngle());
+				float angle = rotationAngle(false);
+				if (float.IsNaN(angle)) {
+					angleInfo = "";
+				} else {
+					angleInfo = String.Format("{0:+0.00;-0.00;0.00}\u00b0 ({1:+0.0000;-0.0000;0.0000}\u00b0\u0394)",
+						angle, dynamicDeltaAngle());
+				}
 			}
-
-			Events["StopRotation"].guiActive = cr;
 
 			checkGuiActive();
 
 #if DEBUG
-			Events["ToggleAutoStrutDisplay"].guiName = PhysicsGlobals.AutoStrutDisplay ? "Hide Autostruts" : "Show Autostruts";
+			if (ToggleAutoStrutDisplayEvent != null)
+				ToggleAutoStrutDisplayEvent.guiName = PhysicsGlobals.AutoStrutDisplay ? "Hide Autostruts" : "Show Autostruts";
 #endif
 		}
 
 		protected bool canStartRotation()
 		{
 			if (HighLogic.LoadedSceneIsEditor)
-				return hostInEditor();
+				return rotationEnabled && hostInEditor();
 
 			return rotationEnabled
 				&& setupDone && jointMotion
@@ -673,11 +673,9 @@ namespace DockRotate
 			if (HighLogic.LoadedSceneIsEditor) {
 				log(desc(), ".equeueRotation(): " + angle + "\u00b0 in editor");
 
-				Part root = EditorLogic.RootPart;
 				Part host = hostInEditor();
-				if (!root || !host || !host.parent)
+				if (!host || !host.parent)
 					return false;
-				Part target = host.parent;
 
 				Vector3 axis = host == part ? -partNodeAxis : partNodeAxis;
 				axis = axis.Td(part.T(), null);
@@ -685,8 +683,8 @@ namespace DockRotate
 				Quaternion rot = axis.rotation(angle);
 
 				Transform t = host.transform;
-				t.position = rot * (t.position - pos) + pos;
-				t.rotation = rot * t.rotation;
+				t.SetPositionAndRotation(rot * (t.position - pos) + pos,
+					rot * t.rotation);
 
 				GameEvents.onEditorPartEvent.Fire(ConstructionEventType.PartRotated, host);
 				return true;
@@ -917,7 +915,10 @@ namespace DockRotate
 
 		protected override AttachNode referenceNode()
 		{
-			return dockingNode ? dockingNode.referenceNode : null;
+			if (!dockingNode)
+				return null;
+			// FIXME: add port size check
+			return dockingNode.referenceNode;
 		}
 
 		protected override bool setupLocalAxis(StartState state)
@@ -958,6 +959,12 @@ namespace DockRotate
 			if (!other || !other.part) {
 				if (verbose)
 					log(desc(), ".findMovingJoint(): no other, id = " + dockingNode.dockedPartUId);
+				return null;
+			}
+
+			if (!dockingNode.matchType(other)) {
+				if (verbose)
+					log(desc(), ".findMovingJoint(): mismatched node types");
 				return null;
 			}
 

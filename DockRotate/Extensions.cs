@@ -104,6 +104,11 @@ namespace DockRotate
 
 		/******** ModuleDockingMode utilities ********/
 
+		public static bool matchType(this ModuleDockingNode node, ModuleDockingNode other)
+		{
+			return node.nodeTypes.Overlaps(other.nodeTypes);
+		}
+
 		public static string allTypes(this ModuleDockingNode node)
 		{
 			string lst = "";
