@@ -601,7 +601,7 @@ namespace DockRotate
 		protected bool canStartRotation()
 		{
 			if (HighLogic.LoadedSceneIsEditor)
-				return rotationEnabled && hostInEditor(false);
+				return rotationEnabled && findHostPartInEditor(false);
 
 			return rotationEnabled
 				&& setupDone && jointMotion
@@ -624,7 +624,7 @@ namespace DockRotate
 			return s >= 1f ? s : 1f;
 		}
 
-		private Part hostInEditor(bool verbose)
+		private Part findHostPartInEditor(bool verbose)
 		{
 			AttachNode node = findMovingNode(verbose);
 			if (node == null)
@@ -640,7 +640,7 @@ namespace DockRotate
 		protected float rotationAngle(bool dynamic)
 		{
 			if (HighLogic.LoadedSceneIsEditor) {
-				Part host = hostInEditor(false);
+				Part host = findHostPartInEditor(false);
 				if (!host || !host.parent)
 					return float.NaN;
 				Part target = host.parent;
@@ -673,7 +673,7 @@ namespace DockRotate
 			if (HighLogic.LoadedSceneIsEditor) {
 				log(desc(), ".equeueRotation(): " + angle + "\u00b0 in editor");
 
-				Part host = hostInEditor(false);
+				Part host = findHostPartInEditor(false);
 				if (!host || !host.parent)
 					return false;
 
