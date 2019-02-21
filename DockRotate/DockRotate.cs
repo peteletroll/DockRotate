@@ -915,9 +915,28 @@ namespace DockRotate
 
 		protected override AttachNode referenceNode()
 		{
-			if (!dockingNode)
+			if (!dockingNode || dockingNode.referenceNode == null)
 				return null;
 			// FIXME: add port size check
+			log(desc(), ": referenceNode = " + dockingNode.referenceNode.desc());
+			AttachNode otherNode = dockingNode.referenceNode.FindOpposingNode();
+			log(desc(), ": otherNode = " + otherNode.desc());
+			if (otherNode == null)
+				return null;
+			Part otherPart = otherNode.owner;
+			log(desc(), ": otherPart = " + otherPart.desc());
+			if (!otherPart)
+				return null;
+			ModuleDockingNode otherDockingNode = otherPart.FindModuleImplementing<ModuleDockingNode>();
+			log(desc(), ": otherDockingNode = " + (otherDockingNode ? "" + otherDockingNode : "null"));
+			if (!otherDockingNode)
+				return null;
+			log(desc(), ": otherDockingNode.referenceNode = " + otherDockingNode.referenceNode.desc());
+			if (otherDockingNode.referenceNode == null)
+				return null;
+			log(desc(), ": node test is " + (otherDockingNode.referenceNode.FindOpposingNode() == dockingNode.referenceNode));
+			log(desc(), ": type test is " + otherDockingNode.matchType(dockingNode));
+
 			return dockingNode.referenceNode;
 		}
 
