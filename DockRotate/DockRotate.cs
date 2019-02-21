@@ -255,6 +255,10 @@ namespace DockRotate
 			return ret;
 		}
 
+		protected bool setupLocalAxisDone;
+		protected abstract bool setupLocalAxis(StartState state);
+		protected abstract AttachNode findMovingNode(bool verbose);
+
 		protected JointMotion jointMotion;
 		protected abstract PartJoint findMovingJoint(bool verbose);
 
@@ -262,10 +266,6 @@ namespace DockRotate
 
 		protected Vector3 partNodePos; // node position, relative to part
 		protected Vector3 partNodeAxis; // node rotation axis, relative to part
-
-		protected bool setupLocalAxisDone;
-		protected abstract bool setupLocalAxis(StartState state);
-		protected abstract AttachNode referenceNode(bool verbose);
 
 		// localized info cache
 		protected string storedModuleDisplayName = "";
@@ -626,7 +626,7 @@ namespace DockRotate
 
 		private Part hostInEditor(bool verbose)
 		{
-			AttachNode node = referenceNode(verbose);
+			AttachNode node = findMovingNode(verbose);
 			if (node == null)
 				return null;
 			Part other = node.attachedPart;
@@ -812,8 +812,26 @@ namespace DockRotate
 			storedInfo = Localizer.Format("#DCKROT_node_info", rotatingNodeName);
 		}
 
-		protected override AttachNode referenceNode(bool verbose)
+		protected override AttachNode findMovingNode(bool verbose)
 		{
+			if (rotatingNode == null)
+				return null;
+			if (verbose)
+				log(desc(), ": rotatingNode = " + rotatingNode.desc());
+			AttachNode otherNode = rotatingNode.FindOpposingNode();
+			if (verbose)
+				log(desc(), ": otherNode = " + otherNode.desc());
+			if (otherNode == null)
+				return null;
+			Part otherPart = otherNode.owner;
+			if (verbose)
+				log(desc(), ": otherPart = " + otherPart.desc());
+			if (!otherPart)
+				return null;
+			if (verbose)
+				log(desc(), ": attachedPart = " + rotatingNode.attachedPart.desc());
+			if (otherPart != rotatingNode.attachedPart)
+				return null;
 			return rotatingNode;
 		}
 
@@ -913,7 +931,7 @@ namespace DockRotate
 			storedInfo = Localizer.Format("#DCKROT_port_info");
 		}
 
-		protected override AttachNode referenceNode(bool verbose)
+		protected override AttachNode findMovingNode(bool verbose)
 		{
 			if (!dockingNode || dockingNode.referenceNode == null)
 				return null;
