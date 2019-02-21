@@ -265,7 +265,7 @@ namespace DockRotate
 
 		protected bool setupLocalAxisDone;
 		protected abstract bool setupLocalAxis(StartState state);
-		protected abstract AttachNode referenceNode();
+		protected abstract AttachNode referenceNode(bool verbose);
 
 		// localized info cache
 		protected string storedModuleDisplayName = "";
@@ -601,7 +601,7 @@ namespace DockRotate
 		protected bool canStartRotation()
 		{
 			if (HighLogic.LoadedSceneIsEditor)
-				return rotationEnabled && hostInEditor();
+				return rotationEnabled && hostInEditor(false);
 
 			return rotationEnabled
 				&& setupDone && jointMotion
@@ -624,9 +624,9 @@ namespace DockRotate
 			return s >= 1f ? s : 1f;
 		}
 
-		private Part hostInEditor()
+		private Part hostInEditor(bool verbose)
 		{
-			AttachNode node = referenceNode();
+			AttachNode node = referenceNode(verbose);
 			if (node == null)
 				return null;
 			Part other = node.attachedPart;
@@ -640,7 +640,7 @@ namespace DockRotate
 		protected float rotationAngle(bool dynamic)
 		{
 			if (HighLogic.LoadedSceneIsEditor) {
-				Part host = hostInEditor();
+				Part host = hostInEditor(false);
 				if (!host || !host.parent)
 					return float.NaN;
 				Part target = host.parent;
@@ -673,7 +673,7 @@ namespace DockRotate
 			if (HighLogic.LoadedSceneIsEditor) {
 				log(desc(), ".equeueRotation(): " + angle + "\u00b0 in editor");
 
-				Part host = hostInEditor();
+				Part host = hostInEditor(false);
 				if (!host || !host.parent)
 					return false;
 
@@ -812,7 +812,7 @@ namespace DockRotate
 			storedInfo = Localizer.Format("#DCKROT_node_info", rotatingNodeName);
 		}
 
-		protected override AttachNode referenceNode()
+		protected override AttachNode referenceNode(bool verbose)
 		{
 			return rotatingNode;
 		}
@@ -913,29 +913,35 @@ namespace DockRotate
 			storedInfo = Localizer.Format("#DCKROT_port_info");
 		}
 
-		protected override AttachNode referenceNode()
+		protected override AttachNode referenceNode(bool verbose)
 		{
 			if (!dockingNode || dockingNode.referenceNode == null)
 				return null;
-			// FIXME: add port size check
-			log(desc(), ": referenceNode = " + dockingNode.referenceNode.desc());
+			if (verbose)
+				log(desc(), ": referenceNode = " + dockingNode.referenceNode.desc());
 			AttachNode otherNode = dockingNode.referenceNode.FindOpposingNode();
-			log(desc(), ": otherNode = " + otherNode.desc());
+			if (verbose)
+				log(desc(), ": otherNode = " + otherNode.desc());
 			if (otherNode == null)
 				return null;
 			Part otherPart = otherNode.owner;
-			log(desc(), ": otherPart = " + otherPart.desc());
+			if (verbose)
+				log(desc(), ": otherPart = " + otherPart.desc());
 			if (!otherPart)
 				return null;
 			ModuleDockingNode otherDockingNode = otherPart.FindModuleImplementing<ModuleDockingNode>();
-			log(desc(), ": otherDockingNode = " + (otherDockingNode ? "" + otherDockingNode : "null"));
+			if (verbose)
+				log(desc(), ": otherDockingNode = " + (otherDockingNode ? "" + otherDockingNode : "null"));
 			if (!otherDockingNode)
 				return null;
-			log(desc(), ": otherDockingNode.referenceNode = " + otherDockingNode.referenceNode.desc());
+			if (verbose)
+				log(desc(), ": otherDockingNode.referenceNode = " + otherDockingNode.referenceNode.desc());
 			if (otherDockingNode.referenceNode == null)
 				return null;
-			log(desc(), ": node test is " + (otherDockingNode.referenceNode.FindOpposingNode() == dockingNode.referenceNode));
-			log(desc(), ": type test is " + otherDockingNode.matchType(dockingNode));
+			if (verbose)
+				log(desc(), ": node test is " + (otherDockingNode.referenceNode.FindOpposingNode() == dockingNode.referenceNode));
+			if (verbose)
+				log(desc(), ": type test is " + otherDockingNode.matchType(dockingNode));
 
 			return dockingNode.referenceNode;
 		}
