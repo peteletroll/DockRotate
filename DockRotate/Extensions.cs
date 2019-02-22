@@ -166,7 +166,8 @@ namespace DockRotate
 				return null;
 			if (node.attachedPart == null && closest.owner) {
 				if (verbose)
-					log(node.desc(), ".findConnectedNode(): set " + node.desc() + ".attachedPart = " + closest.owner);
+					log(node.desc(), ".findConnectedNode(): set "
+						+ node.desc() + ".attachedPart = " + closest.owner.desc());
 				node.attachedPart = closest.owner;
 			}
 			return closest;
