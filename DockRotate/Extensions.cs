@@ -162,7 +162,7 @@ namespace DockRotate
 			}
 			if (verbose)
 				log(node.desc(), ".findConnectedNode(): found " + closest.desc() + " at " + dist);
-			if (closest == null || dist > 1e-2)
+			if (closest == null || dist > 1e-2f)
 				return null;
 			if (node.attachedPart == null && closest.owner) {
 				if (verbose)
