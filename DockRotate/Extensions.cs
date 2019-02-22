@@ -129,7 +129,7 @@ namespace DockRotate
 
 			if (node == null || !node.owner)
 				return null;
-			log("" + node.attachedPart);
+
 			AttachNode fon = node.FindOpposingNode();
 			if (fon != null) {
 				if (verbose)
