@@ -818,7 +818,7 @@ namespace DockRotate
 				return null;
 			if (verbose)
 				log(desc(), ": rotatingNode = " + rotatingNode.desc());
-			AttachNode otherNode = rotatingNode.findConnectedNode(true);
+			AttachNode otherNode = rotatingNode.findConnectedNode(verboseEvents);
 			if (verbose)
 				log(desc(), ": otherNode = " + otherNode.desc());
 			if (otherNode == null)
@@ -937,7 +937,7 @@ namespace DockRotate
 				return null;
 			if (verbose)
 				log(desc(), ": referenceNode = " + dockingNode.referenceNode.desc());
-			AttachNode otherNode = dockingNode.referenceNode.findConnectedNode(true);
+			AttachNode otherNode = dockingNode.referenceNode.findConnectedNode(verboseEvents);
 			if (verbose)
 				log(desc(), ": otherNode = " + otherNode.desc());
 			if (otherNode == null)
