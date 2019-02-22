@@ -527,7 +527,7 @@ namespace DockRotate
 			}
 
 			if (angleInfoField != null)
-				angleInfoField.guiActive = angleInfoField.guiActiveEditor = angleInfo != "";
+				angleInfoField.guiActive = angleInfoField.guiActiveEditor = rotationEnabled && angleInfo != "";
 
 			if (StopRotationEvent != null)
 				StopRotationEvent.guiActive = currentRotation();
@@ -601,7 +601,7 @@ namespace DockRotate
 		protected bool canStartRotation()
 		{
 			if (HighLogic.LoadedSceneIsEditor)
-				return rotationEnabled && findHostPartInEditor(false);
+				return rotationEnabled && findHostPartInEditor(true);
 
 			return rotationEnabled
 				&& setupDone && jointMotion
