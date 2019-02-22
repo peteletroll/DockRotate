@@ -122,6 +122,64 @@ namespace DockRotate
 
 		/******** AttachNode utilities ********/
 
+		public static AttachNode findConnectedNode(this AttachNode node, bool verbose)
+		{
+			if (verbose)
+				log(node.desc(), ".findConnectedNode()");
+
+			if (node == null || !node.owner)
+				return null;
+			log("" + node.attachedPart);
+			AttachNode fon = node.FindOpposingNode();
+			if (fon != null) {
+				if (verbose)
+					log(node.desc(), ".findConnectedNode(): FindOpposingNode() finds " + fon.desc());
+				return fon;
+			}
+			List<Part> neighbours = new List<Part>(node.owner.children);
+			neighbours.Add(node.owner.parent);
+			if (verbose)
+				log(node.desc(), ".findConnectedNode(): " + node.owner.desc() + " has " + neighbours.Count + " neighbours");
+
+			AttachNode closest = null;
+			float dist = 0f;
+			for (int i = 0; i < neighbours.Count; i++) {
+				if (neighbours[i] == null)
+					continue;
+				List<AttachNode> n = neighbours[i].attachNodes;
+				if (verbose)
+					log(node.desc(), ".findConnectedNode(): " + neighbours[i] + " has " + n.Count + " nodes");
+
+				for (int j = 0; j < n.Count; j++) {
+					float d = node.distFrom(n[j]);
+					if (verbose)
+						log(node.desc(), ".findConnectedNode(): " + n[j].desc() + " at " + d);
+					if (d < dist || closest == null) {
+						closest = n[j];
+						dist = d;
+					}
+				}
+			}
+			if (verbose)
+				log(node.desc(), ".findConnectedNode(): found " + closest.desc() + " at " + dist);
+			if (closest == null || dist > 1e-2)
+				return null;
+			if (node.attachedPart == null && closest.owner) {
+				if (verbose)
+					log(node.desc(), ".findConnectedNode(): set " + node.desc() + ".attachedPart = " + closest.owner);
+				node.attachedPart = closest.owner;
+			}
+			return closest;
+		}
+
+		public static float distFrom(this AttachNode node, AttachNode other)
+		{
+			if (node == null || other == null || !node.owner || !other.owner)
+				return 9e9f;
+			Vector3 otherPos = other.position.Tp(other.owner.T(), node.owner.T());
+			return (otherPos - node.position).magnitude;
+		}
+
 		public static string desc(this AttachNode n, bool bare = false)
 		{
 			if (n == null)

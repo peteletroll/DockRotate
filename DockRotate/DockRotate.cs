@@ -818,7 +818,7 @@ namespace DockRotate
 				return null;
 			if (verbose)
 				log(desc(), ": rotatingNode = " + rotatingNode.desc());
-			AttachNode otherNode = rotatingNode.FindOpposingNode();
+			AttachNode otherNode = rotatingNode.findCloseNode(true);
 			if (verbose)
 				log(desc(), ": otherNode = " + otherNode.desc());
 			if (otherNode == null)
@@ -937,7 +937,7 @@ namespace DockRotate
 				return null;
 			if (verbose)
 				log(desc(), ": referenceNode = " + dockingNode.referenceNode.desc());
-			AttachNode otherNode = dockingNode.referenceNode.FindOpposingNode();
+			AttachNode otherNode = dockingNode.referenceNode.findCloseNode(true);
 			if (verbose)
 				log(desc(), ": otherNode = " + otherNode.desc());
 			if (otherNode == null)
