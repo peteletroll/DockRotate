@@ -817,19 +817,19 @@ namespace DockRotate
 			if (rotatingNode == null)
 				return null;
 			if (verbose)
-				log(desc(), ": rotatingNode = " + rotatingNode.desc());
+				log(desc(), ".findMovingNode(): rotatingNode = " + rotatingNode.desc());
 			AttachNode otherNode = rotatingNode.findConnectedNode(verboseEvents);
 			if (verbose)
-				log(desc(), ": otherNode = " + otherNode.desc());
+				log(desc(), ".findMovingNode(): otherNode = " + otherNode.desc());
 			if (otherNode == null)
 				return null;
 			Part otherPart = otherNode.owner;
 			if (verbose)
-				log(desc(), ": otherPart = " + otherPart.desc());
+				log(desc(), ".findMovingNode(): otherPart = " + otherPart.desc());
 			if (!otherPart)
 				return null;
 			if (verbose)
-				log(desc(), ": attachedPart = " + rotatingNode.attachedPart.desc());
+				log(desc(), ".findMovingNode(): attachedPart = " + rotatingNode.attachedPart.desc());
 			if (otherPart != rotatingNode.attachedPart)
 				return null;
 			return rotatingNode;
@@ -867,7 +867,7 @@ namespace DockRotate
 			}
 
 			if (part.FindModuleImplementing<ModuleDockRotate>()) {
-				log(desc(), ": has DockRotate, NodeRotate disabled");
+				log(desc(), ".findMovingJoint(): has DockRotate, NodeRotate disabled");
 				return null;
 			}
 
@@ -936,30 +936,30 @@ namespace DockRotate
 			if (!dockingNode || dockingNode.referenceNode == null)
 				return null;
 			if (verbose)
-				log(desc(), ": referenceNode = " + dockingNode.referenceNode.desc());
+				log(desc(), ".findMovingNode(): referenceNode = " + dockingNode.referenceNode.desc());
 			AttachNode otherNode = dockingNode.referenceNode.findConnectedNode(verboseEvents);
 			if (verbose)
-				log(desc(), ": otherNode = " + otherNode.desc());
+				log(desc(), ".findMovingNode(): otherNode = " + otherNode.desc());
 			if (otherNode == null)
 				return null;
 			Part otherPart = otherNode.owner;
 			if (verbose)
-				log(desc(), ": otherPart = " + otherPart.desc());
+				log(desc(), ".findMovingNode(): otherPart = " + otherPart.desc());
 			if (!otherPart)
 				return null;
 			ModuleDockingNode otherDockingNode = otherPart.FindModuleImplementing<ModuleDockingNode>();
 			if (verbose)
-				log(desc(), ": otherDockingNode = " + (otherDockingNode ? "" + otherDockingNode : "null"));
+				log(desc(), ".findMovingNode(): otherDockingNode = " + (otherDockingNode ? "" + otherDockingNode : "null"));
 			if (!otherDockingNode)
 				return null;
 			if (verbose)
-				log(desc(), ": otherDockingNode.referenceNode = " + otherDockingNode.referenceNode.desc());
+				log(desc(), ".findMovingNode(): otherDockingNode.referenceNode = " + otherDockingNode.referenceNode.desc());
 			if (otherDockingNode.referenceNode == null)
 				return null;
 			if (verbose)
-				log(desc(), ": node test is " + (otherDockingNode.referenceNode.FindOpposingNode() == dockingNode.referenceNode));
+				log(desc(), ".findMovingNode(): node test is " + (otherDockingNode.referenceNode.FindOpposingNode() == dockingNode.referenceNode));
 			if (verbose)
-				log(desc(), ": type test is " + otherDockingNode.matchType(dockingNode));
+				log(desc(), ".findMovingNode(): type test is " + otherDockingNode.matchType(dockingNode));
 
 			return dockingNode.referenceNode;
 		}
@@ -1018,7 +1018,7 @@ namespace DockRotate
 			if (otherModule) {
 				if (!smartAutoStruts && otherModule.smartAutoStruts) {
 					smartAutoStruts = true;
-					log(desc(), ": smartAutoStruts activated by " + otherModule.desc());
+					log(desc(), ".findMovingJoint(): smartAutoStruts activated by " + otherModule.desc());
 				}
 			}
 
