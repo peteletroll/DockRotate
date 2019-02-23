@@ -949,16 +949,19 @@ namespace DockRotate
 				return null;
 			ModuleDockingNode otherDockingNode = otherPart.FindModuleImplementing<ModuleDockingNode>();
 			if (verbose)
-				log(desc(), ".findMovingNode(): otherDockingNode = " + (otherDockingNode ? "" + otherDockingNode : "null"));
+				log(desc(), ".findMovingNode(): otherDockingNode = "
+					+ (otherDockingNode ? "" + otherDockingNode.part.desc() : "null"));
 			if (!otherDockingNode)
 				return null;
 			if (verbose)
-				log(desc(), ".findMovingNode(): otherDockingNode.referenceNode = " + otherDockingNode.referenceNode.desc());
+				log(desc(), ".findMovingNode(): otherDockingNode.referenceNode = "
+					+ otherDockingNode.referenceNode.desc());
 			if (otherDockingNode.referenceNode == null)
 				return null;
 			if (!otherDockingNode.matchType(dockingNode)) {
 				if (verbose)
-					log(desc(), ".findMovingNode(): type test is " + otherDockingNode.matchType(dockingNode));
+					log(desc(), ".findMovingNode(): mismatched node types " + dockingNode.nodeType + " != " + otherDockingNode.nodeType);
+				return null;
 			}
 			if (verbose)
 				log(desc(), ".findMovingNode(): node test is " + (otherDockingNode.referenceNode.FindOpposingNode() == dockingNode.referenceNode));

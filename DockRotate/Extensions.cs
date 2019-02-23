@@ -106,7 +106,25 @@ namespace DockRotate
 
 		public static bool matchType(this ModuleDockingNode node, ModuleDockingNode other)
 		{
+			fillNodeTypes(node);
+			fillNodeTypes(other);
 			return node.nodeTypes.Overlaps(other.nodeTypes);
+		}
+
+		public static void fillNodeTypes(this ModuleDockingNode node)
+		{
+			// this fills nodeTypes, sometimes empty in editor
+			if (node.nodeTypes.Count > 0)
+				return;
+			log(node.part.desc(), ".fillNodeTypes(): fill with \"" + node.nodeType + "\"");
+			string[] types = node.nodeType.Split(',');
+			for (int i = 0; i < types.Length; i++) {
+				string type = types[i].Trim();
+				if (type == "")
+					continue;
+				log(node.part.desc(), ".fillNodeTypes(): adding \"" + type + "\" [" + i + "]");
+				node.nodeTypes.Add(type);
+			}
 		}
 
 		public static string allTypes(this ModuleDockingNode node)
@@ -136,10 +154,18 @@ namespace DockRotate
 					log(node.desc(), ".findConnectedNode(): FindOpposingNode() finds " + fon.desc());
 				return fon;
 			}
-			List<Part> neighbours = new List<Part>(node.owner.children);
-			neighbours.Add(node.owner.parent);
+
+			List<Part> neighbours = new List<Part>();
+			if (node.attachedPart) {
+				neighbours.Add(node.attachedPart);
+			} else {
+				if (node.owner.parent)
+					neighbours.Add(node.owner.parent);
+				neighbours.AddRange(node.owner.children);
+			}
 			if (verbose)
-				log(node.desc(), ".findConnectedNode(): " + node.owner.desc() + " has " + neighbours.Count + " neighbours");
+				log(node.desc(), ".findConnectedNode(): " + node.owner.desc()
+					+ " has " + neighbours.Count + " neighbours");
 
 			AttachNode closest = null;
 			float dist = 0f;
@@ -164,12 +190,23 @@ namespace DockRotate
 				log(node.desc(), ".findConnectedNode(): found " + closest.desc() + " at " + dist);
 			if (closest == null || dist > 1e-2f)
 				return null;
+
+			// this fills attachedPart, sometimes empty in editor
+
 			if (node.attachedPart == null && closest.owner) {
 				if (verbose)
 					log(node.desc(), ".findConnectedNode(): set "
 						+ node.desc() + ".attachedPart = " + closest.owner.desc());
 				node.attachedPart = closest.owner;
 			}
+
+			if (closest.attachedPart == null) {
+				if (verbose)
+					log(node.desc(), ".findConnectedNode(): set "
+					    + closest.desc() + ".attachedPart = " + node.owner.desc());
+				closest.attachedPart = node.owner;
+			}
+
 			return closest;
 		}
 
