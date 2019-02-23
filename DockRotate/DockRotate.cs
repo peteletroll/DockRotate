@@ -956,10 +956,12 @@ namespace DockRotate
 				log(desc(), ".findMovingNode(): otherDockingNode.referenceNode = " + otherDockingNode.referenceNode.desc());
 			if (otherDockingNode.referenceNode == null)
 				return null;
+			if (!otherDockingNode.matchType(dockingNode)) {
+				if (verbose)
+					log(desc(), ".findMovingNode(): type test is " + otherDockingNode.matchType(dockingNode));
+			}
 			if (verbose)
 				log(desc(), ".findMovingNode(): node test is " + (otherDockingNode.referenceNode.FindOpposingNode() == dockingNode.referenceNode));
-			if (verbose)
-				log(desc(), ".findMovingNode(): type test is " + otherDockingNode.matchType(dockingNode));
 
 			return dockingNode.referenceNode;
 		}
