@@ -13,6 +13,10 @@ namespace DockRotate
 		public Vector3 hostAxis, hostNode;
 		private Vector3 hostUp, targetUp;
 
+		public bool verboseEvents {
+			get => controller && controller.verboseEvents;
+		}
+
 		private SmoothMotionDispatcher rotation;
 
 		private JointMotionObj _rotCur;
@@ -51,10 +55,12 @@ namespace DockRotate
 					return;
 				}
 				if (value != _controller) {
-					if (_controller) {
-						log(joint.desc(), ": change controller " + _controller.part.desc() + " -> " + value.part.desc());
-					} else {
-						log(joint.desc(), ": set controller " + value.part.desc());
+					if (verboseEvents) {
+						if (_controller) {
+							log(joint.desc(), ": change controller " + _controller.part.desc() + " -> " + value.part.desc());
+						} else {
+							log(joint.desc(), ": set controller " + value.part.desc());
+						}
 					}
 					if (_rotCur) {
 						log(joint.desc(), ": refusing to set controller while moving");
@@ -104,7 +110,7 @@ namespace DockRotate
 			} else {
 				log(desc(), ".setAxis(): part " + part.desc() + " not in " + joint.desc());
 			}
-			if (!controller || controller.verboseEvents)
+			if (!controller || verboseEvents)
 				log(desc(), ".setAxis(): " + axis.desc() + "@" + node.desc() + "), " + state);
 			hostAxis = axis.STd(part, joint.Host);
 			hostNode = node.STp(part, joint.Host);

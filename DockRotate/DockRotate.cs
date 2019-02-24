@@ -542,7 +542,8 @@ namespace DockRotate
 			setupGuiActive();
 
 			if (state == StartState.Editor) {
-				log(desc(), ".OnStart(" + state + ")");
+				if (verboseEvents)
+					log(desc(), ".OnStart(" + state + ")");
 				setEvents(true);
 				RightAfterEditorChange("START");
 				return;
@@ -601,7 +602,7 @@ namespace DockRotate
 		protected bool canStartRotation()
 		{
 			if (HighLogic.LoadedSceneIsEditor)
-				return rotationEnabled && findHostPartInEditor(true);
+				return rotationEnabled && findHostPartInEditor(verboseEvents);
 
 			return rotationEnabled
 				&& setupDone && jointMotion
