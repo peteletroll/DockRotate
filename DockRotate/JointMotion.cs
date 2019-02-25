@@ -235,16 +235,6 @@ namespace DockRotate
 			controller.updateFrozenRotation("FIXED");
 		}
 
-		public void Awake()
-		{
-			log(desc(), ".Awake()");
-		}
-
-		public void Start()
-		{
-			log(desc(), ".Start()");
-		}
-
 		public void OnDestroy()
 		{
 			log(desc(), ".OnDestroy()");

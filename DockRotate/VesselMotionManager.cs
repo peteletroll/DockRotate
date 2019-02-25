@@ -457,7 +457,6 @@ namespace DockRotate
 
 		public void Awake()
 		{
-			log(desc(), ".Awake()");
 			if (!vessel) {
 				_vessel = gameObject.GetComponent<Vessel>();
 				if (verboseEvents && vessel)
@@ -468,13 +467,11 @@ namespace DockRotate
 
 		public void Start()
 		{
-			log(desc(), ".Start()");
 			listeners(); // just to set verboseEvents
 		}
 
 		public void OnDestroy()
 		{
-			log(desc(), ".OnDestroy()");
 			setEvents(false);
 		}
 
