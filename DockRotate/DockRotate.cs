@@ -951,7 +951,7 @@ namespace DockRotate
 			ModuleDockingNode otherDockingNode = otherPart.FindModuleImplementing<ModuleDockingNode>();
 			if (verbose)
 				log(desc(), ".findMovingNode(): otherDockingNode = "
-					+ (otherDockingNode ? "" + otherDockingNode.part.desc() : "null"));
+					+ (otherDockingNode ? otherDockingNode.part.desc() : "null"));
 			if (!otherDockingNode)
 				return null;
 			if (verbose)
