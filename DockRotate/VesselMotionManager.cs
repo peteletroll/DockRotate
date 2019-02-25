@@ -46,11 +46,6 @@ namespace DockRotate
 		private bool verboseEvents = false;
 		private bool verboseCamera = false;
 
-		public static VesselMotionManager get(Part p)
-		{
-			return p ? get(p.vessel) : null;
-		}
-
 		public static VesselMotionManager get(Vessel v)
 		{
 			if (!v)

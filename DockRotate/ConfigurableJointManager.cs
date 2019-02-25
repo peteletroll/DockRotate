@@ -17,7 +17,6 @@ namespace DockRotate
 		private Quaternion localToJoint, jointToLocal;
 		public Quaternion tgtRot0;
 		public Vector3 tgtPos0;
-		public Vector3 axis0, secAxis0, anchor0, connAnchor0;
 
 		public void setup(ConfigurableJoint joint)
 		{
@@ -50,11 +49,6 @@ namespace DockRotate
 			tgtRot0 = joint.targetRotation;
 			if (tgtRot0 != Quaternion.identity)
 				Extensions.log("JointManager: tgtRot0 = " + tgtRot0.desc());
-
-			axis0 = joint.axis;
-			secAxis0 = joint.secondaryAxis;
-			anchor0 = joint.anchor;
-			connAnchor0 = joint.connectedAnchor;
 		}
 
 		public void setRotation(float angle, Vector3 axis, Vector3 node)

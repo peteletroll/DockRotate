@@ -378,12 +378,12 @@ namespace DockRotate
 			doSetup();
 		}
 
-		public void RightAfterEditorShipModified(ShipConstruct ship)
+		public void RightAfterEditorChange_ShipModified(ShipConstruct ship)
 		{
 			RightAfterEditorChange("MODIFIED");
 		}
 
-		public void RightAfterEditorEvent(ConstructionEventType type, Part part)
+		public void RightAfterEditorChange_Event(ConstructionEventType type, Part part)
 		{
 			if (type == ConstructionEventType.PartDragging
 				|| type == ConstructionEventType.PartOffsetting
@@ -450,11 +450,11 @@ namespace DockRotate
 				log(desc(), ".setEvents(" + cmd + ")");
 
 			if (cmd) {
-				GameEvents.onEditorShipModified.Add(RightAfterEditorShipModified);
-				GameEvents.onEditorPartEvent.Add(RightAfterEditorEvent);
+				GameEvents.onEditorShipModified.Add(RightAfterEditorChange_ShipModified);
+				GameEvents.onEditorPartEvent.Add(RightAfterEditorChange_Event);
 			} else {
-				GameEvents.onEditorShipModified.Remove(RightAfterEditorShipModified);
-				GameEvents.onEditorPartEvent.Remove(RightAfterEditorEvent);
+				GameEvents.onEditorShipModified.Remove(RightAfterEditorChange_ShipModified);
+				GameEvents.onEditorPartEvent.Remove(RightAfterEditorChange_Event);
 			}
 
 			eventState = cmd;
@@ -586,7 +586,8 @@ namespace DockRotate
 				if (float.IsNaN(angle)) {
 					angleInfo = "";
 				} else {
-					angleInfo = String.Format("{0:+0.00;-0.00;0.00}\u00b0 ({1:+0.0000;-0.0000;0.0000}\u00b0\u0394)",
+					angleInfo = String.Format(
+						"{0:+0.00;-0.00;0.00}\u00b0 ({1:+0.0000;-0.0000;0.0000}\u00b0\u0394)",
 						angle, dynamicDeltaAngle());
 				}
 			}
@@ -595,7 +596,8 @@ namespace DockRotate
 
 #if DEBUG
 			if (ToggleAutoStrutDisplayEvent != null)
-				ToggleAutoStrutDisplayEvent.guiName = PhysicsGlobals.AutoStrutDisplay ? "Hide Autostruts" : "Show Autostruts";
+				ToggleAutoStrutDisplayEvent.guiName = PhysicsGlobals.AutoStrutDisplay ?
+					"Hide Autostruts" : "Show Autostruts";
 #endif
 		}
 
@@ -716,15 +718,15 @@ namespace DockRotate
 
 		protected void freezeCurrentRotation(string msg, bool keepSpeed)
 		{
-			JointMotionObj r = currentRotation();
-			if (!r)
+			JointMotionObj cr = currentRotation();
+			if (!cr)
 				return;
 			log(desc(), ".freezeCurrentRotation("
 				+ msg + ", " + keepSpeed + ")");
-			r.isContinuous();
-			float angle = r.tgt - r.pos;
-			enqueueFrozenRotation(angle, r.maxvel, keepSpeed ? r.vel : 0f);
-			r.abort();
+			cr.isContinuous();
+			float angle = cr.tgt - cr.pos;
+			enqueueFrozenRotation(angle, cr.maxvel, keepSpeed ? cr.vel : 0f);
+			cr.abort();
 			log(desc(), ": removing rotation (2)");
 			jointMotion.rotCur = null;
 		}
@@ -754,9 +756,9 @@ namespace DockRotate
 		{
 			Vector3 prevRot = frozenRotation;
 
-			JointMotionObj r = currentRotation();
-			if (r && r.isContinuous() && jointMotion.controller == this) {
-				frozenRotation.Set(r.tgt, r.maxvel, 0f);
+			JointMotionObj cr = currentRotation();
+			if (cr && cr.isContinuous() && jointMotion.controller == this) {
+				frozenRotation.Set(cr.tgt, cr.maxvel, 0f);
 			} else {
 				frozenRotation = Vector3.zero;
 			}
@@ -778,7 +780,7 @@ namespace DockRotate
 
 		public void FixedUpdate()
 		{
-			if (!setupDone || HighLogic.LoadedScene != GameScenes.FLIGHT)
+			if (!setupDone || !HighLogic.LoadedSceneIsFlight)
 				return;
 			if (verboseEvents != verboseEventsPrev) {
 				VesselMotionManager.get(vessel).listeners();

@@ -216,10 +216,12 @@ namespace DockRotate
 
 		public void FixedUpdate()
 		{
-			if (!vessel)
+			if (!vessel) {
 				MonoBehaviour.Destroy(this);
+				return;
+			}
 
-			if (!rotCur || HighLogic.LoadedScene != GameScenes.FLIGHT)
+			if (!rotCur || !HighLogic.LoadedSceneIsFlight)
 				return;
 
 			if (rotCur.done()) {
@@ -438,7 +440,7 @@ namespace DockRotate
 
 			staticize();
 
-			int c = VesselMotionManager.get(hostPart).changeCount(0);
+			int c = VesselMotionManager.get(hostPart.vessel).changeCount(0);
 			log(hostPart.desc(), ": rotation stopped [" + c + "], "
 				+ electricity.ToString("F2") + " electricity");
 			electricity = 0d;
@@ -446,7 +448,6 @@ namespace DockRotate
 
 		public void staticize()
 		{
-			log(jm.desc(), ".staticize() at pos = " + pos + "\u00b0");
 			staticizeJoints();
 			staticizeOrgInfo();
 		}
