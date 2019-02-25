@@ -2,38 +2,6 @@ using UnityEngine;
 
 namespace DockRotate
 {
-	public interface ISmoothMotionListener
-	{
-		void onStart(SmoothMotionDispatcher source);
-		void onStep(SmoothMotionDispatcher source, float deltat);
-		void onStop(SmoothMotionDispatcher source);
-	}
-
-	public class SmoothMotionDispatcher: SmoothMotion
-	{
-		private ISmoothMotionListener listener;
-
-		public SmoothMotionDispatcher(ISmoothMotionListener l)
-		{
-			listener = l;
-		}
-
-		protected override void onStart()
-		{
-			listener.onStart(this);
-		}
-
-		protected override void onStep(float deltat)
-		{
-			listener.onStep(this, deltat);
-		}
-
-		protected override void onStop()
-		{
-			listener.onStop(this);
-		}
-	}
-
 	public abstract class SmoothMotion
 	{
 		public float pos;

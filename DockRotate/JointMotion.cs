@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace DockRotate
 {
-	public class JointMotion: MonoBehaviour, ISmoothMotionListener
+	public class JointMotion: MonoBehaviour
 	{
 		private PartJoint _joint;
 		public PartJoint joint { get => _joint; }
@@ -16,8 +16,6 @@ namespace DockRotate
 		public bool verboseEvents {
 			get => controller && controller.verboseEvents;
 		}
-
-		private SmoothMotionDispatcher rotation;
 
 		private JointMotionObj _rotCur;
 		public JointMotionObj rotCur {
@@ -237,23 +235,9 @@ namespace DockRotate
 			controller.updateFrozenRotation("FIXED");
 		}
 
-		public void onStart(SmoothMotionDispatcher source)
-		{
-		}
-
-		public void onStep(SmoothMotionDispatcher source, float deltat)
-		{
-		}
-
-		public void onStop(SmoothMotionDispatcher source)
-		{
-		}
-
 		public void Awake()
 		{
 			log(desc(), ".Awake()");
-			// FIXME: all the stuff JointMotionObj does should go into SmoothMotionDispatcher
-			rotation = new SmoothMotionDispatcher(this);
 		}
 
 		public void Start()
