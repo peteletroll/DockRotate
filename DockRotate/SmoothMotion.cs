@@ -28,7 +28,7 @@ namespace DockRotate
 
 		public float curBrakingSpace(float deltat = 0f)
 		{
-			float time = Mathf.Abs(vel) / maxacc + 2 * stopMargin * deltat;
+			float time = Mathf.Abs(vel) / maxacc + 2f * stopMargin * deltat;
 			return vel / 2 * time;
 		}
 
@@ -41,7 +41,7 @@ namespace DockRotate
 
 			maxacc = Mathf.Clamp(maxvel / accelTime, 1f, 180f);
 
-			bool goingRightWay = (tgt - pos) * vel >= 0;
+			bool goingRightWay = (tgt - pos) * vel >= 0f;
 			float brakingSpace = Mathf.Abs(curBrakingSpace(deltat));
 
 			float newvel = vel;
