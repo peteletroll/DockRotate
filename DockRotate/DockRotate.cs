@@ -238,9 +238,9 @@ namespace DockRotate
 
 		public void doStopRotation()
 		{
-			JointMotionObj r = currentRotation();
-			if (r)
-				r.brake();
+			JointMotionObj cr = currentRotation();
+			if (cr)
+				cr.brake();
 		}
 
 		protected bool reverseActionRotationKey()
