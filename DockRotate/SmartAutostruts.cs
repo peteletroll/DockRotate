@@ -25,6 +25,8 @@ namespace DockRotate
 		{
 			public void add(Part part)
 			{
+				if (!part)
+					return;
 				Add(part.flightID, part);
 			}
 
