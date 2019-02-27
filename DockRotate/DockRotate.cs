@@ -963,11 +963,13 @@ namespace DockRotate
 				return null;
 			if (!otherDockingNode.matchType(dockingNode)) {
 				if (verbose)
-					log(desc(), ".findMovingNode(): mismatched node types " + dockingNode.nodeType + " != " + otherDockingNode.nodeType);
+					log(desc(), ".findMovingNode(): mismatched node types "
+						+ dockingNode.nodeType + " != " + otherDockingNode.nodeType);
 				return null;
 			}
 			if (verbose)
-				log(desc(), ".findMovingNode(): node test is " + (otherDockingNode.referenceNode.FindOpposingNode() == dockingNode.referenceNode));
+				log(desc(), ".findMovingNode(): node test is "
+					+ (otherDockingNode.referenceNode.FindOpposingNode() == dockingNode.referenceNode));
 
 			return dockingNode.referenceNode;
 		}

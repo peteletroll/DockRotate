@@ -55,7 +55,8 @@ namespace DockRotate
 				if (value != _controller) {
 					if (verboseEvents) {
 						if (_controller) {
-							log(joint.desc(), ": change controller " + _controller.part.desc() + " -> " + value.part.desc());
+							log(joint.desc(), ": change controller "
+								+ _controller.part.desc() + " -> " + value.part.desc());
 						} else {
 							log(joint.desc(), ": set controller " + value.part.desc());
 						}
