@@ -180,13 +180,14 @@ namespace DockRotate
 			snap = Mathf.Abs(snap);
 			if (snap < 0.1f)
 				return 0f;
-			float a = !rotCur ? rotationAngle(false) :
-				rotCur.isContinuous() ? rotCur.rot0 + rotCur.pos :
-				rotCur.rot0 + rotCur.tgt;
-			if (float.IsNaN(a))
+			float refAngle = !rotCur ? rotationAngle(false)
+				: rotCur.isContinuous() ?
+					rotCur.rot0 + rotCur.pos + rotCur.curBrakingSpace() + (snap / 2f) * Mathf.Sign(rotCur.vel)
+				: rotCur.rot0 + rotCur.tgt;
+			if (float.IsNaN(refAngle))
 				return 0f;
-			float f = snap * Mathf.Floor(a / snap + 0.5f);
-			return f - a;
+			float snapAngle = snap * Mathf.Floor(refAngle / snap + 0.5f);
+			return snapAngle - refAngle;
 		}
 
 		protected bool brakeRotationKey()
