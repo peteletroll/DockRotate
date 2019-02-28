@@ -126,9 +126,7 @@ namespace DockRotate
 				return false;
 
 			string action = "none";
-			bool showlog = true;
 			if (rotCur) {
-				bool trace = false;
 				if (rotCur.isBraking()) {
 					log(desc(), ".enqueueRotation(): canceled, braking");
 					return false;
@@ -136,30 +134,14 @@ namespace DockRotate
 				rotCur.maxvel = speed;
 				action = "updated";
 				if (SmoothMotion.isContinuous(ref angle)) {
-					if (rotCur.isContinuous() && angle * rotCur.tgt > 0f)
-						showlog = false; // already continuous the right way
-					if (trace && showlog)
-						log(desc(), "MERGE CONTINUOUS " + angle + " -> " + rotCur.tgt);
 					rotCur.tgt = angle;
 					controller.updateFrozenRotation("MERGECONT");
 				} else {
-					if (trace)
-						log(desc(), "MERGE LIMITED " + angle + " -> " + rotCur.rot0 + " + " + rotCur.tgt);
-					if (rotCur.isContinuous()) {
-						if (trace)
-							log(desc(), "MERGE INTO CONTINUOUS");
-						rotCur.tgt = rotCur.pos + rotCur.curBrakingSpace() + angle;
-					} else {
-						if (trace)
-							log(desc(), "MERGE INTO LIMITED");
-						rotCur.tgt = rotCur.tgt + angle;
-					}
-					if (trace)
-						log(desc(), "MERGED: POS " + rotCur.pos + " TGT " + rotCur.tgt);
+					float refAngle = rotCur.isContinuous() ? rotCur.pos + rotCur.curBrakingSpace() : rotCur.tgt;
+					rotCur.tgt = refAngle + angle;
 					controller.updateFrozenRotation("MERGELIM");
 				}
 			} else {
-				log(desc(), ": creating rotation");
 				JointMotionObj r = new JointMotionObj(this, 0, angle, speed);
 				r.rot0 = rotationAngle(false);
 				r.vel = startSpeed;
@@ -169,9 +151,8 @@ namespace DockRotate
 				rotCur = r;
 				action = "added";
 			}
-			if (showlog)
-				log(desc(), String.Format(": enqueueRotation({0}, {1:F4}\u00b0, {2}\u00b0/s, {3}\u00b0/s), {4}",
-					hostAxis.desc(), rotCur.tgt, rotCur.maxvel, rotCur.vel, action));
+			log(desc(), String.Format(": enqueueRotation({0}, {1:F4}\u00b0, {2}\u00b0/s, {3}\u00b0/s), {4}",
+				hostAxis.desc(), rotCur.tgt, rotCur.maxvel, rotCur.vel, action));
 			return true;
 		}
 
