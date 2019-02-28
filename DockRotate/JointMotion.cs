@@ -130,7 +130,7 @@ namespace DockRotate
 			if (rotCur) {
 				bool trace = false;
 				if (rotCur.isBraking()) {
-					log(joint.desc(), ".enqueueRotation(): canceled, braking");
+					log(desc(), ".enqueueRotation(): canceled, braking");
 					return false;
 				}
 				rotCur.maxvel = speed;
@@ -139,27 +139,27 @@ namespace DockRotate
 					if (rotCur.isContinuous() && angle * rotCur.tgt > 0f)
 						showlog = false; // already continuous the right way
 					if (trace && showlog)
-						log(joint.desc(), "MERGE CONTINUOUS " + angle + " -> " + rotCur.tgt);
+						log(desc(), "MERGE CONTINUOUS " + angle + " -> " + rotCur.tgt);
 					rotCur.tgt = angle;
 					controller.updateFrozenRotation("MERGECONT");
 				} else {
 					if (trace)
-						log(joint.desc(), "MERGE LIMITED " + angle + " -> " + rotCur.rot0 + " + " + rotCur.tgt);
+						log(desc(), "MERGE LIMITED " + angle + " -> " + rotCur.rot0 + " + " + rotCur.tgt);
 					if (rotCur.isContinuous()) {
 						if (trace)
-							log(joint.desc(), "MERGE INTO CONTINUOUS");
+							log(desc(), "MERGE INTO CONTINUOUS");
 						rotCur.tgt = rotCur.pos + rotCur.curBrakingSpace() + angle;
 					} else {
 						if (trace)
-							log(joint.desc(), "MERGE INTO LIMITED");
+							log(desc(), "MERGE INTO LIMITED");
 						rotCur.tgt = rotCur.tgt + angle;
 					}
 					if (trace)
-						log(joint.desc(), "MERGED: POS " + rotCur.pos + " TGT " + rotCur.tgt);
+						log(desc(), "MERGED: POS " + rotCur.pos + " TGT " + rotCur.tgt);
 					controller.updateFrozenRotation("MERGELIM");
 				}
 			} else {
-				log(joint.desc(), ": creating rotation");
+				log(desc(), ": creating rotation");
 				JointMotionObj r = new JointMotionObj(this, 0, angle, speed);
 				r.rot0 = rotationAngle(false);
 				r.vel = startSpeed;
@@ -170,7 +170,7 @@ namespace DockRotate
 				action = "added";
 			}
 			if (showlog)
-				log(joint.desc(), String.Format(": enqueueRotation({0}, {1:F4}\u00b0, {2}\u00b0/s, {3}\u00b0/s), {4}",
+				log(desc(), String.Format(": enqueueRotation({0}, {1:F4}\u00b0, {2}\u00b0/s, {3}\u00b0/s), {4}",
 					hostAxis.desc(), rotCur.tgt, rotCur.maxvel, rotCur.vel, action));
 			return true;
 		}
