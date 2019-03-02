@@ -125,18 +125,18 @@ namespace DockRotate
 			if (speed < 0.1f)
 				return false;
 
-			string action = "none";
+			string action = "";
 			if (rotCur) {
 				if (rotCur.isBraking()) {
 					log(desc(), ".enqueueRotation(): canceled, braking");
 					return false;
 				}
 				rotCur.maxvel = speed;
-				action = "updated";
 				if (SmoothMotion.isContinuous(ref angle)) {
 					if (rotCur.tgt != angle) {
 						rotCur.tgt = angle;
 						controller.updateFrozenRotation("MERGECONT");
+						action = "updated";
 					} else {
 						action = "";
 					}
