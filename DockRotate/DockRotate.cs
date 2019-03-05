@@ -1020,7 +1020,8 @@ namespace DockRotate
 				return null;
 			}
 
-			if (verbose && dockingNode.state != "PreAttached" && !dockingNode.state.StartsWith("Docked"))
+			if (verbose && dockingNode.state != "PreAttached"
+				&& !dockingNode.state.StartsWith("Docked", StringComparison.InvariantCulture))
 				log(desc(), ".findMovingJoint(): unconnected state \"" + dockingNode.state + "\"");
 
 			ModuleBaseRotate otherModule = other.part.FindModuleImplementing<ModuleBaseRotate>();
