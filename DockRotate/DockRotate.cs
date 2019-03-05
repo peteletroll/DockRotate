@@ -571,7 +571,6 @@ namespace DockRotate
 			if (MapView.MapIsEnabled)
 				return;
 
-			bool guiActive = canStartRotation();
 			JointMotionObj cr = currentRotation();
 
 #if DEBUG
