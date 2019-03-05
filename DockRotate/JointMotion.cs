@@ -133,12 +133,12 @@ namespace DockRotate
 				}
 				rotCur.maxvel = speed;
 				if (SmoothMotion.isContinuous(ref angle)) {
-					if (rotCur.tgt != angle) {
+					if (Mathf.Approximately(rotCur.tgt, angle)) {
+						action = "";
+					} else {
 						rotCur.tgt = angle;
 						controller.updateFrozenRotation("MERGECONT");
 						action = "updated";
-					} else {
-						action = "";
 					}
 				} else {
 					float refAngle = rotCur.isContinuous() ? rotCur.pos + rotCur.curBrakingSpace() : rotCur.tgt;

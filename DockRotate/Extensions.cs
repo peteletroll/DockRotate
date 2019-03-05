@@ -368,9 +368,9 @@ namespace DockRotate
 			float angle;
 			Vector3 axis;
 			q.ToAngleAxis(out angle, out axis);
-			if (angle == 0f)
-				axis = Vector3.zero;
-			return angle.ToString(angle == 0f ? "F0" : "F1") + "\u00b0" + axis.desc();
+			bool isIdentity = Mathf.Approximately(angle, 0f);
+			return angle.ToString(isIdentity ? "F0" : "F1") + "\u00b0"
+				+ (isIdentity ? Vector3.zero : axis).desc();
 		}
 	}
 }
