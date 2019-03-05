@@ -531,6 +531,12 @@ namespace DockRotate
 
 			if (StopRotationEvent != null)
 				StopRotationEvent.guiActive = currentRotation();
+
+#if DEBUG
+			if (ToggleAutoStrutDisplayEvent != null)
+				ToggleAutoStrutDisplayEvent.guiName = PhysicsGlobals.AutoStrutDisplay ?
+					"Hide Autostruts" : "Show Autostruts";
+#endif
 		}
 
 		public override void OnStart(StartState state)
@@ -593,12 +599,6 @@ namespace DockRotate
 			}
 
 			checkGuiActive();
-
-#if DEBUG
-			if (ToggleAutoStrutDisplayEvent != null)
-				ToggleAutoStrutDisplayEvent.guiName = PhysicsGlobals.AutoStrutDisplay ?
-					"Hide Autostruts" : "Show Autostruts";
-#endif
 		}
 
 		protected bool canStartRotation()
