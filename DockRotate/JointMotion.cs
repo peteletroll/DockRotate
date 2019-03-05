@@ -133,17 +133,16 @@ namespace DockRotate
 				}
 				rotCur.maxvel = speed;
 				if (SmoothMotion.isContinuous(ref angle)) {
-					if (Mathf.Approximately(rotCur.tgt, angle)) {
-						action = "";
-					} else {
+					if (!Mathf.Approximately(rotCur.tgt, angle)) {
 						rotCur.tgt = angle;
 						controller.updateFrozenRotation("MERGECONT");
-						action = "updated";
+						action = "updated to cont";
 					}
 				} else {
 					float refAngle = rotCur.isContinuous() ? rotCur.pos + rotCur.curBrakingSpace() : rotCur.tgt;
 					rotCur.tgt = refAngle + angle;
 					controller.updateFrozenRotation("MERGELIM");
+					action = "updated to lim";
 				}
 			} else {
 				JointMotionObj r = new JointMotionObj(this, 0, angle, speed);
