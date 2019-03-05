@@ -44,7 +44,7 @@ namespace DockRotate
 		public bool onRails = false;
 
 		private bool verboseEvents = false;
-		private bool verboseCamera = false;
+		private bool verboseCamera = true;
 
 		public static VesselMotionManager get(Vessel v)
 		{
@@ -440,14 +440,14 @@ namespace DockRotate
 			Camera camera = CameraManager.GetCurrentCamera();
 			if (!camera)
 				return;
-			phase("BEGIN CAMERA CHANGE");
+			phase("BEGIN CAMERA CHANGE " + mode, verboseCamera);
 			log(desc(), ".OnCameraChange(" + mode + ")");
 			Camera[] cameras = Camera.allCameras;
 			for (int i = 0; i < cameras.Length; i++) {
 				log("camera[" + i + "] = " + cameras[i].desc());
 				log(cameras[i].transform.desc(10));
 			}
-			phase("END CAMERA CHANGE");
+			phase("END CAMERA CHANGE " +  mode, verboseCamera);
 		}
 
 		public void Awake()
@@ -482,9 +482,9 @@ namespace DockRotate
 			return "VMM:" + GetInstanceID() + ":" + desc(vessel, true);
 		}
 
-		private void phase(string msg)
+		private void phase(string msg, bool force = false)
 		{
-			if (verboseEvents)
+			if (verboseEvents || force)
 				log(new string('-', 10) + " " + msg + " " + new string('-', 60 - msg.Length));
 		}
 

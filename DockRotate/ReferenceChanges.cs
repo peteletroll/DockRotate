@@ -8,10 +8,11 @@ namespace DockRotate
 		{
 			if (!t)
 				return "world";
-			string ret = t.name + ":" + t.GetInstanceID() + ":"
-				+ t.localRotation.desc() + "@" + t.localPosition.desc()
-				+ "/"
-				+ t.rotation.desc() + "@" + t.position.desc();
+			string ret = t.name + ":" + t.GetInstanceID()
+				+ (t.gameObject.GetComponent<Vessel>() ? ":V" : "")
+				+ (t.gameObject.GetComponent<Part>() ? ":P" : "")
+				+ ":" + t.localRotation.desc() + "@" + t.localPosition.desc()
+				+ "/" + t.rotation.desc() + "@" + t.position.desc();
 			if (parents > 0)
 				ret += "\n\t< " + t.parent.desc(parents - 1);
 			return ret;
