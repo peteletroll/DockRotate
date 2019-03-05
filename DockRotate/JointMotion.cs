@@ -205,7 +205,7 @@ namespace DockRotate
 		public void FixedUpdate()
 		{
 			if (!vessel) {
-				MonoBehaviour.Destroy(this);
+				Destroy(this);
 				return;
 			}
 
@@ -230,7 +230,7 @@ namespace DockRotate
 			log(desc(), ".OnDestroy()");
 			rotCur = null;
 			if (sound)
-				MonoBehaviour.Destroy(sound);
+				Destroy(sound);
 		}
 
 		/******** sound stuff ********/
@@ -279,7 +279,7 @@ namespace DockRotate
 			} catch (Exception e) {
 				log(desc(), "sound: " + e.Message);
 				if (sound)
-					MonoBehaviour.Destroy(sound);
+					Destroy(sound);
 				sound = null;
 			}
 		}
@@ -297,7 +297,7 @@ namespace DockRotate
 		{
 			if (sound != null) {
 				sound.Stop();
-				MonoBehaviour.Destroy(sound);
+				Destroy(sound);
 				sound = null;
 			}
 		}

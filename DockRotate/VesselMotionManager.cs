@@ -277,7 +277,7 @@ namespace DockRotate
 
 			if (verboseEvents)
 				log(desc(), ".deadVessel(): " + deadMsg);
-			MonoBehaviour.Destroy(this);
+			Destroy(this);
 			return true;
 		}
 
