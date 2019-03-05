@@ -34,7 +34,7 @@ namespace DockRotate
 				_rotCur = value;
 				VesselMotionManager.get(joint.Host.vessel).changeCount(delta);
 				if (!sas) {
-					log(joint.Host.desc(), ": triggered CycleAllAutoStruts()");
+					log(desc(), ": triggered CycleAllAutoStruts()");
 					joint.Host.vessel.CycleAllAutoStrut();
 				}
 			}
@@ -44,25 +44,25 @@ namespace DockRotate
 		public ModuleBaseRotate controller {
 			get {
 				if (!_controller)
-					log(joint.desc(), ": *** WARNING *** null controller");
+					log(desc(), ": *** WARNING *** null controller");
 				return _controller;
 			}
 			set {
 				if (!value) {
-					log(joint.desc(), ": *** WARNING *** refusing to set null controller");
+					log(desc(), ": *** WARNING *** refusing to set null controller");
 					return;
 				}
 				if (value != _controller) {
 					if (verboseEvents) {
 						if (_controller) {
-							log(joint.desc(), ": change controller "
+							log(desc(), ": change controller "
 								+ _controller.part.desc() + " -> " + value.part.desc());
 						} else {
-							log(joint.desc(), ": set controller " + value.part.desc());
+							log(desc(), ": set controller " + value.part.desc());
 						}
 					}
 					if (_rotCur) {
-						log(joint.desc(), ": refusing to set controller while moving");
+						log(desc(), ": refusing to set controller while moving");
 						return;
 					}
 				}
@@ -95,7 +95,7 @@ namespace DockRotate
 		public void setAxis(Part part, Vector3 axis, Vector3 node)
 		{
 			if (rotCur) {
-				log(part.desc(), ".setAxis(): rotating, skipped");
+				log(desc(), ".setAxis(): rotating, skipped");
 				return;
 			}
 
@@ -213,7 +213,7 @@ namespace DockRotate
 				return;
 
 			if (rotCur.done()) {
-				log(joint.desc(), ": removing rotation (1)");
+				log(desc(), ": removing rotation (1)");
 				rotCur = null;
 				return;
 			}
@@ -248,7 +248,7 @@ namespace DockRotate
 				return;
 
 			if (!rotCur || !controller) {
-				log("sound: no " + (rotCur ? "controller" : "rotation"));
+				log(desc(), "sound: no " + (rotCur ? "controller" : "rotation"));
 				return;
 			}
 
@@ -256,7 +256,7 @@ namespace DockRotate
 				soundVolume = controller.soundVolume;
 				AudioClip clip = GameDatabase.Instance.GetAudioClip(controller.soundClip);
 				if (!clip) {
-					log("sound: clip \"" + controller.soundClip + "\" not found");
+					log(desc(), "sound: clip \"" + controller.soundClip + "\" not found");
 					return;
 				}
 
@@ -277,7 +277,7 @@ namespace DockRotate
 
 				sound.Play();
 			} catch (Exception e) {
-				log("sound: " + e.Message);
+				log(desc(), "sound: " + e.Message);
 				if (sound)
 					MonoBehaviour.Destroy(sound);
 				sound = null;

@@ -69,7 +69,7 @@ namespace DockRotate
 		{
 			bool ret = (part.physicalSignificance == Part.PhysicalSignificance.FULL);
 			if (ret != part.rb) {
-				log(part.desc() + ": hasPhysics() Rigidbody incoherency: "
+				log(part.desc(), ": hasPhysics() Rigidbody incoherency: "
 					+ part.physicalSignificance + ", " + (part.rb ? "rb ok" : "rb null"));
 				ret = part.rb;
 			}
@@ -81,21 +81,21 @@ namespace DockRotate
 			if (!part || part.hasPhysics())
 				return false;
 
-			log(part.desc() + ": calling PromoteToPhysicalPart(), "
+			log(part.desc(), ": calling PromoteToPhysicalPart(), "
 				+ part.physicalSignificance + ", " + part.PhysicsSignificance);
 			part.PromoteToPhysicalPart();
-			log(part.desc() + ": called PromoteToPhysicalPart(), "
+			log(part.desc(), ": called PromoteToPhysicalPart(), "
 				+ part.physicalSignificance + ", " + part.PhysicsSignificance);
 			if (part.parent) {
 				if (part.attachJoint) {
-					log(part.desc() + ": parent joint exists already: " + part.attachJoint.desc());
+					log(part.desc(), ": parent joint exists already: " + part.attachJoint.desc());
 				} else {
 					AttachNode nodeHere = part.FindAttachNodeByPart(part.parent);
 					AttachNode nodeParent = part.parent.FindAttachNodeByPart(part);
 					AttachModes m = (nodeHere != null && nodeParent != null) ?
 						AttachModes.STACK : AttachModes.SRF_ATTACH;
 					part.CreateAttachJoint(m);
-					log(part.desc() + ": created joint " + m + " " + part.attachJoint.desc());
+					log(part.desc(), ": created joint " + m + " " + part.attachJoint.desc());
 				}
 			}
 
