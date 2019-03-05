@@ -109,7 +109,8 @@ namespace DockRotate
 					continue;
 
 				allAutostrutJoints.Add(j);
-				log("Autostrut [" + allAutostrutJoints.Count + "] " + j.desc());
+				if (verbose)
+					log("Autostrut [" + allAutostrutJoints.Count + "] " + j.desc());
 			}
 
 			cached_allAutostrutJoints = allAutostrutJoints.ToArray();
@@ -133,9 +134,11 @@ namespace DockRotate
 					continue;
 				if (rotParts.contains(j.Host) == rotParts.contains(j.Target))
 					continue;
-				log(part.desc() + ": releasing [" + ++count + "] " + j.desc());
+				if (verbose)
+					log(part.desc() + ": releasing [" + ++count + "] " + j.desc());
 				j.Host.ReleaseAutoStruts();
-				log(part.desc() + ": released " + j.desc());
+				if (verbose)
+					log(part.desc() + ": released " + j.desc());
 			}
 		}
 
