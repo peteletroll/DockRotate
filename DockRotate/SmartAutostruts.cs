@@ -71,7 +71,7 @@ namespace DockRotate
 		private static Vessel cached_allAutostrutJoints_vessel = null;
 		private static int cached_allAutostrutJoints_frame = 0;
 
-		private static PartJoint[] getAllAutostrutJoints(Vessel vessel)
+		private static PartJoint[] getAllAutostrutJoints(Vessel vessel, bool verbose)
 		{
 			if (cached_allAutostrutJoints != null
 				&& cached_allAutostrutJoints_vessel == vessel
@@ -120,11 +120,11 @@ namespace DockRotate
 
 		/******** public interface ********/
 
-		public static void releaseCrossAutoStruts(this Part part)
+		public static void releaseCrossAutoStruts(this Part part, bool verbose)
 		{
 			PartSet rotParts = PartSet.allPartsFromHere(part);
 
-			PartJoint[] allAutostrutJoints = getAllAutostrutJoints(part.vessel);
+			PartJoint[] allAutostrutJoints = getAllAutostrutJoints(part.vessel, verbose);
 
 			int count = 0;
 			for (int ii = 0; ii < allAutostrutJoints.Length; ii++) {

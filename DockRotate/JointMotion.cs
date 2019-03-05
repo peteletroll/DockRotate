@@ -352,7 +352,7 @@ namespace DockRotate
 		protected override void onStart()
 		{
 			if (smartAutoStruts) {
-				hostPart.releaseCrossAutoStruts();
+				hostPart.releaseCrossAutoStruts(jm.verboseEvents);
 			} else {
 				// not needed with new IsJointUnlocked() logic
 				// but IsJointUnlocked() logic is bugged now :-(
