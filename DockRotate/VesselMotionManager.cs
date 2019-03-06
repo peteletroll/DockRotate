@@ -115,7 +115,8 @@ namespace DockRotate
 				GameEvents.onVesselGoOnRails.Add(OnVesselGoOnRails);
 				GameEvents.onVesselGoOffRails.Add(OnVesselGoOffRails);
 
-				GameEvents.OnCameraChange.Add(OnCameraChange);
+				GameEvents.OnCameraChange.Add(OnCameraChange_CameraMode);
+				GameEvents.OnIVACameraKerbalChange.Add(OnCameraChange_Kerbal);
 
 				GameEvents.onActiveJointNeedUpdate.Add(RightBeforeStructureChange_JointUpdate);
 
@@ -139,7 +140,8 @@ namespace DockRotate
 				GameEvents.onVesselGoOnRails.Remove(OnVesselGoOnRails);
 				GameEvents.onVesselGoOffRails.Remove(OnVesselGoOffRails);
 
-				GameEvents.OnCameraChange.Remove(OnCameraChange);
+				GameEvents.OnCameraChange.Remove(OnCameraChange_CameraMode);
+				GameEvents.OnIVACameraKerbalChange.Add(OnCameraChange_Kerbal);
 
 				GameEvents.onActiveJointNeedUpdate.Remove(RightBeforeStructureChange_JointUpdate);
 
@@ -433,13 +435,24 @@ namespace DockRotate
 			phase("END AFTER SV UNDOCK");
 		}
 
-		public void OnCameraChange(CameraManager.CameraMode mode)
+		public void OnCameraChange_Kerbal(Kerbal k)
+		{
+			OnCameraChange();
+		}
+
+		public void OnCameraChange_CameraMode(CameraManager.CameraMode mode)
+		{
+			OnCameraChange();
+		}
+
+		public void OnCameraChange()
 		{
 			if (!verboseCamera)
 				return;
 			Camera camera = CameraManager.GetCurrentCamera();
 			if (!camera)
 				return;
+			CameraManager.CameraMode mode = CameraManager.Instance.currentCameraMode;
 			phase("BEGIN CAMERA CHANGE " + mode, verboseCamera);
 			log(desc(), ".OnCameraChange(" + mode + ")");
 			Camera[] cameras = Camera.allCameras;
