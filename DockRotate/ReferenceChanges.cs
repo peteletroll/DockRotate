@@ -11,6 +11,7 @@ namespace DockRotate
 			string ret = t.name + ":" + t.GetInstanceID()
 				+ (t.gameObject.GetComponent<Vessel>() ? ":V" : "")
 				+ (t.gameObject.GetComponent<Part>() ? ":P" : "")
+				+ (t.gameObject.GetComponent<InternalModel>() ? ":I" : "")
 				+ ":" + t.localRotation.desc() + "@" + t.localPosition.desc()
 				+ "/" + t.rotation.desc() + "@" + t.position.desc();
 			if (parents > 0)
