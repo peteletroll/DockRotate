@@ -449,10 +449,19 @@ namespace DockRotate
 		{
 			if (!verboseCamera)
 				return;
-			Camera camera = CameraManager.GetCurrentCamera();
-			if (!camera)
+
+			if (!HighLogic.LoadedSceneIsFlight || vessel != FlightGlobals.ActiveVessel)
 				return;
-			CameraManager.CameraMode mode = CameraManager.Instance.currentCameraMode;
+
+			Camera camera = CameraManager.GetCurrentCamera();
+			CameraManager manager = CameraManager.Instance;
+			if (!camera || !manager)
+				return;
+
+			CameraManager.CameraMode mode = manager.currentCameraMode;
+			if (mode != CameraManager.CameraMode.IVA && mode != CameraManager.CameraMode.Internal)
+				return;
+
 			phase("BEGIN CAMERA CHANGE " + mode, verboseCamera);
 			log(desc(), ".OnCameraChange(" + mode + ")");
 			Camera[] cameras = Camera.allCameras;
