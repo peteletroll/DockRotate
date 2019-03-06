@@ -20,6 +20,8 @@ namespace DockRotate
 
 		public static Vector3 Td(this Vector3 v, Transform from, Transform to)
 		{
+			if (to == from)
+				return v;
 			if (from)
 				v = from.TransformDirection(v);
 			if (to)
@@ -29,6 +31,8 @@ namespace DockRotate
 
 		public static Vector3 Tp(this Vector3 v, Transform from, Transform to)
 		{
+			if (to == from)
+				return v;
 			if (from)
 				v = from.TransformPoint(v);
 			if (to)
@@ -66,11 +70,15 @@ namespace DockRotate
 
 		public static Vector3 STd(this Vector3 v, Part from, Part to)
 		{
+			if (to == from)
+				return v;
 			return to.orgRot.inverse() * (from.orgRot * v);
 		}
 
 		public static Vector3 STp(this Vector3 v, Part from, Part to)
 		{
+			if (to == from)
+				return v;
 			Vector3 vv = from.orgPos + from.orgRot * v;
 			return to.orgRot.inverse() * (vv - to.orgPos);
 		}
