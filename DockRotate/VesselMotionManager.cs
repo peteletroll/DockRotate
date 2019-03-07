@@ -314,11 +314,20 @@ namespace DockRotate
 			get(v);
 			if (!care(v, false))
 				return;
+
 			phase("BEGIN OFF RAILS");
+
+			List<InternalModel> im = vessel.FindPartModulesImplementing<InternalModel>();
+			for (int i = 0; i < im.Count; i++) {
+				log(desc(), ": InternalModel[" + i + "] " + im[i] + " in " + im[i].part.desc());
+				log(desc(), im[i].transform.desc());
+			}
+
 			resetRotCount();
 			structureChangeInfo.reset("OffRails");
 			onRails = false;
 			listeners().map(l => l.OnVesselGoOffRails());
+
 			phase("END OFF RAILS");
 		}
 
