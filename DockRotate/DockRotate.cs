@@ -511,20 +511,16 @@ namespace DockRotate
 
 		private void checkGuiActive()
 		{
-			if (fld != null) {
-				for (int i = 0; i < fld.Length; i++) {
+			if (fld != null)
+				for (int i = 0; i < fld.Length; i++)
 					if (fld[i] != null)
 						fld[i].guiActive = fld[i].guiActiveEditor = rotationEnabled;
-				}
-			}
 
-			if (evt != null) {
-				bool csr = canStartRotation();
-				for (int i = 0; i < evt.Length; i++) {
+			bool csr = canStartRotation();
+			if (evt != null)
+				for (int i = 0; i < evt.Length; i++)
 					if (evt[i] != null)
 						evt[i].guiActive = evt[i].guiActiveEditor = csr;
-				}
-			}
 
 			if (angleInfoField != null)
 				angleInfoField.guiActive = angleInfoField.guiActiveEditor = rotationEnabled && angleInfo != "";
