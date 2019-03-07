@@ -464,12 +464,56 @@ namespace DockRotate
 
 			phase("BEGIN CAMERA CHANGE " + mode, verboseCamera);
 			log(desc(), ".OnCameraChange(" + mode + ")");
+
+			/*
 			Camera[] cameras = Camera.allCameras;
 			for (int i = 0; i < cameras.Length; i++) {
 				log("camera[" + i + "] = " + cameras[i].desc());
 				log(cameras[i].transform.desc(10));
 			}
+			*/
+
+			reparentInternalModel();
+
 			phase("END CAMERA CHANGE " +  mode, verboseCamera);
+		}
+
+		private void reparentInternalModel()
+		{
+			if (!CameraManager.Instance)
+				return;
+			CameraManager.CameraMode mode = CameraManager.Instance.currentCameraMode;
+			if (mode != CameraManager.CameraMode.IVA && mode != CameraManager.CameraMode.Internal)
+				return;
+
+			InternalModel im = null;
+
+			Camera[] c = Camera.allCameras;
+			int nc = c.Length;
+			for (int ic = 0; !im && ic < nc; ic++)
+				for (Transform t = c[ic].transform; !im && t; t = t.parent)
+					im = t.gameObject.GetComponent<InternalModel>();
+
+			if (!im || !im.part)
+				return;
+			log(desc(), ".reparentInternalModel(): found in " + im.part.desc());
+
+			for (int ic = 0; ic < nc; ic++) {
+				for (Transform t = c[ic].transform; t && t.parent; t = t.parent) {
+					Part pp = t.parent.gameObject.GetComponent<Part>();
+					if (pp && pp != im.part) {
+						phase("BEFORE REPARENTING", true);
+						log(c[ic].transform.desc());
+
+						t.SetParent(im.part.transform, true);
+						phase("AFTER REPARENTING", true);
+						log(c[ic].transform.desc());
+
+						phase("REPARENTED", true);
+						break;
+					}
+				}
+			}
 		}
 
 		public void Awake()
