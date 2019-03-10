@@ -320,7 +320,7 @@ namespace DockRotate
 			List<InternalModel> im = vessel.FindPartModulesImplementing<InternalModel>();
 			for (int i = 0; i < im.Count; i++) {
 				log(desc(), ": InternalModel[" + i + "] " + im[i] + " in " + im[i].part.desc());
-				log(desc(), im[i].transform.desc());
+				log(desc(), im[i].transform.desc(10));
 			}
 
 			resetRotCount();
@@ -512,11 +512,11 @@ namespace DockRotate
 					Part pp = t.parent.gameObject.GetComponent<Part>();
 					if (pp && pp != im.part) {
 						phase("BEFORE REPARENTING", true);
-						log(c[ic].transform.desc());
+						log(c[ic].transform.desc(10));
 
 						t.SetParent(im.part.transform, true);
 						phase("AFTER REPARENTING", true);
-						log(c[ic].transform.desc());
+						log(c[ic].transform.desc(10));
 
 						phase("REPARENTED", true);
 						break;

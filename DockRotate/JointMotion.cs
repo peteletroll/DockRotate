@@ -14,7 +14,7 @@ namespace DockRotate
 		private Vector3 hostUp, targetUp;
 
 		public bool verboseEvents {
-			get => controller && controller.verboseEvents;
+			get => _controller && _controller.verboseEvents;
 		}
 
 		private JointMotionObj _rotCur;
@@ -109,7 +109,7 @@ namespace DockRotate
 			} else {
 				log(desc(), ".setAxis(): part " + part.desc() + " not in " + joint.desc());
 			}
-			if (!controller || verboseEvents)
+			if (!_controller || verboseEvents)
 				log(desc(), ".setAxis(): " + axis.desc() + "@" + node.desc() + "), " + state);
 			hostAxis = axis.STd(part, joint.Host);
 			hostNode = node.STp(part, joint.Host);
