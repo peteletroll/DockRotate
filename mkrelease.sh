@@ -14,7 +14,6 @@ do
 		;;
 	z)
 		zipname="$OPTARG"
-		echo "COPYZIP '$zipname'"
 		;;
 	*)
 		exit 1
