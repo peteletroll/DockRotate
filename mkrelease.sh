@@ -5,11 +5,16 @@ name=DockRotate
 ksphome=~/KSP/KSP_linux
 
 force=0
-while getopts f opt
+zipname=''
+while getopts fz: opt
 do
 	case $opt in
 	f)
 		force=1
+		;;
+	z)
+		zipname="$OPTARG"
+		echo "COPYZIP '$zipname'"
 		;;
 	*)
 		exit 1
@@ -62,6 +67,10 @@ done
 [ $foundnewer -eq 0 ] || exit 1
 
 zip=/tmp/$name-$version.zip
+if [ ! -z "$zipname" ]
+then
+	zip="$zipname"
+fi
 
 (
 	status=0
