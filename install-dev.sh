@@ -21,7 +21,7 @@ tmp=`mktemp -d` || exit 1
 trap "rm -rf $tmp" EXIT
 
 zip="$tmp/dr.zip"
-./mkrelease.sh -z "$zip" || exit 1
+./mkrelease.sh -f -z "$zip" || exit 1
 
 gamedata="$ksphome/GameData"
 if [ ! -d "$gamedata" ]

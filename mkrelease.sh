@@ -124,7 +124,10 @@ then
 	if [ $force -ne 0 ]
 	then
 		echo "RESUMING: -f option activated, forcing zip creation" 1>&2
-		zip=${zip%.zip}-forced.zip
+		if [ -z "$zipname" ]
+		then
+			zip=${zip%.zip}-forced.zip
+		fi
 	else
 		echo "ABORTING: use -f to force zip creation" 1>&2
 		exit 1
