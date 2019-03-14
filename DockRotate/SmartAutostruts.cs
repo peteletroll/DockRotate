@@ -4,53 +4,53 @@ using CompoundParts;
 
 namespace DockRotate
 {
+	public class PartSet: Dictionary<uint, Part>
+	{
+		public void add(Part part)
+		{
+			if (!part)
+				return;
+			Add(part.flightID, part);
+		}
+
+		public bool contains(Part part)
+		{
+			return ContainsKey(part.flightID);
+		}
+
+		public static PartSet allPartsFromHere(Part p)
+		{
+			PartSet ret = new PartSet();
+			_collect(ret, p);
+			return ret;
+		}
+
+		private static void _collect(PartSet s, Part p)
+		{
+			s.add(p);
+			int c = p.children.Count;
+			for (int i = 0; i < c; i++)
+				_collect(s, p.children[i]);
+		}
+	}
+
+	public class PartJointSet: Dictionary<int, PartJoint>
+	{
+		public void add(PartJoint j)
+		{
+			if (!j)
+				return;
+			Add(j.GetInstanceID(), j);
+		}
+
+		public bool contains(PartJoint j)
+		{
+			return ContainsKey(j.GetInstanceID());
+		}
+	}
+
 	public static class SmartAutostruts
 	{
-		private class PartJointSet: Dictionary<int, PartJoint>
-		{
-			public void add(PartJoint j)
-			{
-				if (!j)
-					return;
-				Add(j.GetInstanceID(), j);
-			}
-
-			public bool contains(PartJoint j)
-			{
-				return ContainsKey(j.GetInstanceID());
-			}
-		}
-
-		private class PartSet: Dictionary<uint, Part>
-		{
-			public void add(Part part)
-			{
-				if (!part)
-					return;
-				Add(part.flightID, part);
-			}
-
-			public bool contains(Part part)
-			{
-				return ContainsKey(part.flightID);
-			}
-
-			public static PartSet allPartsFromHere(Part p)
-			{
-				PartSet ret = new PartSet();
-				_collect(ret, p);
-				return ret;
-			}
-
-			private static void _collect(PartSet s, Part p)
-			{
-				s.add(p);
-				int c = p.children.Count;
-				for (int i = 0; i < c; i++)
-					_collect(s, p.children[i]);
-			}
-		}
-
 		/******** Object.FindObjectsOfType<PartJoint>() cache ********/
 
 		private static PartJoint[] cached_allJoints = null;

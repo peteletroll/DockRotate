@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using KSP.Localization;
+using CompoundParts;
 
 namespace DockRotate
 {
@@ -286,6 +287,33 @@ namespace DockRotate
 			return storedInfo;
 		}
 
+		private ModuleBaseRotate[] moversToRoot;
+
+		private void fillMoversToRoot()
+		{
+			List<ModuleBaseRotate> rtr = new List<ModuleBaseRotate>();
+			for (Part p = part.parent; p; p = p.parent) {
+				List<ModuleBaseRotate> mbr = p.FindModulesImplementing<ModuleBaseRotate>();
+				rtr.AddRange(mbr);
+			}
+			moversToRoot = rtr.ToArray();
+		}
+
+		private CModuleStrut[] crossStruts;
+
+		private void fillCrossStruts()
+		{
+			PartSet rotParts = PartSet.allPartsFromHere(part);
+			List<CModuleStrut> allStruts = vessel.FindPartModulesImplementing<CModuleStrut>();
+			List<CModuleStrut> justCrossStruts = new List<CModuleStrut>();
+			for (int i = 0; i < allStruts.Count; i++) {
+				PartJoint strutJoint = allStruts[i].strutJoint;
+				if (rotParts.contains(strutJoint.Host) != rotParts.contains(strutJoint.Target))
+					justCrossStruts.Add(allStruts[i]);
+			}
+			crossStruts = justCrossStruts.ToArray();
+		}
+
 		[KSPField(isPersistant = true)]
 		public Vector3 frozenRotation = Vector3.zero;
 
@@ -332,6 +360,9 @@ namespace DockRotate
 				log(desc(), ".doSetup(): physicsless part, disabled");
 				return;
 			}
+
+			fillMoversToRoot();
+			fillCrossStruts();
 
 			try {
 				setupGuiActive();
