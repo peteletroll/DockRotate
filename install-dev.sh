@@ -32,21 +32,20 @@ fi
 
 (
 	cd "$tmp" &&
-	unzip "$zip" &&
+	unzip -q "$zip" &&
 	cd GameData || exit 1
+
+	echo "removing previous installation..."
+	rm -rf "$gamedata/$name" || exit 1
 
 	if [ $debug -ne 0 ]
 	then
-		echo
 		find . -name \*.debugdll -exec bash -c 'dll="{}"; mv -v "$dll" "${dll%.debugdll}.dll"' \;
 	fi
 
-	echo
-	rm -rfv "$gamedata/$name" || exit 1
-	echo
-	cp -rv "$name" "$gamedata" || exit 1
+	echo "installing..."
+	cp -r "$name" "$gamedata" || exit 1
 
-	echo
+	echo "done."
 ) || exit 1
-
 
