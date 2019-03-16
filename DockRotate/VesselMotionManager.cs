@@ -456,7 +456,7 @@ namespace DockRotate
 
 		public void OnCameraChange()
 		{
-			if (!verboseCamera)
+			if (!verboseCamera || true)
 				return;
 
 			if (!HighLogic.LoadedSceneIsFlight || vessel != FlightGlobals.ActiveVessel)
