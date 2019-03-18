@@ -3,12 +3,12 @@
 name=DockRotate
 ksphome=~/KSP/KSP_linux
 
-debug=0
-while getopts d opt
+debug=1
+while getopts r opt
 do
 	case $opt in
-	d)
-		debug=1
+	r)
+		debug=0
 		;;
 	*)
 		exit 1
