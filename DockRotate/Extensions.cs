@@ -188,24 +188,9 @@ namespace DockRotate
 			}
 			if (verbose)
 				log(node.desc(), ".findConnectedNode(): found " + closest.desc() + " at " + dist);
+
 			if (closest == null || dist > 1e-2f)
 				return null;
-
-			// this fills attachedPart, sometimes empty in editor
-
-			if (node.attachedPart == null && closest.owner) {
-				if (verbose)
-					log(node.desc(), ".findConnectedNode(): set "
-						+ node.desc() + ".attachedPart = " + closest.owner.desc());
-				node.attachedPart = closest.owner;
-			}
-
-			if (closest.attachedPart == null) {
-				if (verbose)
-					log(node.desc(), ".findConnectedNode(): set "
-						+ closest.desc() + ".attachedPart = " + node.owner.desc());
-				closest.attachedPart = node.owner;
-			}
 
 			return closest;
 		}

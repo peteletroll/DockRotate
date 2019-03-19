@@ -258,7 +258,7 @@ namespace DockRotate
 
 		protected bool setupLocalAxisDone;
 		protected abstract bool setupLocalAxis(StartState state);
-		protected abstract AttachNode findMovingNode(bool verbose);
+		protected abstract AttachNode findMovingNode(out AttachNode otherNode, bool verbose);
 
 		protected JointMotion jointMotion;
 		protected abstract PartJoint findMovingJoint(bool verbose);
@@ -655,10 +655,11 @@ namespace DockRotate
 
 		private Part findHostPartInEditor(bool verbose)
 		{
-			AttachNode node = findMovingNode(verbose);
-			if (node == null)
+			AttachNode otherNode;
+			AttachNode node = findMovingNode(out otherNode, verbose);
+			if (node == null || otherNode == null)
 				return null;
-			Part other = node.attachedPart;
+			Part other = otherNode.owner;
 			if (!other)
 				return null;
 			return other.parent == part ? other :
@@ -841,13 +842,14 @@ namespace DockRotate
 			storedInfo = Localizer.Format("#DCKROT_node_info", rotatingNodeName);
 		}
 
-		protected override AttachNode findMovingNode(bool verbose)
+		protected override AttachNode findMovingNode(out AttachNode otherNode, bool verbose)
 		{
+			otherNode = null;
 			if (rotatingNode == null)
 				return null;
 			if (verbose)
 				log(desc(), ".findMovingNode(): rotatingNode = " + rotatingNode.desc());
-			AttachNode otherNode = rotatingNode.findConnectedNode(verboseEvents);
+			otherNode = rotatingNode.findConnectedNode(verboseEvents);
 			if (verbose)
 				log(desc(), ".findMovingNode(): otherNode = " + otherNode.desc());
 			if (otherNode == null)
@@ -960,13 +962,14 @@ namespace DockRotate
 			storedInfo = Localizer.Format("#DCKROT_port_info");
 		}
 
-		protected override AttachNode findMovingNode(bool verbose)
+		protected override AttachNode findMovingNode(out AttachNode otherNode, bool verbose)
 		{
+			otherNode = null;
 			if (!dockingNode || dockingNode.referenceNode == null)
 				return null;
 			if (verbose)
 				log(desc(), ".findMovingNode(): referenceNode = " + dockingNode.referenceNode.desc());
-			AttachNode otherNode = dockingNode.referenceNode.findConnectedNode(verboseEvents);
+			otherNode = dockingNode.referenceNode.findConnectedNode(verboseEvents);
 			if (verbose)
 				log(desc(), ".findMovingNode(): otherNode = " + otherNode.desc());
 			if (otherNode == null)
