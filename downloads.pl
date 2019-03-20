@@ -21,7 +21,7 @@ foreach my $r (reverse @$j) {
 		$d =~ s/^\s+//;
 		$d =~ s/\s+$//;
 		$d =~ s/\s+/ /g;
-		printf "%6d %s %s\n", $c, $d, $a->{name};
+		printf "%6d   %s   %s\n", $c, $d, $a->{name};
 		$total += $c;
 	}
 }
