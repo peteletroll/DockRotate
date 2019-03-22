@@ -754,7 +754,7 @@ namespace DockRotate
 			float angle = cr.tgt - cr.pos;
 			enqueueFrozenRotation(angle, cr.maxvel, keepSpeed ? cr.vel : 0f);
 			cr.abort();
-			log(desc(), ": removing rotation (2)");
+			log(desc(), ": removing rotation (freeze)");
 			jointMotion.rotCur = null;
 		}
 

@@ -212,7 +212,7 @@ namespace DockRotate
 				return;
 
 			if (rotCur.done()) {
-				log(desc(), ": removing rotation (1)");
+				log(desc(), ": removing rotation (done)");
 				rotCur = null;
 				return;
 			}
