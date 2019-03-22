@@ -727,7 +727,7 @@ namespace DockRotate
 			return jointMotion.enqueueRotation(this, angle, speed, startSpeed);
 		}
 
-		protected bool enqueueRotationToSnap(float snap, float speed)
+		protected void enqueueRotationToSnap(float snap, float speed)
 		{
 			if (snap < 0.1f)
 				snap = 15f;
@@ -735,12 +735,13 @@ namespace DockRotate
 			if (HighLogic.LoadedSceneIsEditor) {
 				float a = rotationAngle(false);
 				float f = snap * Mathf.Floor(a / snap + 0.5f);
-				return enqueueRotation(f - a, speed);
+				enqueueRotation(f - a, speed);
+				return;
 			}
 
 			if (!jointMotion)
-				return false;
-			return enqueueRotation(jointMotion.angleToSnap(snap), speed);
+				return;
+			enqueueRotation(jointMotion.angleToSnap(snap), speed);
 		}
 
 		protected void freezeCurrentRotation(string msg, bool keepSpeed)
