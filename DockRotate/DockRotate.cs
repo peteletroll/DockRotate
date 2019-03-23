@@ -111,23 +111,30 @@ namespace DockRotate
 		public bool wantsVerboseEvents() { return verboseEvents; }
 
 		[KSPAction(
-			guiName = "#DCKROT_stop_rotation",
+			guiName = "#DCKROT_enable_rotation",
 			requireFullControl = true
 		)]
-		public void StopRotation(KSPActionParam param)
+		public void EnableRotation(KSPActionParam param)
 		{
-			doStopRotation();
+			rotationEnabled = true;
 		}
 
-		[KSPEvent(
-			guiName = "#DCKROT_stop_rotation",
-			guiActive = false,
-			guiActiveEditor = false,
+		[KSPAction(
+			guiName = "#DCKROT_disable_rotation",
 			requireFullControl = true
 		)]
-		public void StopRotation()
+		public void DisableRotation(KSPActionParam param)
 		{
-			doStopRotation();
+			rotationEnabled = false;
+		}
+
+		[KSPAction(
+			guiName = "#DCKROT_toggle_rotation",
+			requireFullControl = true
+		)]
+		public void ToggleRotation(KSPActionParam param)
+		{
+			rotationEnabled = !rotationEnabled;
 		}
 
 		[KSPAction(
@@ -196,6 +203,26 @@ namespace DockRotate
 		public void RotateToSnap()
 		{
 			doRotateToSnap();
+		}
+
+		[KSPAction(
+			guiName = "#DCKROT_stop_rotation",
+			requireFullControl = true
+		)]
+		public void StopRotation(KSPActionParam param)
+		{
+			doStopRotation();
+		}
+
+		[KSPEvent(
+			guiName = "#DCKROT_stop_rotation",
+			guiActive = false,
+			guiActiveEditor = false,
+			requireFullControl = true
+		)]
+		public void StopRotation()
+		{
+			doStopRotation();
 		}
 
 #if DEBUG
