@@ -371,7 +371,10 @@ namespace DockRotate
 			return part;
 		}
 
-		protected bool setupDone = false;
+		protected int setupDoneAt = 0;
+		protected bool setupDone {
+			get => setupDoneAt != 0;
+		}
 
 		protected virtual void doSetup()
 		{
@@ -415,7 +418,7 @@ namespace DockRotate
 
 			log(desc(), ".doSetup(): joint " + (jointMotion ? jointMotion.joint.desc() : "null"));
 
-			setupDone = true;
+			setupDoneAt = Time.frameCount;
 		}
 
 		public void OnVesselGoOnRails()
@@ -423,14 +426,14 @@ namespace DockRotate
 			if (verboseEvents)
 				log(desc(), ".OnVesselGoOnRails()");
 			freezeCurrentRotation("go on rails", false);
-			setupDone = false;
+			setupDoneAt = 0;
 		}
 
 		public void OnVesselGoOffRails()
 		{
 			if (verboseEvents)
 				log(desc(), ".OnVesselGoOffRails()");
-			setupDone = false;
+			setupDoneAt = 0;
 			// start speed always 0 when going off rails
 			frozenStartSpeed = 0f;
 			doSetup();
@@ -484,7 +487,7 @@ namespace DockRotate
 		public override void OnAwake()
 		{
 			verboseEventsPrev = verboseEvents;
-			setupDone = false;
+			setupDoneAt = 0;
 
 			base.OnAwake();
 		}
