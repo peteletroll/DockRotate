@@ -330,11 +330,17 @@ namespace DockRotate
 
 		private void fillCrossStruts()
 		{
-			PartSet rotParts = PartSet.allPartsFromHere(part);
 			List<CModuleStrut> allStruts = vessel.FindPartModulesImplementing<CModuleStrut>();
+			if (allStruts == null)
+				return;
+			PartSet rotParts = PartSet.allPartsFromHere(part);
 			List<CModuleStrut> justCrossStruts = new List<CModuleStrut>();
 			for (int i = 0; i < allStruts.Count; i++) {
+				if (!allStruts[i])
+					continue;
 				PartJoint strutJoint = allStruts[i].strutJoint;
+				if (!strutJoint || !strutJoint.Host || !strutJoint.Target)
+					continue;
 				if (rotParts.contains(strutJoint.Host) != rotParts.contains(strutJoint.Target))
 					justCrossStruts.Add(allStruts[i]);
 			}
@@ -391,10 +397,9 @@ namespace DockRotate
 				return;
 			}
 
-			fillMoversToRoot();
-			fillCrossStruts();
-
 			try {
+				fillMoversToRoot();
+				fillCrossStruts();
 				setupGuiActive();
 				PartJoint rotatingJoint = findMovingJoint(verboseEvents);
 				if (rotatingJoint) {
