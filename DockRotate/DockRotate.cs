@@ -394,10 +394,9 @@ namespace DockRotate
 				return;
 			}
 
-			fillMoversToRoot();
-			fillCrossStruts();
-
 			try {
+				fillMoversToRoot();
+				fillCrossStruts();
 				setupGuiActive();
 				PartJoint rotatingJoint = findMovingJoint(verboseEvents);
 				if (rotatingJoint) {
