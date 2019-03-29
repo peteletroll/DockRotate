@@ -23,7 +23,11 @@ namespace DockRotate
 					msg1last = msg1;
 				}
 			}
-			Debug.Log("[DR:" + now + "] " + msg1 + msg2);
+			Debug.Log("[DR:"
+#if DEBUG
+				+ "d:"
+#endif
+				+ now + "] " + msg1 + msg2);
 			return true;
 		}
 
