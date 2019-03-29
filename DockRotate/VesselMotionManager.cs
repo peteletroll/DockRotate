@@ -197,7 +197,7 @@ namespace DockRotate
 
 		StructureChangeInfo structureChangeInfo;
 
-		private bool care(Vessel v, bool useStructureChangeInfo)
+		private bool care(Vessel v)
 		{
 			bool ret = v && v == vessel;
 			if (verboseEvents)
@@ -212,7 +212,7 @@ namespace DockRotate
 					log(desc(), ".care(" + p.desc() + ") = " + true);
 				return true;
 			}
-			return p && care(p.vessel, useStructureChangeInfo);
+			return p && care(p.vessel);
 		}
 
 		private bool care(GameEvents.FromToAction<Part, Part> action, bool useStructureChangeInfo)
@@ -225,7 +225,7 @@ namespace DockRotate
 			return care(action.from.part, useStructureChangeInfo) || care(action.to.part, useStructureChangeInfo);
 		}
 
-		private bool care(uint id1, uint id2, bool useStructureChangeInfo)
+		private bool care(uint id1, uint id2)
 		{
 			bool ret = vessel && (vessel.persistentId == id1 || vessel.persistentId == id2);
 			if (verboseEvents)
@@ -296,7 +296,7 @@ namespace DockRotate
 				log(desc(), ".OnVesselGoOnRails(" + desc(v) + ")");
 			if (deadVessel())
 				return;
-			if (!care(v, false))
+			if (!care(v))
 				return;
 			phase("BEGIN ON RAILS");
 			structureChangeInfo.reset("OnRails");
@@ -312,7 +312,7 @@ namespace DockRotate
 			if (deadVessel())
 				return;
 			get(v);
-			if (!care(v, false))
+			if (!care(v))
 				return;
 
 			phase("BEGIN OFF RAILS");
@@ -335,7 +335,7 @@ namespace DockRotate
 		{
 			if (verboseEvents)
 				log(desc(), ".RightBeforeStructureChange_JointUpdate()");
-			if (!care(v, false))
+			if (!care(v))
 				return;
 			RightBeforeStructureChange("JointUpdate");
 		}
@@ -345,7 +345,7 @@ namespace DockRotate
 			if (verboseEvents)
 				log(desc(), ".RightBeforeStructureChange_Ids("
 					+ id1 + ", " + id2 + ")");
-			if (!care(id1, id2, false))
+			if (!care(id1, id2))
 				return;
 			RightBeforeStructureChange("Ids");
 		}

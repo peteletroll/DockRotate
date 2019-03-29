@@ -24,8 +24,8 @@ namespace DockRotate
 				if (!joint || !joint.Host || !joint.Host.vessel)
 					return;
 
-				bool sas = (_rotCur ? _rotCur.smartAutoStruts : false)
-					|| (value ? value.smartAutoStruts : false);
+				bool sas = (_rotCur && _rotCur.smartAutoStruts)
+					|| (value && value.smartAutoStruts);
 
 				int delta = (value && !_rotCur) ? +1
 					: (!value && _rotCur) ? -1
