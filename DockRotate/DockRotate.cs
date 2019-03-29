@@ -138,6 +138,26 @@ namespace DockRotate
 		}
 
 		[KSPAction(
+			guiName = "#DCKROT_stop_rotation",
+			requireFullControl = true
+		)]
+		public void StopRotation(KSPActionParam param)
+		{
+			doStopRotation();
+		}
+
+		[KSPEvent(
+			guiName = "#DCKROT_stop_rotation",
+			guiActive = false,
+			guiActiveEditor = false,
+			requireFullControl = true
+		)]
+		public void StopRotation()
+		{
+			doStopRotation();
+		}
+
+		[KSPAction(
 			guiName = "#DCKROT_rotate_clockwise",
 			requireFullControl = true
 		)]
@@ -203,26 +223,6 @@ namespace DockRotate
 		public void RotateToSnap()
 		{
 			doRotateToSnap();
-		}
-
-		[KSPAction(
-			guiName = "#DCKROT_stop_rotation",
-			requireFullControl = true
-		)]
-		public void StopRotation(KSPActionParam param)
-		{
-			doStopRotation();
-		}
-
-		[KSPEvent(
-			guiName = "#DCKROT_stop_rotation",
-			guiActive = false,
-			guiActiveEditor = false,
-			requireFullControl = true
-		)]
-		public void StopRotation()
-		{
-			doStopRotation();
 		}
 
 #if DEBUG
