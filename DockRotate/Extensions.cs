@@ -302,6 +302,13 @@ namespace DockRotate
 				+ ")";
 		}
 
+		/******** action utilities ********/
+
+		public static string desc(this KSPActionParam p)
+		{
+			return "[" + p.group + ", " + p.type + ", " + p.Cooldown + "]";
+		}
+
 		/******** Vector3 utilities ********/
 
 		public static Quaternion rotation(this Vector3 axis, float angle)

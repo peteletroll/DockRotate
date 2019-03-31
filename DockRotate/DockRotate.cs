@@ -116,6 +116,8 @@ namespace DockRotate
 		)]
 		public void EnableRotation(KSPActionParam param)
 		{
+			if (verboseEvents)
+				log(desc(), ": action " + param.desc());
 			rotationEnabled = true;
 		}
 
@@ -125,6 +127,8 @@ namespace DockRotate
 		)]
 		public void DisableRotation(KSPActionParam param)
 		{
+			if (verboseEvents)
+				log(desc(), ": action " + param.desc());
 			rotationEnabled = false;
 		}
 
@@ -134,6 +138,8 @@ namespace DockRotate
 		)]
 		public void ToggleRotation(KSPActionParam param)
 		{
+			if (verboseEvents)
+				log(desc(), ": action " + param.desc());
 			rotationEnabled = !rotationEnabled;
 		}
 
@@ -143,6 +149,8 @@ namespace DockRotate
 		)]
 		public void StopRotation(KSPActionParam param)
 		{
+			if (verboseEvents)
+				log(desc(), ": action " + param.desc());
 			doStopRotation();
 		}
 
@@ -163,6 +171,8 @@ namespace DockRotate
 		)]
 		public void RotateClockwise(KSPActionParam param)
 		{
+			if (verboseEvents)
+				log(desc(), ": action " + param.desc());
 			if (reverseActionRotationKey()) {
 				doRotateCounterclockwise();
 			} else {
@@ -187,6 +197,8 @@ namespace DockRotate
 		)]
 		public void RotateCounterclockwise(KSPActionParam param)
 		{
+			if (verboseEvents)
+				log(desc(), ": action " + param.desc());
 			if (reverseActionRotationKey()) {
 				doRotateClockwise();
 			} else {
@@ -211,6 +223,8 @@ namespace DockRotate
 		)]
 		public void RotateToSnap(KSPActionParam param)
 		{
+			if (verboseEvents)
+				log(desc(), ": action " + param.desc());
 			doRotateToSnap();
 		}
 
