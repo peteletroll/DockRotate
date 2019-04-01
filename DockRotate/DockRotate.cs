@@ -8,7 +8,7 @@ namespace DockRotate
 {
 	public abstract class ModuleBaseRotate: PartModule, IJointLockState, IStructureChangeListener
 	{
-		[UI_Toggle()]
+		[UI_Toggle]
 		[KSPField(
 			guiName = "#DCKROT_rotation",
 			guiActive = true,
@@ -55,7 +55,7 @@ namespace DockRotate
 		)]
 		public bool reverseRotation = false;
 
-		[UI_Toggle()]
+		[UI_Toggle]
 		[KSPField(
 			guiActive = true,
 			guiActiveEditor = true,
@@ -71,7 +71,7 @@ namespace DockRotate
 		[KSPField(isPersistant = true)]
 		public float soundVolume = 0.5f;
 
-		[UI_Toggle()]
+		[UI_Toggle]
 		[KSPField(
 			guiActive = true,
 			guiActiveEditor = true,
