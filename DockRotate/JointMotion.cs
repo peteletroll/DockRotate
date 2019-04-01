@@ -113,8 +113,8 @@ namespace DockRotate
 				log(desc(), ".setAxis(): " + axis.desc() + "@" + node.desc() + "), " + state);
 			hostAxis = axis.STd(part, joint.Host);
 			hostNode = node.STp(part, joint.Host);
-			hostUp = joint.Host.up(hostAxis);
-			targetUp = joint.Target.up(hostAxis.STd(joint.Host, joint.Target));
+			hostUp = hostAxis.findUp();
+			targetUp = hostAxis.STd(joint.Host, joint.Target).findUp();
 		}
 
 		public virtual bool enqueueRotation(ModuleBaseRotate source, float angle, float speed, float startSpeed = 0f)

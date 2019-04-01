@@ -60,13 +60,6 @@ namespace DockRotate
 			return s > 1 ? part.name.Remove(s) : part.name;
 		}
 
-		public static Vector3 up(this Part part, Vector3 axis)
-		{
-			Vector3 up1 = Vector3.ProjectOnPlane(Vector3.up, axis);
-			Vector3 up2 = Vector3.ProjectOnPlane(Vector3.forward, axis);
-			return (up1.magnitude >= up2.magnitude ? up1 : up2).normalized;
-		}
-
 		/******** Physics Activation utilities ********/
 
 		public static bool hasPhysics(this Part part)
@@ -310,6 +303,13 @@ namespace DockRotate
 		}
 
 		/******** Vector3 utilities ********/
+
+		public static Vector3 findUp(this Vector3 axis)
+		{
+			Vector3 up1 = Vector3.ProjectOnPlane(Vector3.up, axis);
+			Vector3 up2 = Vector3.ProjectOnPlane(Vector3.forward, axis);
+			return (up1.magnitude >= up2.magnitude ? up1 : up2).normalized;
+		}
 
 		public static Quaternion rotation(this Vector3 axis, float angle)
 		{

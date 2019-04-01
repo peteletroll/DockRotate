@@ -725,8 +725,8 @@ namespace DockRotate
 				Part target = host.parent;
 				Vector3 axis = host == part ? partNodeAxis : -partNodeAxis;
 				Vector3 hostNodeAxis = axis.Td(part.T(), host.T());
-				return hostNodeAxis.axisSignedAngle(host.up(hostNodeAxis),
-					target.up(hostNodeAxis.Td(host.T(), target.T())).Td(target.T(), host.T()));
+				return hostNodeAxis.axisSignedAngle(hostNodeAxis.findUp(),
+					hostNodeAxis.Td(host.T(), target.T()).findUp().Td(target.T(), host.T()));
 			}
 
 			return jointMotion ? jointMotion.rotationAngle(dynamic) : float.NaN;
