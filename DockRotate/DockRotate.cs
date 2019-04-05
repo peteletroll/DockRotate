@@ -479,7 +479,7 @@ namespace DockRotate
 					+ " > [" + part.children.Count + "]"
 					+ " < " + part.parent.desc() + " " + part.parent.descOrg());
 
-			float angle = rotationAngle(true);
+			float angle = rotationAngle();
 			if (rotationEnabled && !float.IsNaN(angle)) {
 				angleInfo = String.Format("{0:+0.00;-0.00;0.00}\u00b0", angle);
 			} else {
@@ -660,10 +660,10 @@ namespace DockRotate
 
 			if (cr) {
 				angleInfo = String.Format("{0:+0.00;-0.00;0.00}\u00b0 ({1:+0.00;-0.00;0.00}\u00b0/s){2}",
-					rotationAngle(true), cr.vel,
+					rotationAngle(), cr.vel,
 					(jointMotion.controller == this ? " CTL" : ""));
 			} else {
-				float angle = rotationAngle(false);
+				float angle = rotationAngle();
 				if (float.IsNaN(angle)) {
 					angleInfo = "";
 				} else {
@@ -716,7 +716,7 @@ namespace DockRotate
 				null;
 		}
 
-		protected float rotationAngle(bool dynamic)
+		protected float rotationAngle()
 		{
 			if (HighLogic.LoadedSceneIsEditor) {
 				Part host = findHostPartInEditor(false);
@@ -729,7 +729,7 @@ namespace DockRotate
 					hostNodeAxis.Td(host.T(), target.T()).findUp().Td(target.T(), host.T()));
 			}
 
-			return jointMotion ? jointMotion.rotationAngle(dynamic) : float.NaN;
+			return jointMotion ? jointMotion.rotationAngle(false) : float.NaN;
 		}
 
 		protected float dynamicDeltaAngle()
@@ -782,7 +782,7 @@ namespace DockRotate
 				snap = 15f;
 
 			if (HighLogic.LoadedSceneIsEditor) {
-				float a = rotationAngle(false);
+				float a = rotationAngle();
 				float f = snap * Mathf.Floor(a / snap + 0.5f);
 				enqueueRotation(f - a, speed);
 				return;
