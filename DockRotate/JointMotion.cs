@@ -163,7 +163,7 @@ namespace DockRotate
 			return true;
 		}
 
-		private float orgRotationAngle()
+		public float orgRotationAngle()
 		{
 			Vector3 a = hostAxis;
 			Vector3 v1 = hostUp;
@@ -490,6 +490,7 @@ namespace DockRotate
 			Quaternion nodeRot = nodeAxis.rotation(angle);
 			Vector3 nodePos = node.STp(hostPart, hostPart.vessel.rootPart);
 			_propagate(hostPart, nodeRot, nodePos);
+			jm.orgRot = jm.orgRotationAngle();
 			return true;
 		}
 
