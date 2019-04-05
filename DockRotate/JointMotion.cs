@@ -192,7 +192,7 @@ namespace DockRotate
 			if (snap < 0.1f)
 				return 0f;
 			float refAngle = !rotCur ? rotationAngle() :
-				rotCur.isContinuous() ? rotationAngle() + rotCur.curBrakingSpace() + (snap / 2f) * Mathf.Sign(rotCur.vel) :
+				rotCur.isContinuous() ? rotationAngle() + rotCur.curBrakingSpace() + snap * Mathf.Sign(rotCur.vel) / 2f :
 				orgRot + rotCur.tgt;
 			if (float.IsNaN(refAngle))
 				return 0f;

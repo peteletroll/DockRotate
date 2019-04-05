@@ -350,12 +350,8 @@ namespace DockRotate
 			PartSet rotParts = PartSet.allPartsFromHere(part);
 			List<CModuleStrut> justCrossStruts = new List<CModuleStrut>();
 			for (int i = 0; i < allStruts.Count; i++) {
-				if (!allStruts[i])
-					continue;
-				PartJoint strutJoint = allStruts[i].strutJoint;
-				if (!strutJoint || !strutJoint.Host || !strutJoint.Target)
-					continue;
-				if (rotParts.contains(strutJoint.Host) != rotParts.contains(strutJoint.Target))
+				PartJoint sj = allStruts[i] ? allStruts[i].strutJoint : null;
+				if (sj && sj.Host && sj.Target && rotParts.contains(sj.Host) != rotParts.contains(sj.Target))
 					justCrossStruts.Add(allStruts[i]);
 			}
 			crossStruts = justCrossStruts.ToArray();
