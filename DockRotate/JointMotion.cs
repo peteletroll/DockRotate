@@ -90,7 +90,6 @@ namespace DockRotate
 
 			JointMotion jm = j.gameObject.AddComponent<JointMotion>();
 			jm._joint = j;
-			jm.orgRot = jm.orgRotationAngle();
 			log(nameof(JointMotion), ".get(): created " + jm.desc());
 			return jm;
 		}

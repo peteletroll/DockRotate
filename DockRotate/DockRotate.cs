@@ -415,6 +415,7 @@ namespace DockRotate
 				if (rotatingJoint) {
 					jointMotion = JointMotion.get(rotatingJoint);
 					jointMotion.controller = this;
+					jointMotion.orgRot = jointMotion.orgRotationAngle();
 				}
 			} catch (Exception e) {
 				string sep = new string('-', 80);
@@ -654,12 +655,11 @@ namespace DockRotate
 				nodeStatus += " " + cr.pos + "\u00b0 -> "+ cr.tgt + "\u00b0";
 #endif
 
+			float angle = rotationAngle();
 			if (cr) {
 				angleInfo = String.Format("{0:+0.00;-0.00;0.00}\u00b0 ({1:+0.00;-0.00;0.00}\u00b0/s){2}",
-					rotationAngle(), cr.vel,
-					(jointMotion.controller == this ? " CTL" : ""));
+					angle, cr.vel, (jointMotion.controller == this ? " CTL" : ""));
 			} else {
-				float angle = rotationAngle();
 				if (float.IsNaN(angle)) {
 					angleInfo = "";
 				} else {
@@ -730,6 +730,8 @@ namespace DockRotate
 
 		protected float dynamicDeltaAngle()
 		{
+			if (HighLogic.LoadedSceneIsEditor)
+				return 0f;
 			return jointMotion ? jointMotion.dynamicDeltaAngle() : float.NaN;
 		}
 
