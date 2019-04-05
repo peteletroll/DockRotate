@@ -149,7 +149,6 @@ namespace DockRotate
 				}
 			} else {
 				JointMotionObj r = new JointMotionObj(this, 0, angle, speed);
-				r.rot0 = orgRotationAngle();
 				r.vel = startSpeed;
 				controller = source;
 				r.electricityRate = source.electricityRate;
@@ -192,10 +191,9 @@ namespace DockRotate
 			snap = Mathf.Abs(snap);
 			if (snap < 0.1f)
 				return 0f;
-			float refAngle = !rotCur ? rotationAngle()
-				: rotCur.isContinuous() ?
-					rotCur.rot0 + rotCur.pos + rotCur.curBrakingSpace() + (snap / 2f) * Mathf.Sign(rotCur.vel)
-				: rotCur.rot0 + rotCur.tgt;
+			float refAngle = !rotCur ? rotationAngle() :
+				rotCur.isContinuous() ? rotationAngle() + rotCur.curBrakingSpace() + (snap / 2f) * Mathf.Sign(rotCur.vel) :
+				orgRot + rotCur.tgt;
 			if (float.IsNaN(refAngle))
 				return 0f;
 			float snapAngle = snap * Mathf.Floor(refAngle / snap + 0.5f);
@@ -328,7 +326,6 @@ namespace DockRotate
 
 		public double electricity = 0d;
 		public float electricityRate = 1f;
-		public float rot0 = 0f;
 
 		private Part hostPart { get { return jm.joint.Host; } }
 		private Part targetPart { get { return jm.joint.Target; } }
