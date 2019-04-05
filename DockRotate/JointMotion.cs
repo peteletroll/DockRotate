@@ -13,6 +13,8 @@ namespace DockRotate
 		public Vector3 hostAxis, hostNode;
 		private Vector3 hostUp, targetUp;
 
+		public float orgRot = 0f;
+
 		public bool verboseEvents {
 			get => _controller && _controller.verboseEvents;
 		}
@@ -88,6 +90,7 @@ namespace DockRotate
 
 			JointMotion jm = j.gameObject.AddComponent<JointMotion>();
 			jm._joint = j;
+			jm.orgRot = jm.orgRotationAngle();
 			log(nameof(JointMotion), ".get(): created " + jm.desc());
 			return jm;
 		}
@@ -146,7 +149,7 @@ namespace DockRotate
 				}
 			} else {
 				JointMotionObj r = new JointMotionObj(this, 0, angle, speed);
-				r.rot0 = rotationAngle(false);
+				r.rot0 = orgRotationAngle();
 				r.vel = startSpeed;
 				controller = source;
 				r.electricityRate = source.electricityRate;
@@ -160,14 +163,19 @@ namespace DockRotate
 			return true;
 		}
 
-		public float rotationAngle(bool dynamic)
+		private float orgRotationAngle()
 		{
 			Vector3 a = hostAxis;
 			Vector3 v1 = hostUp;
-			Vector3 v2 = dynamic ?
-				targetUp.Td(joint.Target.T(), joint.Host.T()) :
-				targetUp.STd(joint.Target, joint.Host);
-			return a.axisSignedAngle(v1, v2);
+			Vector3 v2 = targetUp.STd(joint.Target, joint.Host);
+			float angle = a.axisSignedAngle(v1, v2);
+			log(desc(), ".orgRotationAngle() = " + angle);
+			return angle;
+		}
+
+		public float rotationAngle()
+		{
+			return orgRot + (_rotCur ? _rotCur.pos : 0f);
 		}
 
 		public float dynamicDeltaAngle()
@@ -184,7 +192,7 @@ namespace DockRotate
 			snap = Mathf.Abs(snap);
 			if (snap < 0.1f)
 				return 0f;
-			float refAngle = !rotCur ? rotationAngle(false)
+			float refAngle = !rotCur ? rotationAngle()
 				: rotCur.isContinuous() ?
 					rotCur.rot0 + rotCur.pos + rotCur.curBrakingSpace() + (snap / 2f) * Mathf.Sign(rotCur.vel)
 				: rotCur.rot0 + rotCur.tgt;

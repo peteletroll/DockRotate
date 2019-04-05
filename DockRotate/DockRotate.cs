@@ -729,7 +729,7 @@ namespace DockRotate
 					hostNodeAxis.Td(host.T(), target.T()).findUp().Td(target.T(), host.T()));
 			}
 
-			return jointMotion ? jointMotion.rotationAngle(false) : float.NaN;
+			return jointMotion ? jointMotion.rotationAngle() : float.NaN;
 		}
 
 		protected float dynamicDeltaAngle()
