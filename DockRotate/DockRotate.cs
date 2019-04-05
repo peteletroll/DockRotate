@@ -750,7 +750,7 @@ namespace DockRotate
 		protected bool enqueueRotation(float angle, float speed, float startSpeed = 0f)
 		{
 			if (HighLogic.LoadedSceneIsEditor) {
-				log(desc(), ".equeueRotation(): " + angle + "\u00b0 in editor");
+				log(desc(), ".enqueueRotation(): " + angle + "\u00b0 in editor");
 
 				Part host = findHostPartInEditor(false);
 				if (!host || !host.parent)
