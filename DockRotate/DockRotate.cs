@@ -655,17 +655,19 @@ namespace DockRotate
 				nodeStatus += " " + cr.pos + "\u00b0 -> "+ cr.tgt + "\u00b0";
 #endif
 
-			float angle = rotationAngle();
-			if (cr) {
-				angleInfo = String.Format("{0:+0.00;-0.00;0.00}\u00b0 ({1:+0.00;-0.00;0.00}\u00b0/s){2}",
-					angle, cr.vel, (jointMotion.controller == this ? " CTL" : ""));
-			} else {
-				if (float.IsNaN(angle)) {
-					angleInfo = "";
+			if ((Time.frameCount & 3) == 0) {
+				float angle = rotationAngle();
+				if (cr) {
+					angleInfo = String.Format("{0:+0.00;-0.00;0.00}\u00b0 ({1:+0.00;-0.00;0.00}\u00b0/s){2}",
+						angle, cr.vel, (jointMotion.controller == this ? " CTL" : ""));
 				} else {
-					angleInfo = String.Format(
-						"{0:+0.00;-0.00;0.00}\u00b0 ({1:+0.0000;-0.0000;0.0000}\u00b0\u0394)",
-						angle, dynamicDeltaAngle());
+					if (float.IsNaN(angle)) {
+						angleInfo = "";
+					} else {
+						angleInfo = String.Format(
+							"{0:+0.00;-0.00;0.00}\u00b0 ({1:+0.0000;-0.0000;0.0000}\u00b0\u0394)",
+							angle, dynamicDeltaAngle());
+					}
 				}
 			}
 
