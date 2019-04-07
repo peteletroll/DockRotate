@@ -81,6 +81,12 @@ namespace DockRotate
 		)]
 		public bool smartAutoStruts = false;
 
+		[KSPField(guiActive = false)]
+		public float anglePosition;
+
+		[KSPField(guiActive = false)]
+		public float angleVelocity;
+
 		[KSPField(
 			guiName = "#DCKROT_angle",
 			guiActive = true,
@@ -396,6 +402,8 @@ namespace DockRotate
 		{
 			jointMotion = null;
 			nodeRole = "None";
+			anglePosition = rotationAngle();
+			angleVelocity = 0f;
 
 			if (!part || !vessel || !setupLocalAxisDone) {
 				log("" + GetType(), ": *** WARNING *** doSetup() called at a bad time");
@@ -655,18 +663,20 @@ namespace DockRotate
 				nodeStatus += " " + cr.pos + "\u00b0 -> "+ cr.tgt + "\u00b0";
 #endif
 
+			anglePosition = rotationAngle();
+			angleVelocity = cr ? cr.vel : 0f;
+
 			if ((Time.frameCount & 3) == 0) {
-				float angle = rotationAngle();
 				if (cr) {
 					angleInfo = String.Format("{0:+0.00;-0.00;0.00}\u00b0 ({1:+0.00;-0.00;0.00}\u00b0/s){2}",
-						angle, cr.vel, (jointMotion.controller == this ? " CTL" : ""));
+						anglePosition, cr.vel, (jointMotion.controller == this ? " CTL" : ""));
 				} else {
-					if (float.IsNaN(angle)) {
+					if (float.IsNaN(anglePosition)) {
 						angleInfo = "";
 					} else {
 						angleInfo = String.Format(
 							"{0:+0.00;-0.00;0.00}\u00b0 ({1:+0.0000;-0.0000;0.0000}\u00b0\u0394)",
-							angle, dynamicDeltaAngle());
+							anglePosition, dynamicDeltaAngle());
 					}
 				}
 			}
