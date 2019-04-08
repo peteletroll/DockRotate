@@ -87,6 +87,9 @@ namespace DockRotate
 		[KSPField(guiActive = false)]
 		public float angleVelocity;
 
+		[KSPField(guiActive = false)]
+		public bool angleIsMoving;
+
 		[KSPField(
 			guiName = "#DCKROT_angle",
 			guiActive = true,
@@ -404,6 +407,7 @@ namespace DockRotate
 			nodeRole = "None";
 			anglePosition = rotationAngle();
 			angleVelocity = 0f;
+			angleIsMoving = false;
 
 			if (!part || !vessel || !setupLocalAxisDone) {
 				log("" + GetType(), ": *** WARNING *** doSetup() called at a bad time");
@@ -656,6 +660,7 @@ namespace DockRotate
 
 			anglePosition = rotationAngle();
 			angleVelocity = cr ? cr.vel : 0f;
+			angleIsMoving = cr;
 
 			if ((Time.frameCount & 3) == 0) {
 				if (cr) {
