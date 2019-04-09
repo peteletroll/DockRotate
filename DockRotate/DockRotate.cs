@@ -107,7 +107,7 @@ namespace DockRotate
 #endif
 
 #if DEBUG
-		[UI_Toggle()]
+		[UI_Toggle]
 		[KSPField(
 			guiName = "Verbose Events",
 			guiActive = true,
