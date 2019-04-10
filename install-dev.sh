@@ -40,7 +40,8 @@ fi
 
 	if [ $debug -ne 0 ]
 	then
-		find . -name \*.debugdll -exec bash -c 'dll="{}"; mv -v "$dll" "${dll%.debugdll}.dll"' \;
+		find ./DockRotate -name \*.dll -exec bash -c 'dll="{}"; mv -v "$dll" "${dll%.dll}.releasedll"' \;
+		find ./DockRotate -name \*.debugdll -exec bash -c 'dll="{}"; mv -v "$dll" "${dll%.debugdll}.dll"' \;
 	fi
 
 	echo "installing..."
