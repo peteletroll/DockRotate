@@ -431,7 +431,8 @@ namespace DockRotate
 				PartJoint rotatingJoint = findMovingJoint(verboseEvents);
 				if (rotatingJoint) {
 					jointMotion = JointMotion.get(rotatingJoint);
-					jointMotion.controller = this;
+					if (!jointMotion.controller)
+						jointMotion.controller = this;
 					jointMotion.orgRot = jointMotion.orgRotationAngle();
 				}
 			} catch (Exception e) {
