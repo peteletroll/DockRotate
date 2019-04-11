@@ -803,6 +803,8 @@ namespace DockRotate
 
 			if (HighLogic.LoadedSceneIsEditor) {
 				float a = rotationAngle();
+				if (float.IsNaN(a))
+					return;
 				float f = snap * Mathf.Floor(a / snap + 0.5f);
 				enqueueRotation(f - a, speed);
 				return;
