@@ -8,6 +8,11 @@ namespace DockRotate
 {
 	public abstract class ModuleBaseRotate: PartModule, IJointLockState, IStructureChangeListener
 	{
+#if DEBUG
+		const bool DEBUGMODE = true;
+#else
+		const bool DEBUGMODE = false;
+#endif
 		[UI_Toggle]
 		[KSPField(
 			guiName = "#DCKROT_rotation",
@@ -81,6 +86,15 @@ namespace DockRotate
 		)]
 		public bool smartAutoStruts = false;
 
+		[KSPField(guiActive = DEBUGMODE)]
+		public float anglePosition;
+
+		[KSPField(guiActive = DEBUGMODE)]
+		public float angleVelocity;
+
+		[KSPField(guiActive = DEBUGMODE)]
+		public bool angleIsMoving;
+
 		[KSPField(
 			guiName = "#DCKROT_angle",
 			guiActive = true,
@@ -98,7 +112,7 @@ namespace DockRotate
 #endif
 
 #if DEBUG
-		[UI_Toggle()]
+		[UI_Toggle]
 		[KSPField(
 			guiName = "Verbose Events",
 			guiActive = true,
