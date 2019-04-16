@@ -747,6 +747,8 @@ namespace DockRotate
 
 		protected float dynamicDeltaAngle()
 		{
+			if (HighLogic.LoadedSceneIsEditor)
+				return 0f;
 			return jointMotion ? jointMotion.dynamicDeltaAngle() : float.NaN;
 		}
 
