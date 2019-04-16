@@ -666,13 +666,13 @@ namespace DockRotate
 						rotationAngle(true), cr.vel,
 						(jointMotion.controller == this ? " CTL" : ""));
 				} else {
-					float angle = rotationAngle(false);
-					if (float.IsNaN(angle)) {
+					float anglePosition = rotationAngle(false);
+					if (float.IsNaN(anglePosition)) {
 						angleInfo = "";
 					} else {
 						angleInfo = String.Format(
 							"{0:+0.00;-0.00;0.00}\u00b0 ({1:+0.0000;-0.0000;0.0000}\u00b0\u0394)",
-							angle, dynamicDeltaAngle());
+							anglePosition, dynamicDeltaAngle());
 					}
 				}
 
