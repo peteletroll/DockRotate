@@ -660,15 +660,6 @@ namespace DockRotate
 
 			JointMotionObj cr = currentRotation();
 
-#if DEBUG
-			int nJoints = jointMotion ? jointMotion.joint.joints.Count : 0;
-			nodeStatus = part.flightID + ":" + nodeRole + "[" + nJoints + "]";
-			if (frozenFlag)
-				nodeStatus += " [F]";
-			if (cr)
-				nodeStatus += " " + cr.pos + "\u00b0 -> "+ cr.tgt + "\u00b0";
-#endif
-
 			if ((Time.frameCount & 3) == 0) {
 				if (cr) {
 					angleInfo = String.Format("{0:+0.00;-0.00;0.00}\u00b0 ({1:+0.00;-0.00;0.00}\u00b0/s){2}",
@@ -684,6 +675,15 @@ namespace DockRotate
 							angle, dynamicDeltaAngle());
 					}
 				}
+
+#if DEBUG
+				int nJoints = jointMotion ? jointMotion.joint.joints.Count : 0;
+				nodeStatus = part.flightID + ":" + nodeRole + "[" + nJoints + "]";
+				if (frozenFlag)
+					nodeStatus += " [F]";
+				if (cr)
+					nodeStatus += " " + cr.pos + "\u00b0 -> " + cr.tgt + "\u00b0";
+#endif
 			}
 
 			checkGuiActive();
