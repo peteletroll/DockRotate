@@ -410,7 +410,7 @@ namespace DockRotate
 		{
 			jointMotion = null;
 			nodeRole = "None";
-			anglePosition = rotationAngle(true);
+			anglePosition = rotationAngle();
 			angleVelocity = 0f;
 			angleIsMoving = false;
 
@@ -494,7 +494,7 @@ namespace DockRotate
 					+ " > [" + part.children.Count + "]"
 					+ " < " + part.parent.desc() + " " + part.parent.descOrg());
 
-			float angle = rotationAngle(true);
+			float angle = rotationAngle();
 			if (rotationEnabled && !float.IsNaN(angle)) {
 				angleInfo = String.Format("{0:+0.00;-0.00;0.00}\u00b0", angle);
 			} else {
@@ -664,17 +664,15 @@ namespace DockRotate
 
 			JointMotionObj cr = currentRotation();
 
-			anglePosition = rotationAngle(true);
+			anglePosition = rotationAngle();
 			angleVelocity = cr ? cr.vel : 0f;
 			angleIsMoving = cr;
 
 			if ((Time.frameCount & 3) == 0) {
 				if (cr) {
 					angleInfo = String.Format("{0:+0.00;-0.00;0.00}\u00b0 ({1:+0.00;-0.00;0.00}\u00b0/s){2}",
-						rotationAngle(true), cr.vel,
-						(jointMotion.controller == this ? " CTL" : ""));
+						anglePosition, cr.vel, (jointMotion.controller == this ? " CTL" : ""));
 				} else {
-					float anglePosition = rotationAngle(false);
 					if (float.IsNaN(anglePosition)) {
 						angleInfo = "";
 					} else {
@@ -736,7 +734,7 @@ namespace DockRotate
 				null;
 		}
 
-		protected float rotationAngle(bool dynamic)
+		protected float rotationAngle()
 		{
 			if (HighLogic.LoadedSceneIsEditor) {
 				Part host = findHostPartInEditor(false);
@@ -749,7 +747,7 @@ namespace DockRotate
 					hostNodeAxis.Td(host.T(), target.T()).findUp().Td(target.T(), host.T()));
 			}
 
-			return jointMotion ? jointMotion.rotationAngle(dynamic) : float.NaN;
+			return jointMotion ? jointMotion.rotationAngle() : float.NaN;
 		}
 
 		protected float dynamicDeltaAngle()
@@ -804,7 +802,7 @@ namespace DockRotate
 				snap = 15f;
 
 			if (HighLogic.LoadedSceneIsEditor) {
-				float a = rotationAngle(false);
+				float a = rotationAngle();
 				if (float.IsNaN(a))
 					return;
 				float f = snap * Mathf.Floor(a / snap + 0.5f);
