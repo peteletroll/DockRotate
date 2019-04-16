@@ -410,6 +410,9 @@ namespace DockRotate
 		{
 			jointMotion = null;
 			nodeRole = "None";
+			anglePosition = rotationAngle(true);
+			angleVelocity = 0f;
+			angleIsMoving = false;
 
 			if (!part || !vessel || !setupLocalAxisDone) {
 				log("" + GetType(), ": *** WARNING *** doSetup() called at a bad time");
@@ -659,6 +662,10 @@ namespace DockRotate
 				return;
 
 			JointMotionObj cr = currentRotation();
+
+			anglePosition = rotationAngle(true);
+			angleVelocity = cr ? cr.vel : 0f;
+			angleIsMoving = cr;
 
 			if ((Time.frameCount & 3) == 0) {
 				if (cr) {
