@@ -160,6 +160,16 @@ namespace DockRotate
 			return true;
 		}
 
+		public float orgRotationAngle()
+		{
+			Vector3 a = hostAxis;
+			Vector3 v1 = hostUp;
+			Vector3 v2 = targetUp.STd(joint.Target, joint.Host);
+			float angle = a.axisSignedAngle(v1, v2);
+			log(desc(), ".orgRotationAngle() = " + angle);
+			return angle;
+		}
+
 		public float rotationAngle(bool dynamic)
 		{
 			Vector3 a = hostAxis;
