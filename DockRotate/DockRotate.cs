@@ -433,6 +433,7 @@ namespace DockRotate
 					jointMotion = JointMotion.get(rotatingJoint);
 					if (!jointMotion.controller)
 						jointMotion.controller = this;
+					jointMotion.orgRot = jointMotion.orgRotationAngle();
 				}
 			} catch (Exception e) {
 				string sep = new string('-', 80);
@@ -682,7 +683,6 @@ namespace DockRotate
 							anglePosition, dynamicDeltaAngle());
 					}
 				}
-
 #if DEBUG
 				int nJoints = jointMotion ? jointMotion.joint.joints.Count : 0;
 				nodeStatus = part.flightID + ":" + nodeRole + "[" + nJoints + "]";

@@ -13,6 +13,8 @@ namespace DockRotate
 		public Vector3 hostAxis, hostNode;
 		private Vector3 hostUp, targetUp;
 
+		public float orgRot = 0f;
+
 		public bool verboseEvents {
 			get => _controller && _controller.verboseEvents;
 		}
@@ -492,6 +494,7 @@ namespace DockRotate
 			Quaternion nodeRot = nodeAxis.rotation(angle);
 			Vector3 nodePos = node.STp(hostPart, hostPart.vessel.rootPart);
 			_propagate(hostPart, nodeRot, nodePos);
+			jm.orgRot = jm.orgRotationAngle();
 			return true;
 		}
 
