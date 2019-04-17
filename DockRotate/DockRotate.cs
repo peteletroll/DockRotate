@@ -668,7 +668,7 @@ namespace DockRotate
 			angleVelocity = cr ? cr.vel : 0f;
 			angleIsMoving = cr;
 
-			if ((Time.frameCount & 3) == 0) {
+			if (cr || (Time.frameCount & 3) == 0) {
 				if (cr) {
 					angleInfo = String.Format("{0:+0.00;-0.00;0.00}\u00b0 ({1:+0.00;-0.00;0.00}\u00b0/s){2}",
 						anglePosition, cr.vel, (jointMotion.controller == this ? " CTL" : ""));
