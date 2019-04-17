@@ -477,8 +477,8 @@ namespace DockRotate
 
 		private bool staticizeOrgInfo()
 		{
-			if (jm.joint != hostPart.attachJoint) {
-				log(jm.desc(), ": skip staticize, same vessel joint");
+			if (jm.joint.isOffTree()) {
+				log(jm.desc(), ": skip staticizeOrgInfo(), off tree");
 				return false;
 			}
 			float angle = pos;

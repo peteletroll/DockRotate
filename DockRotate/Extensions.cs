@@ -211,6 +211,19 @@ namespace DockRotate
 
 		/******** PartJoint utilities ********/
 
+		public static bool isOffTree(this PartJoint j)
+		{
+			if (!j || !j.Host || !j.Target)
+				return true;
+			if (j == j.Host.attachJoint)
+				return false;
+			if (j.Host.parent != j.Target) {
+				log(j.desc(), ".isOffTree(): *** WARNING *** false at parent test");
+				return false;
+			}
+			return true;
+		}
+
 		public static string desc(this PartJoint j, bool bare = false)
 		{
 			if (j == null)

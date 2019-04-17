@@ -50,6 +50,7 @@ then
 	echo "ABORTING: found bad spacing, see above" 1>&2
 	exit 1
 fi
+echo source spacing is ok
 
 foundnewer=0
 for f in `find . -name \*.cs`

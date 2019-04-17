@@ -446,7 +446,7 @@ namespace DockRotate
 				nodeRole = part == jointMotion.joint.Host ? "Host"
 					: part == jointMotion.joint.Target ? "Target"
 					: "Unknown";
-				if (jointMotion.joint.Host.parent != jointMotion.joint.Target)
+				if (jointMotion.joint.isOffTree())
 					nodeRole += "OffTree";
 			}
 
@@ -659,39 +659,42 @@ namespace DockRotate
 		{
 			base.OnUpdate();
 
-			if (MapView.MapIsEnabled)
-				return;
-
 			JointMotionObj cr = currentRotation();
 
 			anglePosition = rotationAngle();
 			angleVelocity = cr ? cr.vel : 0f;
 			angleIsMoving = cr;
 
-			if (cr || (Time.frameCount & 3) == 0) {
-				if (cr) {
-					angleInfo = String.Format("{0:+0.00;-0.00;0.00}\u00b0 ({1:+0.00;-0.00;0.00}\u00b0/s){2}",
-						anglePosition, cr.vel, (jointMotion.controller == this ? " CTL" : ""));
-				} else {
-					if (float.IsNaN(anglePosition)) {
-						angleInfo = "";
-					} else {
-						angleInfo = String.Format(
-							"{0:+0.00;-0.00;0.00}\u00b0 ({1:+0.0000;-0.0000;0.0000}\u00b0\u0394)",
-							anglePosition, dynamicDeltaAngle());
-					}
-				}
-#if DEBUG
-				int nJoints = jointMotion ? jointMotion.joint.joints.Count : 0;
-				nodeStatus = part.flightID + ":" + nodeRole + "[" + nJoints + "]";
-				if (frozenFlag)
-					nodeStatus += " [F]";
-				if (cr)
-					nodeStatus += " " + cr.pos + "\u00b0 -> " + cr.tgt + "\u00b0";
-#endif
-			}
+			if (MapView.MapIsEnabled)
+				return;
 
+			if (cr || (Time.frameCount & 3) == 0)
+				updateStatus(cr);
 			checkGuiActive();
+		}
+
+		private void updateStatus(JointMotionObj cr)
+		{
+			if (cr) {
+				angleInfo = String.Format("{0:+0.00;-0.00;0.00}\u00b0 ({1:+0.00;-0.00;0.00}\u00b0/s){2}",
+					anglePosition, cr.vel, (jointMotion.controller == this ? " CTL" : ""));
+			} else {
+				if (float.IsNaN(anglePosition)) {
+					angleInfo = "";
+				} else {
+					angleInfo = String.Format(
+						"{0:+0.00;-0.00;0.00}\u00b0 ({1:+0.0000;-0.0000;0.0000}\u00b0\u0394)",
+						anglePosition, dynamicDeltaAngle());
+				}
+			}
+#if DEBUG
+			int nJoints = jointMotion ? jointMotion.joint.joints.Count : 0;
+			nodeStatus = part.flightID + ":" + nodeRole + "[" + nJoints + "]";
+			if (frozenFlag)
+				nodeStatus += " [F]";
+			if (cr)
+				nodeStatus += " " + cr.pos + "\u00b0 -> " + cr.tgt + "\u00b0";
+#endif
 		}
 
 		protected bool canStartRotation()
