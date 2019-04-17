@@ -8,7 +8,7 @@ namespace DockRotate
 	{
 		private PartJoint _joint;
 		public PartJoint joint { get => _joint; }
-		public Vessel vessel { get => _joint ? _joint.Host.vessel : null; }
+		public Vessel vessel { get => (_joint && _joint.Host) ? _joint.Host.vessel : null; }
 
 		public Vector3 hostAxis, hostNode;
 		private Vector3 hostUp, targetUp;
