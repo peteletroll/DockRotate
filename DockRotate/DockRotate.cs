@@ -254,6 +254,17 @@ namespace DockRotate
 		}
 
 #if DEBUG
+		[KSPEvent(guiActive = true)]
+		public void Dump()
+		{
+			log(desc(), ": BEGIN DUMP");
+			if (jointMotion && jointMotion.joint)
+				jointMotion.joint.dump();
+			else
+				log("no jointMotion");
+			log(desc(), ": END DUMP");
+		}
+
 		[KSPEvent(
 			guiName = "Toggle Autostrut Display",
 			guiActive = true,
