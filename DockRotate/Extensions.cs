@@ -238,6 +238,8 @@ namespace DockRotate
 		{
 			log("PartJoint " + j.desc());
 			log("jAxes: " + j.Axis.desc() + " " + j.SecAxis.desc());
+			log("jAxes(rb): " + j.Axis.Td(j.Host.T(), j.Target.rb.T()).desc()
+				+ ", " + j.SecAxis.Td(j.Host.T(), j.Target.rb.T()).desc());
 			log("jAnchors: " + j.HostAnchor.desc() + " " + j.TgtAnchor.desc());
 
 			for (int i = 0; i < j.joints.Count; i++) {
@@ -263,6 +265,8 @@ namespace DockRotate
 		{
 			log("  Link: " + j.gameObject + " to " + j.connectedBody);
 			log("  Axes: " + j.axis.desc() + ", " + j.secondaryAxis.desc());
+			log("  Axes(rb): " + j.axis.Td(j.T(), j.connectedBody.T()).desc()
+				+ ", " + j.secondaryAxis.Td(j.T(), j.connectedBody.T()).desc());
 
 			log("  Anchors: " + j.anchor.desc()
 				+ " -> " + j.connectedAnchor.desc()
