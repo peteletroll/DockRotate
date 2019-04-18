@@ -44,7 +44,7 @@ namespace DockRotate
 		public bool onRails = false;
 
 		private bool verboseEvents = false;
-		private bool verboseCamera = true;
+		private bool verboseCamera = false;
 
 		public static VesselMotionManager get(Vessel v)
 		{
@@ -456,7 +456,7 @@ namespace DockRotate
 
 		public void OnCameraChange()
 		{
-			if (!verboseCamera || true)
+			if (!verboseCamera)
 				return;
 
 			if (!HighLogic.LoadedSceneIsFlight || vessel != FlightGlobals.ActiveVessel)
@@ -482,7 +482,8 @@ namespace DockRotate
 			}
 			*/
 
-			reparentInternalModel();
+			if (verboseCamera)
+				reparentInternalModel();
 
 			phase("END CAMERA CHANGE " +  mode, verboseCamera);
 		}
