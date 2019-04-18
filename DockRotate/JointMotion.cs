@@ -452,6 +452,7 @@ namespace DockRotate
 		{
 			staticizeJoints();
 			staticizeOrgInfo();
+			jm.orgRot = jm.orgRotationAngle();
 		}
 
 		private void staticizeJoints()
@@ -493,7 +494,6 @@ namespace DockRotate
 			Quaternion nodeRot = nodeAxis.rotation(angle);
 			Vector3 nodePos = node.STp(hostPart, hostPart.vessel.rootPart);
 			_propagate(hostPart, nodeRot, nodePos);
-			jm.orgRot = jm.orgRotationAngle();
 			return true;
 		}
 

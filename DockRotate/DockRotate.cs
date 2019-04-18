@@ -458,7 +458,7 @@ namespace DockRotate
 					: part == jointMotion.joint.Target ? "Target"
 					: "Unknown";
 				if (jointMotion.joint.isOffTree())
-					nodeRole += "OffTree";
+					nodeRole += "OT";
 			}
 
 			log(desc(), ".doSetup(): joint " + (jointMotion ? jointMotion.joint.desc() : "null"));
