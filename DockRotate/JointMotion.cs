@@ -94,6 +94,11 @@ namespace DockRotate
 			return jm;
 		}
 
+		public bool hasController()
+		{
+			return _controller != null;
+		}
+
 		public void setAxis(Part part, Vector3 axis, Vector3 node)
 		{
 			if (rotCur) {
