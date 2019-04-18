@@ -334,6 +334,8 @@ namespace DockRotate
 		private Part hostPart { get { return jm.joint.Host; } }
 		private Part targetPart { get { return jm.joint.Target; } }
 
+		public ModuleBaseRotate controller { get => jm ? jm.controller : null; }
+
 		private Vector3 axis { get { return jm.hostAxis; } }
 		private Vector3 node { get { return jm.hostNode; } }
 

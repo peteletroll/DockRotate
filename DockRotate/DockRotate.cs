@@ -823,6 +823,10 @@ namespace DockRotate
 			JointMotionObj cr = currentRotation();
 			if (!cr)
 				return;
+			if (cr.controller != this) {
+				log(desc(), ".freezeCurrentRotation(): skipping, not controller");
+				return;
+			}
 			log(desc(), ".freezeCurrentRotation("
 				+ msg + ", " + keepSpeed + ")");
 			cr.isContinuous();
