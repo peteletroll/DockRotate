@@ -172,7 +172,7 @@ namespace DockRotate
 			Vector3 v1 = hostUp;
 			Vector3 v2 = targetUp.STd(joint.Target, joint.Host);
 			orgRot = a.axisSignedAngle(v1, v2);
-			log(desc(), ".updateOrgRot(): " + orgRot + "\x00b0");
+			log(desc(), ".updateOrgRot(): " + orgRot + "\u00b0");
 		}
 
 		public float rotationAngle()
