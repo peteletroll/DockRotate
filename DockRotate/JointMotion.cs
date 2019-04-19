@@ -178,7 +178,7 @@ namespace DockRotate
 
 		public float rotationAngle()
 		{
-			return orgRot + (_rotCur ? _rotCur.pos : 0f);
+			return Mathf.DeltaAngle(0f, orgRot + (_rotCur ? _rotCur.pos : 0f));
 		}
 
 		public float dynamicDeltaAngle()
