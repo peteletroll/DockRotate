@@ -444,7 +444,7 @@ namespace DockRotate
 					jointMotion = JointMotion.get(rotatingJoint);
 					if (!jointMotion.hasController())
 						jointMotion.controller = this;
-					jointMotion.orgRot = jointMotion.orgRotationAngle();
+					jointMotion.updateOrgRot();
 				}
 			} catch (Exception e) {
 				string sep = new string('-', 80);

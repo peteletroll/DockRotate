@@ -13,7 +13,7 @@ namespace DockRotate
 		public Vector3 hostAxis, hostNode;
 		private Vector3 hostUp, targetUp;
 
-		public float orgRot = 0f;
+		private float orgRot = 0f;
 
 		public bool verboseEvents {
 			get => _controller && _controller.verboseEvents;
@@ -166,14 +166,13 @@ namespace DockRotate
 			return true;
 		}
 
-		public float orgRotationAngle()
+		public void updateOrgRot()
 		{
 			Vector3 a = hostAxis;
 			Vector3 v1 = hostUp;
 			Vector3 v2 = targetUp.STd(joint.Target, joint.Host);
-			float angle = a.axisSignedAngle(v1, v2);
-			log(desc(), ".orgRotationAngle() = " + angle);
-			return angle;
+			orgRot = a.axisSignedAngle(v1, v2);
+			log(desc(), ".updateOrgRot(): " + orgRot + "\x00b0");
 		}
 
 		public float rotationAngle()
@@ -452,7 +451,7 @@ namespace DockRotate
 		{
 			staticizeJoints();
 			staticizeOrgInfo();
-			jm.orgRot = jm.orgRotationAngle();
+			jm.updateOrgRot();
 		}
 
 		private void staticizeJoints()
