@@ -273,6 +273,8 @@ namespace DockRotate
 		public void ToggleAutoStrutDisplay()
 		{
 			PhysicsGlobals.AutoStrutDisplay = !PhysicsGlobals.AutoStrutDisplay;
+			if (HighLogic.LoadedSceneIsEditor)
+				GameEvents.onEditorPartEvent.Fire(ConstructionEventType.PartTweaked, part);
 		}
 #endif
 
