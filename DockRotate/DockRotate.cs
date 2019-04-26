@@ -255,7 +255,7 @@ namespace DockRotate
 
 #if DEBUG
 		[KSPEvent(guiActive = true)]
-		public void Dump()
+		public void DumpToLog()
 		{
 			log(desc(), ": BEGIN DUMP");
 
@@ -335,7 +335,7 @@ namespace DockRotate
 
 		protected bool setupLocalAxisDone;
 		protected abstract bool setupLocalAxis(StartState state);
-		protected abstract AttachNode findMovingNode(out AttachNode otherNode, bool verbose);
+		protected abstract AttachNode findMovingNodeInEditor(out Part otherPart, bool verbose);
 
 		protected JointMotion jointMotion;
 		protected abstract PartJoint findMovingJoint(bool verbose);
@@ -747,12 +747,9 @@ namespace DockRotate
 
 		private Part findHostPartInEditor(bool verbose)
 		{
-			AttachNode otherNode;
-			AttachNode node = findMovingNode(out otherNode, verbose);
-			if (node == null || otherNode == null)
-				return null;
-			Part other = otherNode.owner;
-			if (!other)
+			Part other;
+			AttachNode node = findMovingNodeInEditor(out other, verbose);
+			if (node == null || other == null)
 				return null;
 			return other.parent == part ? other :
 				part.parent == other ? part :
@@ -943,25 +940,20 @@ namespace DockRotate
 			storedInfo = Localizer.Format("#DCKROT_node_info", rotatingNodeName);
 		}
 
-		protected override AttachNode findMovingNode(out AttachNode otherNode, bool verbose)
+		protected override AttachNode findMovingNodeInEditor(out Part otherPart, bool verbose)
 		{
-			otherNode = null;
+			otherPart = null;
 			if (rotatingNode == null)
 				return null;
 			if (verbose)
-				log(desc(), ".findMovingNode(): rotatingNode = " + rotatingNode.desc());
-			otherNode = rotatingNode.findConnectedNode(verboseEvents);
+				log(desc(), ".findMovingNodeInEditor(): rotatingNode = " + rotatingNode.desc());
+			otherPart = rotatingNode.attachedPart;
 			if (verbose)
-				log(desc(), ".findMovingNode(): otherNode = " + otherNode.desc());
-			if (otherNode == null)
-				return null;
-			Part otherPart = otherNode.owner;
-			if (verbose)
-				log(desc(), ".findMovingNode(): otherPart = " + otherPart.desc());
+				log(desc(), ".findMovingNodeInEditor(): otherPart = " + otherPart.desc());
 			if (!otherPart)
 				return null;
 			if (verbose)
-				log(desc(), ".findMovingNode(): attachedPart = " + rotatingNode.attachedPart.desc());
+				log(desc(), ".findMovingNodeInEditor(): attachedPart = " + rotatingNode.attachedPart.desc());
 			if (otherPart != rotatingNode.attachedPart)
 				return null;
 			return rotatingNode;
@@ -1064,42 +1056,42 @@ namespace DockRotate
 			storedInfo = Localizer.Format("#DCKROT_port_info");
 		}
 
-		protected override AttachNode findMovingNode(out AttachNode otherNode, bool verbose)
+		protected override AttachNode findMovingNodeInEditor(out Part otherPart, bool verbose)
 		{
-			otherNode = null;
+			otherPart = null;
 			if (!dockingNode || dockingNode.referenceNode == null)
 				return null;
 			if (verbose)
-				log(desc(), ".findMovingNode(): referenceNode = " + dockingNode.referenceNode.desc());
-			otherNode = dockingNode.referenceNode.findConnectedNode(verboseEvents);
+				log(desc(), ".findMovingNodeInEditor(): referenceNode = " + dockingNode.referenceNode.desc());
+			AttachNode otherNode = dockingNode.referenceNode.findConnectedNode(verboseEvents);
 			if (verbose)
-				log(desc(), ".findMovingNode(): otherNode = " + otherNode.desc());
+				log(desc(), ".findMovingNodeInEditor(): otherNode = " + otherNode.desc());
 			if (otherNode == null)
 				return null;
-			Part otherPart = otherNode.owner;
+			otherPart = otherNode.owner;
 			if (verbose)
-				log(desc(), ".findMovingNode(): otherPart = " + otherPart.desc());
+				log(desc(), ".findMovingNodeInEditor(): otherPart = " + otherPart.desc());
 			if (!otherPart)
 				return null;
 			ModuleDockingNode otherDockingNode = otherPart.FindModuleImplementing<ModuleDockingNode>();
 			if (verbose)
-				log(desc(), ".findMovingNode(): otherDockingNode = "
+				log(desc(), ".findMovingNodeInEditor(): otherDockingNode = "
 					+ (otherDockingNode ? otherDockingNode.part.desc() : "null"));
 			if (!otherDockingNode)
 				return null;
 			if (verbose)
-				log(desc(), ".findMovingNode(): otherDockingNode.referenceNode = "
+				log(desc(), ".findMovingNodeInEditor(): otherDockingNode.referenceNode = "
 					+ otherDockingNode.referenceNode.desc());
 			if (otherDockingNode.referenceNode == null)
 				return null;
 			if (!otherDockingNode.matchType(dockingNode)) {
 				if (verbose)
-					log(desc(), ".findMovingNode(): mismatched node types "
+					log(desc(), ".findMovingNodeInEditor(): mismatched node types "
 						+ dockingNode.nodeType + " != " + otherDockingNode.nodeType);
 				return null;
 			}
 			if (verbose)
-				log(desc(), ".findMovingNode(): node test is "
+				log(desc(), ".findMovingNodeInEditor(): node test is "
 					+ (otherDockingNode.referenceNode.FindOpposingNode() == dockingNode.referenceNode));
 
 			return dockingNode.referenceNode;
