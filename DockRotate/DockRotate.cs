@@ -258,10 +258,19 @@ namespace DockRotate
 		public void Dump()
 		{
 			log(desc(), ": BEGIN DUMP");
+
+			AttachNode[] nodes = part.allAttachNodes();
+			string nodeHelp = ": available nodes:";
+			for (int i = 0; i < nodes.Length; i++)
+				if (nodes[i] != null)
+					nodeHelp += " \"" + nodes[i].id + "\"";
+			log(desc(), nodeHelp);
+
 			if (jointMotion && jointMotion.joint)
 				jointMotion.joint.dump();
 			else
-				log("no jointMotion");
+				log(desc(), ": no jointMotion");
+
 			log(desc(), ": END DUMP");
 		}
 
@@ -961,15 +970,16 @@ namespace DockRotate
 		protected override bool setupLocalAxis(StartState state)
 		{
 			rotatingNode = part.FindAttachNode(rotatingNodeName);
+			if (rotatingNode == null && rotatingNodeName == "srfAttach")
+				rotatingNode = part.srfAttachNode;
 
 			if (rotatingNode == null) {
 				log(desc(), ".setupLocalAxis(" + state + "): "
 					+ "no node \"" + rotatingNodeName + "\"");
-				AttachNode[] nodes = part.FindAttachNodes("");
-				string nodeHelp = desc() + " available nodes:";
+
+				AttachNode[] nodes = part.allAttachNodes();
 				for (int i = 0; i < nodes.Length; i++)
-					nodeHelp += " \"" + nodes[i].id + "\"";
-				log(desc(), nodeHelp);
+					log(desc(), ": node[" + i + "] = " + nodes[i].desc());
 				return false;
 			}
 
