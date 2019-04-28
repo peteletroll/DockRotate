@@ -1011,6 +1011,12 @@ namespace DockRotate
 			Part other = rotatingNode.attachedPart;
 			if (!other) {
 				if (verbose)
+					log(desc(), ".findMovingJoint(" + rotatingNode.id + "): attachedPart is null, try by id = "
+						+ prevOtherPartFlightID);
+				other = findOtherById(prevOtherPartFlightID);
+			}
+			if (!other) {
+				if (verbose)
 					log(desc(), ".findMovingJoint(" + rotatingNode.id + "): no attachedPart");
 				return null;
 			}
@@ -1036,6 +1042,19 @@ namespace DockRotate
 
 			if (verbose)
 				log(desc(), ".findMovingJoint(" + rotatingNode.id + "): nothing");
+			return null;
+		}
+
+		private Part findOtherById(uint id)
+		{
+			if (id == 0)
+				return null;
+			if (part.parent && part.parent.flightID == id)
+				return part.parent;
+			if (part.children != null)
+				for (int i = 0; i < part.children.Count; i++)
+					if (part.children[i] && part.children[i].flightID == id)
+						return part.children[i];
 			return null;
 		}
 
