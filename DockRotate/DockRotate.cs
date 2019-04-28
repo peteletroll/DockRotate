@@ -1020,6 +1020,9 @@ namespace DockRotate
 					log(desc(), ".findMovingJoint(" + rotatingNode.id + "): no attachedPart");
 				return null;
 			}
+			if (verbose && other.flightID != prevOtherPartFlightID)
+				log(desc(), ".findMovingJoint(" + rotatingNode.id + "): otherFlightID "
+					+ prevOtherPartFlightID + " -> " + other.flightID);
 			if (verbose)
 				log(desc(), ".findMovingJoint(" + rotatingNode.id + "): attachedPart is " + other.desc());
 			other.forcePhysics();
