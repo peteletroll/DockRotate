@@ -932,7 +932,15 @@ namespace DockRotate
 		[KSPField(isPersistant = true)]
 		public string rotatingNodeName = "";
 
+		[KSPField(isPersistant = true)]
+		public uint otherPartFlightID = 0;
+
 		public AttachNode rotatingNode;
+
+		private bool isSrfAttach()
+		{
+			return rotatingNodeName == "srfAttach";
+		}
 
 		protected override void fillInfo()
 		{
@@ -962,7 +970,7 @@ namespace DockRotate
 		protected override bool setupLocalAxis(StartState state)
 		{
 			rotatingNode = part.FindAttachNode(rotatingNodeName);
-			if (rotatingNode == null && rotatingNodeName == "srfAttach")
+			if (rotatingNode == null && isSrfAttach())
 				rotatingNode = part.srfAttachNode;
 
 			if (rotatingNode == null) {
@@ -985,6 +993,9 @@ namespace DockRotate
 
 		protected override PartJoint findMovingJoint(bool verbose)
 		{
+			uint prevOtherPartFlightID = otherPartFlightID;
+			otherPartFlightID = 0;
+
 			if (rotatingNode == null || !rotatingNode.owner) {
 				if (verbose)
 					log(desc(), ".findMovingJoint(): no node");
@@ -1005,13 +1016,13 @@ namespace DockRotate
 			}
 			if (verbose)
 				log(desc(), ".findMovingJoint(" + rotatingNode.id + "): attachedPart is " + other.desc());
-
 			other.forcePhysics();
 
 			if (owner.parent == other) {
 				PartJoint ret = owner.attachJoint;
 				if (verbose)
 					log(desc(), ".findMovingJoint(" + rotatingNode.id + "): child " + ret.desc());
+				otherPartFlightID = other.flightID;
 				return ret;
 			}
 
@@ -1019,6 +1030,7 @@ namespace DockRotate
 				PartJoint ret = other.attachJoint;
 				if (verbose)
 					log(desc(), ".findMovingJoint(" + rotatingNode.id + "): parent " + ret.desc());
+				otherPartFlightID = other.flightID;
 				return ret;
 			}
 
