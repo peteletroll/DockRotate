@@ -6,7 +6,7 @@ using CompoundParts;
 
 namespace DockRotate
 {
-	public abstract class ModuleBaseRotate: PartModule, IJointLockState, IStructureChangeListener
+	public abstract class ModuleBaseRotate : PartModule, IJointLockState, IStructureChangeListener
 	{
 #if DEBUG
 		const bool DEBUGMODE = true;
@@ -252,6 +252,12 @@ namespace DockRotate
 		{
 			doRotateToSnap();
 		}
+
+		[KSPField(
+			guiActive = DEBUGMODE,
+			guiActiveEditor = DEBUGMODE
+		)]
+		public bool AutoSnap = DEBUGMODE;
 
 #if DEBUG
 		[KSPEvent(guiActive = true)]
@@ -586,7 +592,8 @@ namespace DockRotate
 			"smartAutoStruts",
 			"RotateClockwise",
 			"RotateCounterclockwise",
-			"RotateToSnap"
+			"RotateToSnap",
+			"AutoSnap"
 		};
 
 		private BaseField[] fld;
@@ -623,6 +630,8 @@ namespace DockRotate
 			angleInfoField = Fields["angleInfo"];
 #if DEBUG
 			ToggleAutoStrutDisplayEvent = Events["ToggleAutoStrutDisplay"];
+#else
+			AutoSnap = false;
 #endif
 		}
 
@@ -1231,8 +1240,11 @@ namespace DockRotate
 			base.doSetup();
 
 			if (dockingNode.snapRotation && dockingNode.snapOffset > 0f
-				&& jointMotion && jointMotion.joint.Host == part && rotationEnabled)
+				&& jointMotion && jointMotion.joint.Host == part && rotationEnabled) {
 				enqueueFrozenRotation(jointMotion.angleToSnap(dockingNode.snapOffset), speed());
+			} else if (AutoSnap && step() != 0f) {
+				enqueueFrozenRotation(jointMotion.angleToSnap(step()), speed());
+			}
 		}
 
 		public override string descPrefix()
