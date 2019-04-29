@@ -6,7 +6,7 @@ using CompoundParts;
 
 namespace DockRotate
 {
-	public abstract class ModuleBaseRotate : PartModule, IJointLockState, IStructureChangeListener
+	public abstract class ModuleBaseRotate: PartModule, IJointLockState, IStructureChangeListener
 	{
 #if DEBUG
 		const bool DEBUGMODE = true;
