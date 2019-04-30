@@ -1242,7 +1242,7 @@ namespace DockRotate
 			if (dockingNode.snapRotation && dockingNode.snapOffset > 0f
 				&& jointMotion && jointMotion.joint.Host == part && rotationEnabled) {
 				enqueueFrozenRotation(jointMotion.angleToSnap(dockingNode.snapOffset), speed());
-			} else if (AutoSnap && step() != 0f) {
+			} else if (AutoSnap && !Mathf.Approximately(step(), 0f)) {
 				enqueueFrozenRotation(jointMotion.angleToSnap(step()), speed());
 			}
 		}
