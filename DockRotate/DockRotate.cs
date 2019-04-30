@@ -253,11 +253,14 @@ namespace DockRotate
 			doRotateToSnap();
 		}
 
+		[UI_Toggle]
 		[KSPField(
+			guiName = "AutoSnap",
+			isPersistant = true,
 			guiActive = DEBUGMODE,
 			guiActiveEditor = DEBUGMODE
 		)]
-		public bool AutoSnap = DEBUGMODE;
+		public bool AutoSnap = false;
 
 #if DEBUG
 		[KSPEvent(guiActive = true)]
@@ -1239,11 +1242,16 @@ namespace DockRotate
 		{
 			base.doSetup();
 
-			if (dockingNode.snapRotation && dockingNode.snapOffset > 0f
-				&& jointMotion && jointMotion.joint.Host == part && rotationEnabled) {
-				enqueueFrozenRotation(jointMotion.angleToSnap(dockingNode.snapOffset), speed());
-			} else if (AutoSnap && !Mathf.Approximately(step(), 0f)) {
-				enqueueFrozenRotation(jointMotion.angleToSnap(step()), speed());
+			if (jointMotion) {
+				float align = 0f;
+				if (dockingNode.snapRotation && dockingNode.snapOffset > 0f
+					&& jointMotion.joint.Host == part && rotationEnabled) {
+					align = dockingNode.snapOffset;
+				} else if (AutoSnap) {
+					align = step();
+				}
+				if (align != 0f && !SmoothMotion.isContinuous(ref align))
+					enqueueFrozenRotation(align, speed());
 			}
 		}
 
