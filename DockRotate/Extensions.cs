@@ -226,10 +226,8 @@ namespace DockRotate
 				return true;
 			if (j == j.Host.attachJoint)
 				return false;
-			if (j.Host.parent == j.Target) {
+			if (j.Host.parent == j.Target)
 				log(j.desc(), ".isOffTree(): *** WARNING *** true at parent test");
-				return true;
-			}
 			return true;
 		}
 
