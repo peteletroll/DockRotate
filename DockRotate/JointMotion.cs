@@ -407,6 +407,11 @@ namespace DockRotate
 					continue;
 				RotJointInfo ji = rji[i];
 				ji.cjm.setRotation(pos, ji.localAxis, ji.localNode);
+				/*
+				if (jm.verboseEvents && Time.frameCount % 10 == 0)
+					log(jm.desc(), ": currentTorque[" + i + "] = " + j.currentTorque.desc()
+						+ " |" + j.currentTorque.magnitude + "|");
+				*/
 			}
 
 			jm.stepSound();
