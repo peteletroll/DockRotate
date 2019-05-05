@@ -410,7 +410,7 @@ namespace DockRotate
 				/*
 				if (jm.verboseEvents && Time.frameCount % 10 == 0)
 					log(jm.desc(), ": currentTorque[" + i + "] = " + j.currentTorque.desc()
-						+ " |" + j.currentTorque.magnitude + "|");
+						+ " |" + j.currentTorque.magnitude.ToString("E10") + "|");
 				*/
 			}
 
