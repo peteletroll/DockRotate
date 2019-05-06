@@ -55,7 +55,7 @@ namespace DockRotate
 			if (!mgr) {
 				mgr = v.gameObject.AddComponent<VesselMotionManager>();
 				mgr._vessel = v;
-				log(nameof(VesselMotionManager), ".get(" + desc(v) + ") created " + mgr.desc());
+				log(nameof(VesselMotionManager), ".get(" + v.desc() + ") created " + mgr.desc());
 			}
 
 			return mgr;
@@ -201,7 +201,7 @@ namespace DockRotate
 		{
 			bool ret = v && v == vessel;
 			if (verboseEvents)
-				log(desc(), ".care(" + desc(v) + ") = " + ret);
+				log(desc(), ".care(" + v.desc() + ") = " + ret);
 			return ret;
 		}
 
@@ -286,14 +286,14 @@ namespace DockRotate
 		public void OnVesselCreate(Vessel v)
 		{
 			if (verboseEvents)
-				log(desc(), ".OnVesselCreate(" + desc(v) + ")");
+				log(desc(), ".OnVesselCreate(" + v.desc() + ")");
 			get(v);
 		}
 
 		public void OnVesselGoOnRails(Vessel v)
 		{
 			if (verboseEvents)
-				log(desc(), ".OnVesselGoOnRails(" + desc(v) + ")");
+				log(desc(), ".OnVesselGoOnRails(" + v.desc() + ")");
 			if (deadVessel())
 				return;
 			if (!care(v))
@@ -308,7 +308,7 @@ namespace DockRotate
 		public void OnVesselGoOffRails(Vessel v)
 		{
 			if (verboseEvents)
-				log(desc(), ".OnVesselGoOffRails(" + desc(v) + ")");
+				log(desc(), ".OnVesselGoOffRails(" + v.desc() + ")");
 			if (deadVessel())
 				return;
 			get(v);
@@ -364,7 +364,7 @@ namespace DockRotate
 		{
 			if (verboseEvents)
 				log(desc(), ".RightBeforeStructureChange_Part("
-					+ desc(p.vessel) + ")");
+					+ p.vessel.desc() + ")");
 			if (!care(p, false))
 				return;
 			structureChangeInfo.part = p;
@@ -387,7 +387,7 @@ namespace DockRotate
 		{
 			if (verboseEvents)
 				log(desc(), ".RightAfterStructureChange_Action("
-					+ desc(action.from.vessel) + ", " + desc(action.to.vessel) + ")");
+					+ action.from.vessel.desc() + ", " + action.to.vessel.desc() + ")");
 			if (!care(action, true))
 				return;
 			RightAfterStructureChange();
@@ -397,7 +397,7 @@ namespace DockRotate
 		{
 			if (verboseEvents)
 				log(desc(), ".RightAfterStructureChange_Part("
-					+ desc(p.vessel) + ")");
+					+ p.vessel.desc() + ")");
 			if (!care(p, true))
 				return;
 			RightAfterStructureChange();
@@ -416,8 +416,8 @@ namespace DockRotate
 		{
 			if (verboseEvents)
 				log(desc(), ".RightAfterSameVesselDock("
-					+ action.from.part.desc() + "@" + desc(action.from.vessel)
-					+ ", " + action.to.part.desc() + "@" + desc(action.to.vessel) + ")");
+					+ action.from.part.desc() + "@" + action.from.vessel.desc()
+					+ ", " + action.to.part.desc() + "@" + action.to.vessel.desc() + ")");
 			if (deadVessel())
 				return;
 			if (!care(action, false))
@@ -432,7 +432,7 @@ namespace DockRotate
 		{
 			if (verboseEvents)
 				log(desc(), ".RightAfterSameVesselUndock("
-					+ desc(action.from.vessel) + ", " + desc(action.to.vessel)
+					+ action.from.vessel.desc() + ", " + action.to.vessel.desc()
 					+ ")");
 			if (deadVessel())
 				return;
@@ -546,14 +546,9 @@ namespace DockRotate
 			setEvents(false);
 		}
 
-		private static string desc(Vessel v, bool bare = false) // FIXME: remove this method
-		{
-			return v.desc(bare);
-		}
-
 		private string desc()
 		{
-			return "VMM:" + GetInstanceID() + ":" + desc(vessel, true);
+			return "VMM:" + GetInstanceID() + ":" + vessel.desc(true);
 		}
 
 		private void phase(string msg, bool force = false)
