@@ -36,10 +36,10 @@ namespace DockRotate
 				_rotCur = value;
 
 				VesselMotionManager.get(joint.Host.vessel).changeCount(delta);
+				joint.Host.vessel.KJRNextCycleAllAutoStrut();
 				if (!sas) {
 					log(desc(), ": triggered CycleAllAutoStruts()");
 					joint.Host.vessel.CycleAllAutoStrut();
-					joint.Host.vessel.KJRNextCycleAllAutoStrut();
 				}
 			}
 		}
