@@ -1,4 +1,6 @@
+using System;
 using System.Collections.Generic;
+using System.Reflection;
 using UnityEngine;
 
 namespace DockRotate
@@ -38,6 +40,46 @@ namespace DockRotate
 			if (!c)
 				return "null";
 			return c.name + "(" + c.cameraType + ") @ " + c.gameObject;
+		}
+
+		/******** Vessel utilities ********/
+
+
+		public static string desc(this Vessel v, bool bare = false)
+		{
+			uint id = (v && v.rootPart) ? v.rootPart.flightID : 0;
+			string name = v ? v.name : "no-vessel";
+			return (bare ? "" : "V:") + id + ":" + name.Replace(' ', '_');
+		}
+
+		private static bool KJRNextInitDone = false;
+		private static Type KJRNextManagerType = null;
+
+		public static void CycleAllAutoStrut_KJRNextCompat(this Vessel v)
+		{
+			log(v.desc(), ".CycleAllAutoStrust_KJRNextCompat()");
+
+			v.CycleAllAutoStrut();
+
+			const string pref = "KJRNext init";
+
+			if (!KJRNextInitDone) {
+				KJRNextInitDone = true;
+				AssemblyLoader.loadedAssemblies.TypeOperation(t => {
+					if (t.FullName == "KerbalJointReinforcement.KJRManager") {
+						KJRNextManagerType = t;
+						log(pref, ": found type");
+					}
+				});
+			}
+
+			if (KJRNextManagerType != null) {
+				object o = FlightGlobals.FindObjectOfType(KJRNextManagerType);
+				if (o != null) {
+					log(pref, ": found method");
+					KJRNextManagerType.GetMethod("CycleAllAutoStrut").Invoke(o, new object[] { v });
+				}
+			}
 		}
 
 		/******** Part utilities ********/

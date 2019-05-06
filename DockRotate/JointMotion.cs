@@ -37,7 +37,7 @@ namespace DockRotate
 				VesselMotionManager.get(joint.Host.vessel).changeCount(delta);
 				if (!sas) {
 					log(desc(), ": triggered CycleAllAutoStruts()");
-					joint.Host.vessel.CycleAllAutoStrut();
+					joint.Host.vessel.CycleAllAutoStrut_KJRNextCompat();
 				}
 			}
 		}

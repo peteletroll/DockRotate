@@ -84,7 +84,7 @@ namespace DockRotate
 
 			if (ret == 0 && rotCount > 0) {
 				log(desc(), ": securing autostruts");
-				vessel.CycleAllAutoStrut();
+				vessel.CycleAllAutoStrut_KJRNextCompat();
 			}
 
 			if (ret == 0 && delta < 0)
@@ -546,11 +546,9 @@ namespace DockRotate
 			setEvents(false);
 		}
 
-		private static string desc(Vessel v, bool bare = false)
+		private static string desc(Vessel v, bool bare = false) // FIXME: remove this method
 		{
-			uint id = (v && v.rootPart) ? v.rootPart.flightID : 0;
-			string name = v ? v.name : "no-vessel";
-			return (bare ? "" : "V:") + id + ":" + name.Replace(' ', '_');
+			return v.desc(bare);
 		}
 
 		private string desc()
