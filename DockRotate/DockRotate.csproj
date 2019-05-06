@@ -38,6 +38,7 @@
     <Compile Include="JointMotion.cs" />
     <Compile Include="Extensions.cs" />
     <Compile Include="VesselMotionManager.cs" />
+    <Compile Include="JointLockStateProxy.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="UnityEngine">
