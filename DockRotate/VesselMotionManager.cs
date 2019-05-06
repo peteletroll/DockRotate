@@ -46,6 +46,11 @@ namespace DockRotate
 		private bool verboseEvents = false;
 		private bool verboseCamera = false;
 
+		public bool verbose()
+		{
+			return verboseEvents;
+		}
+
 		public static VesselMotionManager get(Vessel v)
 		{
 			if (!v)
@@ -84,7 +89,8 @@ namespace DockRotate
 
 			if (ret == 0 && rotCount > 0) {
 				log(desc(), ": securing autostruts");
-				vessel.CycleAllAutoStrut_KJRNextCompat();
+				vessel.CycleAllAutoStrut();
+				vessel.KJRNextCycleAllAutoStrut();
 			}
 
 			if (ret == 0 && delta < 0)

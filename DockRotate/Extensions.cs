@@ -55,11 +55,9 @@ namespace DockRotate
 		private static bool KJRNextInitDone = false;
 		private static Type KJRNextManagerType = null;
 
-		public static void CycleAllAutoStrut_KJRNextCompat(this Vessel v)
+		public static void KJRNextCycleAllAutoStrut(this Vessel v)
 		{
 			log(v.desc(), ".CycleAllAutoStrust_KJRNextCompat()");
-
-			v.CycleAllAutoStrut();
 
 			const string pref = "KJRNext init";
 

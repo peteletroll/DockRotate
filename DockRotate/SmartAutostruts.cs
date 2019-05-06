@@ -137,8 +137,6 @@ namespace DockRotate
 				if (verbose)
 					log(part.desc() + ": releasing [" + ++count + "] " + j.desc());
 				j.Host.ReleaseAutoStruts();
-				if (verbose)
-					log(part.desc() + ": released " + j.desc());
 			}
 		}
 

@@ -34,10 +34,12 @@ namespace DockRotate
 					: 0;
 
 				_rotCur = value;
+
 				VesselMotionManager.get(joint.Host.vessel).changeCount(delta);
 				if (!sas) {
 					log(desc(), ": triggered CycleAllAutoStruts()");
-					joint.Host.vessel.CycleAllAutoStrut_KJRNextCompat();
+					joint.Host.vessel.CycleAllAutoStrut();
+					joint.Host.vessel.KJRNextCycleAllAutoStrut();
 				}
 			}
 		}
@@ -360,11 +362,10 @@ namespace DockRotate
 
 		protected override void onStart()
 		{
+			hostPart.vessel.KJRNextCycleAllAutoStrut();
 			if (smartAutoStruts) {
-				hostPart.releaseCrossAutoStruts(jm.verboseEvents);
+				hostPart.releaseCrossAutoStruts(VesselMotionManager.get(hostPart.vessel).verbose());
 			} else {
-				// not needed with new IsJointUnlocked() logic
-				// but IsJointUnlocked() logic is bugged now :-(
 				List<Part> parts = hostPart.vessel.parts;
 				for (int i = 0; i < parts.Count; i++)
 					parts[i].ReleaseAutoStruts();
