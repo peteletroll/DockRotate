@@ -46,6 +46,7 @@ namespace DockRotate
 
 		public void OnDestroy()
 		{
+			log(desc(), ".OnDestroy()");
 		}
 
 		public bool IsJointUnlocked()
@@ -55,7 +56,7 @@ namespace DockRotate
 			if (tgt == null)
 				return false;
 			for (int i = 0; i < tgt.Count; i++)
-				if (tgt[i].IsJointUnlocked())
+				if (tgt[i] != null && tgt[i].IsJointUnlocked())
 					return true;
 			return false;
 		}
