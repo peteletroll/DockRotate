@@ -57,7 +57,7 @@ namespace DockRotate
 
 		public static void KJRNextCycleAllAutoStrut(this Vessel v)
 		{
-			log(v.desc(), ".CycleAllAutoStrust_KJRNextCompat()");
+			log(v.desc(), ".KJRNextCycleAllAutoStrut()");
 
 			const string pref = "KJRNext init";
 
