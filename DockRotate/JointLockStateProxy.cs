@@ -4,10 +4,9 @@ using UnityEngine;
 
 namespace DockRotate
 {
-	public class JointLockStateProxy: MonoBehaviour, IJointLockState
+	public class JointLockStateProxy: PartModule, IJointLockState
 	{
-		private bool verboseEvents = false;
-		private Part part;
+		public bool verboseEvents = true;
 
 		private List<IJointLockState> tgt;
 
@@ -16,21 +15,14 @@ namespace DockRotate
 			if (!p)
 				return null;
 
-			JointLockStateProxy jlsp = p.gameObject.GetComponent<JointLockStateProxy>();
-			if (!jlsp) {
-				jlsp = p.gameObject.AddComponent<JointLockStateProxy>();
-				jlsp.part = p;
-				log(nameof(JointLockStateProxy), ".get(" + p.desc() + ") created " + jlsp.desc());
+			PartModule pm_jlsp = p.gameObject.GetComponent<JointLockStateProxy>();
+			if (!pm_jlsp) {
+				// jlsp = p.gameObject.AddComponent<JointLockStateProxy>();
+				pm_jlsp = p.AddModule("JointLockStateProxy");
+				log(nameof(JointLockStateProxy), ".get(" + p.desc() + ") created " + pm_jlsp);
 			}
+			JointLockStateProxy jlsp = pm_jlsp as JointLockStateProxy;
 			return jlsp;
-		}
-
-		public void Awake()
-		{
-		}
-
-		public void Start()
-		{
 		}
 
 		public void add(IJointLockState jls)
@@ -51,19 +43,19 @@ namespace DockRotate
 
 		public bool IsJointUnlocked()
 		{
-			if (verboseEvents)
-				log(desc(), ".IsJointUnLocked()");
+			bool ret = false;
 			if (tgt == null)
-				return false;
-			for (int i = 0; i < tgt.Count; i++)
-				if (tgt[i] != null && tgt[i].IsJointUnlocked())
-					return true;
-			return false;
+				for (int i = 0; i < tgt.Count && !ret; i++)
+					if (tgt[i] != null && tgt[i].IsJointUnlocked())
+						ret = true;
+			if (verboseEvents)
+				log(desc(), ".IsJointUnLocked() is " + ret);
+			return ret;
 		}
 
 		public string desc(bool bare = false)
 		{
-			return (bare ? "" : "JLSP:") + part.desc(true);
+			return (bare ? "" : "JLSP:") + (tgt == null ? 0 : tgt.Count) + ":" + part.desc(true);
 		}
 
 		protected static bool log(string msg1, string msg2 = "")
