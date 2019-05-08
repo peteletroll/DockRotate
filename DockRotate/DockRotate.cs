@@ -1039,7 +1039,7 @@ namespace DockRotate
 			if (verbose)
 				log(desc(), ".findMovingJoint(" + rotatingNode.id + "): attachedPart is " + other.desc());
 			other.forcePhysics();
-			JointLockStateProxy.get(other).add(this);
+			JointLockStateProxy.register(other, this);
 
 			if (owner.parent == other) {
 				PartJoint ret = owner.attachJoint;

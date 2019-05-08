@@ -1,6 +1,4 @@
-using System;
 using System.Collections.Generic;
-using UnityEngine;
 
 namespace DockRotate
 {
@@ -10,14 +8,20 @@ namespace DockRotate
 
 		private List<IJointLockState> tgt;
 
-		public static JointLockStateProxy get(Part p)
+		public static void register(Part p, IJointLockState jls)
+		{
+			JointLockStateProxy jlsp = get(p);
+			if (jlsp)
+				jlsp.add(jls);
+		}
+
+		private static JointLockStateProxy get(Part p)
 		{
 			if (!p)
 				return null;
 
 			PartModule pm_jlsp = p.gameObject.GetComponent<JointLockStateProxy>();
 			if (!pm_jlsp) {
-				// jlsp = p.gameObject.AddComponent<JointLockStateProxy>();
 				pm_jlsp = p.AddModule("JointLockStateProxy");
 				log(nameof(JointLockStateProxy), ".get(" + p.desc() + ") created " + pm_jlsp);
 			}
@@ -25,7 +29,7 @@ namespace DockRotate
 			return jlsp;
 		}
 
-		public void add(IJointLockState jls)
+		private void add(IJointLockState jls)
 		{
 			if (tgt == null)
 				tgt = new List<IJointLockState>();
