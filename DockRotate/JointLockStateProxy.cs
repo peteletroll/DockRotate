@@ -52,7 +52,7 @@ namespace DockRotate
 				for (int i = 0; i < tgt.Count && !ret; i++)
 					if (tgt[i] != null && tgt[i].IsJointUnlocked())
 						ret = true;
-			if (verboseEvents)
+			if (verboseEvents || ret)
 				log(desc(), ".IsJointUnLocked() is " + ret);
 			return ret;
 		}

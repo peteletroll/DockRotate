@@ -338,7 +338,7 @@ namespace DockRotate
 		public bool IsJointUnlocked()
 		{
 			bool ret = currentRotation();
-			if (verboseEvents)
+			if (verboseEvents || ret)
 				log(desc(), ".IsJointUnlocked() is " + ret);
 			return ret;
 		}
