@@ -22,7 +22,7 @@ namespace DockRotate
 
 			PartModule pm_jlsp = p.gameObject.GetComponent<JointLockStateProxy>();
 			if (!pm_jlsp) {
-				pm_jlsp = p.AddModule("JointLockStateProxy");
+				pm_jlsp = p.AddModule(nameof(JointLockStateProxy));
 				log(nameof(JointLockStateProxy), ".get(" + p.desc() + ") created " + pm_jlsp);
 			}
 			JointLockStateProxy jlsp = pm_jlsp as JointLockStateProxy;
