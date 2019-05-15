@@ -48,7 +48,7 @@ namespace DockRotate
 		public bool IsJointUnlocked()
 		{
 			bool ret = false;
-			if (tgt == null)
+			if (tgt != null)
 				for (int i = 0; i < tgt.Count && !ret; i++)
 					if (tgt[i] != null && tgt[i].IsJointUnlocked())
 						ret = true;
