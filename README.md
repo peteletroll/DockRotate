@@ -16,6 +16,8 @@ If the rotation step is set to 0, the rotation will be continuous. You can stop 
 
 Rotation will malfunction if parts on opposite sides of the rotating joint are connected by struts.
 
+All sorts of decoupling/docking/undocking/klawing/unklawing while moving are fully supported. **Yes, you can build a working Kanadarm.**
+
 **Autostruts** are properly handled.
 
 Forum page: https://forum.kerbalspaceprogram.com/index.php?/topic/170484-dockrotate-rotation-control-on-docking-ports/
