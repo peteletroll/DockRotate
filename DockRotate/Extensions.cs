@@ -54,6 +54,7 @@ namespace DockRotate
 
 		private static bool KJRNextInitDone = false;
 		private static Type KJRNextManagerType = null;
+		private static MethodInfo KJRNextCycleAllAutoStrutMethod = null;
 
 		public static void KJRNextCycleAllAutoStrut(this Vessel v)
 		{
@@ -64,20 +65,27 @@ namespace DockRotate
 			if (!KJRNextInitDone) {
 				KJRNextInitDone = true;
 				AssemblyLoader.loadedAssemblies.TypeOperation(t => {
-					if (t.FullName == "KerbalJointReinforcement.KJRManager") {
+					if (t != null && t.FullName == "KerbalJointReinforcement.KJRManager") {
 						KJRNextManagerType = t;
-						log(pref, ": found type");
+						if (KJRNextManagerType != null) {
+							log(pref, ": found type " + KJRNextManagerType);
+							KJRNextCycleAllAutoStrutMethod = KJRNextManagerType.GetMethod("CycleAllAutoStrut");
+							if (KJRNextCycleAllAutoStrutMethod != null)
+								log(pref, ": found method " + KJRNextCycleAllAutoStrutMethod);
+						}
 					}
 				});
 			}
 
-			if (KJRNextManagerType != null) {
-				object o = FlightGlobals.FindObjectOfType(KJRNextManagerType);
-				if (o != null) {
-					log(pref, ": found method");
+			if (KJRNextManagerType != null && KJRNextCycleAllAutoStrutMethod != null) {
+				object kjrnm = FlightGlobals.FindObjectOfType(KJRNextManagerType);
+				if (kjrnm != null) {
+					log(pref, ": found object " + kjrnm);
 					MethodInfo caas = KJRNextManagerType.GetMethod("CycleAllAutoStrut");
-					if (caas != null)
-						caas.Invoke(o, new object[] { v });
+					if (caas != null) {
+						log(pref, ": found method (2) " + caas);
+						caas.Invoke(kjrnm, new object[] { v });
+					}
 				}
 			}
 		}
