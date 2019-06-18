@@ -250,6 +250,7 @@ namespace DockRotate
 		public AudioSource sound;
 
 		public float soundVolume = 1f;
+		public float soundPitch = 1f;
 		public float pitchAlteration = 1f;
 
 		public void startSound()
@@ -264,6 +265,7 @@ namespace DockRotate
 
 			try {
 				soundVolume = controller.soundVolume;
+				soundPitch = controller.soundPitch;
 				AudioClip clip = GameDatabase.Instance.GetAudioClip(controller.soundClip);
 				if (!clip) {
 					log(desc(), "sound: clip \"" + controller.soundClip + "\" not found");
@@ -299,7 +301,7 @@ namespace DockRotate
 			if (sound != null && rotCur) {
 				float p = Mathf.Sqrt(Mathf.Abs(rotCur.vel / rotCur.maxvel));
 				sound.volume = soundVolume * p * GameSettings.SHIP_VOLUME;
-				sound.pitch = p * pitchAlteration;
+				sound.pitch = p * soundPitch * pitchAlteration;
 			}
 		}
 

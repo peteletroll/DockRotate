@@ -76,6 +76,9 @@ namespace DockRotate
 		[KSPField(isPersistant = true)]
 		public float soundVolume = 0.5f;
 
+		[KSPField(isPersistant = true)]
+		public float soundPitch = 1f;
+
 		[UI_Toggle]
 		[KSPField(
 			guiActive = true,
