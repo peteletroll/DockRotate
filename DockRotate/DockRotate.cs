@@ -1247,17 +1247,32 @@ namespace DockRotate
 		{
 			base.doSetup();
 
-			if (jointMotion) {
-				float align = 0f;
-				if (dockingNode.snapRotation && dockingNode.snapOffset > 0f
-					&& jointMotion.joint.Host == part && rotationEnabled) {
-					align = dockingNode.snapOffset;
-				} else if (AutoSnap && jointMotion.joint.Host == part) {
-					align = step();
+			if (jointMotion && jointMotion.joint.Host == part) {
+				float snap = autoSnapStep();
+				log(desc(), ".autoSnapStep() = " + snap);
+				ModuleDockRotate other = jointMotion.joint.Target.FindModuleImplementing<ModuleDockRotate>();
+				if (other) {
+					float otherSnap = other.autoSnapStep();
+					log(other.desc(), ".autoSnapStep() = " + otherSnap);
+					if (otherSnap > 0f && (Mathf.Approximately(snap, 0f) || otherSnap < snap))
+						snap = otherSnap;
 				}
-				if (align != 0f && !SmoothMotion.isContinuous(ref align))
-					enqueueFrozenRotation(align, speed());
+				if (!Mathf.Approximately(snap, 0f)) {
+					log(desc(), ": autosnap at " + snap);
+					enqueueFrozenRotation(jointMotion.angleToSnap(snap), speed());
+				}
 			}
+		}
+
+		private float autoSnapStep()
+		{
+			if (!rotationEnabled)
+				return 0f;
+			if (dockingNode && dockingNode.snapOffset > 0f)
+				return dockingNode.snapOffset;
+			if (AutoSnap)
+				return rotationStep;
+			return 0f;
 		}
 
 		public override string descPrefix()
