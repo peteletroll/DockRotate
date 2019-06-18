@@ -590,17 +590,17 @@ namespace DockRotate
 			eventState = cmd;
 		}
 
-		protected static string[] guiList = {
-			"nodeRole",
-			"rotationStep",
-			"rotationSpeed",
-			"reverseRotation",
-			"flipFlopMode",
-			"smartAutoStruts",
-			"RotateClockwise",
-			"RotateCounterclockwise",
-			"RotateToSnap",
-			"AutoSnap"
+		private static string[,] guiList = {
+			{ "nodeRole", "" },
+			{ "rotationStep", "" },
+			{ "rotationSpeed", "" },
+			{ "reverseRotation", "" },
+			{ "flipFlopMode", "" },
+			{ "smartAutoStruts", "" },
+			{ "RotateClockwise", "" },
+			{ "RotateCounterclockwise", "" },
+			{ "RotateToSnap", "" },
+			{ "AutoSnap", "" }
 		};
 
 		private BaseField[] fld;
@@ -620,8 +620,10 @@ namespace DockRotate
 			List<BaseField> fl = new List<BaseField>();
 			List<BaseEvent> el = new List<BaseEvent>();
 
-			for (int i = 0; i < guiList.Length; i++) {
-				string n = guiList[i];
+			int l = guiList.GetLength(0);
+			for (int i = 0; i < l; i++) {
+				string n = guiList[i, 0];
+				string m = guiList[i, 1];
 				BaseField f = Fields[n];
 				if (f != null)
 					fl.Add(f);
