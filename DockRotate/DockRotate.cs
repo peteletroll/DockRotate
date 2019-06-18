@@ -1252,7 +1252,7 @@ namespace DockRotate
 				if (dockingNode.snapRotation && dockingNode.snapOffset > 0f
 					&& jointMotion.joint.Host == part && rotationEnabled) {
 					align = dockingNode.snapOffset;
-				} else if (AutoSnap) {
+				} else if (AutoSnap && jointMotion.joint.Host == part) {
 					align = step();
 				}
 				if (align != 0f && !SmoothMotion.isContinuous(ref align))
