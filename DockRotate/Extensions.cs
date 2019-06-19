@@ -81,11 +81,7 @@ namespace DockRotate
 				object kjrnm = FlightGlobals.FindObjectOfType(KJRNextManagerType);
 				if (kjrnm != null) {
 					log(pref, ": found object " + kjrnm);
-					MethodInfo caas = KJRNextManagerType.GetMethod("CycleAllAutoStrut");
-					if (caas != null) {
-						log(pref, ": found method (2) " + caas);
-						caas.Invoke(kjrnm, new object[] { v });
-					}
+					KJRNextCycleAllAutoStrutMethod.Invoke(kjrnm, new object[] { v });
 				}
 			}
 		}

@@ -1260,7 +1260,7 @@ namespace DockRotate
 						snap = otherSnap;
 				}
 				if (!Mathf.Approximately(snap, 0f)) {
-					log(desc(), ": autosnap at " + snap);
+					log(jointMotion.desc(), ": autosnap at " + snap);
 					enqueueFrozenRotation(jointMotion.angleToSnap(snap), speed());
 				}
 			}
