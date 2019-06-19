@@ -603,8 +603,12 @@ namespace DockRotate
 			{ "AutoSnap", "" }
 		};
 
-		private BaseField[] fld;
-		private BaseEvent[] evt;
+		private struct GuiInfo {
+			public BaseField fld;
+			public BaseEvent evt;
+		}
+
+		private GuiInfo[] guiInfo;
 
 		private BaseEvent StopRotationEvent;
 		private BaseField angleInfoField;
@@ -614,26 +618,16 @@ namespace DockRotate
 
 		protected void setupGuiActive()
 		{
-			fld = null;
-			evt = null;
-
-			List<BaseField> fl = new List<BaseField>();
-			List<BaseEvent> el = new List<BaseEvent>();
-
 			int l = guiList.GetLength(0);
+
+			guiInfo = new GuiInfo[l];
+
 			for (int i = 0; i < l; i++) {
 				string n = guiList[i, 0];
 				string m = guiList[i, 1];
-				BaseField f = Fields[n];
-				if (f != null)
-					fl.Add(f);
-				BaseEvent e = Events[n];
-				if (e != null)
-					el.Add(e);
+				guiInfo[i].fld = Fields[n];
+				guiInfo[i].evt = Events[n];
 			}
-
-			fld = fl.ToArray();
-			evt = el.ToArray();
 
 			StopRotationEvent = Events["StopRotation"];
 			angleInfoField = Fields["angleInfo"];
@@ -646,16 +640,16 @@ namespace DockRotate
 
 		private void checkGuiActive()
 		{
-			if (fld != null)
-				for (int i = 0; i < fld.Length; i++)
-					if (fld[i] != null)
-						fld[i].guiActive = fld[i].guiActiveEditor = rotationEnabled;
-
-			bool csr = canStartRotation();
-			if (evt != null)
-				for (int i = 0; i < evt.Length; i++)
-					if (evt[i] != null)
-						evt[i].guiActive = evt[i].guiActiveEditor = csr;
+			if (guiInfo != null) {
+				bool csr = canStartRotation();
+				for (int i = 0; i < guiInfo.Length; i++) {
+					ref GuiInfo ii = ref guiInfo[i];
+					if (ii.fld != null)
+						ii.fld.guiActive = ii.fld.guiActiveEditor = rotationEnabled;
+					if (guiInfo[i].evt != null)
+						ii.evt.guiActive = ii.evt.guiActiveEditor = csr;
+				}
+			}
 
 			if (angleInfoField != null)
 				angleInfoField.guiActive = angleInfoField.guiActiveEditor = rotationEnabled && angleInfo != "";
