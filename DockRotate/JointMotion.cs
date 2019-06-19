@@ -377,7 +377,7 @@ namespace DockRotate
 			for (int i = 0; i < c; i++) {
 				ConfigurableJoint j = jm.joint.joints[i];
 
-				RotJointInfo ji;
+				ref RotJointInfo ji = ref rji[i];
 
 				ji.cjm = new ConfigurableJointManager();
 				ji.cjm.setup(j);
@@ -393,8 +393,6 @@ namespace DockRotate
 				ji.connectedBodyNode = node.STp(hostPart, targetPart)
 					.Tp(targetPart.T(), targetPart.rb.T());
 
-				rji[i] = ji;
-
 				j.reconfigureForRotation();
 			}
 
@@ -408,7 +406,7 @@ namespace DockRotate
 				ConfigurableJoint j = jm.joint.joints[i];
 				if (!j)
 					continue;
-				RotJointInfo ji = rji[i];
+				ref RotJointInfo ji = ref rji[i];
 				ji.cjm.setRotation(pos, ji.localAxis, ji.localNode);
 				/*
 				if (jm.verboseEvents && Time.frameCount % 10 == 0)
@@ -470,7 +468,7 @@ namespace DockRotate
 				if (!j)
 					continue;
 
-				RotJointInfo ji = rji[i];
+				ref RotJointInfo ji = ref rji[i];
 
 				// staticize joint rotation
 
