@@ -1268,13 +1268,15 @@ namespace DockRotate
 
 		private float autoSnapStep()
 		{
-			if (!rotationEnabled)
+			if (!rotationEnabled || !jointMotion)
 				return 0f;
-			if (dockingNode && dockingNode.snapOffset > 0f && log(desc(), ": autoSnapStep() because snapOffset"))
-				return dockingNode.snapOffset;
-			if (AutoSnap && log(desc(), ": autoSnapStep() because AutoSnap"))
-				return rotationStep;
-			return 0f;
+			float step = 0f;
+			if (dockingNode && dockingNode.snapRotation && dockingNode.snapOffset > 0f && log(desc(), ": autoSnapStep() because snapRotation")) {
+				step = dockingNode.snapOffset;
+			} else if (AutoSnap && log(desc(), ": autoSnapStep() because AutoSnap")) {
+				step = rotationStep;
+			}
+			return step;
 		}
 
 		public override string descPrefix()
