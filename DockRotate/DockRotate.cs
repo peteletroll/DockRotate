@@ -1270,9 +1270,9 @@ namespace DockRotate
 		{
 			if (!rotationEnabled)
 				return 0f;
-			if (dockingNode && dockingNode.snapOffset > 0f)
+			if (dockingNode && dockingNode.snapOffset > 0f && log(desc(), ": autoSnapStep() because snapOffset"))
 				return dockingNode.snapOffset;
-			if (AutoSnap)
+			if (AutoSnap && log(desc(), ": autoSnapStep() because AutoSnap"))
 				return rotationStep;
 			return 0f;
 		}
