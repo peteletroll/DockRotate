@@ -604,6 +604,8 @@ namespace DockRotate
 		};
 
 		private struct GuiInfo {
+			public string name;
+			public string flags;
 			public BaseField fld;
 			public BaseEvent evt;
 		}
@@ -624,9 +626,12 @@ namespace DockRotate
 
 			for (int i = 0; i < l; i++) {
 				string n = guiList[i, 0];
-				string m = guiList[i, 1];
-				guiInfo[i].fld = Fields[n];
-				guiInfo[i].evt = Events[n];
+				string f = guiList[i, 1];
+				ref GuiInfo ii = ref guiInfo[i];
+				ii.name = n;
+				ii.flags = f;
+				ii.fld = Fields[n];
+				ii.evt = Events[n];
 			}
 
 			StopRotationEvent = Events["StopRotation"];
