@@ -409,21 +409,21 @@ namespace DockRotate
 		[KSPField(isPersistant = true)]
 		public Vector3 frozenRotation = Vector3.zero;
 
-		private bool frozenFlag {
+		public bool frozenFlag {
 			get => !Mathf.Approximately(frozenAngle, 0f);
 		}
 
-		private float frozenAngle {
+		public float frozenAngle {
 			get => frozenRotation[0];
 			set => frozenRotation[0] = value;
 		}
 
-		private float frozenSpeed {
+		public float frozenSpeed {
 			get => frozenRotation[1];
 			set => frozenRotation[1] = value;
 		}
 
-		private float frozenStartSpeed {
+		public float frozenStartSpeed {
 			get => frozenRotation[2];
 			set => frozenRotation[2] = value;
 		}
@@ -1248,7 +1248,7 @@ namespace DockRotate
 		{
 			base.doSetup();
 
-			if (jointMotion && jointMotion.joint.Host == part) {
+			if (jointMotion && jointMotion.joint.Host == part && !frozenFlag) {
 				float snap = autoSnapStep();
 				log(desc(), ".autoSnapStep() = " + snap);
 				ModuleDockRotate other = jointMotion.joint.Target.FindModuleImplementing<ModuleDockRotate>();
