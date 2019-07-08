@@ -609,8 +609,8 @@ namespace DockRotate
 			{ "RotateClockwise", "C" },
 			{ "RotateCounterclockwise", "C" },
 			{ "RotateToSnap", "C" },
-			{ "AutoSnap", "" },
-			{ "HideCommands", "" }
+			{ "AutoSnap", "D" },
+			{ "HideCommands", "D" }
 		};
 
 		private struct GuiInfo {
@@ -659,11 +659,12 @@ namespace DockRotate
 				bool csr = canStartRotation();
 				for (int i = 0; i < guiInfo.Length; i++) {
 					ref GuiInfo ii = ref guiInfo[i];
-					bool hideCommandsCheck = !(HideCommands && ii.flags.IndexOf('C') >= 0);
+					bool flagsCheck = !(HideCommands && ii.flags.IndexOf('C') >= 0)
+						&& (DEBUGMODE || ii.flags.IndexOf('D') < 0);
 					if (ii.fld != null)
-						ii.fld.guiActive = ii.fld.guiActiveEditor = rotationEnabled && hideCommandsCheck;
+						ii.fld.guiActive = ii.fld.guiActiveEditor = rotationEnabled && flagsCheck;
 					if (guiInfo[i].evt != null)
-						ii.evt.guiActive = ii.evt.guiActiveEditor = csr && hideCommandsCheck;
+						ii.evt.guiActive = ii.evt.guiActiveEditor = csr && flagsCheck;
 				}
 			}
 
