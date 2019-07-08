@@ -265,6 +265,15 @@ namespace DockRotate
 		)]
 		public bool AutoSnap = false;
 
+		[UI_Toggle]
+		[KSPField(
+			guiName = "HideCommands",
+			isPersistant = true,
+			guiActive = DEBUGMODE,
+			guiActiveEditor = DEBUGMODE
+		)]
+		public bool HideCommands = false;
+
 #if DEBUG
 		[KSPEvent(guiActive = true)]
 		public void DumpToLog()
@@ -597,10 +606,11 @@ namespace DockRotate
 			{ "reverseRotation", "" },
 			{ "flipFlopMode", "" },
 			{ "smartAutoStruts", "" },
-			{ "RotateClockwise", "" },
-			{ "RotateCounterclockwise", "" },
-			{ "RotateToSnap", "" },
-			{ "AutoSnap", "" }
+			{ "RotateClockwise", "C" },
+			{ "RotateCounterclockwise", "C" },
+			{ "RotateToSnap", "C" },
+			{ "AutoSnap", "" },
+			{ "HideCommands", "" }
 		};
 
 		private struct GuiInfo {
@@ -649,10 +659,11 @@ namespace DockRotate
 				bool csr = canStartRotation();
 				for (int i = 0; i < guiInfo.Length; i++) {
 					ref GuiInfo ii = ref guiInfo[i];
+					bool hideCommandsCheck = !(HideCommands && ii.flags.IndexOf('C') >= 0);
 					if (ii.fld != null)
-						ii.fld.guiActive = ii.fld.guiActiveEditor = rotationEnabled;
+						ii.fld.guiActive = ii.fld.guiActiveEditor = rotationEnabled && hideCommandsCheck;
 					if (guiInfo[i].evt != null)
-						ii.evt.guiActive = ii.evt.guiActiveEditor = csr;
+						ii.evt.guiActive = ii.evt.guiActiveEditor = csr && hideCommandsCheck;
 				}
 			}
 
