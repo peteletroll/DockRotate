@@ -256,7 +256,9 @@ namespace DockRotate
 			doRotateToSnap();
 		}
 
+#if DEBUG
 		[UI_Toggle]
+#endif
 		[KSPField(
 			guiName = "AutoSnap",
 			isPersistant = true,
@@ -265,7 +267,9 @@ namespace DockRotate
 		)]
 		public bool AutoSnap = false;
 
+#if DEBUG
 		[UI_Toggle]
+#endif
 		[KSPField(
 			guiName = "HideCommands",
 			isPersistant = true,
