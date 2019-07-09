@@ -260,23 +260,23 @@ namespace DockRotate
 		[UI_Toggle]
 #endif
 		[KSPField(
-			guiName = "AutoSnap",
+			guiName = "autoSnap",
 			isPersistant = true,
 			guiActive = DEBUGMODE,
 			guiActiveEditor = DEBUGMODE
 		)]
-		public bool AutoSnap = false;
+		public bool autoSnap = false;
 
 #if DEBUG
 		[UI_Toggle]
 #endif
 		[KSPField(
-			guiName = "HideCommands",
+			guiName = "hideCommands",
 			isPersistant = true,
 			guiActive = DEBUGMODE,
 			guiActiveEditor = DEBUGMODE
 		)]
-		public bool HideCommands = false;
+		public bool hideCommands = false;
 
 #if DEBUG
 		[KSPEvent(guiActive = true)]
@@ -613,8 +613,8 @@ namespace DockRotate
 			{ "RotateClockwise", "C" },
 			{ "RotateCounterclockwise", "C" },
 			{ "RotateToSnap", "C" },
-			{ "AutoSnap", "D" },
-			{ "HideCommands", "D" }
+			{ "autoSnap", "D" },
+			{ "hideCommands", "D" }
 		};
 
 		private struct GuiInfo {
@@ -653,7 +653,7 @@ namespace DockRotate
 #if DEBUG
 			ToggleAutoStrutDisplayEvent = Events["ToggleAutoStrutDisplay"];
 #else
-			AutoSnap = false;
+			autoSnap = false;
 #endif
 		}
 
@@ -663,7 +663,7 @@ namespace DockRotate
 				bool csr = canStartRotation();
 				for (int i = 0; i < guiInfo.Length; i++) {
 					ref GuiInfo ii = ref guiInfo[i];
-					bool flagsCheck = !(HideCommands && ii.flags.IndexOf('C') >= 0)
+					bool flagsCheck = !(hideCommands && ii.flags.IndexOf('C') >= 0)
 						&& (DEBUGMODE || ii.flags.IndexOf('D') < 0);
 					if (ii.fld != null)
 						ii.fld.guiActive = ii.fld.guiActiveEditor = rotationEnabled && flagsCheck;
@@ -1288,7 +1288,7 @@ namespace DockRotate
 			float step = 0f;
 			if (dockingNode && dockingNode.snapRotation && dockingNode.snapOffset > 0f && log(desc(), ": autoSnapStep() because snapRotation")) {
 				step = dockingNode.snapOffset;
-			} else if (AutoSnap && log(desc(), ": autoSnapStep() because AutoSnap")) {
+			} else if (autoSnap && log(desc(), ": autoSnapStep() because autoSnap")) {
 				step = rotationStep;
 			}
 			return step;
