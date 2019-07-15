@@ -1276,14 +1276,14 @@ namespace DockRotate
 				}
 				if (!Mathf.Approximately(snap, 0f)) {
 					log(jointMotion.desc(), ": autosnap at " + snap);
-					enqueueFrozenRotation(jointMotion.angleToSnap(snap), speed());
+					enqueueFrozenRotation(jointMotion.angleToSnap(snap), 5f);
 				}
 			}
 		}
 
 		private float autoSnapStep()
 		{
-			if (!rotationEnabled || !jointMotion || !dockingNode)
+			if (!jointMotion || !dockingNode)
 				return 0f;
 
 			float step = 0f;
@@ -1291,11 +1291,14 @@ namespace DockRotate
 			if (dockingNode.snapOffset > 0f) {
 				step = dockingNode.snapOffset;
 				source = "snapOffset";
-			} else if (rotationStep > 0f) {
+			} else if (rotationEnabled && rotationStep > 0f) {
 				step = rotationStep;
 				source = "rotationStep";
 			}
 			log(desc(), ".autoSnapStep() = " + step + " from " + source);
+			step = Mathf.Abs(step);
+			if (step > 270f)
+				step = 0f;
 			return step;
 		}
 
