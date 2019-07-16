@@ -604,12 +604,16 @@ namespace DockRotate
 		}
 
 		private static string[,] guiList = {
-			{ "nodeRole", "" },
-			{ "rotationStep", "" },
-			{ "rotationSpeed", "" },
-			{ "reverseRotation", "" },
-			{ "flipFlopMode", "" },
-			{ "smartAutoStruts", "" },
+			// flags:
+			// S: is a setting
+			// C: is a command
+			// D: is a debug display
+			{ "nodeRole", "S" },
+			{ "rotationStep", "S" },
+			{ "rotationSpeed", "S" },
+			{ "reverseRotation", "S" },
+			{ "flipFlopMode", "S" },
+			{ "smartAutoStruts", "S" },
 			{ "RotateClockwise", "C" },
 			{ "RotateCounterclockwise", "C" },
 			{ "RotateToSnap", "C" },
