@@ -1300,8 +1300,7 @@ namespace DockRotate
 				source = "rotationStep";
 			}
 			log(desc(), ".autoSnapStep() = " + step + " from " + source);
-			step = Mathf.Abs(step);
-			if (step > 270f)
+			if (step >= 360f)
 				step = 0f;
 			return step;
 		}
