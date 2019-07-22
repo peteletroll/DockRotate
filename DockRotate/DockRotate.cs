@@ -1295,7 +1295,7 @@ namespace DockRotate
 			if (dockingNode.snapRotation && dockingNode.snapOffset > 0f) {
 				step = dockingNode.snapOffset;
 				source = "snapOffset";
-			} else if (rotationEnabled && rotationStep > 0f) {
+			} else if (autoSnap && rotationEnabled && rotationStep > 0f) {
 				step = rotationStep;
 				source = "rotationStep";
 			}
