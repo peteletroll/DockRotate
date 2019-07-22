@@ -1292,7 +1292,7 @@ namespace DockRotate
 
 			float step = 0f;
 			string source = "no source";
-			if (dockingNode.snapOffset > 0f) {
+			if (dockingNode.snapRotation && dockingNode.snapOffset > 0f) {
 				step = dockingNode.snapOffset;
 				source = "snapOffset";
 			} else if (rotationEnabled && rotationStep > 0f) {
