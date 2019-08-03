@@ -1270,16 +1270,19 @@ namespace DockRotate
 
 			if (jointMotion && jointMotion.joint.Host == part && !frozenFlag) {
 				float snap = autoSnapStep();
-				log(desc(), ".autoSnapStep() = " + snap);
+				if (verboseEvents)
+					log(desc(), ".autoSnapStep() = " + snap);
 				ModuleDockRotate other = jointMotion.joint.Target.FindModuleImplementing<ModuleDockRotate>();
 				if (other) {
 					float otherSnap = other.autoSnapStep();
-					log(other.desc(), ".autoSnapStep() = " + otherSnap);
+					if (verboseEvents)
+						log(other.desc(), ".autoSnapStep() = " + otherSnap);
 					if (otherSnap > 0f && (Mathf.Approximately(snap, 0f) || otherSnap < snap))
 						snap = otherSnap;
 				}
 				if (!Mathf.Approximately(snap, 0f)) {
-					log(jointMotion.desc(), ": autosnap at " + snap);
+					if (verboseEvents)
+						log(jointMotion.desc(), ": autosnap at " + snap);
 					enqueueFrozenRotation(jointMotion.angleToSnap(snap), 5f);
 				}
 			}
@@ -1292,14 +1295,15 @@ namespace DockRotate
 
 			float step = 0f;
 			string source = "no source";
-			if (dockingNode.snapRotation && dockingNode.snapOffset > 0f) {
+			if (dockingNode.snapRotation && dockingNode.snapOffset > 0.01f) {
 				step = dockingNode.snapOffset;
 				source = "snapOffset";
-			} else if (autoSnap && rotationEnabled && rotationStep > 0f) {
+			} else if (autoSnap && rotationEnabled && rotationStep > 0.01f) {
 				step = rotationStep;
 				source = "rotationStep";
 			}
-			log(desc(), ".autoSnapStep() = " + step + " from " + source);
+			if (verboseEvents)
+				log(desc(), ".autoSnapStep() = " + step + " from " + source);
 			if (step >= 360f)
 				step = 0f;
 			return step;
