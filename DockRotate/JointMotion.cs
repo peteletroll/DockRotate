@@ -7,8 +7,9 @@ namespace DockRotate
 	public class JointMotion: MonoBehaviour
 	{
 		private PartJoint _joint;
+
 		public PartJoint joint { get => _joint; }
-		public Vessel vessel { get => (_joint && _joint.Host) ? _joint.Host.vessel : null; }
+		public Vessel vessel { get => mayWork() ? _joint.Host.vessel : null; }
 
 		public Vector3 hostAxis, hostNode;
 		private Vector3 hostUp, targetUp;
@@ -23,7 +24,7 @@ namespace DockRotate
 		public JointMotionObj rotCur {
 			get { return _rotCur; }
 			set {
-				if (!joint || !joint.Host || !joint.Host.vessel)
+				if (!mayWork())
 					return;
 
 				bool sas = (_rotCur && _rotCur.smartAutoStruts)
@@ -75,6 +76,13 @@ namespace DockRotate
 				if (_controller)
 					_controller.putAxis(this);
 			}
+		}
+
+		private bool mayWork()
+		{
+			return _joint
+				&& _joint.Host && _joint.Host.vessel
+				&& _joint.Target && _joint.Target.vessel;
 		}
 
 		public static JointMotion get(PartJoint j)
