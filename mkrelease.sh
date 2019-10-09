@@ -25,15 +25,15 @@ shift `expr $OPTIND - 1`
 cd `dirname $0` || exit 1
 
 # [assembly: AssemblyVersion ("1.3.1.1")]
-version=`sed -n 's/.*\<AssemblyVersion\>.*"\([^"]\+\)".*/\1/p' DockRotate/Properties/AssemblyInfo.cs`
+version=`sed -n 's/.*\<AssemblyVersion\>.*"\([^"]\+\)".*/\1/p' "$name/Properties/AssemblyInfo.cs"`
 if [ "$version" = "" ]
 then
 	echo "ABORTING: can't find assembly version number" 1>&2
 	exit 1
 fi
 
-dll=DockRotate/bin/Release/DockRotate.dll
-debugdll=DockRotate/bin/Debug/DockRotate.dll
+dll="$name/bin/Release/$name.dll"
+debugdll="$name/bin/Debug/$name.dll"
 
 dllname=`basename $dll`
 
@@ -66,7 +66,7 @@ do
 done
 [ $foundnewer -eq 0 ] || exit 1
 
-zip=/tmp/$name-$version.zip
+zip="/tmp/$name-$version.zip"
 if [ ! -z "$zipname" ]
 then
 	zip="$zipname"
@@ -90,9 +90,9 @@ fi
 		exit 1
 	fi
 
-	jsonversion=Resources/DockRotate.version
+	jsonversion="Resources/$name.version"
 	jqfilter='.VERSION | (.MAJOR|tostring) + "." + (.MINOR|tostring) + "." + (.PATCH|tostring) + "." + (.BUILD|tostring)'
-	jversion=`jq -r "$jqfilter" $jsonversion`
+	jversion=`jq -r "$jqfilter" "$jsonversion"`
 	if [ $? -ne 0 ]
 	then
 		echo "ABORTING: JSON syntax error in $jsonversion" 1>&2
@@ -138,7 +138,7 @@ fi
 tmp=`mktemp -d` || exit 1
 trap "rm -rf $tmp" EXIT
 
-dir=$tmp/GameData/$name
+dir="$tmp/GameData/$name"
 mkdir -p $dir || exit 1
 
 cp "$ksphome"/GameData/ModuleManager.*.dll $dir/.. || exit 1
