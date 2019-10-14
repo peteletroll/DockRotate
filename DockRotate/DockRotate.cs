@@ -727,9 +727,11 @@ namespace DockRotate
 			if (MapView.MapIsEnabled)
 				return;
 
-			if (cr || (Time.frameCount & 3) == 0)
+			bool updfrm = (Time.frameCount & 3) == 0;
+			if (updfrm || cr)
 				updateStatus(cr);
-			checkGuiActive();
+			if (updfrm)
+				checkGuiActive();
 		}
 
 		private void updateStatus(JointMotionObj cr)
