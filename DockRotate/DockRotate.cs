@@ -603,7 +603,7 @@ namespace DockRotate
 			eventState = cmd;
 		}
 
-		private static string[,] guiList = {
+		private static readonly string[,] guiList = {
 			// flags:
 			// S: is a setting
 			// C: is a command
