@@ -20,7 +20,7 @@ shift `expr $OPTIND - 1`
 tmp=`mktemp -d` || exit 1
 trap "rm -rf $tmp" EXIT
 
-zip="$tmp/dr.zip"
+zip="$tmp/$name.zip"
 ./mkrelease.sh -f -z "$zip" || exit 1
 
 gamedata="$ksphome/GameData"
