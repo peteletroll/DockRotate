@@ -360,14 +360,18 @@ namespace DockRotate
 			return ret;
 		}
 
+		private static List<PartResourceDefinition> GetConsumedResourcesCache = null;
+
 		public List<PartResourceDefinition> GetConsumedResources()
 		{
 			log(desc(), ".GetConsumedResource() called");
-			List<PartResourceDefinition> ret = new List<PartResourceDefinition>();
-			PartResourceDefinition ec = PartResourceLibrary.Instance.GetDefinition("ElectricCharge");
-			if (ec != null)
-				ret.Add(ec);
-			return ret;
+			if (GetConsumedResourcesCache == null) {
+				GetConsumedResourcesCache = new List<PartResourceDefinition>();
+				PartResourceDefinition ec = PartResourceLibrary.Instance.GetDefinition("ElectricCharge");
+				if (ec != null)
+					GetConsumedResourcesCache.Add(ec);
+			}
+			return GetConsumedResourcesCache;
 		}
 
 		protected bool setupLocalAxisDone;
