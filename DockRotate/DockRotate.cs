@@ -6,7 +6,8 @@ using CompoundParts;
 
 namespace DockRotate
 {
-	public abstract class ModuleBaseRotate: PartModule, IJointLockState, IStructureChangeListener
+	public abstract class ModuleBaseRotate: PartModule,
+		IJointLockState, IStructureChangeListener, IResourceConsumer
 	{
 #if DEBUG
 		const bool DEBUGMODE = true;
@@ -356,6 +357,16 @@ namespace DockRotate
 			bool ret = currentRotation();
 			if (verboseEvents || ret)
 				log(desc(), ".IsJointUnlocked() is " + ret);
+			return ret;
+		}
+
+		public List<PartResourceDefinition> GetConsumedResources()
+		{
+			log(desc(), ".GetConsumedResource() called");
+			List<PartResourceDefinition> ret = new List<PartResourceDefinition>();
+			PartResourceDefinition ec = PartResourceLibrary.Instance.GetDefinition("ElectricCharge");
+			if (ec != null)
+				ret.Add(ec);
 			return ret;
 		}
 
