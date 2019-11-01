@@ -364,7 +364,7 @@ namespace DockRotate
 
 		public List<PartResourceDefinition> GetConsumedResources()
 		{
-			log(desc(), ".GetConsumedResource() called");
+			// log(desc(), ".GetConsumedResource() called");
 			if (GetConsumedResourcesCache == null) {
 				GetConsumedResourcesCache = new List<PartResourceDefinition>();
 				PartResourceDefinition ec = PartResourceLibrary.Instance.GetDefinition("ElectricCharge");
