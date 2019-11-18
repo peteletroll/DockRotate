@@ -739,7 +739,7 @@ namespace DockRotate
 			angleVelocity = cr ? cr.vel : 0f;
 			angleIsMoving = cr;
 
-			if (MapView.MapIsEnabled)
+			if (MapView.MapIsEnabled || !part.PartActionWindow)
 				return;
 
 			bool updfrm = (Time.frameCount & 3) == 0;
