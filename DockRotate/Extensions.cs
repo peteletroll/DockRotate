@@ -374,6 +374,13 @@ namespace DockRotate
 			return "[" + p.group + ", " + p.type + ", " + p.Cooldown + "]";
 		}
 
+		/******** float utilities ********/
+
+		public static bool isZero(this float n)
+		{
+			return Mathf.Approximately(n, 0f);
+		}
+
 		/******** Vector3 utilities ********/
 
 		public static Vector3 findUp(this Vector3 axis)
@@ -436,7 +443,7 @@ namespace DockRotate
 			float angle;
 			Vector3 axis;
 			q.ToAngleAxis(out angle, out axis);
-			bool isIdentity = Mathf.Approximately(angle, 0f);
+			bool isIdentity = angle.isZero();
 			return angle.ToString(isIdentity ? "F0" : "F1") + "\u00b0"
 				+ (isIdentity ? Vector3.zero : axis).desc();
 		}

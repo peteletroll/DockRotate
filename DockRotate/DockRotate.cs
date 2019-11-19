@@ -438,7 +438,7 @@ namespace DockRotate
 		public Vector3 frozenRotation = Vector3.zero;
 
 		public bool frozenFlag {
-			get => !Mathf.Approximately(frozenAngle, 0f);
+			get => !frozenAngle.isZero();
 		}
 
 		public float frozenAngle {
@@ -1292,10 +1292,10 @@ namespace DockRotate
 					float otherSnap = other.autoSnapStep();
 					if (verboseEvents)
 						log(other.desc(), ".autoSnapStep() = " + otherSnap);
-					if (otherSnap > 0f && (Mathf.Approximately(snap, 0f) || otherSnap < snap))
+					if (otherSnap > 0f && (snap.isZero() || otherSnap < snap))
 						snap = otherSnap;
 				}
-				if (!Mathf.Approximately(snap, 0f)) {
+				if (!snap.isZero()) {
 					if (verboseEvents)
 						log(jointMotion.desc(), ": autosnap at " + snap);
 					enqueueFrozenRotation(jointMotion.angleToSnap(snap), 5f);
