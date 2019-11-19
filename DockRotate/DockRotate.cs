@@ -1016,8 +1016,6 @@ namespace DockRotate
 				return null;
 			if (verbose)
 				log(desc(), ".findMovingNodeInEditor(): attachedPart = " + rotatingNode.attachedPart.desc());
-			if (otherPart != rotatingNode.attachedPart)
-				return null;
 			return rotatingNode;
 		}
 
