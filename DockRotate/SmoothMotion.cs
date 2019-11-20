@@ -29,7 +29,7 @@ namespace DockRotate
 		public float curBrakingSpace(float deltat = 0f)
 		{
 			float time = Mathf.Abs(vel) / maxacc + 2f * stopMargin * deltat;
-			return vel / 2 * time;
+			return vel / 2f * time;
 		}
 
 		public void advance(float deltat)
