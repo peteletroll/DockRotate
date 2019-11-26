@@ -163,7 +163,7 @@ namespace DockRotate
 			return node.nodeTypes.Overlaps(other.nodeTypes);
 		}
 
-		public static void fillNodeTypes(this ModuleDockingNode node)
+		private static void fillNodeTypes(this ModuleDockingNode node)
 		{
 			// this fills nodeTypes, sometimes empty in editor
 			if (node.nodeTypes.Count > 0)
@@ -177,17 +177,6 @@ namespace DockRotate
 				log(node.part.desc(), ".fillNodeTypes(): adding \"" + type + "\" [" + i + "]");
 				node.nodeTypes.Add(type);
 			}
-		}
-
-		public static string allTypes(this ModuleDockingNode node)
-		{
-			string lst = "";
-			foreach (string t in node.nodeTypes) {
-				if (lst != "")
-					lst += ",";
-				lst += t;
-			}
-			return lst;
 		}
 
 		/******** AttachNode utilities ********/
