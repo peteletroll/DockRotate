@@ -132,11 +132,12 @@ namespace DockRotate
 				PartJoint j = allAutostrutJoints[ii];
 				if (!j || !j.Host || !j.Target)
 					continue;
-				if (rotParts.contains(j.Host) == rotParts.contains(j.Target))
-					continue;
-				if (verbose)
-					log(part.desc() + ": releasing [" + ++count + "] " + j.desc());
-				j.Host.ReleaseAutoStruts();
+				if (rotParts.contains(j.Host) != rotParts.contains(j.Target)
+					|| j.Host == part || j.Target == part) {
+					if (verbose)
+						log(part.desc() + ": releasing [" + ++count + "] " + j.desc());
+					j.Host.ReleaseAutoStruts();
+				}
 			}
 		}
 
