@@ -141,7 +141,15 @@ trap "rm -rf $tmp" EXIT
 dir="$tmp/GameData/$name"
 mkdir -p $dir || exit 1
 
-cp "$ksphome"/GameData/ModuleManager.*.dll $dir/.. || exit 1
+mmdll=`ls "$ksphome"/GameData/ModuleManager.*.dll`
+nmmdll=`echo $mmdll | wc -w`
+if [ "$nmmdll" -ne 1 ]
+then
+	echo "ABORTING: there should be only one ModuleManager.*.dll:" 1>&2
+	echo $mmdll 1>&2
+	exit 1
+fi
+cp $mmdll $dir/.. || exit 1
 
 cp -r $dll README.md LICENSE.md Resources/* $dir || exit 1
 
