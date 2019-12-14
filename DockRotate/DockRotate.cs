@@ -299,6 +299,7 @@ namespace DockRotate
 
 			log(desc(), ": END DUMP");
 		}
+#endif
 
 		[KSPEvent(
 			guiName = "Toggle Autostrut Display",
@@ -311,7 +312,6 @@ namespace DockRotate
 			if (HighLogic.LoadedSceneIsEditor)
 				GameEvents.onEditorPartEvent.Fire(ConstructionEventType.PartTweaked, part);
 		}
-#endif
 
 		public void doRotateClockwise()
 		{
@@ -647,9 +647,11 @@ namespace DockRotate
 
 		private BaseEvent StopRotationEvent;
 		private BaseField angleInfoField;
-#if DEBUG
+
+		[KSPField(guiActive = false, guiActiveEditor = false, isPersistant = true)]
+		public bool showToggleAutoStrutDisplay = false;
+
 		private BaseEvent ToggleAutoStrutDisplayEvent;
-#endif
 
 		protected void setupGuiActive()
 		{
@@ -669,9 +671,11 @@ namespace DockRotate
 
 			StopRotationEvent = Events["StopRotation"];
 			angleInfoField = Fields["angleInfo"];
-#if DEBUG
 			ToggleAutoStrutDisplayEvent = Events["ToggleAutoStrutDisplay"];
-#else
+			if (ToggleAutoStrutDisplayEvent != null)
+				ToggleAutoStrutDisplayEvent.guiActive = ToggleAutoStrutDisplayEvent.guiActiveEditor
+					= (DEBUGMODE || showToggleAutoStrutDisplay);
+#if !DEBUG
 			autoSnap = false;
 #endif
 		}
@@ -697,11 +701,9 @@ namespace DockRotate
 			if (StopRotationEvent != null)
 				StopRotationEvent.guiActive = currentRotation();
 
-#if DEBUG
 			if (ToggleAutoStrutDisplayEvent != null)
 				ToggleAutoStrutDisplayEvent.guiName = PhysicsGlobals.AutoStrutDisplay ?
 					"Hide Autostruts" : "Show Autostruts";
-#endif
 		}
 
 		public override void OnStart(StartState state)
