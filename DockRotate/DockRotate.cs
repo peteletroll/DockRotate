@@ -690,7 +690,7 @@ namespace DockRotate
 						&& (DEBUGMODE || ii.flags.IndexOf('D') < 0);
 					if (ii.fld != null)
 						ii.fld.guiActive = ii.fld.guiActiveEditor = rotationEnabled && flagsCheck;
-					if (guiInfo[i].evt != null)
+					if (ii.evt != null)
 						ii.evt.guiActive = ii.evt.guiActiveEditor = csr && flagsCheck;
 				}
 			}
