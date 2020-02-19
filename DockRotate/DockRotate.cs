@@ -292,7 +292,7 @@ namespace DockRotate
 					nodeHelp += " \"" + nodes[i].id + "\"";
 			log(desc(), nodeHelp);
 
-			if (jointMotion && jointMotion.joint)
+			if (hasJointMotion && jointMotion.joint)
 				jointMotion.joint.dump();
 			else
 				log(desc(), ": no jointMotion");
@@ -379,6 +379,7 @@ namespace DockRotate
 		protected abstract AttachNode findMovingNodeInEditor(out Part otherPart, bool verbose);
 
 		protected JointMotion jointMotion;
+		protected bool hasJointMotion;
 		protected abstract PartJoint findMovingJoint(bool verbose);
 
 		public string nodeRole = "Init";
@@ -472,6 +473,7 @@ namespace DockRotate
 		protected virtual void doSetup()
 		{
 			jointMotion = null;
+			hasJointMotion = false;
 			nodeRole = "None";
 			anglePosition = rotationAngle();
 			angleVelocity = 0f;
@@ -494,6 +496,7 @@ namespace DockRotate
 				PartJoint rotatingJoint = findMovingJoint(verboseEvents);
 				if (rotatingJoint) {
 					jointMotion = JointMotion.get(rotatingJoint);
+					hasJointMotion = jointMotion;
 					if (!jointMotion.hasController())
 						jointMotion.controller = this;
 					jointMotion.updateOrgRot();
@@ -505,7 +508,7 @@ namespace DockRotate
 				log(sep);
 			}
 
-			if (jointMotion) {
+			if (hasJointMotion) {
 				nodeRole = part == jointMotion.joint.Host ? "Host"
 					: part == jointMotion.joint.Target ? "Target"
 					: "Unknown";
@@ -513,7 +516,7 @@ namespace DockRotate
 					nodeRole += "OT";
 			}
 
-			log(desc(), ".doSetup(): joint " + (jointMotion ? jointMotion.joint.desc() : "null"));
+			log(desc(), ".doSetup(): joint " + (hasJointMotion ? jointMotion.joint.desc() : "null"));
 
 			setupDoneAt = Time.frameCount;
 		}
@@ -766,7 +769,7 @@ namespace DockRotate
 				}
 			}
 #if DEBUG
-			int nJoints = jointMotion ? jointMotion.joint.joints.Count : 0;
+			int nJoints = hasJointMotion ? jointMotion.joint.joints.Count : 0;
 			nodeStatus = part.flightID + ":" + nodeRole + "[" + nJoints + "]";
 			if (frozenFlag)
 				nodeStatus += " [F]";
@@ -781,7 +784,7 @@ namespace DockRotate
 				return rotationEnabled && findHostPartInEditor(verboseEvents);
 
 			return rotationEnabled
-				&& setupDone && jointMotion
+				&& setupDone && hasJointMotion
 				&& vessel && vessel.CurrentControlLevel == Vessel.ControlLevel.FULL;
 		}
 
@@ -825,14 +828,14 @@ namespace DockRotate
 					hostNodeAxis.Td(host.T(), target.T()).findUp().Td(target.T(), host.T()));
 			}
 
-			return jointMotion ? jointMotion.rotationAngle() : float.NaN;
+			return hasJointMotion ? jointMotion.rotationAngle() : float.NaN;
 		}
 
 		protected float dynamicDeltaAngle()
 		{
 			if (!HighLogic.LoadedSceneIsFlight)
 				return 0f;
-			return jointMotion ? jointMotion.dynamicDeltaAngle() : float.NaN;
+			return hasJointMotion ? jointMotion.dynamicDeltaAngle() : float.NaN;
 		}
 
 		public void putAxis(JointMotion jm)
@@ -867,7 +870,7 @@ namespace DockRotate
 				return true;
 			}
 
-			if (!jointMotion) {
+			if (!hasJointMotion) {
 				log(desc(), ".enqueueRotation(): no rotating joint, skipped");
 				return false;
 			}
@@ -888,7 +891,7 @@ namespace DockRotate
 				return;
 			}
 
-			if (!jointMotion)
+			if (!hasJointMotion)
 				return;
 			enqueueRotation(jointMotion.angleToSnap(snap), speed);
 		}
@@ -914,7 +917,7 @@ namespace DockRotate
 
 		protected JointMotionObj currentRotation()
 		{
-			return jointMotion ? jointMotion.rotCur : null;
+			return hasJointMotion ? jointMotion.rotCur : null;
 		}
 
 		protected void checkFrozenRotation()
@@ -1285,7 +1288,7 @@ namespace DockRotate
 		{
 			base.doSetup();
 
-			if (jointMotion && jointMotion.joint.Host == part && !frozenFlag) {
+			if (hasJointMotion && jointMotion.joint.Host == part && !frozenFlag) {
 				float snap = autoSnapStep();
 				if (verboseEvents)
 					log(desc(), ".autoSnapStep() = " + snap);
@@ -1307,7 +1310,7 @@ namespace DockRotate
 
 		private float autoSnapStep()
 		{
-			if (!jointMotion || !dockingNode)
+			if (!hasJointMotion || !dockingNode)
 				return 0f;
 
 			float step = 0f;
