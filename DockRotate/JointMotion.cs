@@ -215,18 +215,13 @@ namespace DockRotate
 
 		protected bool brakeRotationKey()
 		{
-			return vessel && vessel == FlightGlobals.ActiveVessel
-				&& GameSettings.MODIFIER_KEY.GetKey()
-				&& GameSettings.BRAKES.GetKeyDown();
+			return GameSettings.MODIFIER_KEY.GetKey()
+				&& GameSettings.BRAKES.GetKeyDown()
+				&& vessel == FlightGlobals.ActiveVessel;
 		}
 
 		public void FixedUpdate()
 		{
-			if (!vessel) {
-				Destroy(this);
-				return;
-			}
-
 			if (!rotCur || !HighLogic.LoadedSceneIsFlight)
 				return;
 
