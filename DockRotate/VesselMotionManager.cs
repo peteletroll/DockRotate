@@ -63,7 +63,7 @@ namespace DockRotate
 			VesselMotionManager[] mgrs = v.GetComponents<VesselMotionManager>();
 			if (mgrs != null) {
 				for (int i = 0; i < mgrs.Length; i++) {
-					if (mgrs[i].vessel == v && mgrs[i].rootPart == v.rootPart) {
+					if (mgrs[i].vessel == v && mgrs[i].rootPart == v.rootPart && !mgr) {
 						mgr = mgrs[i];
 					} else {
 						log(nameof(VesselMotionManager), ".get(" + v.desc() + ") found incoherency with " + mgrs[i].desc());
