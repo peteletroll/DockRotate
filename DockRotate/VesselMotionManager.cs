@@ -40,6 +40,9 @@ namespace DockRotate
 		private Vessel _vessel = null;
 		public Vessel vessel { get => _vessel; }
 
+		public Part _rootPart = null;
+		public Part rootPart { get => _rootPart; }
+
 		private int rotCount = 0;
 		public bool onRails = false;
 
@@ -56,10 +59,23 @@ namespace DockRotate
 			if (!v)
 				return null;
 
-			VesselMotionManager mgr = v.gameObject.GetComponent<VesselMotionManager>();
+			VesselMotionManager mgr = null;
+			VesselMotionManager[] mgrs = v.GetComponents<VesselMotionManager>();
+			if (mgrs != null) {
+				for (int i = 0; i < mgrs.Length; i++) {
+					if (mgrs[i].vessel == v && mgrs[i].rootPart == v.rootPart) {
+						mgr = mgrs[i];
+					} else {
+						log(nameof(VesselMotionManager), ".get(" + v.desc() + ") found incoherency with " + mgrs[i].desc());
+						Destroy(mgrs[i]);
+					}
+				}
+			}
+
 			if (!mgr) {
 				mgr = v.gameObject.AddComponent<VesselMotionManager>();
 				mgr._vessel = v;
+				mgr._rootPart = v.rootPart;
 				log(nameof(VesselMotionManager), ".get(" + v.desc() + ") created " + mgr.desc());
 			}
 
@@ -278,6 +294,8 @@ namespace DockRotate
 				deadMsg = "no vessel";
 			} else if (!vessel.rootPart) {
 				deadMsg = "no vessel root";
+			} else if (vessel.rootPart.vessel != vessel) {
+				deadMsg = "vessel root incoherency";
 			}
 
 			if (deadMsg == "")
