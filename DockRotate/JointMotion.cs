@@ -96,14 +96,25 @@ namespace DockRotate
 			if (j.gameObject != j.Host.gameObject)
 				log(nameof(JointMotion), ".get(): *** WARNING *** gameObject incoherency");
 
+			JointMotion jm = null;
 			JointMotion[] jms = j.gameObject.GetComponents<JointMotion>();
-			for (int i = 0; i < jms.Length; i++)
-				if (jms[i].joint == j)
-					return jms[i];
+			for (int i = 0; i < jms.Length; i++) {
+				if (jms[i].joint == j) {
+					if (!jm) {
+						jm = jms[i];
+					} else {
+						log(nameof(JointMotion), ".get(): duplicated " + jms[i].desc());
+						Destroy(jms[i]);
+					}
+				}
+			}
 
-			JointMotion jm = j.gameObject.AddComponent<JointMotion>();
-			jm._joint = j;
-			log(nameof(JointMotion), ".get(): created " + jm.desc());
+			if (!jm) {
+				jm = j.gameObject.AddComponent<JointMotion>();
+				jm._joint = j;
+				log(nameof(JointMotion), ".get(): created " + jm.desc());
+			}
+
 			return jm;
 		}
 
