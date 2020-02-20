@@ -80,9 +80,12 @@ namespace DockRotate
 
 		private bool mayWork()
 		{
-			return _joint
+			bool ret = _joint
 				&& _joint.Host && _joint.Host.vessel
 				&& _joint.Target && _joint.Target.vessel;
+			if (!ret)
+				_joint = null;
+			return ret;
 		}
 
 		public static JointMotion get(PartJoint j)
