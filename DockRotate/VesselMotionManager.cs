@@ -335,11 +335,12 @@ namespace DockRotate
 				log(desc(), ".OnVesselGoOffRails(" + v.desc() + ")");
 			if (deadVessel())
 				return;
-			get(v);
 			if (!care(v))
 				return;
 
 			phase("BEGIN OFF RAILS");
+
+			get(v);
 
 			List<InternalModel> im = vessel.FindPartModulesImplementing<InternalModel>();
 			for (int i = 0; i < im.Count; i++) {
@@ -397,13 +398,11 @@ namespace DockRotate
 
 		private void RightBeforeStructureChange(string label)
 		{
-			if (deadVessel())
-				return;
-			if (structureChangeInfo.isRepeated(label))
-				return;
 			phase("BEGIN BEFORE CHANGE");
-			structureChangeInfo.reset("BeforeChange");
-			listeners().map(l => l.RightBeforeStructureChange());
+			if (!deadVessel() && !structureChangeInfo.isRepeated(label)) {
+				structureChangeInfo.reset("BeforeChange");
+				listeners().map(l => l.RightBeforeStructureChange());
+			}
 			phase("END BEFORE CHANGE");
 		}
 
@@ -429,10 +428,9 @@ namespace DockRotate
 
 		private void RightAfterStructureChange()
 		{
-			if (deadVessel())
-				return;
 			phase("BEGIN AFTER CHANGE");
-			listeners().map(l => l.RightAfterStructureChange());
+			if (!deadVessel())
+				listeners().map(l => l.RightAfterStructureChange());
 			phase("END AFTER CHANGE");
 		}
 
@@ -567,6 +565,7 @@ namespace DockRotate
 
 		public void OnDestroy()
 		{
+			log(desc(), ".OnDestroy()");
 			setEvents(false);
 		}
 
