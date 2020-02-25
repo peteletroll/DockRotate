@@ -256,8 +256,7 @@ namespace DockRotate
 		{
 			log(desc(), ".OnDestroy()");
 			rotCur = null;
-			if (sound)
-				Destroy(sound);
+			stopSound();
 		}
 
 		/******** sound stuff ********/
@@ -307,15 +306,13 @@ namespace DockRotate
 				sound.Play();
 			} catch (Exception e) {
 				log(desc(), "sound: " + e.Message);
-				if (sound)
-					Destroy(sound);
-				sound = null;
+				stopSound();
 			}
 		}
 
 		public void stepSound()
 		{
-			if (sound != null && rotCur) {
+			if (rotCur && sound != null) {
 				float p = Mathf.Sqrt(Mathf.Abs(rotCur.vel / rotCur.maxvel));
 				sound.volume = soundVolume * p * GameSettings.SHIP_VOLUME;
 				sound.pitch = p * soundPitch * pitchAlteration;
@@ -324,10 +321,11 @@ namespace DockRotate
 
 		public void stopSound()
 		{
-			if (sound != null) {
-				sound.Stop();
-				Destroy(sound);
-				sound = null;
+			AudioSource s = sound;
+			sound = null;
+			if (s != null) {
+				s.Stop();
+				Destroy(s);
 			}
 		}
 
