@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Reflection;
 using UnityEngine;
 using KSP.Localization;
 using CompoundParts;
@@ -14,6 +15,35 @@ namespace DockRotate
 #else
 		const bool DEBUGMODE = false;
 #endif
+		[KSPField(isPersistant = true)]
+		public int Revision = -1;
+
+		private int _revision = -1;
+		private int getRevision()
+		{
+			if (_revision < 0) {
+				_revision = 0;
+				try {
+					_revision = Assembly.GetExecutingAssembly().GetName().Version.Revision;
+				} catch (Exception e) {
+					string sep = new string('-', 80);
+					log(sep);
+					log("Exception reading revision:\n" + e.StackTrace);
+					log(sep);
+				}
+			}
+			return _revision;
+		}
+
+		private void checkRevision()
+		{
+			int r = getRevision();
+			if (Revision != r) {
+				log(desc(), ": REVISION " + Revision + " -> " + r);
+				Revision = r;
+			}
+		}
+
 		[UI_Toggle]
 		[KSPField(
 			guiName = "#DCKROT_rotation",
@@ -712,6 +742,8 @@ namespace DockRotate
 		public override void OnStart(StartState state)
 		{
 			base.OnStart(state);
+
+			checkRevision();
 
 			setupLocalAxisDone = setupLocalAxis(state);
 
