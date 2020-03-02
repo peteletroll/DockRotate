@@ -18,8 +18,8 @@ namespace DockRotate
 		[KSPField(isPersistant = true)]
 		public int Revision = -1;
 
-		private int _revision = -1;
-		private int getRevision()
+		private static int _revision = -1;
+		private static int getRevision()
 		{
 			if (_revision < 0) {
 				_revision = 0;
