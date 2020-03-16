@@ -822,7 +822,7 @@ namespace DockRotate
 
 		public float step()
 		{
-			float s = rotationStep;
+			float s = Mathf.Abs(rotationStep);
 			if (s < 0.1f)
 				s = SmoothMotion.CONTINUOUS;
 			if (reverseRotation)
