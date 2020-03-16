@@ -561,6 +561,7 @@ namespace DockRotate
 		public void Start()
 		{
 			listeners(); // just to set verboseEvents
+			enabled = false;
 		}
 
 		public void OnDestroy()

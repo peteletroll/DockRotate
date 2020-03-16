@@ -35,6 +35,7 @@ namespace DockRotate
 					: 0;
 
 				_rotCur = value;
+				enabled = _rotCur;
 
 				VesselMotionManager.get(joint.Host.vessel).changeCount(delta);
 				joint.Host.vessel.KJRNextCycleAllAutoStrut();

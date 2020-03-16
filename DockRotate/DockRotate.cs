@@ -508,6 +508,7 @@ namespace DockRotate
 			anglePosition = rotationAngle();
 			angleVelocity = 0f;
 			angleIsMoving = false;
+			enabled = false;
 
 			if (!part || !vessel || !setupLocalAxisDone) {
 				log("" + GetType(), ": *** WARNING *** doSetup() called at a bad time");
@@ -549,6 +550,8 @@ namespace DockRotate
 			log(desc(), ".doSetup(): joint " + (hasJointMotion ? jointMotion.joint.desc() : "null"));
 
 			setupDoneAt = Time.frameCount;
+
+			enabled = hasJointMotion;
 		}
 
 		public void OnVesselGoOnRails()
