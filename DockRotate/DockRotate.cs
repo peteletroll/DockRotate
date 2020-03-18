@@ -773,9 +773,13 @@ namespace DockRotate
 		{
 			base.OnUpdate();
 
-			if (verboseEvents != verboseEventsPrev) {
-				VesselMotionManager.get(vessel).listeners();
-				verboseEventsPrev = verboseEvents;
+			if (setupDone && !HighLogic.LoadedSceneIsFlight) {
+				if (verboseEvents != verboseEventsPrev) {
+					VesselMotionManager.get(vessel).listeners();
+					verboseEventsPrev = verboseEvents;
+				}
+
+				checkFrozenRotation();
 			}
 
 			JointMotionObj cr = currentRotation();
@@ -1000,13 +1004,6 @@ namespace DockRotate
 			frozenRotation.Set(angle, speed, startSpeed);
 			log(desc(), ".enqueueFrozenRotation(): "
 				+ prev.desc() + " -> " + frozenRotation.desc());
-		}
-
-		public void FixedUpdate()
-		{
-			if (!setupDone || !HighLogic.LoadedSceneIsFlight)
-				return;
-			checkFrozenRotation();
 		}
 
 		public string desc(bool bare = false)
