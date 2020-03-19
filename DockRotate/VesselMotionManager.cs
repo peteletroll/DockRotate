@@ -37,11 +37,9 @@ namespace DockRotate
 
 	public class VesselMotionManager: MonoBehaviour
 	{
-		private Vessel _vessel = null;
-		public Vessel vessel { get => _vessel; }
+		private Vessel vessel;
 
-		public Part _rootPart = null;
-		public Part rootPart { get => _rootPart; }
+		private Part rootPart = null;
 
 		private int rotCount = 0;
 		public bool onRails = false;
@@ -74,8 +72,8 @@ namespace DockRotate
 
 			if (!mgr) {
 				mgr = v.gameObject.AddComponent<VesselMotionManager>();
-				mgr._vessel = v;
-				mgr._rootPart = v.rootPart;
+				mgr.vessel = v;
+				mgr.rootPart = v.rootPart;
 				log(nameof(VesselMotionManager), ".get(" + v.desc() + ") created " + mgr.desc());
 			}
 
@@ -551,7 +549,7 @@ namespace DockRotate
 		public void Awake()
 		{
 			if (!vessel) {
-				_vessel = gameObject.GetComponent<Vessel>();
+				vessel = gameObject.GetComponent<Vessel>();
 				if (verboseEvents && vessel)
 					log(desc(), ".Awake(): found vessel");
 			}
