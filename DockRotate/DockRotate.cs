@@ -914,6 +914,7 @@ namespace DockRotate
 				log(desc(), ".enqueueRotation(): no rotating joint, skipped");
 				return false;
 			}
+			enabled = true;
 			return jointMotion.enqueueRotation(this, angle, speed, startSpeed);
 		}
 
@@ -1002,11 +1003,21 @@ namespace DockRotate
 				+ prev.desc() + " -> " + frozenRotation.desc());
 		}
 
+		private int lastUsefulFixedUpdate = 0;
+
 		public void FixedUpdate()
 		{
-			if (!setupDone || !HighLogic.LoadedSceneIsFlight)
-				return;
-			checkFrozenRotation();
+			if (setupDone && HighLogic.LoadedSceneIsFlight)
+				checkFrozenRotation();
+
+			if (lastUsefulFixedUpdate < setupDoneAt) {
+				lastUsefulFixedUpdate = setupDoneAt;
+			} else if (frozenFlag || currentRotation() != null) {
+				lastUsefulFixedUpdate = Time.frameCount;
+			} else if (Time.frameCount - lastUsefulFixedUpdate > 10) {
+				log(part.desc(), ": disabling useless MonoBehaviour updates");
+				enabled = false;
+			}
 		}
 
 		public string desc(bool bare = false)
