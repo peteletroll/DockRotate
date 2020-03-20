@@ -26,6 +26,7 @@ namespace DockRotate
 				log(nameof(JointLockStateProxy), ".get(" + p.desc() + ") created " + pm_jlsp);
 			}
 			JointLockStateProxy jlsp = pm_jlsp as JointLockStateProxy;
+			jlsp.enabled = false;
 			return jlsp;
 		}
 
