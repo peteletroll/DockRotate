@@ -10,11 +10,13 @@ namespace DockRotate
 	public abstract class ModuleBaseRotate: PartModule,
 		IJointLockState, IStructureChangeListener, IResourceConsumer
 	{
+		const string DEBUGGROUP = "DockRotateDebug";
 #if DEBUG
 		const bool DEBUGMODE = true;
 #else
 		const bool DEBUGMODE = false;
 #endif
+
 		[KSPField(isPersistant = true)]
 		public int Revision = -1;
 
@@ -120,13 +122,28 @@ namespace DockRotate
 		)]
 		public bool smartAutoStruts = false;
 
-		[KSPField(guiActive = DEBUGMODE)]
+		[KSPField(
+			guiActive = DEBUGMODE,
+			groupName = DEBUGGROUP,
+			groupDisplayName = DEBUGGROUP,
+			groupStartCollapsed = true
+		)]
 		public float anglePosition;
 
-		[KSPField(guiActive = DEBUGMODE)]
+		[KSPField(
+			guiActive = DEBUGMODE,
+			groupName = DEBUGGROUP,
+			groupDisplayName = DEBUGGROUP,
+			groupStartCollapsed = true
+		)]
 		public float angleVelocity;
 
-		[KSPField(guiActive = DEBUGMODE)]
+		[KSPField(
+			guiActive = DEBUGMODE,
+			groupName = DEBUGGROUP,
+			groupDisplayName = DEBUGGROUP,
+			groupStartCollapsed = true
+		)]
 		public bool angleIsMoving;
 
 		[KSPField(
@@ -140,7 +157,10 @@ namespace DockRotate
 		[KSPField(
 			guiName = "#DCKROT_status",
 			guiActive = true,
-			guiActiveEditor = false
+			guiActiveEditor = false,
+			groupName = DEBUGGROUP,
+			groupDisplayName = DEBUGGROUP,
+			groupStartCollapsed = true
 		)]
 		public string nodeStatus = "";
 #endif
@@ -151,7 +171,10 @@ namespace DockRotate
 			guiName = "Verbose Events",
 			guiActive = true,
 			guiActiveEditor = true,
-			isPersistant = true
+			isPersistant = true,
+			groupName = DEBUGGROUP,
+			groupDisplayName = DEBUGGROUP,
+			groupStartCollapsed = true
 		)]
 #endif
 		public bool verboseEvents = false;
@@ -294,7 +317,10 @@ namespace DockRotate
 			guiName = "autoSnap",
 			isPersistant = true,
 			guiActive = DEBUGMODE,
-			guiActiveEditor = DEBUGMODE
+			guiActiveEditor = DEBUGMODE,
+			groupName = DEBUGGROUP,
+			groupDisplayName = DEBUGGROUP,
+			groupStartCollapsed = true
 		)]
 		public bool autoSnap = false;
 
@@ -305,12 +331,20 @@ namespace DockRotate
 			guiName = "hideCommands",
 			isPersistant = true,
 			guiActive = DEBUGMODE,
-			guiActiveEditor = DEBUGMODE
+			guiActiveEditor = DEBUGMODE,
+			groupName = DEBUGGROUP,
+			groupDisplayName = DEBUGGROUP,
+			groupStartCollapsed = true
 		)]
 		public bool hideCommands = false;
 
 #if DEBUG
-		[KSPEvent(guiActive = true)]
+		[KSPEvent(
+			guiActive = true,
+			groupName = DEBUGGROUP,
+			groupDisplayName = DEBUGGROUP,
+			groupStartCollapsed = true
+		)]
 		public void DumpToLog()
 		{
 			log(desc(), ": BEGIN DUMP");
@@ -334,7 +368,10 @@ namespace DockRotate
 		[KSPEvent(
 			guiName = "Toggle Autostrut Display",
 			guiActive = true,
-			guiActiveEditor = true
+			guiActiveEditor = true,
+			groupName = DEBUGGROUP,
+			groupDisplayName = DEBUGGROUP,
+			groupStartCollapsed = true
 		)]
 		public void ToggleAutoStrutDisplay()
 		{
