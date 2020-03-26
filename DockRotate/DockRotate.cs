@@ -48,6 +48,17 @@ namespace DockRotate
 			}
 		}
 
+		[KSPField(
+			guiName = "#DCKROT_angle",
+			groupName = GROUP,
+			groupDisplayName = GROUPNAME,
+			groupStartCollapsed = true,
+			guiActive = true,
+			guiActiveEditor = true
+		)]
+		public string angleInfo;
+		private static string angleInfoNA;
+
 		[UI_Toggle]
 		[KSPField(
 			groupName = GROUP,
@@ -164,16 +175,6 @@ namespace DockRotate
 			groupStartCollapsed = true
 		)]
 		public bool angleIsMoving;
-
-		[KSPField(
-			guiName = "#DCKROT_angle",
-			groupName = GROUP,
-			groupDisplayName = GROUPNAME,
-			groupStartCollapsed = true,
-			guiActive = true,
-			guiActiveEditor = false
-		)]
-		public string angleInfo;
 
 #if DEBUG
 		[KSPField(
@@ -330,6 +331,7 @@ namespace DockRotate
 			doStopRotation();
 		}
 
+		private BaseEvent StopRotationEvent;
 		[KSPEvent(
 			guiName = "#DCKROT_stop_rotation",
 			groupName = GROUP,
@@ -399,6 +401,7 @@ namespace DockRotate
 		}
 #endif
 
+		private BaseEvent ToggleAutoStrutDisplayEvent;
 		[KSPEvent(
 			guiName = "Toggle Autostrut Display",
 			guiActive = true,
@@ -623,6 +626,8 @@ namespace DockRotate
 			setupDoneAt = Time.frameCount;
 
 			enabled = hasJointMotion;
+
+			angleInfoNA = Localizer.Format("#DCKROT_n_a");
 		}
 
 		public void OnVesselGoOnRails()
@@ -665,10 +670,10 @@ namespace DockRotate
 					+ " < " + part.parent.desc() + " " + part.parent.descOrg());
 
 			float angle = rotationAngle();
-			if (rotationEnabled && !float.IsNaN(angle)) {
-				angleInfo = String.Format("{0:+0.00;-0.00;0.00}\u00b0", angle);
+			if (float.IsNaN(angle)) {
+				angleInfo = angleInfoNA;
 			} else {
-				angleInfo = "";
+				angleInfo = String.Format("{0:+0.00;-0.00;0.00}\u00b0", angle);
 			}
 
 			checkGuiActive();
@@ -752,13 +757,8 @@ namespace DockRotate
 
 		private GuiInfo[] guiInfo;
 
-		private BaseEvent StopRotationEvent;
-		private BaseField angleInfoField;
-
 		[KSPField(guiActive = false, guiActiveEditor = false, isPersistant = true)]
 		public bool showToggleAutoStrutDisplay = false;
-
-		private BaseEvent ToggleAutoStrutDisplayEvent;
 
 		protected void setupGuiActive()
 		{
@@ -777,7 +777,6 @@ namespace DockRotate
 			}
 
 			StopRotationEvent = Events["StopRotation"];
-			angleInfoField = Fields["angleInfo"];
 			ToggleAutoStrutDisplayEvent = Events["ToggleAutoStrutDisplay"];
 			if (ToggleAutoStrutDisplayEvent != null)
 				ToggleAutoStrutDisplayEvent.guiActive = ToggleAutoStrutDisplayEvent.guiActiveEditor
@@ -801,9 +800,6 @@ namespace DockRotate
 						ii.evt.guiActive = ii.evt.guiActiveEditor = csr && flagsCheck;
 				}
 			}
-
-			if (angleInfoField != null)
-				angleInfoField.guiActive = angleInfoField.guiActiveEditor = rotationEnabled && angleInfo != "";
 
 			if (StopRotationEvent != null)
 				StopRotationEvent.guiActive = currentRotation();
@@ -872,7 +868,7 @@ namespace DockRotate
 					anglePosition, cr.vel, (jointMotion.controller == this ? " CTL" : ""));
 			} else {
 				if (float.IsNaN(anglePosition)) {
-					angleInfo = "";
+					angleInfo = angleInfoNA;
 				} else {
 					angleInfo = String.Format(
 						"{0:+0.00;-0.00;0.00}\u00b0 ({1:+0.0000;-0.0000;0.0000}\u00b0\u0394)",
