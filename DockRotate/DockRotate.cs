@@ -11,6 +11,7 @@ namespace DockRotate
 		IJointLockState, IStructureChangeListener, IResourceConsumer
 	{
 		const string GROUP = "DockRotate";
+		const string GROUPNAME = "#DCKROT_rotation";
 		const string DEBUGGROUP = "DockRotateDebug";
 #if DEBUG
 		const bool DEBUGMODE = true;
@@ -50,7 +51,7 @@ namespace DockRotate
 		[UI_Toggle]
 		[KSPField(
 			groupName = GROUP,
-			groupDisplayName = GROUP,
+			groupDisplayName = GROUPNAME,
 			groupStartCollapsed = true,
 			guiName = "#DCKROT_rotation",
 			guiActive = true,
@@ -66,7 +67,7 @@ namespace DockRotate
 		)]
 		[KSPField(
 			groupName = GROUP,
-			groupDisplayName = GROUP,
+			groupDisplayName = GROUPNAME,
 			groupStartCollapsed = true,
 			guiActive = true,
 			guiActiveEditor = true,
@@ -83,7 +84,7 @@ namespace DockRotate
 		)]
 		[KSPField(
 			groupName = GROUP,
-			groupDisplayName = GROUP,
+			groupDisplayName = GROUPNAME,
 			groupStartCollapsed = true,
 			guiActive = true,
 			guiActiveEditor = true,
@@ -96,7 +97,7 @@ namespace DockRotate
 		[UI_Toggle(affectSymCounterparts = UI_Scene.None)]
 		[KSPField(
 			groupName = GROUP,
-			groupDisplayName = GROUP,
+			groupDisplayName = GROUPNAME,
 			groupStartCollapsed = true,
 			guiActive = true,
 			guiActiveEditor = true,
@@ -109,7 +110,7 @@ namespace DockRotate
 		[UI_Toggle]
 		[KSPField(
 			groupName = GROUP,
-			groupDisplayName = GROUP,
+			groupDisplayName = GROUPNAME,
 			groupStartCollapsed = true,
 			guiActive = true,
 			guiActiveEditor = true,
@@ -167,7 +168,7 @@ namespace DockRotate
 		[KSPField(
 			guiName = "#DCKROT_angle",
 			groupName = GROUP,
-			groupDisplayName = GROUP,
+			groupDisplayName = GROUPNAME,
 			groupStartCollapsed = true,
 			guiActive = true,
 			guiActiveEditor = false
