@@ -144,13 +144,13 @@ namespace DockRotate
 		[KSPField(
 			groupName = DEBUGGROUP,
 			groupDisplayName = DEBUGGROUP,
-			guiActive = true,
-			guiActiveEditor = true,
+			guiActive = DEBUGMODE,
+			guiActiveEditor = DEBUGMODE,
 			isPersistant = true,
-			advancedTweakable = true,
+			advancedTweakable = false,
 			guiName = "#DCKROT_smart_autostruts"
 		)]
-		public bool smartAutoStruts = false;
+		public bool smartAutoStruts = true;
 
 		[KSPField(
 			guiActive = DEBUGMODE,
@@ -398,6 +398,20 @@ namespace DockRotate
 				log(desc(), ": no jointMotion");
 
 			log(desc(), ": END DUMP");
+		}
+
+		[KSPEvent(
+			guiName = "Cycle Autostruts",
+			guiActive = true,
+			guiActiveEditor = true,
+			groupName = DEBUGGROUP,
+			groupDisplayName = DEBUGGROUP,
+			groupStartCollapsed = true
+		)]
+		public void CycleAutoStruts()
+		{
+			if (vessel)
+				vessel.CycleAllAutoStrut();
 		}
 #endif
 
@@ -740,7 +754,7 @@ namespace DockRotate
 			{ "rotationSpeed", "S" },
 			{ "reverseRotation", "S" },
 			{ "flipFlopMode", "S" },
-			{ "smartAutoStruts", "S" },
+			{ "smartAutoStruts", "SD" },
 			{ "RotateClockwise", "C" },
 			{ "RotateCounterclockwise", "C" },
 			{ "RotateToSnap", "C" },
@@ -974,6 +988,7 @@ namespace DockRotate
 					rot * t.rotation);
 
 				GameEvents.onEditorPartEvent.Fire(ConstructionEventType.PartRotated, host);
+				GameEvents.onEditorPartEvent.Fire(ConstructionEventType.PartTweaked, host);
 				return true;
 			}
 
