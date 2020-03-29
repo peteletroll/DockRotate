@@ -870,6 +870,7 @@ namespace DockRotate
 			}
 
 			checkGuiActive();
+			setGroupCollapsed(!rotationEnabled);
 		}
 
 		public override void OnUpdate()
