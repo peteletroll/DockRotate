@@ -431,6 +431,20 @@ namespace DockRotate
 				GameEvents.onEditorPartEvent.Fire(ConstructionEventType.PartTweaked, part);
 		}
 
+		private BaseEvent ToggleTraceEventsEvent;
+		[KSPEvent(
+			guiName = "Toggle Trace Events",
+			guiActive = true,
+			guiActiveEditor = true,
+			groupName = DEBUGGROUP,
+			groupDisplayName = DEBUGGROUP,
+			groupStartCollapsed = true
+		)]
+		public void ToggleTraceEvents()
+		{
+			GameEvents.debugEvents = !GameEvents.debugEvents;
+		}
+
 		public void doRotateClockwise()
 		{
 			if (!canStartRotation())
@@ -797,6 +811,7 @@ namespace DockRotate
 			if (ToggleAutoStrutDisplayEvent != null)
 				ToggleAutoStrutDisplayEvent.guiActive = ToggleAutoStrutDisplayEvent.guiActiveEditor
 					= (DEBUGMODE || showToggleAutoStrutDisplay);
+			ToggleTraceEventsEvent = Events["ToggleTraceEvents"];
 #if !DEBUG
 			autoSnap = false;
 #endif
@@ -823,6 +838,10 @@ namespace DockRotate
 			if (ToggleAutoStrutDisplayEvent != null)
 				ToggleAutoStrutDisplayEvent.guiName = PhysicsGlobals.AutoStrutDisplay ?
 					"Hide Autostruts" : "Show Autostruts";
+
+			if (ToggleTraceEventsEvent != null)
+				ToggleTraceEventsEvent.guiName = GameEvents.debugEvents ?
+					"Stop Event Trace" : "Start Event Trace";
 
 			if (part.PartActionWindow != null)
 				setupGroup();
