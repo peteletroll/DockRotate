@@ -821,6 +821,28 @@ namespace DockRotate
 			if (ToggleAutoStrutDisplayEvent != null)
 				ToggleAutoStrutDisplayEvent.guiName = PhysicsGlobals.AutoStrutDisplay ?
 					"Hide Autostruts" : "Show Autostruts";
+
+			if (part.PartActionWindow != null)
+				setGroupCollapsed(!rotationEnabled);
+		}
+
+		private void setGroupCollapsed(bool flag)
+		{
+			BasePAWGroup[] l = allGroups(GROUP);
+			for (int i = 0; i < l.Length; i++)
+				l[i].startCollapsed = flag;
+		}
+
+		private BasePAWGroup[] allGroups(string name)
+		{
+			List<BasePAWGroup> l = new List<BasePAWGroup>();
+			for (int i = 0; i < Fields.Count; i++)
+				if (Fields[i] != null && Fields[i].group != null && Fields[i].group.name == name)
+					l.Add(Fields[i].group);
+			for (int i = 0; i < Events.Count; i++)
+				if (Events[i] != null && Events[i].group != null && Events[i].group.name == name)
+					l.Add(Events[i].group);
+			return l.ToArray();
 		}
 
 		public override void OnStart(StartState state)
