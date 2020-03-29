@@ -637,6 +637,8 @@ namespace DockRotate
 
 			log(desc(), ".doSetup(): joint " + (hasJointMotion ? jointMotion.joint.desc() : "null"));
 
+			setupGroup();
+
 			setupDoneAt = Time.frameCount;
 
 			enabled = hasJointMotion;
@@ -823,14 +825,15 @@ namespace DockRotate
 					"Hide Autostruts" : "Show Autostruts";
 
 			if (part.PartActionWindow != null)
-				setGroupCollapsed(!rotationEnabled);
+				setupGroup();
 		}
 
-		private void setGroupCollapsed(bool flag)
+		private void setupGroup()
 		{
+			bool collapsed = !(rotationEnabled && hasJointMotion);
 			BasePAWGroup[] l = allGroups(GROUP);
 			for (int i = 0; i < l.Length; i++)
-				l[i].startCollapsed = flag;
+				l[i].startCollapsed = collapsed;
 		}
 
 		private BasePAWGroup[] allGroups(string name)
@@ -870,7 +873,6 @@ namespace DockRotate
 			}
 
 			checkGuiActive();
-			setGroupCollapsed(!rotationEnabled);
 		}
 
 		public override void OnUpdate()
