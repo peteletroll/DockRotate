@@ -446,7 +446,7 @@ namespace DockRotate
 			}
 
 			if (deltat > 0f && electricityRate > 0f) {
-				double el = hostPart.RequestResource("ElectricCharge", (double) electricityRate * deltat);
+				double el = hostPart.RequestResource("ElectricCharge", (double)electricityRate * deltat);
 				electricity += el;
 				if (el <= 0d && !isBraking()) {
 					log(jm.desc(), ": no electricity, braking rotation");

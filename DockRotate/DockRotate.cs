@@ -186,9 +186,7 @@ namespace DockRotate
 			groupStartCollapsed = true
 		)]
 		public string nodeStatus = "";
-#endif
 
-#if DEBUG
 		[UI_Toggle]
 		[KSPField(
 			guiName = "Verbose Events",
@@ -375,6 +373,22 @@ namespace DockRotate
 		public bool hideCommands = false;
 
 #if DEBUG
+		BaseEvent ToggleAutoStrutDisplayEvent;
+		[KSPEvent(
+			guiName = "Toggle Autostrut Display",
+			guiActive = true,
+			guiActiveEditor = true,
+			groupName = DEBUGGROUP,
+			groupDisplayName = DEBUGGROUP,
+			groupStartCollapsed = true
+		)]
+		public void ToggleAutoStrutDisplay()
+		{
+			PhysicsGlobals.AutoStrutDisplay = !PhysicsGlobals.AutoStrutDisplay;
+			if (HighLogic.LoadedSceneIsEditor)
+				GameEvents.onEditorPartEvent.Fire(ConstructionEventType.PartTweaked, part);
+		}
+
 		[KSPEvent(
 			guiActive = true,
 			groupName = DEBUGGROUP,
@@ -413,23 +427,6 @@ namespace DockRotate
 			if (vessel)
 				vessel.CycleAllAutoStrut();
 		}
-#endif
-
-		private BaseEvent ToggleAutoStrutDisplayEvent;
-		[KSPEvent(
-			guiName = "Toggle Autostrut Display",
-			guiActive = true,
-			guiActiveEditor = true,
-			groupName = DEBUGGROUP,
-			groupDisplayName = DEBUGGROUP,
-			groupStartCollapsed = true
-		)]
-		public void ToggleAutoStrutDisplay()
-		{
-			PhysicsGlobals.AutoStrutDisplay = !PhysicsGlobals.AutoStrutDisplay;
-			if (HighLogic.LoadedSceneIsEditor)
-				GameEvents.onEditorPartEvent.Fire(ConstructionEventType.PartTweaked, part);
-		}
 
 		private BaseEvent ToggleTraceEventsEvent;
 		[KSPEvent(
@@ -444,6 +441,7 @@ namespace DockRotate
 		{
 			GameEvents.debugEvents = !GameEvents.debugEvents;
 		}
+#endif
 
 		public void doRotateClockwise()
 		{
@@ -787,9 +785,6 @@ namespace DockRotate
 
 		private GuiInfo[] guiInfo;
 
-		[KSPField(guiActive = false, guiActiveEditor = false, isPersistant = true)]
-		public bool showToggleAutoStrutDisplay = false;
-
 		protected void setupGuiActive()
 		{
 			int l = guiList.GetLength(0);
@@ -807,11 +802,11 @@ namespace DockRotate
 			}
 
 			StopRotationEvent = Events["StopRotation"];
+#if DEBUG
 			ToggleAutoStrutDisplayEvent = Events["ToggleAutoStrutDisplay"];
-			if (ToggleAutoStrutDisplayEvent != null)
-				ToggleAutoStrutDisplayEvent.guiActive = ToggleAutoStrutDisplayEvent.guiActiveEditor
-					= (DEBUGMODE || showToggleAutoStrutDisplay);
 			ToggleTraceEventsEvent = Events["ToggleTraceEvents"];
+#endif
+
 #if !DEBUG
 			autoSnap = false;
 #endif
@@ -835,6 +830,7 @@ namespace DockRotate
 			if (StopRotationEvent != null)
 				StopRotationEvent.guiActive = currentRotation();
 
+#if DEBUG
 			if (ToggleAutoStrutDisplayEvent != null)
 				ToggleAutoStrutDisplayEvent.guiName = PhysicsGlobals.AutoStrutDisplay ?
 					"Hide Autostruts" : "Show Autostruts";
@@ -842,6 +838,7 @@ namespace DockRotate
 			if (ToggleTraceEventsEvent != null)
 				ToggleTraceEventsEvent.guiName = GameEvents.debugEvents ?
 					"Stop Event Trace" : "Start Event Trace";
+#endif
 
 			if (part.PartActionWindow != null)
 				setupGroup();
