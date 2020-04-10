@@ -82,9 +82,8 @@ namespace DockRotate
 
 		public void resetRotCount()
 		{
-			int c = rotCount;
-			if (verboseEvents && c != 0)
-				log(desc(), ".resetRotCount(): " + c + " -> RESET");
+			if (rotCount != 0)
+				log(desc(), ".resetRotCount(): " + rotCount + " -> RESET");
 			rotCount = 0;
 		}
 
@@ -293,14 +292,13 @@ namespace DockRotate
 			} else if (!vessel.rootPart) {
 				deadMsg = "no vessel root";
 			} else if (vessel.rootPart.vessel != vessel) {
-				deadMsg = "vessel root incoherency";
+				deadMsg = "vessel root changed";
 			}
 
 			if (deadMsg == "")
 				return false;
 
-			if (verboseEvents)
-				log(desc(), ".deadVessel(): " + deadMsg);
+			log(desc(), ".deadVessel(): " + deadMsg);
 			Destroy(this);
 			return true;
 		}
