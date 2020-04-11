@@ -806,10 +806,6 @@ namespace DockRotate
 			ToggleAutoStrutDisplayEvent = Events["ToggleAutoStrutDisplay"];
 			ToggleTraceEventsEvent = Events["ToggleTraceEvents"];
 #endif
-
-#if !DEBUG
-			autoSnap = false;
-#endif
 		}
 
 		private void checkGuiActive()
