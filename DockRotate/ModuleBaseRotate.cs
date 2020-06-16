@@ -465,7 +465,7 @@ namespace DockRotate
 
 		public void doRotateToSnap()
 		{
-			if (!canStartRotation())
+			if (!canStartRotation(true))
 				return;
 			enqueueRotationToSnap(rotationStep, speed());
 		}
@@ -763,6 +763,7 @@ namespace DockRotate
 			// S: is a setting
 			// C: is a command
 			// D: is a debug display
+			// A: show with rotation disabled
 			{ "nodeRole", "S" },
 			{ "rotationStep", "S" },
 			{ "rotationSpeed", "S" },
@@ -771,7 +772,7 @@ namespace DockRotate
 			{ "smartAutoStruts", "SD" },
 			{ "RotateClockwise", "C" },
 			{ "RotateCounterclockwise", "C" },
-			{ "RotateToSnap", "C" },
+			{ "RotateToSnap", "AC" },
 			{ "autoSnap", "D" },
 			{ "hideCommands", "D" }
 		};
@@ -812,6 +813,7 @@ namespace DockRotate
 		{
 			if (guiInfo != null) {
 				bool csr = canStartRotation();
+				bool csra = canStartRotation(true);
 				for (int i = 0; i < guiInfo.Length; i++) {
 					ref GuiInfo ii = ref guiInfo[i];
 					bool flagsCheck = !(hideCommands && ii.flags.IndexOf('C') >= 0)
@@ -819,7 +821,8 @@ namespace DockRotate
 					if (ii.fld != null)
 						ii.fld.guiActive = ii.fld.guiActiveEditor = rotationEnabled && flagsCheck;
 					if (ii.evt != null)
-						ii.evt.guiActive = ii.evt.guiActiveEditor = csr && flagsCheck;
+						ii.evt.guiActive = ii.evt.guiActiveEditor = flagsCheck
+							&& (ii.flags.IndexOf("A") >= 0 ? csra : csr);
 				}
 			}
 
@@ -936,12 +939,12 @@ namespace DockRotate
 #endif
 		}
 
-		protected bool canStartRotation()
+		protected bool canStartRotation(bool ignoreDisabled = false)
 		{
 			if (HighLogic.LoadedSceneIsEditor)
 				return rotationEnabled && findHostPartInEditor(verboseEvents);
 
-			return rotationEnabled
+			return (rotationEnabled || ignoreDisabled)
 				&& setupDone && hasJointMotion
 				&& vessel && vessel.CurrentControlLevel == Vessel.ControlLevel.FULL;
 		}
