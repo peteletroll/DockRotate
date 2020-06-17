@@ -610,6 +610,7 @@ namespace DockRotate
 			anglePosition = rotationAngle();
 			angleVelocity = 0f;
 			angleIsMoving = false;
+			needsAlignment = false;
 			enabled = false;
 
 			if (!part || !vessel || !setupLocalAxisDone) {
