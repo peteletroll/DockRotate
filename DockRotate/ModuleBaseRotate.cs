@@ -160,6 +160,8 @@ namespace DockRotate
 		)]
 		public float anglePosition;
 
+		private bool needsAlignment;
+
 		[KSPField(
 			guiActive = DEBUGMODE,
 			groupName = DEBUGGROUP,
@@ -764,6 +766,7 @@ namespace DockRotate
 			// C: is a command
 			// D: is a debug display
 			// A: show with rotation disabled
+			// F: show when needsAlignment
 			{ "nodeRole", "S" },
 			{ "rotationStep", "S" },
 			{ "rotationSpeed", "S" },
@@ -772,7 +775,7 @@ namespace DockRotate
 			{ "smartAutoStruts", "SD" },
 			{ "RotateClockwise", "C" },
 			{ "RotateCounterclockwise", "C" },
-			{ "RotateToSnap", "AC" },
+			{ "RotateToSnap", "CF" },
 			{ "autoSnap", "D" },
 			{ "hideCommands", "D" }
 		};
@@ -822,7 +825,9 @@ namespace DockRotate
 						ii.fld.guiActive = ii.fld.guiActiveEditor = rotationEnabled && flagsCheck;
 					if (ii.evt != null)
 						ii.evt.guiActive = ii.evt.guiActiveEditor = flagsCheck
-							&& (ii.flags.IndexOf("A") >= 0 ? csra : csr);
+							&& (ii.flags.IndexOf('A') >= 0 ? csra : csr);
+					if (needsAlignment && ii.flags.IndexOf('F') >= 0)
+						ii.evt.guiActive = true;
 				}
 			}
 
@@ -904,6 +909,9 @@ namespace DockRotate
 			anglePosition = rotationAngle();
 			angleVelocity = cr ? cr.vel : 0f;
 			angleIsMoving = cr;
+
+			needsAlignment = hasJointMotion && !angleIsMoving
+				&& Mathf.Abs(jointMotion.angleToSnap(rotationStep)) >= .5e-4f;
 
 			if (MapView.MapIsEnabled || !part.PartActionWindow)
 				return;
