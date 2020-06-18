@@ -41,6 +41,7 @@
     <Compile Include="JointLockStateProxy.cs" />
     <Compile Include="ModuleNodeRotate.cs" />
     <Compile Include="ModuleDockRotate.cs" />
+    <Compile Include="DockingStateFixer.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="Assembly-CSharp">

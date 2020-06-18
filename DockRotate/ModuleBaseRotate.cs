@@ -408,12 +408,18 @@ namespace DockRotate
 					nodeHelp += " \"" + nodes[i].id + "\"";
 			log(desc(), nodeHelp);
 
+			dumpExtra();
+
 			if (hasJointMotion && jointMotion.joint)
 				jointMotion.joint.dump();
 			else
 				log(desc(), ": no jointMotion");
 
 			log(desc(), ": END DUMP");
+		}
+
+		public virtual void dumpExtra()
+		{
 		}
 
 		[KSPEvent(

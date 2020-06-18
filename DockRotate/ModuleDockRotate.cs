@@ -1,9 +1,8 @@
 using System;
 using System.Collections.Generic;
-using System.Reflection;
 using UnityEngine;
 using KSP.Localization;
-using CompoundParts;
+using KSP.UI.Screens.DebugToolbar;
 
 namespace DockRotate
 {
@@ -166,9 +165,16 @@ namespace DockRotate
 			return null;
 		}
 
+		private static bool consoleSetupDone = false;
+
 		protected override void doSetup()
 		{
 			base.doSetup();
+
+			if (!consoleSetupDone) {
+				consoleSetupDone = true;
+				DebugScreenConsole.AddConsoleCommand("dr", consoleCommand, "DockRotate commands");
+			}
 
 			if (hasJointMotion && jointMotion.joint.Host == part && !frozenFlag) {
 				float snap = autoSnapStep();
@@ -188,6 +194,36 @@ namespace DockRotate
 					enqueueFrozenRotation(jointMotion.angleToSnap(snap), 5f);
 				}
 			}
+		}
+
+#if DEBUG
+		public override void dumpExtra()
+		{
+			if (dockingNode) {
+				log(desc(), ": dockingNode state: \"" + dockingNode.state + "\"");
+			} else {
+				log(desc(), ": no dockingNode");
+			}
+		}
+#endif
+
+		private static char[] commandSeparators = { ' ', '\t' };
+
+		public static void consoleCommand(string arg)
+		{
+			string[] args = arg.Split(commandSeparators, StringSplitOptions.RemoveEmptyEntries);
+			Vessel v = FlightGlobals.ActiveVessel;
+			if (!HighLogic.LoadedSceneIsFlight) {
+				log("not in flight mode");
+			} else if (!v) {
+				log("no active vessel");
+			} else if (args.Length == 1 && args[0] == "check") {
+				log("analyzing incoherent states");
+				v.checkDockingStates();
+			} else {
+				log("illegal command");
+			}
+			// log("CMD END");
 		}
 
 		private float autoSnapStep()
