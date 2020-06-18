@@ -6,6 +6,51 @@ namespace DockRotate
 {
 	public static class DockingStateFixer
 	{
+		private class State
+		{
+			public string name;
+			public bool isDocked;
+
+			private readonly static State[] dockingStates = new State[] {
+				new State("Ready", false),
+				new State("Acquire", false),
+				new State("Acquire (dockee)", false),
+				new State("Disengage", false),
+				new State("Disabled", false),
+				new State("Docked (docker)", true),
+				new State("Docked (dockee)", true),
+				new State("Docked (same vessel)", true),
+				new State("PreAttached", true)
+				/*
+				* Disabled
+				* PreAttached
+				* Docked (docker/same vessel/dockee) - (docker) and (same vessel) are coupled with (dockee)
+				* Ready
+				* Disengage
+				* Acquire
+				* Acquire (dockee)
+				*/
+			};
+
+			public State(string name, bool isDocked)
+			{
+				this.name = name;
+				this.isDocked = isDocked;
+			}
+
+			public static State get(string name) {
+				for (int i = 0; i < dockingStates.Length; i++)
+					if (dockingStates[i].name == name)
+						return dockingStates[i];
+				return null;
+			}
+
+			public static implicit operator bool(State s)
+			{
+				return s != null;
+			}
+		}
+
 		public static void checkDockingStates(this Vessel v)
 		{
 			List<ModuleDockingNode> dn = v.FindPartModulesImplementing<ModuleDockingNode>();
@@ -25,9 +70,14 @@ namespace DockRotate
 				return "null-part";
 			string ret = "MDN@" + node.part.bareName() + "_" + node.part.flightID
 				+ ":\"" + node.state + "\"";
+			State s = State.get(node.state);
+			if (!s)
+				ret += ":unknown-state";
 			PartJoint dj = node.getDockingJoint(out bool dsv);
 			if (!dj) {
 				ret += ":null-joint";
+				if (s && s.isDocked)
+					ret += ":should-have-joint";
 			} else if (!dj.Host ){
 				ret += ":null-host";
 			} else if (!dj.Target) {
@@ -36,6 +86,8 @@ namespace DockRotate
 				ret += ":" + dj.Host.flightID + ">" + dj.Target.flightID;
 				if (dsv)
 					ret += ":sv";
+				if (s && !s.isDocked)
+					ret += ":should-not-have-joint";
 			}
 			return ret;
 		}
