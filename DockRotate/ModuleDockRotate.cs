@@ -220,17 +220,6 @@ namespace DockRotate
 			} else if (args.Length == 1 && args[0] == "check") {
 				log("analyzing incoherent states in " + v.GetName());
 				v.checkDockingStates();
-			} else if (args.Length > 1 && args[0] == "fix") {
-				for (int i = 1; i < args.Length; i++) {
-					uint flightID = 0;
-					try {
-						flightID = UInt32.Parse(args[i]);
-					} catch (Exception e) {
-						log(args[i] + ": " + e.Message);
-					}
-					if (flightID > 0)
-						v.fixDockingState(flightID);
-				}
 			} else {
 				log("illegal command");
 			}

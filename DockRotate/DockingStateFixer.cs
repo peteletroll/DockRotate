@@ -162,49 +162,6 @@ namespace DockRotate
 				msg.Add("unknown couple state \"" + host.state + "\">\"" + target.state + "\"");
 		}
 
-		public static void fixDockingState(this Vessel vessel, uint flightID)
-		{
-			if (!vessel || vessel.parts == null) {
-				log("no vessel");
-				return;
-			}
-			bool found = false;
-			List<Part> parts = vessel.Parts;
-			for (int i = 0; i < parts.Count; i++) {
-				if (parts[i] && parts[i].flightID == flightID) {
-					found = true;
-					parts[i].fixDockingState();
-				}
-			}
-			if (!found)
-				log("part not found");
-		}
-
-		public static void fixDockingState(this Part part) {
-			if (!part)
-				return;
-			List<ModuleDockingNode> dn = part.FindModulesImplementing<ModuleDockingNode>();
-			if (dn == null || dn.Count <= 0) {
-				log("part " + part.flightID + " has no docking nodes");
-				return;
-			}
-			for (int i = 0; i < dn.Count; i++)
-				dn[i].fixDockingState();
-		}
-
-		public static void fixDockingState(this ModuleDockingNode node)
-		{
-			if (!node || !node.part)
-				return;
-			string newState = node.shouldChangeStateTo();
-			if (newState != null) {
-				log(node.stateInfo() + ", fixing to \"" + newState + "\"");
-				node.state = newState;
-			} else {
-				log(node.stateInfo() + ", needs no fixing");
-			}
-		}
-
 		public static string stateInfo(this ModuleDockingNode node)
 		{
 			if (!node)
