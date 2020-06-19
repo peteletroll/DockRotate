@@ -75,8 +75,8 @@ namespace DockRotate
 			List<string> msg = new List<string>();
 			msg.Add(node.stateInfo());
 			State s = State.get(node.state);
+			PartJoint j = node.getDockingJoint(out bool dsv);
 			if (s) {
-				PartJoint j = node.getDockingJoint(out bool dsv);
 				if (j) {
 					if (!s.isDocked)
 						msg.Add("should not be docked");
@@ -90,10 +90,13 @@ namespace DockRotate
 			}
 			if (msg.Count <= 1) {
 				msg.Add("is ok");
+				node.part.SetHighlightDefault();
 			} else {
-				node.part.Highlight(Color.red);
+				node.part.SetHighlightColor(Color.red);
+				node.part.SetHighlightType(Part.HighlightType.AlwaysOn);
 			}
-			log(String.Join(", ", msg.ToArray()));
+			if (msg.Count > 1)
+				log(String.Join(", ", msg.ToArray()));
 		}
 
 		private static readonly String[,] jointState = {
@@ -118,6 +121,11 @@ namespace DockRotate
 			if (!valid)
 				return;
 			ModuleDockingNode other = node.otherNode;
+			if (!other && node.dockedPartUId > 0) {
+				other = node.FindOtherNode();
+				if (other)
+					msg.Add("needed FindOtherNode()");
+			}
 			if (!other) {
 				msg.Add("no other");
 				return;

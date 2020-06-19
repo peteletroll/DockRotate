@@ -220,6 +220,7 @@ namespace DockRotate
 			} else if (args.Length == 1 && args[0] == "check") {
 				log("analyzing incoherent states in " + v.GetName());
 				v.checkDockingStates();
+				log("analyzed incoherent states in " + v.GetName());
 			} else {
 				log("illegal command");
 			}
