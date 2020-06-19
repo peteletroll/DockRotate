@@ -216,41 +216,6 @@ namespace DockRotate
 			return null;
 		}
 
-		public static string shouldChangeStateTo(this ModuleDockingNode node)
-		{
-			if (!node)
-				return null;
-			string ret = null;
-			PartJoint dockingJoint = node.getDockingJoint(out bool sameVesselDock);
-			if (!dockingJoint || !dockingJoint.Host || !dockingJoint.Target)
-				return null;
-			if (sameVesselDock) {
-				if (node.part == dockingJoint.Host) {
-					ModuleDockingNode other = node.otherNode;
-					if (other && other.part == dockingJoint.Target) {
-						PartJoint targetJoint = other.getDockingJoint(out bool targetSameVesselDock);
-						State targetState = State.get(other.state);
-						if (targetSameVesselDock && targetState && !targetState.isSameVessel)
-							ret = "Docked (docker)";
-					}
-				} else if (node.part == dockingJoint.Target) {
-				}
-			} else {
-				if (node.part == dockingJoint.Host) {
-					ret = "Docked (docker)";
-				} else if (node.part == dockingJoint.Target) {
-					ret = "Docked (dockee)";
-				}
-			}
-			if (ret != null && !State.get(ret)) {
-				log("*** WARNING *** state \"" + ret + "\" doesn't exist");
-				ret = null;
-			}
-			if (ret != null && ret == node.state)
-				ret = null;
-			return ret;
-		}
-
 		private static string info(this PartJoint j)
 		{
 			string ret = "J" + "[";
