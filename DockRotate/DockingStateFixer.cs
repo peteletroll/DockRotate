@@ -102,6 +102,7 @@ namespace DockRotate
 		private static readonly String[,] jointState = {
 			{ "PreAttached", "PreAttached", "" },
 			{ "Docked (docker)", "Docked (dockee)", "" },
+			{ "Docked (dockee)", "Docked (docker)", "" },
 			{ "Docked (same vessel)", "Docked (dockee)", "S" }
 		};
 
