@@ -241,7 +241,7 @@ namespace DockRotate
 		public static AttachNode getConnectedNode(this AttachNode node, bool verbose)
 		{
 			if (verbose)
-				log(node.desc(), ".findConnectedNode()");
+				log(node.desc(), ".getConnectedNode()");
 
 			if (node == null || !node.owner)
 				return null;
@@ -249,7 +249,7 @@ namespace DockRotate
 			AttachNode fon = node.FindOpposingNode();
 			if (fon != null) {
 				if (verbose)
-					log(node.desc(), ".findConnectedNode(): FindOpposingNode() finds " + fon.desc());
+					log(node.desc(), ".getConnectedNode(): FindOpposingNode() finds " + fon.desc());
 				return fon;
 			}
 
@@ -262,7 +262,7 @@ namespace DockRotate
 				neighbours.AddRange(node.owner.children);
 			}
 			if (verbose)
-				log(node.desc(), ".findConnectedNode(): " + node.owner.desc()
+				log(node.desc(), ".getConnectedNode(): " + node.owner.desc()
 					+ " has " + neighbours.Count + " neighbours");
 
 			AttachNode closest = null;
@@ -272,12 +272,12 @@ namespace DockRotate
 					continue;
 				List<AttachNode> n = neighbours[i].attachNodes;
 				if (verbose)
-					log(node.desc(), ".findConnectedNode(): " + neighbours[i] + " has " + n.Count + " nodes");
+					log(node.desc(), ".getConnectedNode(): " + neighbours[i] + " has " + n.Count + " nodes");
 
 				for (int j = 0; j < n.Count; j++) {
 					float d = node.distFrom(n[j]);
 					if (verbose)
-						log(node.desc(), ".findConnectedNode(): " + n[j].desc() + " at " + d);
+						log(node.desc(), ".getConnectedNode(): " + n[j].desc() + " at " + d);
 					if (d < dist || closest == null) {
 						closest = n[j];
 						dist = d;
@@ -285,7 +285,7 @@ namespace DockRotate
 				}
 			}
 			if (verbose)
-				log(node.desc(), ".findConnectedNode(): found " + closest.desc() + " at " + dist);
+				log(node.desc(), ".getConnectedNode(): found " + closest.desc() + " at " + dist);
 
 			if (closest == null || dist > 1e-2f)
 				return null;
