@@ -206,11 +206,11 @@ namespace DockRotate
 				sameVesselDock = true;
 				return node.sameVesselDockJoint;
 			}
-			if (node.otherNode.sameVesselDockJoint) {
+			if (other.sameVesselDockJoint) {
 				sameVesselDock = true;
-				return node.otherNode.sameVesselDockJoint;
+				return other.sameVesselDockJoint;
 			}
-			if (node.otherNode.part == node.part.parent)
+			if (other.part == node.part.parent)
 				return node.part.attachJoint;
 			for (int i = 0; i < node.part.children.Count; i++) {
 				Part child = node.part.children[i];
