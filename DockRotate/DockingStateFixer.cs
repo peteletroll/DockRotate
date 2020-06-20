@@ -59,16 +59,17 @@ namespace DockRotate
 			}
 		}
 
-		public static void checkDockingStates(this Vessel v)
+		public static void checkDockingStates(this Vessel v, bool verbose)
 		{
+			log("analyzing incoherent states in " + v.GetName());
 			List<ModuleDockingNode> dn = v.FindPartModulesImplementing<ModuleDockingNode>();
 			dn = new List<ModuleDockingNode>(dn);
-			dn.Sort((a, b) => (int)a.part.flightID - (int)b.part.flightID);
+			dn.Sort((a, b) => (int) a.part.flightID - (int) b.part.flightID);
 			for (int i = 0; i < dn.Count; i++)
-				checkDockingNode(dn[i]);
+				checkDockingNode(dn[i], verbose);
 		}
 
-		public static void checkDockingNode(ModuleDockingNode node)
+		public static void checkDockingNode(ModuleDockingNode node, bool verbose)
 		{
 			if (!node)
 				return;
@@ -89,7 +90,8 @@ namespace DockRotate
 				msg.Add("unknown state");
 			}
 			if (msg.Count <= 1) {
-				msg.Add("is ok");
+				if (verbose)
+					msg.Add("is ok");
 				node.part.SetHighlightDefault();
 			} else {
 				node.part.SetHighlightColor(Color.red);

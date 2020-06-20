@@ -176,9 +176,7 @@ namespace DockRotate
 			} else if (!v) {
 				log("no active vessel");
 			} else if (args.Length == 1 && args[0] == "check") {
-				log("analyzing incoherent states in " + v.GetName());
-				v.checkDockingStates();
-				log("analyzed incoherent states in " + v.GetName());
+				v.checkDockingStates(true);
 			} else {
 				log("illegal command");
 			}

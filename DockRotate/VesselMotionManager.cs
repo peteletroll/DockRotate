@@ -573,11 +573,16 @@ namespace DockRotate
 			setEvents(false);
 		}
 
+		private int lastDockingCheck = 0;
+
 		private IEnumerator checkDockingStates(Vessel v, int waitFrames)
 		{
 			for (int i = 0; i < waitFrames; i++)
 				yield return new WaitForFixedUpdate();
-			v.checkDockingStates();
+			if (lastDockingCheck < Time.frameCount) {
+				lastDockingCheck = Time.frameCount;
+				v.checkDockingStates(false);
+			}
 		}
 
 		private string desc()
