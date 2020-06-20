@@ -238,7 +238,7 @@ namespace DockRotate
 
 		/******** AttachNode utilities ********/
 
-		public static AttachNode findConnectedNode(this AttachNode node, bool verbose)
+		public static AttachNode getConnectedNode(this AttachNode node, bool verbose)
 		{
 			if (verbose)
 				log(node.desc(), ".findConnectedNode()");

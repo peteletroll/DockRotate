@@ -36,7 +36,7 @@ namespace DockRotate
 				return null;
 			if (verbose)
 				log(desc(), ".findMovingNodeInEditor(): referenceNode = " + dockingNode.referenceNode.desc());
-			AttachNode otherNode = dockingNode.referenceNode.findConnectedNode(verboseEvents);
+			AttachNode otherNode = dockingNode.referenceNode.getConnectedNode(verboseEvents);
 			if (verbose)
 				log(desc(), ".findMovingNodeInEditor(): otherNode = " + otherNode.desc());
 			if (otherNode == null)
