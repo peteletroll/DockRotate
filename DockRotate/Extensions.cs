@@ -176,7 +176,11 @@ namespace DockRotate
 		public static PartJoint getDockingJoint(this ModuleDockingNode node, out bool isSameVessel, bool verbose)
 		{
 			isSameVessel = false;
+
 			ModuleDockingNode other = node.getDockedNode();
+			if (!other)
+				return null;
+
 			PartJoint ret = node.sameVesselDockJoint;
 			if (ret && ret.Target == other.part) {
 				if (verbose)
