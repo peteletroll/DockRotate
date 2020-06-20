@@ -75,7 +75,7 @@ namespace DockRotate
 			List<string> msg = new List<string>();
 			msg.Add(node.stateInfo());
 			State s = State.get(node.state);
-			PartJoint j = node.getDockingJoint(out bool dsv);
+			PartJoint j = node.getDockingJoint(out bool dsv, false);
 			if (s) {
 				if (j) {
 					if (!s.isDocked)
@@ -181,7 +181,7 @@ namespace DockRotate
 				ret += ":unknown-state";
 			if (node.sameVesselDockJoint)
 				ret += ":svdj=" + node.sameVesselDockJoint.GetInstanceID();
-			PartJoint dj = node.getDockingJoint(out bool dsv);
+			PartJoint dj = node.getDockingJoint(out bool dsv, false);
 			if (!dj) {
 				ret += ":null-joint";
 				if (s && s.isDocked)
@@ -192,32 +192,6 @@ namespace DockRotate
 				ret += ":" + dj.info();
 			}
 			return ret;
-		}
-
-		public static PartJoint getDockingJoint(this ModuleDockingNode node, out bool sameVesselDock)
-		{
-			sameVesselDock = false;
-			if (!node)
-				return null;
-			ModuleDockingNode other = node.getDockedNode();
-			if (!other)
-				return null;
-			if (node.sameVesselDockJoint) {
-				sameVesselDock = true;
-				return node.sameVesselDockJoint;
-			}
-			if (other.sameVesselDockJoint) {
-				sameVesselDock = true;
-				return other.sameVesselDockJoint;
-			}
-			if (other.part == node.part.parent)
-				return node.part.attachJoint;
-			for (int i = 0; i < node.part.children.Count; i++) {
-				Part child = node.part.children[i];
-				if (child == other.part)
-					return child.attachJoint;
-			}
-			return null;
 		}
 
 		private static string info(this PartJoint j)

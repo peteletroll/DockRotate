@@ -121,40 +121,7 @@ namespace DockRotate
 				}
 			}
 
-			PartJoint ret = dockingNode.sameVesselDockJoint;
-			if (ret && ret.Target == other.part) {
-				if (verbose)
-					log(desc(), ".findMovingJoint(): to same vessel " + ret.desc());
-				return ret;
-			}
-
-			ret = other.sameVesselDockJoint;
-			if (ret && ret.Target == dockingNode.part) {
-				if (verbose)
-					log(desc(), ".findMovingJoint(): from same vessel " + ret.desc());
-				return ret;
-			}
-
-			if (dockingNode.part.parent == other.part) {
-				ret = dockingNode.part.attachJoint;
-				if (verbose)
-					log(desc(), ".findMovingJoint(): to parent " + ret.desc());
-				return ret;
-			}
-
-			for (int i = 0; i < dockingNode.part.children.Count; i++) {
-				Part child = dockingNode.part.children[i];
-				if (child == other.part) {
-					ret = child.attachJoint;
-					if (verbose)
-						log(desc(), ".findMovingJoint(): to child " + ret.desc());
-					return ret;
-				}
-			}
-
-			if (verbose)
-				log(desc(), ".findMovingJoint(): nothing");
-			return null;
+			return dockingNode.getDockingJoint(out bool isSameVessel, verbose);
 		}
 
 		private static bool consoleSetupDone = false;

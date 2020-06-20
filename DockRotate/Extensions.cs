@@ -173,6 +173,46 @@ namespace DockRotate
 			return other;
 		}
 
+		public static PartJoint getDockingJoint(this ModuleDockingNode node, out bool isSameVessel, bool verbose)
+		{
+			isSameVessel = false;
+			ModuleDockingNode other = node.getDockedNode();
+			PartJoint ret = node.sameVesselDockJoint;
+			if (ret && ret.Target == other.part) {
+				if (verbose)
+					log(node.part.desc(), ".getDockingJoint(): to same vessel " + ret.desc());
+				return ret;
+			}
+
+			ret = other.sameVesselDockJoint;
+			if (ret && ret.Target == node.part) {
+				if (verbose)
+					log(node.part.desc(), ".getDockingJoint(): from same vessel " + ret.desc());
+				return ret;
+			}
+
+			if (node.part.parent == other.part) {
+				ret = node.part.attachJoint;
+				if (verbose)
+					log(node.part.desc(), ".getDockingJoint(): to parent " + ret.desc());
+				return ret;
+			}
+
+			for (int i = 0; i < node.part.children.Count; i++) {
+				Part child = node.part.children[i];
+				if (child == other.part) {
+					ret = child.attachJoint;
+					if (verbose)
+						log(node.part.desc(), ".getDockingJoint(): to child " + ret.desc());
+					return ret;
+				}
+			}
+
+			if (verbose)
+				log(node.part.desc(), ".findMovingJoint(): nothing");
+			return null;
+		}
+
 		public static bool matchType(this ModuleDockingNode node, ModuleDockingNode other)
 		{
 			fillNodeTypes(node);
