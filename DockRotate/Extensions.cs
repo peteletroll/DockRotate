@@ -156,6 +156,15 @@ namespace DockRotate
 
 		/******** ModuleDockingMode utilities ********/
 
+		public static ModuleDockingNode getConnectedNode(this ModuleDockingNode node)
+		{
+			if (node.otherNode)
+				return node.otherNode;
+			if (node.dockedPartUId > 0)
+				return node.otherNode = node.FindOtherNode();
+			return null;
+		}
+
 		public static bool matchType(this ModuleDockingNode node, ModuleDockingNode other)
 		{
 			fillNodeTypes(node);

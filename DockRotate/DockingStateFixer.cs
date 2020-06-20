@@ -120,12 +120,7 @@ namespace DockRotate
 			}
 			if (!valid)
 				return;
-			ModuleDockingNode other = node.otherNode;
-			if (!other && node.dockedPartUId > 0) {
-				other = node.FindOtherNode();
-				if (other)
-					msg.Add("needed FindOtherNode()");
-			}
+			ModuleDockingNode other = node.getConnectedNode();
 			if (!other) {
 				msg.Add("no other");
 				return;
@@ -203,7 +198,7 @@ namespace DockRotate
 			sameVesselDock = false;
 			if (!node)
 				return null;
-			ModuleDockingNode other = node.otherNode;
+			ModuleDockingNode other = node.getConnectedNode();
 			if (!other)
 				return null;
 			if (node.sameVesselDockJoint) {

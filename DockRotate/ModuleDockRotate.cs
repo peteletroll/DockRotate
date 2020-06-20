@@ -95,16 +95,7 @@ namespace DockRotate
 				return null;
 			}
 
-			ModuleDockingNode other = dockingNode.otherNode;
-			if (other) {
-				if (verbose)
-					log(desc(), ".findMovingJoint(): other is " + other.part.desc());
-			} else if (dockingNode.dockedPartUId > 0) {
-				other = dockingNode.FindOtherNode();
-				if (verbose && other)
-					log(desc(), ".findMovingJoint(): other found " + other.part.desc());
-			}
-
+			ModuleDockingNode other = dockingNode.getConnectedNode();
 			if (!other || !other.part) {
 				if (verbose)
 					log(desc(), ".findMovingJoint(): no other, id = " + dockingNode.dockedPartUId);
