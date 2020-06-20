@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -560,12 +561,20 @@ namespace DockRotate
 		{
 			listeners(); // just to set verboseEvents
 			enabled = false;
+			StartCoroutine(checkDockingStates(vessel, 100));
 		}
 
 		public void OnDestroy()
 		{
 			log(desc(), ".OnDestroy()");
 			setEvents(false);
+		}
+
+		private IEnumerator checkDockingStates(Vessel v, int afterFrames)
+		{
+			for (int i = 0; i < afterFrames; i++)
+				yield return new WaitForFixedUpdate();
+			v.checkDockingStates();
 		}
 
 		private string desc()
