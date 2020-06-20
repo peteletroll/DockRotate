@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace DockRotate
 {
-	public static class DockingStateFixer
+	public static class DockingStateChecker
 	{
 		private class State
 		{
