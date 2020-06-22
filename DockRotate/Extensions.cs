@@ -49,7 +49,7 @@ namespace DockRotate
 		{
 			uint id = (v && v.rootPart) ? v.rootPart.flightID : 0;
 			string name = v ? v.name : "no-vessel";
-			return (bare ? "" : "V:") + id + ":" + name.Replace(' ', '_');
+			return (bare ? "" : "V:" + v.GetInstanceID() + ":") + id + ":" + name.Replace(' ', '_');
 		}
 
 		private static bool KJRNextInitDone = false;
@@ -177,7 +177,7 @@ namespace DockRotate
 		{
 			isSameVessel = false;
 
-			ModuleDockingNode other = node.getDockedNode();
+			ModuleDockingNode other = node.getDockedNode(verbose);
 			if (!other)
 				return null;
 
@@ -227,9 +227,11 @@ namespace DockRotate
 		private static void fillNodeTypes(this ModuleDockingNode node)
 		{
 			// this fills nodeTypes, sometimes empty in editor
-			if (node.nodeTypes.Count > 0)
+			if (node.nodeTypes != null && node.nodeTypes.Count > 0)
 				return;
 			log(node.part.desc(), ".fillNodeTypes(): fill with \"" + node.nodeType + "\"");
+			if (node.nodeTypes == null)
+				node.nodeTypes = new HashSet<string>();
 			string[] types = node.nodeType.Split(',');
 			for (int i = 0; i < types.Length; i++) {
 				string type = types[i].Trim();
@@ -329,12 +331,12 @@ namespace DockRotate
 
 		public static string desc(this PartJoint j, bool bare = false)
 		{
-			if (j == null)
+			if (!j)
 				return "null";
 			string host = j.Host.desc(true) + (j.Child == j.Host ? "" : "/" + j.Child.desc(true));
 			string target = j.Target.desc(true) + (j.Parent == j.Target ? "" : "/" + j.Parent.desc(true));
 			int n = j.joints.Count;
-			return (bare ? "" : "PJ:") + host + new string('>', n) + target;
+			return (bare ? "" : "PJ:" + j.GetInstanceID() + ":") + host + new string('>', n) + target;
 		}
 
 		public static void dump(this PartJoint j)

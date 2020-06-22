@@ -38,9 +38,8 @@ namespace DockRotate
 	{
 		public void add(PartJoint j)
 		{
-			if (!j)
-				return;
-			Add(j.GetInstanceID(), j);
+			if (j)
+				Add(j.GetInstanceID(), j);
 		}
 
 		public bool contains(PartJoint j)

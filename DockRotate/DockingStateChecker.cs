@@ -66,10 +66,10 @@ namespace DockRotate
 			dn = new List<ModuleDockingNode>(dn);
 			dn.Sort((a, b) => (int) a.part.flightID - (int) b.part.flightID);
 			for (int i = 0; i < dn.Count; i++)
-				checkDockingNode(dn[i], verbose);
+				dn[i].checkDockingNode(verbose);
 		}
 
-		public static void checkDockingNode(ModuleDockingNode node, bool verbose)
+		public static void checkDockingNode(this ModuleDockingNode node, bool verbose)
 		{
 			if (!node)
 				return;
@@ -77,6 +77,10 @@ namespace DockRotate
 			msg.Add(node.stateInfo());
 			State s = State.get(node.state);
 			PartJoint j = node.getDockingJoint(out bool dsv, false);
+			if (j && !dsv && j.Host == node.part) {
+				if (node.vesselInfo == null)
+					msg.Add("null vessel info");
+			}
 			if (s) {
 				if (j) {
 					if (!s.isDocked)

@@ -399,23 +399,24 @@ namespace DockRotate
 		)]
 		public void DumpToLog()
 		{
-			log(desc(), ": BEGIN DUMP");
+			string d = desc(true);
+			log(d, ": BEGIN DUMP");
 
 			AttachNode[] nodes = part.allAttachNodes();
 			string nodeHelp = ": available nodes:";
 			for (int i = 0; i < nodes.Length; i++)
 				if (nodes[i] != null)
 					nodeHelp += " \"" + nodes[i].id + "\"";
-			log(desc(), nodeHelp);
+			log(d, nodeHelp);
 
 			dumpExtra();
 
 			if (hasJointMotion && jointMotion.joint)
 				jointMotion.joint.dump();
 			else
-				log(desc(), ": no jointMotion");
+				log(d, ": no jointMotion");
 
-			log(desc(), ": END DUMP");
+			log(d, ": END DUMP");
 		}
 
 		public virtual void dumpExtra()

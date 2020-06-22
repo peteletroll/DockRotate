@@ -157,10 +157,15 @@ namespace DockRotate
 #if DEBUG
 		public override void dumpExtra()
 		{
+			string d = desc();
 			if (dockingNode) {
-				log(desc(), ": dockingNode state: \"" + dockingNode.state + "\"");
+				log(d, ": attachJoint: " + part.attachJoint.desc());
+				log(d, ": dockedPartUId: " + dockingNode.dockedPartUId);
+				log(d, ": dockingNode state: \"" + dockingNode.state + "\"");
+				log(d, ": sameVesselDockingJoint: " + dockingNode.sameVesselDockJoint.desc());
+				dockingNode.checkDockingNode(true);
 			} else {
-				log(desc(), ": no dockingNode");
+				log(d, ": no dockingNode");
 			}
 		}
 #endif
