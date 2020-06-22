@@ -238,7 +238,7 @@ namespace DockRotate
 		public void FixedUpdate()
 		{
 			if (!rotCur || !HighLogic.LoadedSceneIsFlight) {
-				log(joint.desc(), ": disabling useless MonoBehaviour updates");
+				// log(joint.desc(), ": disabling useless MonoBehaviour updates");
 				enabled = false;
 				return;
 			}

@@ -1153,7 +1153,7 @@ namespace DockRotate
 			} else if (frozenFlag || currentRotation() != null) {
 				lastUsefulFixedUpdate = Time.frameCount;
 			} else if (Time.frameCount - lastUsefulFixedUpdate > 10) {
-				log(part.desc(), ": disabling useless MonoBehaviour updates");
+				// log(part.desc(), ": disabling useless MonoBehaviour updates");
 				enabled = false;
 			}
 		}
