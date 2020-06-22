@@ -353,6 +353,7 @@ namespace DockRotate
 			listeners().map(l => l.OnVesselGoOffRails());
 
 			phase("END OFF RAILS");
+			scheduleDockingStatesCheck();
 		}
 
 		private void RightBeforeStructureChange_JointUpdate(Vessel v)
@@ -431,7 +432,7 @@ namespace DockRotate
 			if (!deadVessel())
 				listeners().map(l => l.RightAfterStructureChange());
 			phase("END AFTER CHANGE");
-			StartCoroutine(checkDockingStates(vessel, 5));
+			scheduleDockingStatesCheck();
 		}
 
 		public void RightAfterSameVesselDock(GameEvents.FromToAction<ModuleDockingNode, ModuleDockingNode> action)
@@ -448,7 +449,7 @@ namespace DockRotate
 			listeners(action.from.part).map(l => l.RightAfterStructureChange());
 			listeners(action.to.part).map(l => l.RightAfterStructureChange());
 			phase("END AFTER SV DOCK");
-			StartCoroutine(checkDockingStates(vessel, 5));
+			scheduleDockingStatesCheck();
 		}
 
 		public void RightAfterSameVesselUndock(GameEvents.FromToAction<ModuleDockingNode, ModuleDockingNode> action)
@@ -465,7 +466,7 @@ namespace DockRotate
 			listeners(action.from.part).map(l => l.RightAfterStructureChange());
 			listeners(action.to.part).map(l => l.RightAfterStructureChange());
 			phase("END AFTER SV UNDOCK");
-			StartCoroutine(checkDockingStates(vessel, 5));
+			scheduleDockingStatesCheck();
 		}
 
 		public void OnCameraChange_Kerbal(Kerbal k)
@@ -564,13 +565,19 @@ namespace DockRotate
 		{
 			listeners(); // just to set verboseEvents
 			enabled = false;
-			StartCoroutine(checkDockingStates(vessel, 5));
 		}
 
 		public void OnDestroy()
 		{
 			log(desc(), ".OnDestroy()");
 			setEvents(false);
+		}
+
+		private void scheduleDockingStatesCheck(int delay = 5)
+		{
+#if DEBUG
+			StartCoroutine(checkDockingStates(vessel, delay));
+#endif
 		}
 
 		private int lastDockingCheck = 0;
