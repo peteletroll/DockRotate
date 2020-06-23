@@ -23,6 +23,19 @@ namespace DockRotate
 
 		private ModuleDockingNode dockingNode;
 
+		[KSPEvent(
+			guiActive = true,
+			groupName = DEBUGGROUP,
+			groupDisplayName = DEBUGGROUP,
+			groupStartCollapsed = true
+		)]
+		public void CheckDockingState()
+		{
+			log(desc(), ": DOCKING STATE CHECK");
+			if (dockingNode)
+				dockingNode.checkDockingNode(true);
+		}
+
 		protected override void fillInfo()
 		{
 			storedModuleDisplayName = Localizer.Format("#DCKROT_port_displayname");
@@ -163,7 +176,6 @@ namespace DockRotate
 				log(d, ": dockedPartUId: " + dockingNode.dockedPartUId);
 				log(d, ": dockingNode state: \"" + dockingNode.state + "\"");
 				log(d, ": sameVesselDockingJoint: " + dockingNode.sameVesselDockJoint.desc());
-				dockingNode.checkDockingNode(true);
 			} else {
 				log(d, ": no dockingNode");
 			}

@@ -10,13 +10,13 @@ namespace DockRotate
 	public abstract class ModuleBaseRotate: PartModule,
 		IJointLockState, IStructureChangeListener, IResourceConsumer
 	{
-		const string GROUP = "DockRotate";
-		const string GROUPNAME = "#DCKROT_rotation";
-		const string DEBUGGROUP = "DockRotateDebug";
+		protected const string GROUP = "DockRotate";
+		protected const string GROUPNAME = "#DCKROT_rotation";
+		protected const string DEBUGGROUP = "DockRotateDebug";
 #if DEBUG
-		const bool DEBUGMODE = true;
+		protected const bool DEBUGMODE = true;
 #else
-		const bool DEBUGMODE = false;
+		protected const bool DEBUGMODE = false;
 #endif
 
 		[KSPField(isPersistant = true)]
