@@ -27,13 +27,20 @@ namespace DockRotate
 			guiActive = true,
 			groupName = DEBUGGROUP,
 			groupDisplayName = DEBUGGROUP,
-			groupStartCollapsed = true
+			groupStartCollapsed = true,
+			guiActiveUncommand = true
 		)]
 		public void CheckDockingState()
 		{
 			log(desc(), ": DOCKING STATE CHECK");
-			if (dockingNode)
-				dockingNode.checkDockingNode(true);
+			if (dockingNode) {
+				dockingNode.isBadNode(true);
+				ModuleDockingNode other = dockingNode.getDockedNode();
+				if (other) {
+					log(desc(), ": DOCKING STATE CHECK - OTHER");
+					other.isBadNode(true);
+				}
+			}
 		}
 
 		protected override void fillInfo()
@@ -120,10 +127,6 @@ namespace DockRotate
 					log(desc(), ".findMovingJoint(): mismatched node types");
 				return null;
 			}
-
-			if (verbose && dockingNode.state != "PreAttached"
-				&& !dockingNode.state.StartsWith("Docked", StringComparison.InvariantCulture))
-				log(desc(), ".findMovingJoint(): unconnected state \"" + dockingNode.state + "\"");
 
 			ModuleBaseRotate otherModule = other.part.FindModuleImplementing<ModuleBaseRotate>();
 			if (otherModule) {

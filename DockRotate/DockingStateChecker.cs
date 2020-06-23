@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using KSP.Localization;
 
 namespace DockRotate
 {
@@ -8,37 +9,38 @@ namespace DockRotate
 	{
 		private struct NodeState
 		{
-			public string name;
+			public string state;
 			public bool hasJoint, isSameVessel;
 
-			public NodeState(string name, bool hasJoint = false, bool isSameVessel = false)
+			public NodeState(string state, bool hasJoint, bool isSameVessel)
 			{
-				this.name = name;
+				this.state = state;
 				this.hasJoint = hasJoint;
 				this.isSameVessel = isSameVessel;
 			}
 
 			private static readonly NodeState[] allowedNodeStates = new[] {
-					new NodeState("Ready"),
-					new NodeState("Acquire"),
-					new NodeState("Acquire (dockee)"),
-					new NodeState("Disengage"),
-					new NodeState("Disabled"),
-					new NodeState("Docked (docker)", true),
-					new NodeState("Docked (dockee)", true),
-					new NodeState("Docked (same vessel)", true),
-					new NodeState("PreAttached", true),
-				};
+				new NodeState("Ready", false, false),
+				new NodeState("Acquire", false, false),
+				new NodeState("Acquire (dockee)", false, false),
+				new NodeState("Disengage", false, false),
+				new NodeState("Disabled", false, false),
+				new NodeState("Docked (docker)", true, false),
+				new NodeState("Docked (dockee)", true, false),
+				new NodeState("Docked (dockee)", true, true),
+				new NodeState("Docked (same vessel)", true, true),
+				new NodeState("PreAttached", true, false)
+			};
 
 			public static bool allowed(ModuleDockingNode node, bool verbose = false)
 			{
 				if (!node)
-					return true;
+					return false;
 				string name = node.state;
 				bool hasJoint = node.getDockingJoint(out bool isSameVessel, verbose);
 				for (int i = 0; i < allowedNodeStates.Length; i++) {
 					ref NodeState s = ref allowedNodeStates[i];
-					if (s.name == name && s.hasJoint == hasJoint && s.isSameVessel == isSameVessel)
+					if (s.state == name && s.hasJoint == hasJoint && s.isSameVessel == isSameVessel)
 						return true;
 				}
 				return false;
@@ -50,52 +52,76 @@ namespace DockRotate
 			log("analyzing incoherent states in " + v.GetName());
 			List<ModuleDockingNode> dn = v.FindPartModulesImplementing<ModuleDockingNode>();
 			dn = new List<ModuleDockingNode>(dn);
-			dn.Sort((a, b) => (int) a.part.flightID - (int) b.part.flightID);
+			dn.Sort((a, b) => (int)a.part.flightID - (int)b.part.flightID);
+			bool foundError = false;
 			for (int i = 0; i < dn.Count; i++)
-				dn[i].checkDockingNode(verbose);
+				if (dn[i].isBadNode(verbose))
+					foundError = true;
+			if (foundError)
+				ScreenMessages.PostScreenMessage(
+					Localizer.Format("#DCKROT_bad_states"),
+					5f, ScreenMessageStyle.LOWER_CENTER, Color.red);
 		}
 
-		public static void checkDockingNode(this ModuleDockingNode node, bool verbose)
+		public static bool isBadNode(this ModuleDockingNode node, bool verbose)
 		{
 			if (!node)
-				return;
+				return false;
+
+			bool foundError = false;
 			List<string> msg = new List<string>();
 			msg.Add(node.stateInfo());
 
-			PartJoint j = node.getDockingJoint(out bool dsv, verbose);
+			PartJoint j = node.getDockingJoint(out bool dsv, false);
 
 			string label = "\"" + node.state + "\""
 				+ (j ? ".hasJoint" : "")
-				+ (dsv ? ".isSameVessel" : "");
+				+ (dsv ? ".isSameVessel" : ".isTree");
 
 			if (!NodeState.allowed(node, verbose))
-				msg.Add("unallowed state " + label);
+				msg.Add("unallowed node state " + label);
 
 			if (j)
 				checkDockingJoint(msg, node, j, dsv);
 
-			if (j && j.Host == node.part) {
-				if (node.vesselInfo == null)
-					msg.Add("null vessel info");
-			}
+			if (j && j.Host == node.part && node.vesselInfo == null
+					&& node.state != "PreAttached" && node.state != "Docked (same vessel)")
+				msg.Add("null vesselInfo");
 
-			if (msg.Count <= 1) {
-				if (verbose)
-					msg.Add("is ok");
-				node.part.SetHighlightDefault();
-			} else {
+			if (msg.Count > 1) {
+				foundError = true;
 				node.part.SetHighlightColor(Color.red);
 				node.part.SetHighlightType(Part.HighlightType.AlwaysOn);
+				log(String.Join(",\n\t", msg.ToArray()));
+			} else {
+				node.part.SetHighlightDefault();
 			}
-			if (msg.Count > 1)
-				log(String.Join(",\n    *** ", msg.ToArray()));
+
+			if (verbose && msg.Count <= 1) {
+				if (verbose)
+					msg.Add("is ok");
+			}
+			return foundError;
 		}
 
-		private static readonly String[,] jointState = {
-			{ "PreAttached", "PreAttached", "" },
-			{ "Docked (docker)", "Docked (dockee)", "" },
-			{ "Docked (dockee)", "Docked (docker)", "" },
-			{ "Docked (same vessel)", "Docked (dockee)", "S" }
+		private struct JointState
+		{
+			public string hoststate, targetstate;
+			public bool isSameVessel;
+
+			public JointState(string hoststate, string targetstate, bool isSameVessel)
+			{
+				this.hoststate = hoststate;
+				this.targetstate = targetstate;
+				this.isSameVessel = isSameVessel;
+			}
+
+			public static readonly JointState[] allowedJointStates = new[] {
+				new JointState("PreAttached", "PreAttached", false),
+				new JointState("Docked (docker)", "Docked (dockee)", false),
+				new JointState("Docked (dockee)", "Docked (docker)", false),
+				new JointState("Docked (same vessel)", "Docked (dockee)", true)
+			};
 		};
 
 		private static void checkDockingJoint(List<string> msg, ModuleDockingNode node, PartJoint joint, bool isSameVessel)
@@ -126,36 +152,32 @@ namespace DockRotate
 				host = other;
 				target = node;
 			} else {
-				msg.Add("joint incoherency");
+				msg.Add("unrelated joint " + joint.info());
 				return;
 			}
-			int l = jointState.GetLength(0);
+			int l = JointState.allowedJointStates.GetLength(0);
 			bool found = false;
 			for (int i = 0; i < l; i++) {
-				if (host.state == jointState[i, 0] && target.state == jointState[i, 1]) {
+				ref JointState s = ref JointState.allowedJointStates[i];
+				if (s.hoststate == host.state && s.targetstate == target.state && s.isSameVessel == isSameVessel) {
 					found = true;
-					string flags = jointState[i, 2];
-					bool dsv = flags.IndexOf('S') >= 0;
-					if (dsv) {
-						if (!isSameVessel)
-							msg.Add("should be sv");
-					} else {
-						if (isSameVessel)
-							msg.Add("shouldn't be sv");
-					}
-					if (isSameVessel) {
-						ModuleDockingNode treeChild =
-							host.part.parent == target.part ? host :
-							target.part.parent == host.part ? target :
-							null;
-						if (treeChild)
-							msg.Add("should use tree joint " + treeChild.part.attachJoint.info());
-					}
 					break;
 				}
 			}
-			if (!found)
-				msg.Add("unknown couple state \"" + host.state + "\">\"" + target.state + "\"");
+			if (!found) {
+				msg.Add("unallowed couple state \"" + host.state + "\">\"" + target.state + "\""
+					+ (isSameVessel ? ".isSameVessel" : ".isTree"));
+				return;
+			}
+
+			if (isSameVessel) {
+				ModuleDockingNode child =
+					host.part.parent == target.part ? host :
+					target.part.parent == host.part ? target :
+					null;
+				if (child)
+					msg.Add("should use tree joint " + child.part.attachJoint.info());
+			}
 		}
 
 		public static string stateInfo(this ModuleDockingNode node)

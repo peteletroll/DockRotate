@@ -185,6 +185,7 @@ namespace DockRotate
 			if (ret && ret.Target == other.part) {
 				if (verbose)
 					log(node.part.desc(), ".getDockingJoint(): to same vessel " + ret.desc());
+				isSameVessel = true;
 				return ret;
 			}
 
@@ -192,6 +193,7 @@ namespace DockRotate
 			if (ret && ret.Target == node.part) {
 				if (verbose)
 					log(node.part.desc(), ".getDockingJoint(): from same vessel " + ret.desc());
+				isSameVessel = true;
 				return ret;
 			}
 
