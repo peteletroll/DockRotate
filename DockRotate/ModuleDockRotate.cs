@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using UnityEngine;
 using KSP.Localization;
 using KSP.UI.Screens.DebugToolbar;
