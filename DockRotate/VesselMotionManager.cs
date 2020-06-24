@@ -355,9 +355,7 @@ namespace DockRotate
 
 			phase("END OFF RAILS");
 
-#if DEBUG
 			scheduleDockingStatesCheck(5, false);
-#endif
 		}
 
 		private void RightBeforeStructureChange_JointUpdate(Vessel v)
@@ -585,7 +583,7 @@ namespace DockRotate
 		private int lastDockingCheck = 0;
 
 		private readonly static Color badStateColor = Color.red;
-		private readonly float badStateTimeout = 5f;
+		private readonly float badStateTimeout = 3f;
 
 		public IEnumerator checkDockingStates(int waitFrames, bool verbose)
 		{
@@ -603,6 +601,8 @@ namespace DockRotate
 				for (int i = 0; i < dn.Count; i++) {
 					ModuleDockingNode node = dn[i];
 					ModuleDockRotate mdr = node.getDockRotate();
+					if (mdr)
+						mdr.showCheckDockingState(false);
 					if (node.isBadNode(verbose)) {
 						foundError = true;
 						node.part.SetHighlightColor(badStateColor);
@@ -611,9 +611,6 @@ namespace DockRotate
 							StartCoroutine(unHighlight(node.part, badStateTimeout));
 						if (mdr)
 							mdr.showCheckDockingState(true);
-					} else {
-						if (mdr)
-							mdr.showCheckDockingState(false);
 					}
 				}
 

@@ -55,8 +55,12 @@ namespace DockRotate
 		public void showCheckDockingState(bool active)
 		{
 			BaseEvent evt = Events["CheckDockingState"];
-			if (evt != null)
+			if (evt != null) {
 				evt.guiActive = active;
+				// log(desc(), ".showCheckDockingState(" + active + "): done");
+			} else {
+				log(desc(), ".showCheckDockingState(" + active + "): can't find event");
+			}
 		}
 
 		protected override void fillInfo()
@@ -159,6 +163,8 @@ namespace DockRotate
 
 		protected override void doSetup()
 		{
+			showCheckDockingState(false);
+
 			base.doSetup();
 
 			if (!consoleSetupDone) {
