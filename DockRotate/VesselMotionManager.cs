@@ -612,7 +612,8 @@ namespace DockRotate
 						if (mdr)
 							mdr.showCheckDockingState(true);
 					} else {
-						mdr.showCheckDockingState(false);
+						if (mdr)
+							mdr.showCheckDockingState(false);
 					}
 				}
 
