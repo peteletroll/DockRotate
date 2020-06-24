@@ -218,7 +218,7 @@ namespace DockRotate
 			}
 
 			if (verbose)
-				log(node.part.desc(), ".findMovingJoint(): nothing");
+				log(node.part.desc(), ".getDockingJoint(): nothing");
 			return null;
 		}
 
