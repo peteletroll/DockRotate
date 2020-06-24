@@ -93,8 +93,10 @@ namespace DockRotate
 			if (!part)
 				return "null";
 			string id = part.flightID > 0 ? part.flightID.ToString() : "I" + part.GetInstanceID();
-			ModuleBaseRotate mbr = part.FindModuleImplementing<ModuleBaseRotate>();
+			ModuleDockingNode mdn = bare ? null : part.FindModuleImplementing<ModuleDockingNode>();
+			ModuleBaseRotate mbr = bare ? null : part.FindModuleImplementing<ModuleBaseRotate>();
 			return (bare ? "" : "P:") + part.bareName() + ":" + id
+				+ (mdn ? ":\"" + mdn.state + "\"" : "")
 				+ (mbr ? ":" + mbr.nodeRole : "");
 		}
 
@@ -154,22 +156,23 @@ namespace DockRotate
 			return true;
 		}
 
-		/******** ModuleDockingMode utilities ********/
+		/******** ModuleDockingNode utilities ********/
 
 		public static ModuleDockingNode getDockedNode(this ModuleDockingNode node, bool verbose = false)
 		{
+			string label = node.part.desc();
 			ModuleDockingNode other = node.otherNode;
 			if (other) {
 				if (verbose)
-					log(node.part.desc(), ".getDockedNode(): other is " + other.part.desc());
+					log(label, ".getDockedNode(): other is " + other.part.desc());
 			}
 			if (!other && node.dockedPartUId > 0) {
 				other = node.FindOtherNode();
 				if (other && verbose)
-					log(node.part.desc(), ".getDockedNode(): other found " + other.part.desc());
+					log(label, ".getDockedNode(): other found " + other.part.desc());
 			}
 			if (!other && verbose)
-				log(node.part.desc(), ".getDockedNode(): no other, id = " + node.dockedPartUId);
+				log(label, ".getDockedNode(): no other, id = " + node.dockedPartUId);
 			return other;
 		}
 
@@ -216,6 +219,17 @@ namespace DockRotate
 
 			if (verbose)
 				log(node.part.desc(), ".findMovingJoint(): nothing");
+			return null;
+		}
+
+		public static ModuleDockRotate getDockRotate(this ModuleDockingNode node)
+		{
+			if (!node.part)
+				return null;
+			List<ModuleDockRotate> dr = node.part.FindModulesImplementing<ModuleDockRotate>();
+			for (int i = 0; i < dr.Count; i++)
+				if (dr[i].getDockingNode() == node)
+					return dr[i];
 			return null;
 		}
 

@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
-using KSP.Localization;
 
 namespace DockRotate
 {
@@ -47,22 +46,6 @@ namespace DockRotate
 			}
 		}
 
-		public static void checkDockingStates(this Vessel v, bool verbose)
-		{
-			log("analyzing incoherent states in " + v.GetName());
-			List<ModuleDockingNode> dn = v.FindPartModulesImplementing<ModuleDockingNode>();
-			dn = new List<ModuleDockingNode>(dn);
-			dn.Sort((a, b) => (int)a.part.flightID - (int)b.part.flightID);
-			bool foundError = false;
-			for (int i = 0; i < dn.Count; i++)
-				if (dn[i].isBadNode(verbose))
-					foundError = true;
-			if (foundError)
-				ScreenMessages.PostScreenMessage(
-					Localizer.Format("#DCKROT_bad_states"),
-					5f, ScreenMessageStyle.LOWER_CENTER, Color.red);
-		}
-
 		public static bool isBadNode(this ModuleDockingNode node, bool verbose)
 		{
 			if (!node)
@@ -90,17 +73,13 @@ namespace DockRotate
 
 			if (msg.Count > 1) {
 				foundError = true;
-				node.part.SetHighlightColor(Color.red);
-				node.part.SetHighlightType(Part.HighlightType.AlwaysOn);
-				log(String.Join(",\n\t", msg.ToArray()));
-			} else {
-				node.part.SetHighlightDefault();
+			} else if (verbose) {
+				msg.Add("is ok");
 			}
 
-			if (verbose && msg.Count <= 1) {
-				if (verbose)
-					msg.Add("is ok");
-			}
+			if (msg.Count > 1)
+				log(String.Join(",\n\t", msg.ToArray()));
+
 			return foundError;
 		}
 

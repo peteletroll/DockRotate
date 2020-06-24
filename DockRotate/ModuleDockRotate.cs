@@ -23,10 +23,20 @@ namespace DockRotate
 
 		private ModuleDockingNode dockingNode;
 
+		public ModuleDockingNode getDockingNode()
+		{
+			return dockingNode;
+		}
+
 		[KSPEvent(
 			guiActive = true,
+#if DEBUG
 			groupName = DEBUGGROUP,
 			groupDisplayName = DEBUGGROUP,
+#else
+			groupName = GROUP,
+			groupDisplayName = GROUP,
+#endif
 			groupStartCollapsed = true,
 			guiActiveUncommand = true
 		)]
@@ -41,6 +51,13 @@ namespace DockRotate
 					other.isBadNode(true);
 				}
 			}
+		}
+
+		public void showCheckDockingState(bool active)
+		{
+			BaseEvent evt = Events["CheckDockingState"];
+			if (evt != null)
+				evt.guiActive = active;
 		}
 
 		protected override void fillInfo()
@@ -196,7 +213,9 @@ namespace DockRotate
 			} else if (!v) {
 				log("no active vessel");
 			} else if (args.Length == 1 && args[0] == "check") {
-				v.checkDockingStates(true);
+				VesselMotionManager vmm = VesselMotionManager.get(v);
+				if (vmm)
+					vmm.scheduleDockingStatesCheck(0, true);
 			} else {
 				log("illegal command");
 			}

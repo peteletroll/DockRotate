@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using KSP.Localization;
 
 namespace DockRotate
 {
@@ -353,7 +354,10 @@ namespace DockRotate
 			listeners().map(l => l.OnVesselGoOffRails());
 
 			phase("END OFF RAILS");
-			scheduleDockingStatesCheck();
+
+#if DEBUG
+			scheduleDockingStatesCheck(5, false);
+#endif
 		}
 
 		private void RightBeforeStructureChange_JointUpdate(Vessel v)
@@ -432,7 +436,7 @@ namespace DockRotate
 			if (!deadVessel())
 				listeners().map(l => l.RightAfterStructureChange());
 			phase("END AFTER CHANGE");
-			scheduleDockingStatesCheck();
+			scheduleDockingStatesCheck(5, false);
 		}
 
 		public void RightAfterSameVesselDock(GameEvents.FromToAction<ModuleDockingNode, ModuleDockingNode> action)
@@ -449,7 +453,7 @@ namespace DockRotate
 			listeners(action.from.part).map(l => l.RightAfterStructureChange());
 			listeners(action.to.part).map(l => l.RightAfterStructureChange());
 			phase("END AFTER SV DOCK");
-			scheduleDockingStatesCheck();
+			scheduleDockingStatesCheck(5, false);
 		}
 
 		public void RightAfterSameVesselUndock(GameEvents.FromToAction<ModuleDockingNode, ModuleDockingNode> action)
@@ -466,7 +470,7 @@ namespace DockRotate
 			listeners(action.from.part).map(l => l.RightAfterStructureChange());
 			listeners(action.to.part).map(l => l.RightAfterStructureChange());
 			phase("END AFTER SV UNDOCK");
-			scheduleDockingStatesCheck();
+			scheduleDockingStatesCheck(5, false);
 		}
 
 		public void OnCameraChange_Kerbal(Kerbal k)
@@ -573,23 +577,56 @@ namespace DockRotate
 			setEvents(false);
 		}
 
-		private void scheduleDockingStatesCheck(int delay = 5)
+		public void scheduleDockingStatesCheck(int delay, bool verbose)
 		{
-#if DEBUG
-			StartCoroutine(checkDockingStates(vessel, delay));
-#endif
+			StartCoroutine(checkDockingStates(delay, verbose));
 		}
 
 		private int lastDockingCheck = 0;
 
-		private IEnumerator checkDockingStates(Vessel v, int waitFrames)
+		private readonly static Color badStateColor = Color.red;
+		private readonly float badStateTimeout = 5f;
+
+		public IEnumerator checkDockingStates(int waitFrames, bool verbose)
 		{
 			for (int i = 0; i < waitFrames; i++)
 				yield return new WaitForFixedUpdate();
+
 			if (lastDockingCheck < Time.frameCount) {
 				lastDockingCheck = Time.frameCount;
-				v.checkDockingStates(false);
+				log((verbose ? "verbosely " : "")
+					+ "analyzing incoherent states in " + vessel.GetName());
+				List<ModuleDockingNode> dn = vessel.FindPartModulesImplementing<ModuleDockingNode>();
+				dn = new List<ModuleDockingNode>(dn);
+				dn.Sort((a, b) => (int) a.part.flightID - (int) b.part.flightID);
+				bool foundError = false;
+				for (int i = 0; i < dn.Count; i++) {
+					ModuleDockingNode node = dn[i];
+					ModuleDockRotate mdr = node.getDockRotate();
+					if (node.isBadNode(verbose)) {
+						foundError = true;
+						node.part.SetHighlightColor(badStateColor);
+						node.part.SetHighlightType(Part.HighlightType.AlwaysOn);
+						if (!verbose)
+							StartCoroutine(unHighlight(node.part, badStateTimeout));
+						if (mdr)
+							mdr.showCheckDockingState(true);
+					} else {
+						mdr.showCheckDockingState(false);
+					}
+				}
+
+				if (foundError)
+					ScreenMessages.PostScreenMessage(
+						Localizer.Format("#DCKROT_bad_states"),
+						badStateTimeout, ScreenMessageStyle.LOWER_CENTER, badStateColor);
 			}
+		}
+
+		public IEnumerator unHighlight(Part p, float waitSeconds)
+		{
+			yield return new WaitForSeconds(waitSeconds);
+			p.SetHighlightDefault();
 		}
 
 		private string desc()
