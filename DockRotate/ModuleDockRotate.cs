@@ -29,15 +29,15 @@ namespace DockRotate
 
 		[KSPEvent(
 			guiActive = true,
+			// put right label and group according to DEBUG
 #if DEBUG
 			groupName = DEBUGGROUP,
 			groupDisplayName = DEBUGGROUP,
-#else
-			groupName = GROUP,
-			groupDisplayName = GROUP,
-#endif
 			groupStartCollapsed = true,
 			guiActiveUncommand = true
+#else
+			guiName = "#DCKROT_log_state"
+#endif
 		)]
 		public void CheckDockingState()
 		{
