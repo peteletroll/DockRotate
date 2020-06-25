@@ -171,7 +171,7 @@ namespace DockRotate
 				if (other) {
 					log(label, ".getDockedNode(): other found " + other.part.desc()
 						+ " from id = " + node.dockedPartUId);
-					node.otherNode = other;
+					node.otherNode = other; // this fixes a ModuleDockingNode bug
 				}
 			}
 			if (!other && verbose)

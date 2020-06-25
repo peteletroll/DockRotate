@@ -133,25 +133,6 @@ namespace DockRotate
 				msg.Add("unrelated joint " + joint.info());
 				return;
 			}
-			int l = JointState.allowedJointStates.GetLength(0);
-			bool found = false;
-			for (int i = 0; i < l; i++) {
-				ref JointState s = ref JointState.allowedJointStates[i];
-				if (s.hoststate == host.state && s.targetstate == target.state && s.isSameVessel == isSameVessel) {
-					found = true;
-					break;
-				}
-			}
-			if (!found) {
-				msg.Add("unallowed couple state \"" + host.state + "\">\"" + target.state + "\""
-					+ (isSameVessel ? ".isSameVessel" : ".isTree"));
-				if (host.state == "Docked (same vessel)" && target.state == "Ready" && isSameVessel && target == node) {
-					msg.Add("THIS COULD BE FIXED TO \"Docked (dockee)\"");
-					node.otherNode = host;
-					node.fsm.StartFSM("Docked (dockee)");
-				}
-				return;
-			}
 
 			if (isSameVessel) {
 				ModuleDockingNode child =
@@ -161,6 +142,19 @@ namespace DockRotate
 				if (child)
 					msg.Add("should use tree joint " + child.part.attachJoint.info());
 			}
+
+			int l = JointState.allowedJointStates.GetLength(0);
+			bool found = false;
+			for (int i = 0; i < l; i++) {
+				ref JointState s = ref JointState.allowedJointStates[i];
+				if (s.hoststate == host.state && s.targetstate == target.state && s.isSameVessel == isSameVessel) {
+					found = true;
+					break;
+				}
+			}
+			if (!found)
+				msg.Add("unallowed couple state \"" + host.state + "\">\"" + target.state + "\""
+					+ (isSameVessel ? ".isSameVessel" : ".isTree"));
 		}
 
 		public static string stateInfo(this ModuleDockingNode node)
