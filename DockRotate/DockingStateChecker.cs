@@ -54,13 +54,13 @@ namespace DockRotate
 			List<string> msg = new List<string>();
 			msg.Add(node.stateInfo());
 
-			PartJoint j = node.getDockingJoint(out bool dsv, false);
+			PartJoint j = node.getDockingJoint(out bool dsv, verbose);
 
 			string label = "\"" + node.state + "\""
 				+ (j ? ".hasJoint" : "")
 				+ (dsv ? ".isSameVessel" : ".isTree");
 
-			if (!NodeState.allowed(node, verbose))
+			if (!NodeState.allowed(node, false))
 				msg.Add("unallowed node state " + label);
 
 			if (j)
@@ -117,7 +117,7 @@ namespace DockRotate
 			}
 			if (!valid)
 				return;
-			ModuleDockingNode other = node.getDockedNode();
+			ModuleDockingNode other = node.getDockedNode(false);
 			if (!other) {
 				msg.Add("no other");
 				return;
@@ -167,6 +167,7 @@ namespace DockRotate
 			string ret = "MDN@" + node.part.flightID
 				+ "_" + node.part.bareName()
 				+ "<" + (node.part.parent ? node.part.parent.flightID : 0)
+				+ ">" + node.dockedPartUId
 				+ ":\"" + node.state + "\"";
 			if (node.sameVesselDockJoint)
 				ret += ":svdj=" + node.sameVesselDockJoint.GetInstanceID();

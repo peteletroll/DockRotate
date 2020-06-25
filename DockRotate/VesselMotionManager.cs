@@ -447,6 +447,7 @@ namespace DockRotate
 				return;
 			if (!care(action, false))
 				return;
+			log(vessel.desc(), ": same vessel dock " + action.from.state + " -> " + action.to.state);
 			phase("BEGIN AFTER SV DOCK");
 			listeners(action.from.part).map(l => l.RightAfterStructureChange());
 			listeners(action.to.part).map(l => l.RightAfterStructureChange());
@@ -464,6 +465,7 @@ namespace DockRotate
 				return;
 			if (!care(action, false))
 				return;
+			log(vessel.desc(), ": same vessel undock " + action.from.state + " -> " + action.to.state);
 			phase("BEGIN AFTER SV UNDOCK");
 			listeners(action.from.part).map(l => l.RightAfterStructureChange());
 			listeners(action.to.part).map(l => l.RightAfterStructureChange());
@@ -600,6 +602,7 @@ namespace DockRotate
 				bool foundError = false;
 				for (int i = 0; i < dn.Count; i++) {
 					ModuleDockingNode node = dn[i];
+					node.part.SetHighlightDefault();
 					ModuleDockRotate mdr = node.getDockRotate();
 					if (mdr)
 						mdr.showCheckDockingState(false);

@@ -158,7 +158,7 @@ namespace DockRotate
 
 		/******** ModuleDockingNode utilities ********/
 
-		public static ModuleDockingNode getDockedNode(this ModuleDockingNode node, bool verbose = false)
+		public static ModuleDockingNode getDockedNode(this ModuleDockingNode node, bool verbose)
 		{
 			string label = node.part.desc();
 			ModuleDockingNode other = node.otherNode;

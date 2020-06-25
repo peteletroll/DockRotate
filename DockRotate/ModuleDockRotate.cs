@@ -41,12 +41,12 @@ namespace DockRotate
 		)]
 		public void CheckDockingState()
 		{
-			log(desc(), ": DOCKING STATE CHECK");
+			log(part.desc(), ": DOCKING STATE CHECK");
 			if (dockingNode) {
 				dockingNode.isBadNode(true);
-				ModuleDockingNode other = dockingNode.getDockedNode();
+				ModuleDockingNode other = dockingNode.getDockedNode(false);
 				if (other) {
-					log(desc(), ": DOCKING STATE CHECK - OTHER");
+					log(other.part.desc(), ": DOCKING STATE CHECK - OTHER");
 					other.isBadNode(true);
 				}
 			}
@@ -163,8 +163,9 @@ namespace DockRotate
 
 		protected override void doSetup()
 		{
+#if !DEBUG
 			showCheckDockingState(false);
-
+#endif
 			base.doSetup();
 
 			if (!consoleSetupDone) {
