@@ -169,7 +169,8 @@ namespace DockRotate
 			if (!other && node.dockedPartUId > 0) {
 				other = node.FindOtherNode();
 				if (other && verbose)
-					log(label, ".getDockedNode(): other found " + other.part.desc());
+					log(label, ".getDockedNode(): other found " + other.part.desc()
+						+ " from id = " + node.dockedPartUId);
 			}
 			if (!other && verbose)
 				log(label, ".getDockedNode(): no other, id = " + node.dockedPartUId);

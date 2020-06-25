@@ -145,6 +145,11 @@ namespace DockRotate
 			if (!found) {
 				msg.Add("unallowed couple state \"" + host.state + "\">\"" + target.state + "\""
 					+ (isSameVessel ? ".isSameVessel" : ".isTree"));
+				if (host.state == "Docked (same vessel)" && target.state == "Ready" && isSameVessel && target == node) {
+					msg.Add("THIS COULD BE FIXED TO \"Docked (dockee)\"");
+					node.otherNode = host;
+					node.fsm.StartFSM("Docked (dockee)");
+				}
 				return;
 			}
 

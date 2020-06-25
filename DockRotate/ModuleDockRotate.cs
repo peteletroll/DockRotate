@@ -173,6 +173,15 @@ namespace DockRotate
 				DebugScreenConsole.AddConsoleCommand("dr", consoleCommand, "DockRotate commands");
 			}
 
+#if DEBUG
+			if (dockingNode) {
+				log("[ModuleDockingNode] Part: " + part.name + "-" + part.persistentId
+					+ " FSM Start State " + dockingNode.state
+					+ " in ModuleDockRotate.doSetup(" + part.flightID + ")");
+				dockingNode.DebugFSMState = true;
+			}
+#endif
+
 			if (hasJointMotion && jointMotion.joint.Host == part && !frozenFlag) {
 				float snap = autoSnapStep();
 				if (verboseEvents)
