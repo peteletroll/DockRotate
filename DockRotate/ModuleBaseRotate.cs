@@ -731,22 +731,6 @@ namespace DockRotate
 			doSetup();
 		}
 
-		public override void OnAwake()
-		{
-			base.OnAwake();
-
-#if !DEBUG
-			verboseEvents = false;
-#endif
-			verboseEventsPrev = verboseEvents;
-			setupDoneAt = 0;
-		}
-
-		public virtual void OnDestroy()
-		{
-			setEvents(false);
-		}
-
 		private bool eventState = false;
 
 		private void setEvents(bool cmd)
@@ -879,11 +863,22 @@ namespace DockRotate
 			return l.ToArray();
 		}
 
+		public override void OnAwake()
+		{
+			base.OnAwake();
+			setupDoneAt = 0;
+		}
+
 		public override void OnStart(StartState state)
 		{
 			base.OnStart(state);
 
 			checkRevision();
+
+#if !DEBUG
+			verboseEvents = false;
+#endif
+			verboseEventsPrev = verboseEvents;
 
 			setupLocalAxisDone = setupLocalAxis(state);
 
@@ -932,6 +927,11 @@ namespace DockRotate
 				updateStatus(cr);
 			if (updfrm)
 				checkGuiActive();
+		}
+
+		public virtual void OnDestroy()
+		{
+			setEvents(false);
 		}
 
 		private void updateStatus(JointMotionObj cr)
