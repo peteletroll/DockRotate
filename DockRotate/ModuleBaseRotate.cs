@@ -871,17 +871,16 @@ namespace DockRotate
 
 		public override void OnStart(StartState state)
 		{
+#if !DEBUG
+			verboseEvents = false;
+#endif
+			verboseEventsPrev = verboseEvents;
 			if (verboseEvents)
 				log(desc(), ".OnStart(" + state + ")");
 
 			base.OnStart(state);
 
 			checkRevision();
-
-#if !DEBUG
-			verboseEvents = false;
-#endif
-			verboseEventsPrev = verboseEvents;
 
 			setupLocalAxisDone = setupLocalAxis(state);
 
