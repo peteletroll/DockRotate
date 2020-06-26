@@ -871,6 +871,9 @@ namespace DockRotate
 
 		public override void OnStart(StartState state)
 		{
+			if (verboseEvents)
+				log(desc(), ".OnStart(" + state + ")");
+
 			base.OnStart(state);
 
 			checkRevision();
@@ -885,8 +888,6 @@ namespace DockRotate
 			setupGuiActive();
 
 			if (state == StartState.Editor) {
-				if (verboseEvents)
-					log(desc(), ".OnStart(" + state + ")");
 				setEvents(true);
 				RightAfterEditorChange("START");
 				return;
