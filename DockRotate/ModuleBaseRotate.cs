@@ -733,10 +733,13 @@ namespace DockRotate
 
 		public override void OnAwake()
 		{
+			base.OnAwake();
+
+#if !DEBUG
+			verboseEvents = false;
+#endif
 			verboseEventsPrev = verboseEvents;
 			setupDoneAt = 0;
-
-			base.OnAwake();
 		}
 
 		public virtual void OnDestroy()
@@ -983,8 +986,7 @@ namespace DockRotate
 
 		private Part findHostPartInEditor(bool verbose)
 		{
-			Part other;
-			AttachNode node = findMovingNodeInEditor(out other, verbose);
+			AttachNode node = findMovingNodeInEditor(out Part other, verbose);
 			if (node == null || other == null)
 				return null;
 			return other.parent == part ? other :

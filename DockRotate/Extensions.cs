@@ -511,9 +511,7 @@ namespace DockRotate
 
 		public static string desc(this Quaternion q)
 		{
-			float angle;
-			Vector3 axis;
-			q.ToAngleAxis(out angle, out axis);
+			q.ToAngleAxis(out float angle, out Vector3 axis);
 			bool isIdentity = angle.isZero();
 			return angle.ToString(isIdentity ? "F0" : "F1") + "\u00b0"
 				+ (isIdentity ? Vector3.zero : axis).desc();
