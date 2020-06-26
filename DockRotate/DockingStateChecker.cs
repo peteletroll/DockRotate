@@ -5,7 +5,7 @@ namespace DockRotate
 {
 	public static class DockingStateChecker
 	{
-		private struct NodeState
+		private class NodeState
 		{
 			public string state;
 			public bool hasJoint, isSameVessel;
@@ -82,24 +82,43 @@ namespace DockRotate
 			return foundError;
 		}
 
-		private struct JointState
+		private class JointState
 		{
 			public string hoststate, targetstate;
 			public bool isSameVessel;
+			public Action<ModuleDockingNode, ModuleDockingNode> fixer;
 
-			public JointState(string hoststate, string targetstate, bool isSameVessel)
+			public JointState(string hoststate, string targetstate, bool isSameVessel,
+				Action<ModuleDockingNode, ModuleDockingNode> fixer = null)
 			{
 				this.hoststate = hoststate;
 				this.targetstate = targetstate;
 				this.isSameVessel = isSameVessel;
+				this.fixer = fixer;
 			}
 
 			public static readonly JointState[] allowedJointStates = new[] {
 				new JointState("PreAttached", "PreAttached", false),
 				new JointState("Docked (docker)", "Docked (dockee)", false),
 				new JointState("Docked (dockee)", "Docked (docker)", false),
-				new JointState("Docked (same vessel)", "Docked (dockee)", true)
+				new JointState("Docked (same vessel)", "Docked (dockee)", true),
+				new JointState("Docked (dockee)", "Docked (dockee)", false, (host, target) => {
+					host.DebugFSMState = target.DebugFSMState = true;
+					target.fsm.StartFSM("Docked (docker)");
+				})
 			};
+
+			public static JointState find(ModuleDockingNode host, ModuleDockingNode target, bool isSameVessel) {
+				string hoststate = host.fsm.currentStateName;
+				string targetstate = target.fsm.currentStateName;
+				int l = JointState.allowedJointStates.GetLength(0);
+				for (int i = 0; i < l; i++) {
+					JointState s = JointState.allowedJointStates[i];
+					if (s.hoststate == hoststate && s.targetstate == targetstate && s.isSameVessel == isSameVessel)
+						return s;
+				}
+				return null;
+			}
 		};
 
 		private static void checkDockingJoint(List<string> msg, ModuleDockingNode node, PartJoint joint, bool isSameVessel)
@@ -143,18 +162,19 @@ namespace DockRotate
 					msg.Add("should use tree joint " + child.part.attachJoint.info());
 			}
 
-			int l = JointState.allowedJointStates.GetLength(0);
-			bool found = false;
-			for (int i = 0; i < l; i++) {
-				ref JointState s = ref JointState.allowedJointStates[i];
-				if (s.hoststate == host.state && s.targetstate == target.state && s.isSameVessel == isSameVessel) {
-					found = true;
-					break;
-				}
+			string label = "\"" + host.state + "\">\"" + target.state + "\""
+				+ (isSameVessel ? ".isSameVessel" : ".isTree");
+			JointState s = JointState.find(host, target, isSameVessel);
+			if (s != null && s.fixer != null) {
+				log(node.stateInfo(), ": fixing docking couple " + label);
+				s.fixer(host, target);
+				s = JointState.find(host, target, isSameVessel);
+				if (s != null && s.fixer != null)
+					s = null;
 			}
-			if (!found)
-				msg.Add("unallowed couple state \"" + host.state + "\">\"" + target.state + "\""
-					+ (isSameVessel ? ".isSameVessel" : ".isTree"));
+
+			if (s == null)
+				msg.Add("unallowed couple state " + label);
 		}
 
 		public static string stateInfo(this ModuleDockingNode node)
