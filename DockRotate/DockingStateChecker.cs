@@ -110,6 +110,7 @@ namespace DockRotate
 				log("FIXING\n\t" + host.info() + " ->\n\t" + target.info());
 				host.DebugFSMState = target.DebugFSMState = true;
 				fixer(host, target);
+				log("AFTER FIX\n\t" + host.info() + " ->\n\t" + target.info());
 				JointState ret = find(host, target, isSameVessel);
 				if (ret.fixable())
 					ret = null;

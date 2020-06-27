@@ -56,7 +56,7 @@ namespace DockRotate
 		{
 			BaseEvent evt = Events["CheckDockingState"];
 			if (evt != null) {
-				evt.guiActive = active;
+				evt.guiActive = active || DEBUGMODE;
 				// log(desc(), ".showCheckDockingState(" + active + "): done");
 			} else {
 				log(desc(), ".showCheckDockingState(" + active + "): can't find event");
