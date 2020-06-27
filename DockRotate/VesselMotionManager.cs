@@ -582,18 +582,21 @@ namespace DockRotate
 			StartCoroutine(checkDockingStates(delay, verbose));
 		}
 
-		private int lastDockingCheck = 0;
+		private int dockingCheckCounter = 0;
 
 		private readonly static Color badStateColor = Color.red;
 		private readonly float badStateTimeout = 3f;
 
 		public IEnumerator checkDockingStates(int waitFrames, bool verbose)
 		{
+			int thisCounter = ++dockingCheckCounter;
+
 			for (int i = 0; i < waitFrames; i++)
 				yield return new WaitForFixedUpdate();
 
-			if (lastDockingCheck < Time.frameCount) {
-				lastDockingCheck = Time.frameCount;
+			if (thisCounter < dockingCheckCounter) {
+				log("skipping analysis, another pending");
+			} else {
 				log((verbose ? "verbosely " : "")
 					+ "analyzing incoherent states in " + vessel.GetName());
 				List<ModuleDockingNode> dn = vessel.FindPartModulesImplementing<ModuleDockingNode>();
