@@ -7,10 +7,10 @@ namespace DockRotate
 	{
 		private class NodeState
 		{
-			public string state;
-			public bool hasJoint, isSameVessel;
+			private string state;
+			private bool hasJoint, isSameVessel;
 
-			public NodeState(string state, bool hasJoint, bool isSameVessel)
+			private NodeState(string state, bool hasJoint, bool isSameVessel)
 			{
 				this.state = state;
 				this.hasJoint = hasJoint;
@@ -30,20 +30,60 @@ namespace DockRotate
 				new NodeState("PreAttached", true, false)
 			};
 
-			public static bool allowed(ModuleDockingNode node, bool verbose = false)
+			public static NodeState find(ModuleDockingNode node)
 			{
 				if (!node)
-					return false;
-				string name = node.state;
-				bool hasJoint = node.getDockingJoint(out bool isSameVessel, verbose);
+					return null;
+				string nodestate = node.fsm.currentStateName;
+				bool hasJoint = node.getDockingJoint(out bool isSameVessel, false);
 				for (int i = 0; i < allowedNodeStates.Length; i++) {
 					ref NodeState s = ref allowedNodeStates[i];
-					if (s.state == name && s.hasJoint == hasJoint && s.isSameVessel == isSameVessel)
-						return true;
+					if (s.state == nodestate && s.hasJoint == hasJoint && s.isSameVessel == isSameVessel)
+						return s;
 				}
-				return false;
+				return null;
 			}
 		}
+
+		private class JointState
+		{
+			private string hoststate, targetstate;
+			private bool isSameVessel;
+			public Action<ModuleDockingNode, ModuleDockingNode> fixer;
+
+			private JointState(string hoststate, string targetstate, bool isSameVessel,
+				Action<ModuleDockingNode, ModuleDockingNode> fixer = null)
+			{
+				this.hoststate = hoststate;
+				this.targetstate = targetstate;
+				this.isSameVessel = isSameVessel;
+				this.fixer = fixer;
+			}
+
+			private static readonly JointState[] allowedJointStates = new[] {
+				new JointState("PreAttached", "PreAttached", false),
+				new JointState("Docked (docker)", "Docked (dockee)", false),
+				new JointState("Docked (dockee)", "Docked (docker)", false),
+				new JointState("Docked (same vessel)", "Docked (dockee)", true),
+				new JointState("Docked (dockee)", "Docked (dockee)", false, (host, target) => {
+					host.DebugFSMState = target.DebugFSMState = true;
+					host.fsm.StartFSM("Docked (docker)");
+				})
+			};
+
+			public static JointState find(ModuleDockingNode host, ModuleDockingNode target, bool isSameVessel)
+			{
+				string hoststate = host.fsm.currentStateName;
+				string targetstate = target.fsm.currentStateName;
+				int l = JointState.allowedJointStates.GetLength(0);
+				for (int i = 0; i < l; i++) {
+					JointState s = JointState.allowedJointStates[i];
+					if (s.hoststate == hoststate && s.targetstate == targetstate && s.isSameVessel == isSameVessel)
+						return s;
+				}
+				return null;
+			}
+		};
 
 		public static bool isBadNode(this ModuleDockingNode node, bool verbose)
 		{
@@ -60,7 +100,7 @@ namespace DockRotate
 				+ (j ? ".hasJoint" : "")
 				+ (dsv ? ".isSameVessel" : ".isTree");
 
-			if (!NodeState.allowed(node, false))
+			if (NodeState.find(node) == null)
 				msg.Add("unallowed node state " + label);
 
 			if (j)
@@ -81,45 +121,6 @@ namespace DockRotate
 
 			return foundError;
 		}
-
-		private class JointState
-		{
-			public string hoststate, targetstate;
-			public bool isSameVessel;
-			public Action<ModuleDockingNode, ModuleDockingNode> fixer;
-
-			public JointState(string hoststate, string targetstate, bool isSameVessel,
-				Action<ModuleDockingNode, ModuleDockingNode> fixer = null)
-			{
-				this.hoststate = hoststate;
-				this.targetstate = targetstate;
-				this.isSameVessel = isSameVessel;
-				this.fixer = fixer;
-			}
-
-			public static readonly JointState[] allowedJointStates = new[] {
-				new JointState("PreAttached", "PreAttached", false),
-				new JointState("Docked (docker)", "Docked (dockee)", false),
-				new JointState("Docked (dockee)", "Docked (docker)", false),
-				new JointState("Docked (same vessel)", "Docked (dockee)", true),
-				new JointState("Docked (dockee)", "Docked (dockee)", false, (host, target) => {
-					host.DebugFSMState = target.DebugFSMState = true;
-					target.fsm.StartFSM("Docked (docker)");
-				})
-			};
-
-			public static JointState find(ModuleDockingNode host, ModuleDockingNode target, bool isSameVessel) {
-				string hoststate = host.fsm.currentStateName;
-				string targetstate = target.fsm.currentStateName;
-				int l = JointState.allowedJointStates.GetLength(0);
-				for (int i = 0; i < l; i++) {
-					JointState s = JointState.allowedJointStates[i];
-					if (s.hoststate == hoststate && s.targetstate == targetstate && s.isSameVessel == isSameVessel)
-						return s;
-				}
-				return null;
-			}
-		};
 
 		private static void checkDockingJoint(List<string> msg, ModuleDockingNode node, PartJoint joint, bool isSameVessel)
 		{
