@@ -202,41 +202,6 @@ namespace DockRotate
 			}
 		}
 
-#if DEBUG
-		public override void dumpExtra()
-		{
-			string d = desc();
-			if (dockingNode) {
-				log(d, ": attachJoint: " + part.attachJoint.desc());
-				log(d, ": dockedPartUId: " + dockingNode.dockedPartUId);
-				log(d, ": dockingNode state: \"" + dockingNode.state + "\"");
-				log(d, ": sameVesselDockingJoint: " + dockingNode.sameVesselDockJoint.desc());
-			} else {
-				log(d, ": no dockingNode");
-			}
-		}
-#endif
-
-		private static char[] commandSeparators = { ' ', '\t' };
-
-		public static void consoleCommand(string arg)
-		{
-			string[] args = arg.Split(commandSeparators, StringSplitOptions.RemoveEmptyEntries);
-			Vessel v = FlightGlobals.ActiveVessel;
-			if (!HighLogic.LoadedSceneIsFlight) {
-				log("not in flight mode");
-			} else if (!v) {
-				log("no active vessel");
-			} else if (args.Length == 1 && args[0] == "check") {
-				VesselMotionManager vmm = VesselMotionManager.get(v);
-				if (vmm)
-					vmm.scheduleDockingStatesCheck(0, true);
-			} else {
-				log("illegal command");
-			}
-			// log("CMD END");
-		}
-
 		private float autoSnapStep()
 		{
 			if (!hasJointMotion || !dockingNode)
@@ -261,6 +226,56 @@ namespace DockRotate
 		public override string descPrefix()
 		{
 			return "MDR";
+		}
+
+#if DEBUG
+		public override void dumpExtra()
+		{
+			string d = desc();
+			if (dockingNode) {
+				log(d, ": attachJoint: " + part.attachJoint.desc());
+				log(d, ": dockedPartUId: " + dockingNode.dockedPartUId);
+				log(d, ": dockingNode state: \"" + dockingNode.state + "\"");
+				log(d, ": sameVesselDockingJoint: " + dockingNode.sameVesselDockJoint.desc());
+			} else {
+				log(d, ": no dockingNode");
+			}
+		}
+#endif
+
+		private static char[] commandSeparators = { ' ', '\t' };
+
+		public static void consoleCommand(string arg)
+		{
+			try {
+				string[] args = arg.Split(commandSeparators, StringSplitOptions.RemoveEmptyEntries);
+				if (args.Length < 1)
+					throw new Exception("available /dr commands: check");
+				if (!HighLogic.LoadedSceneIsFlight)
+					throw new Exception("not in flight mode");
+				Vessel v = FlightGlobals.ActiveVessel;
+				if (!v)
+					throw new Exception("no active vessel");
+
+				if (args[0] == "check") {
+					consoleCheck(v, args);
+				} else {
+					throw new Exception("illegal command");
+				}
+			} catch (Exception e) {
+				log("ERROR: " + e.Message);
+			}
+			// log("CMD END");
+		}
+
+		public static void consoleCheck(Vessel v, string[] args)
+		{
+			if (args.Length != 1)
+				throw new Exception("/dr check wants 0 arguments");
+			VesselMotionManager vmm = VesselMotionManager.get(v);
+			if (!vmm)
+				throw new Exception("can't get VesselMotionManager");
+			vmm.scheduleDockingStatesCheck(0, true);
 		}
 	}
 }
