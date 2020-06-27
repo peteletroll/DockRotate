@@ -38,6 +38,13 @@ namespace DockRotate
 				new NodeState("PreAttached", true, false)
 			};
 
+			public static bool exists(string state) {
+				for (int i = 0; i < allowedNodeStates.Length; i++)
+					if (allowedNodeStates[i].state == state)
+						return true;
+				return false;
+			}
+
 			public static NodeState find(ModuleDockingNode node)
 			{
 				if (!node)
@@ -100,7 +107,7 @@ namespace DockRotate
 			{
 				if (fixer == null)
 					return null;
-				log("[" + nameof(DockingStateChecker) + "] FIXING\n\t" + host.info() + " ->\n\t" + target.info());
+				log("FIXING\n\t" + host.info() + " ->\n\t" + target.info());
 				host.DebugFSMState = target.DebugFSMState = true;
 				fixer(host, target);
 				JointState ret = find(host, target, isSameVessel);
@@ -213,7 +220,11 @@ namespace DockRotate
 
 		private static void setState(this ModuleDockingNode node, string state)
 		{
-			if (!node)
+			if (!NodeState.exists(state)) {
+				log("setState(\"" + state + "\") not allowed");
+				return;
+			}
+			if (!node || node.fsm == null)
 				return;
 			node.DebugFSMState = true;
 			if (node.fsm != null)
@@ -254,9 +265,9 @@ namespace DockRotate
 			return ret;
 		}
 
-		public static bool log(string msg1, string msg2 = "")
+		public static bool log(string msg)
 		{
-			return Extensions.log(msg1, msg2);
+			return Extensions.log("[" + nameof(DockingStateChecker) + "] " + msg);
 		}
 	}
 }
