@@ -5,27 +5,12 @@ namespace DockRotate
 {
 	public static class DockingStateChecker
 	{
-		private class State
+		public class DockingStateTable
 		{
-			public static implicit operator bool(State s)
-			{
-				return s != null;
-			}
-		}
+			List<NodeState> nodeStates = new List<NodeState>();
+			List<JointState> jointStates = new List<JointState>();
 
-		private class NodeState: State
-		{
-			private string state;
-			private bool hasJoint, isSameVessel;
-
-			private NodeState(string state, bool hasJoint, bool isSameVessel)
-			{
-				this.state = state;
-				this.hasJoint = hasJoint;
-				this.isSameVessel = isSameVessel;
-			}
-
-			private static readonly NodeState[] allowedNodeStates = new[] {
+			public static readonly NodeState[] allowedNodeStates = new[] {
 				new NodeState("Ready", false, false),
 				new NodeState("Acquire", false, false),
 				new NodeState("Acquire (dockee)", false, false),
@@ -38,44 +23,7 @@ namespace DockRotate
 				new NodeState("PreAttached", true, false)
 			};
 
-			public static bool exists(string state) {
-				for (int i = 0; i < allowedNodeStates.Length; i++)
-					if (allowedNodeStates[i].state == state)
-						return true;
-				return false;
-			}
-
-			public static NodeState find(ModuleDockingNode node)
-			{
-				if (!node)
-					return null;
-				string nodestate = S(node);
-				bool hasJoint = node.getDockingJoint(out bool isSameVessel, false);
-				for (int i = 0; i < allowedNodeStates.Length; i++) {
-					ref NodeState s = ref allowedNodeStates[i];
-					if (s.state == nodestate && s.hasJoint == hasJoint && s.isSameVessel == isSameVessel)
-						return s;
-				}
-				return null;
-			}
-		}
-
-		private class JointState: State
-		{
-			private string hoststate, targetstate;
-			private bool isSameVessel;
-			private Action<ModuleDockingNode, ModuleDockingNode> fixer;
-
-			private JointState(string hoststate, string targetstate, bool isSameVessel,
-				Action<ModuleDockingNode, ModuleDockingNode> fixer = null)
-			{
-				this.hoststate = hoststate;
-				this.targetstate = targetstate;
-				this.isSameVessel = isSameVessel;
-				this.fixer = fixer;
-			}
-
-			private static readonly JointState[] allowedJointStates = new[] {
+			public static readonly JointState[] allowedJointStates = new[] {
 				new JointState("PreAttached", "PreAttached", false),
 				new JointState("Docked (docker)", "Docked (dockee)", false),
 				new JointState("Docked (dockee)", "Docked (docker)", false),
@@ -85,14 +33,91 @@ namespace DockRotate
 					(host, target) => host.setState("Docked (docker)"))
 			};
 
+			public DockingStateTable()
+			{
+				nodeStates = new List<NodeState>();
+				nodeStates.AddRange(allowedNodeStates);
+
+				jointStates = new List<JointState>();
+				jointStates.AddRange(allowedJointStates);
+			}
+
+			public static bool exists(string state)
+			{
+				for (int i = 0; i < DockingStateTable.allowedNodeStates.Length; i++)
+					if (DockingStateTable.allowedNodeStates[i].state == state)
+						return true;
+				return false;
+			}
+		}
+
+		public abstract class State
+		{
+			public static implicit operator bool(State s)
+			{
+				return s != null;
+			}
+
+			public ConfigNode configNode()
+			{
+				ConfigNode ret = ConfigNode.CreateConfigFromObject(this);
+				ret.name = this.GetType().Name;
+				return ret;
+			}
+		}
+
+		public class NodeState: State
+		{
+			[Persistent] public string state;
+			[Persistent] public bool hasJoint;
+			[Persistent] public bool isSameVessel;
+
+			public NodeState(string state, bool hasJoint, bool isSameVessel)
+			{
+				this.state = state;
+				this.hasJoint = hasJoint;
+				this.isSameVessel = isSameVessel;
+			}
+
+			public static NodeState find(ModuleDockingNode node)
+			{
+				if (!node)
+					return null;
+				string nodestate = S(node);
+				bool hasJoint = node.getDockingJoint(out bool isSameVessel, false);
+				for (int i = 0; i < DockingStateTable.allowedNodeStates.Length; i++) {
+					ref NodeState s = ref DockingStateTable.allowedNodeStates[i];
+					if (s.state == nodestate && s.hasJoint == hasJoint && s.isSameVessel == isSameVessel)
+						return s;
+				}
+				return null;
+			}
+		}
+
+		public class JointState: State
+		{
+			[Persistent] public string hostState;
+			[Persistent] public string targetState;
+			[Persistent] public bool isSameVessel;
+			private Action<ModuleDockingNode, ModuleDockingNode> fixer;
+
+			public JointState(string hoststate, string targetstate, bool isSameVessel,
+				Action<ModuleDockingNode, ModuleDockingNode> fixer = null)
+			{
+				this.hostState = hoststate;
+				this.targetState = targetstate;
+				this.isSameVessel = isSameVessel;
+				this.fixer = fixer;
+			}
+
 			public static JointState find(ModuleDockingNode host, ModuleDockingNode target, bool isSameVessel)
 			{
 				string hoststate = S(host);
 				string targetstate = S(target);
-				int l = JointState.allowedJointStates.GetLength(0);
+				int l = DockingStateTable.allowedJointStates.GetLength(0);
 				for (int i = 0; i < l; i++) {
-					JointState s = JointState.allowedJointStates[i];
-					if (s.hoststate == hoststate && s.targetstate == targetstate && s.isSameVessel == isSameVessel)
+					JointState s = DockingStateTable.allowedJointStates[i];
+					if (s.hostState == hoststate && s.targetState == targetstate && s.isSameVessel == isSameVessel)
 						return s;
 				}
 				return null;
@@ -221,7 +246,7 @@ namespace DockRotate
 
 		private static void setState(this ModuleDockingNode node, string state)
 		{
-			if (!NodeState.exists(state)) {
+			if (!DockingStateTable.exists(state)) {
 				log("setState(\"" + state + "\") not allowed");
 				return;
 			}
