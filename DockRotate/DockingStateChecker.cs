@@ -30,7 +30,7 @@ namespace DockRotate
 				new JointState("Docked (same vessel)", "Docked (dockee)", true),
 
 				new JointState("Docked (dockee)", "Docked (dockee)", false,
-					(host, target) => host.setState("Docked (docker)"))
+					"Docked (docker)")
 			};
 
 			public DockingStateTable()
@@ -99,15 +99,17 @@ namespace DockRotate
 			[Persistent] public string hostState;
 			[Persistent] public string targetState;
 			[Persistent] public bool isSameVessel;
-			private Action<ModuleDockingNode, ModuleDockingNode> fixer;
+			[Persistent] public string hostFixTo;
+			[Persistent] public string targetFixTo;
 
 			public JointState(string hoststate, string targetstate, bool isSameVessel,
-				Action<ModuleDockingNode, ModuleDockingNode> fixer = null)
+				string hostFixTo = "", string targetFixTo = "")
 			{
 				this.hostState = hoststate;
 				this.targetState = targetstate;
 				this.isSameVessel = isSameVessel;
-				this.fixer = fixer;
+				this.hostFixTo = hostFixTo;
+				this.targetFixTo = targetFixTo;
 			}
 
 			public static JointState find(ModuleDockingNode host, ModuleDockingNode target, bool isSameVessel)
@@ -125,16 +127,19 @@ namespace DockRotate
 
 			public bool fixable()
 			{
-				return fixer != null;
+				return hostFixTo != "" || targetFixTo != "";
 			}
 
 			public JointState fix(ModuleDockingNode host, ModuleDockingNode target)
 			{
-				if (fixer == null)
+				if (!fixable())
 					return null;
 				log("FIXING\n\t" + host.info() + " ->\n\t" + target.info());
 				host.DebugFSMState = target.DebugFSMState = true;
-				fixer(host, target);
+				if (hostFixTo != "")
+					host.setState(hostFixTo);
+				if (targetFixTo != "")
+					target.setState(targetFixTo);
 				log("AFTER FIX\n\t" + host.info() + " ->\n\t" + target.info());
 				JointState ret = find(host, target, isSameVessel);
 				if (ret.fixable())
