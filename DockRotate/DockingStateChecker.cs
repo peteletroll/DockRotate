@@ -9,6 +9,14 @@ namespace DockRotate
 
 		public class DockingStateTable
 		{
+			private const string configName = nameof(DockingStateChecker);
+
+			private static string configFile() {
+				string assembly = System.Reflection.Assembly.GetExecutingAssembly().Location;
+				string directory = System.IO.Path.GetDirectoryName(assembly);
+				return System.IO.Path.Combine(directory, "PluginData", configName + ".cfg");
+			}
+
 			private List<NodeState> NodeStates = new List<NodeState>();
 			private List<JointState> JointStates = new List<JointState>();
 
@@ -44,12 +52,15 @@ namespace DockRotate
 				JointStates.AddRange(allowedJointStates);
 
 				log("CONFIG\n" + configNode());
+				log("FILE " + configFile());
+				ConfigNode cn = ConfigNode.Load(configFile());
+				log("LOADED\n" + cn);
 			}
 
 			public ConfigNode configNode()
 			{
 				ConfigNode ret = ConfigNode.CreateConfigFromObject(this);
-				ret.name = "DockingStateChecker";
+				ret.name = configName;
 
 				ConfigNode ns = new ConfigNode(nameof(NodeStates));
 				for (int i = 0; i < NodeStates.Count; i++)
@@ -64,10 +75,10 @@ namespace DockRotate
 				return ret;
 			}
 
-			public static bool exists(string state)
+			public bool exists(string state)
 			{
-				for (int i = 0; i < DockingStateTable.allowedNodeStates.Length; i++)
-					if (DockingStateTable.allowedNodeStates[i].state == state)
+				for (int i = 0; i < NodeStates.Count; i++)
+					if (NodeStates[i].state == state)
 						return true;
 				return false;
 			}
@@ -78,8 +89,8 @@ namespace DockRotate
 					return null;
 				string nodestate = S(node);
 				bool hasJoint = node.getDockingJoint(out bool isSameVessel, false);
-				for (int i = 0; i < DockingStateTable.allowedNodeStates.Length; i++) {
-					ref NodeState s = ref DockingStateTable.allowedNodeStates[i];
+				for (int i = 0; i < NodeStates.Count; i++) {
+					NodeState s = NodeStates[i];
 					if (s.state == nodestate && s.hasJoint == hasJoint && s.isSameVessel == isSameVessel)
 						return s;
 				}
@@ -90,9 +101,8 @@ namespace DockRotate
 			{
 				string hoststate = S(host);
 				string targetstate = S(target);
-				int l = DockingStateTable.allowedJointStates.GetLength(0);
-				for (int i = 0; i < l; i++) {
-					JointState s = DockingStateTable.allowedJointStates[i];
+				for (int i = 0; i < JointStates.Count; i++) {
+					JointState s = JointStates[i];
 					if (s.hostState == hoststate && s.targetState == targetstate && s.isSameVessel == isSameVessel)
 						return s;
 				}
@@ -273,7 +283,7 @@ namespace DockRotate
 
 		private static void setState(this ModuleDockingNode node, string state)
 		{
-			if (!DockingStateTable.exists(state)) {
+			if (!dockingStateTable.exists(state)) {
 				log("setState(\"" + state + "\") not allowed");
 				return;
 			}
