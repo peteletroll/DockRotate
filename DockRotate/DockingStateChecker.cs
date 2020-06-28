@@ -5,12 +5,14 @@ namespace DockRotate
 {
 	public static class DockingStateChecker
 	{
+		private static DockingStateTable dockingStateTable = new DockingStateTable();
+
 		public class DockingStateTable
 		{
-			List<NodeState> nodeStates = new List<NodeState>();
-			List<JointState> jointStates = new List<JointState>();
+			private List<NodeState> NodeStates = new List<NodeState>();
+			private List<JointState> JointStates = new List<JointState>();
 
-			public static readonly NodeState[] allowedNodeStates = new[] {
+			private static readonly NodeState[] allowedNodeStates = new[] {
 				new NodeState("Ready", false, false),
 				new NodeState("Acquire", false, false),
 				new NodeState("Acquire (dockee)", false, false),
@@ -23,7 +25,7 @@ namespace DockRotate
 				new NodeState("PreAttached", true, false)
 			};
 
-			public static readonly JointState[] allowedJointStates = new[] {
+			private static readonly JointState[] allowedJointStates = new[] {
 				new JointState("PreAttached", "PreAttached", false),
 				new JointState("Docked (docker)", "Docked (dockee)", false),
 				new JointState("Docked (dockee)", "Docked (docker)", false),
@@ -35,11 +37,31 @@ namespace DockRotate
 
 			public DockingStateTable()
 			{
-				nodeStates = new List<NodeState>();
-				nodeStates.AddRange(allowedNodeStates);
+				NodeStates = new List<NodeState>();
+				NodeStates.AddRange(allowedNodeStates);
 
-				jointStates = new List<JointState>();
-				jointStates.AddRange(allowedJointStates);
+				JointStates = new List<JointState>();
+				JointStates.AddRange(allowedJointStates);
+
+				log("CONFIG\n" + configNode());
+			}
+
+			public ConfigNode configNode()
+			{
+				ConfigNode ret = ConfigNode.CreateConfigFromObject(this);
+				ret.name = "DockingStateChecker";
+
+				ConfigNode ns = new ConfigNode(nameof(NodeStates));
+				for (int i = 0; i < NodeStates.Count; i++)
+					ns.AddNode(NodeStates[i].configNode());
+				ret.AddNode(ns);
+
+				ConfigNode js = new ConfigNode(nameof(JointStates));
+				for (int i = 0; i < JointStates.Count; i++)
+					js.AddNode(JointStates[i].configNode());
+				ret.AddNode(js);
+
+				return ret;
 			}
 
 			public static bool exists(string state)
@@ -48,6 +70,33 @@ namespace DockRotate
 					if (DockingStateTable.allowedNodeStates[i].state == state)
 						return true;
 				return false;
+			}
+
+			public NodeState find(ModuleDockingNode node)
+			{
+				if (!node)
+					return null;
+				string nodestate = S(node);
+				bool hasJoint = node.getDockingJoint(out bool isSameVessel, false);
+				for (int i = 0; i < DockingStateTable.allowedNodeStates.Length; i++) {
+					ref NodeState s = ref DockingStateTable.allowedNodeStates[i];
+					if (s.state == nodestate && s.hasJoint == hasJoint && s.isSameVessel == isSameVessel)
+						return s;
+				}
+				return null;
+			}
+
+			public JointState find(ModuleDockingNode host, ModuleDockingNode target, bool isSameVessel)
+			{
+				string hoststate = S(host);
+				string targetstate = S(target);
+				int l = DockingStateTable.allowedJointStates.GetLength(0);
+				for (int i = 0; i < l; i++) {
+					JointState s = DockingStateTable.allowedJointStates[i];
+					if (s.hostState == hoststate && s.targetState == targetstate && s.isSameVessel == isSameVessel)
+						return s;
+				}
+				return null;
 			}
 		}
 
@@ -78,20 +127,6 @@ namespace DockRotate
 				this.hasJoint = hasJoint;
 				this.isSameVessel = isSameVessel;
 			}
-
-			public static NodeState find(ModuleDockingNode node)
-			{
-				if (!node)
-					return null;
-				string nodestate = S(node);
-				bool hasJoint = node.getDockingJoint(out bool isSameVessel, false);
-				for (int i = 0; i < DockingStateTable.allowedNodeStates.Length; i++) {
-					ref NodeState s = ref DockingStateTable.allowedNodeStates[i];
-					if (s.state == nodestate && s.hasJoint == hasJoint && s.isSameVessel == isSameVessel)
-						return s;
-				}
-				return null;
-			}
 		}
 
 		public class JointState: State
@@ -112,19 +147,6 @@ namespace DockRotate
 				this.targetFixTo = targetFixTo;
 			}
 
-			public static JointState find(ModuleDockingNode host, ModuleDockingNode target, bool isSameVessel)
-			{
-				string hoststate = S(host);
-				string targetstate = S(target);
-				int l = DockingStateTable.allowedJointStates.GetLength(0);
-				for (int i = 0; i < l; i++) {
-					JointState s = DockingStateTable.allowedJointStates[i];
-					if (s.hostState == hoststate && s.targetState == targetstate && s.isSameVessel == isSameVessel)
-						return s;
-				}
-				return null;
-			}
-
 			public bool fixable()
 			{
 				return hostFixTo != "" || targetFixTo != "";
@@ -141,7 +163,7 @@ namespace DockRotate
 				if (targetFixTo != "")
 					target.setState(targetFixTo);
 				log("AFTER FIX\n\t" + host.info() + " ->\n\t" + target.info());
-				JointState ret = find(host, target, isSameVessel);
+				JointState ret = dockingStateTable.find(host, target, isSameVessel);
 				if (ret.fixable())
 					ret = null;
 				return ret;
@@ -163,7 +185,7 @@ namespace DockRotate
 				+ (j ? ".hasJoint" : "")
 				+ (dsv ? ".isSameVessel" : ".isTree");
 
-			if (!NodeState.find(node))
+			if (!dockingStateTable.find(node))
 				msg.Add("unallowed node state " + label);
 
 			// a null vesselInfo may cause NRE later
@@ -231,7 +253,7 @@ namespace DockRotate
 			string label = QS(host) + ">" + QS(target)
 				+ (isSameVessel ? ".isSameVessel" : ".isTree");
 
-			JointState s = JointState.find(host, target, isSameVessel);
+			JointState s = dockingStateTable.find(host, target, isSameVessel);
 			if (s && s.fixable())
 				s = s.fix(host, target);
 
