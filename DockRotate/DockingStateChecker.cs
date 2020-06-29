@@ -18,7 +18,7 @@ namespace DockRotate
 		{
 			DockingStateChecker ret = null;
 			try {
-				log("LOADING " + configFile());
+				log("loading " + configFile());
 				ConfigNode cn = ConfigNode.Load(configFile());
 				if (cn == null)
 					throw new Exception("null ConfigNode");
@@ -26,7 +26,7 @@ namespace DockRotate
 				if (cn == null)
 					throw new Exception("can't find " + configName);
 				ret = fromConfigNode(cn);
-				log("LOADED\n" + ret.desc() + "\n");
+				log("loaded\n" + ret.desc() + "\n");
 			} catch (Exception e) {
 				log("can't load: " + e.Message + "\n" + e.StackTrace);
 				ret = builtin();
@@ -42,12 +42,12 @@ namespace DockRotate
 				string file = configFile();
 				string directory = System.IO.Path.GetDirectoryName(file);
 				if (!System.IO.Directory.Exists(directory)) {
-					log("CREATING DIRECTORY " + directory);
+					log("creating directory " + directory);
 					System.IO.Directory.CreateDirectory(directory);
 				}
 				ConfigNode cn = new ConfigNode("root");
 				cn.AddNode(toConfigNode());
-				log("SAVING " + file);
+				log("saving " + file);
 				cn.Save(file);
 				ret = true;
 			} catch (Exception e) {
@@ -61,7 +61,7 @@ namespace DockRotate
 			DockingStateChecker ret = new DockingStateChecker();
 			ret.nodeStates.AddRange(allowedNodeStates);
 			ret.jointStates.AddRange(allowedJointStates);
-			log("BUILTIN\n" + ret.desc());
+			log("builtin\n" + ret.desc());
 			return ret;
 		}
 
