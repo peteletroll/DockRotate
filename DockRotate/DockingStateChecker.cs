@@ -154,8 +154,10 @@ namespace DockRotate
 			bool hasJoint = node.getDockingJoint(out bool isSameVessel, false);
 			for (int i = 0; i < nodeStates.Count; i++) {
 				NodeState s = nodeStates[i];
-				if (s.state == nodeState && s.hasJoint == hasJoint && s.isSameVessel == isSameVessel)
+				if (s.state == nodeState && s.hasJoint == hasJoint && s.isSameVessel == isSameVessel) {
 					ret = s;
+					break;
+				}
 			}
 			if (ret)
 				ret.checker = this;
@@ -169,8 +171,10 @@ namespace DockRotate
 			string targetState = S(target);
 			for (int i = 0; i < jointStates.Count; i++) {
 				JointState s = jointStates[i];
-				if (s.hostState == hostState && s.targetState == targetState && s.isSameVessel == isSameVessel)
+				if (s.hostState == hostState && s.targetState == targetState && s.isSameVessel == isSameVessel) {
 					ret = s;
+					break;
+				}
 			}
 			if (ret)
 				ret.checker = this;
