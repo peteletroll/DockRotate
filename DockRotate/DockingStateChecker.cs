@@ -24,7 +24,7 @@ namespace DockRotate
 					log("LOADING " + configFile());
 					ConfigNode cn = ConfigNode.Load(configFile());
 					if (cn == null)
-						throw new Exception("can't load");
+						throw new Exception("null ConfigNode");
 					log("LOADED\n" + cn);
 					cn = cn.GetNode(configName);
 					if (cn == null)
@@ -35,6 +35,28 @@ namespace DockRotate
 				} catch (Exception e) {
 					log("can't load: " + e.Message + "\n" + e.StackTrace);
 					ret = builtin();
+					ret.save();
+				}
+				return ret;
+			}
+
+			public bool save()
+			{
+				bool ret = false;
+				try {
+					string file = configFile();
+					string directory = System.IO.Path.GetDirectoryName(file);
+					if (!System.IO.Directory.Exists(directory)) {
+						log("CREATING DIRECTORY " + directory);
+						System.IO.Directory.CreateDirectory(directory);
+					}
+					ConfigNode cn = new ConfigNode("root");
+					cn.AddNode(toConfigNode());
+					log("SAVING " + file);
+					cn.Save(file);
+					ret = true;
+				} catch (Exception e) {
+					log("can't save: " + e.Message + "\n" + e.StackTrace);
 				}
 				return ret;
 			}
@@ -42,14 +64,14 @@ namespace DockRotate
 			public static DockingStateTable builtin()
 			{
 				DockingStateTable ret = new DockingStateTable();
-				ret.NodeStates.AddRange(allowedNodeStates);
-				ret.JointStates.AddRange(allowedJointStates);
+				ret.nodeStates.AddRange(allowedNodeStates);
+				ret.jointStates.AddRange(allowedJointStates);
 				log("BUILTIN\n" + ret.toConfigNode());
 				return ret;
 			}
 
-			private List<NodeState> NodeStates = new List<NodeState>();
-			private List<JointState> JointStates = new List<JointState>();
+			private List<NodeState> nodeStates = new List<NodeState>();
+			private List<JointState> jointStates = new List<JointState>();
 
 			private static readonly NodeState[] allowedNodeStates = new[] {
 				new NodeState("Ready", false, false),
@@ -80,15 +102,11 @@ namespace DockRotate
 				ConfigNode ret = ConfigNode.CreateConfigFromObject(this);
 				ret.name = configName;
 
-				ConfigNode ns = new ConfigNode(nameof(NodeStates));
-				for (int i = 0; i < NodeStates.Count; i++)
-					ns.AddNode(NodeStates[i].toConfigNode());
-				ret.AddNode(ns);
+				for (int i = 0; i < nodeStates.Count; i++)
+					ret.AddNode(nodeStates[i].toConfigNode());
 
-				ConfigNode js = new ConfigNode(nameof(JointStates));
-				for (int i = 0; i < JointStates.Count; i++)
-					js.AddNode(JointStates[i].toConfigNode());
-				ret.AddNode(js);
+				for (int i = 0; i < jointStates.Count; i++)
+					ret.AddNode(jointStates[i].toConfigNode());
 
 				return ret;
 			}
@@ -101,20 +119,20 @@ namespace DockRotate
 				ConfigNode[] ns = cn.GetNodes(nameof(NodeState));
 				if (ns != null)
 					for (int i = 0; i < ns.Length; i++)
-						ret.NodeStates.Add(NodeState.fromConfigNode(ns[i]));
+						ret.nodeStates.Add(NodeState.fromConfigNode(ns[i]));
 
 				ConfigNode[] js = cn.GetNodes(nameof(JointState));
 				if (js != null)
 					for (int i = 0; i < js.Length; i++)
-						ret.JointStates.Add(JointState.fromConfigNode(js[i]));
+						ret.jointStates.Add(JointState.fromConfigNode(js[i]));
 
 				return ret;
 			}
 
 			public bool exists(string state)
 			{
-				for (int i = 0; i < NodeStates.Count; i++)
-					if (NodeStates[i].state == state)
+				for (int i = 0; i < nodeStates.Count; i++)
+					if (nodeStates[i].state == state)
 						return true;
 				return false;
 			}
@@ -125,8 +143,8 @@ namespace DockRotate
 					return null;
 				string nodestate = S(node);
 				bool hasJoint = node.getDockingJoint(out bool isSameVessel, false);
-				for (int i = 0; i < NodeStates.Count; i++) {
-					NodeState s = NodeStates[i];
+				for (int i = 0; i < nodeStates.Count; i++) {
+					NodeState s = nodeStates[i];
 					if (s.state == nodestate && s.hasJoint == hasJoint && s.isSameVessel == isSameVessel)
 						return s;
 				}
@@ -137,8 +155,8 @@ namespace DockRotate
 			{
 				string hoststate = S(host);
 				string targetstate = S(target);
-				for (int i = 0; i < JointStates.Count; i++) {
-					JointState s = JointStates[i];
+				for (int i = 0; i < jointStates.Count; i++) {
+					JointState s = jointStates[i];
 					if (s.hostState == hoststate && s.targetState == targetstate && s.isSameVessel == isSameVessel)
 						return s;
 				}
