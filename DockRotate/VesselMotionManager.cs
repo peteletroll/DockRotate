@@ -593,30 +593,32 @@ namespace DockRotate
 			for (int i = 0; i < waitFrames; i++)
 				yield return new WaitForFixedUpdate();
 
+			bool foundError = false;
 			if (thisCounter < dockingCheckCounter) {
 				log("skipping analysis, another pending");
 			} else {
 				DockingStateChecker checker = DockingStateChecker.load();
-				log((verbose ? "verbosely " : "")
-					+ "analyzing incoherent states in " + vessel.GetName());
-				List<ModuleDockingNode> dn = vessel.FindPartModulesImplementing<ModuleDockingNode>();
-				dn = new List<ModuleDockingNode>(dn);
-				dn.Sort((a, b) => (int) a.part.flightID - (int) b.part.flightID);
-				bool foundError = false;
-				for (int i = 0; i < dn.Count; i++) {
-					ModuleDockingNode node = dn[i];
-					node.part.SetHighlightDefault();
-					ModuleDockRotate mdr = node.getDockRotate();
-					if (mdr)
-						mdr.showCheckDockingState(false);
-					if (checker.isBadNode(node, verbose)) {
-						foundError = true;
-						node.part.SetHighlightColor(badStateColor);
-						node.part.SetHighlightType(Part.HighlightType.AlwaysOn);
-						if (!verbose)
-							StartCoroutine(unHighlight(node.part, badStateTimeout));
+				if (checker != null) {
+					log((verbose ? "verbosely " : "")
+						+ "analyzing incoherent states in " + vessel.GetName());
+					List<ModuleDockingNode> dn = vessel.FindPartModulesImplementing<ModuleDockingNode>();
+					dn = new List<ModuleDockingNode>(dn);
+					dn.Sort((a, b) => (int) a.part.flightID - (int) b.part.flightID);
+					for (int i = 0; i < dn.Count; i++) {
+						ModuleDockingNode node = dn[i];
+						node.part.SetHighlightDefault();
+						ModuleDockRotate mdr = node.getDockRotate();
 						if (mdr)
-							mdr.showCheckDockingState(true);
+							mdr.showCheckDockingState(false);
+						if (checker.isBadNode(node, verbose)) {
+							foundError = true;
+							node.part.SetHighlightColor(badStateColor);
+							node.part.SetHighlightType(Part.HighlightType.AlwaysOn);
+							if (!verbose)
+								StartCoroutine(unHighlight(node.part, badStateTimeout));
+							if (mdr)
+								mdr.showCheckDockingState(true);
+						}
 					}
 				}
 

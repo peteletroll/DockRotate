@@ -44,6 +44,8 @@ namespace DockRotate
 			log(part.desc(), ": DOCKING STATE CHECK");
 			if (dockingNode) {
 				DockingStateChecker checker = DockingStateChecker.load();
+				if (checker == null)
+					return;
 				checker.isBadNode(dockingNode, true);
 				ModuleDockingNode other = dockingNode.getDockedNode(false);
 				if (other) {
