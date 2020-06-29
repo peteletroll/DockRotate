@@ -5,7 +5,7 @@ namespace DockRotate
 {
 	public static class DockingStateChecker
 	{
-		private static DockingStateTable dockingStateTable = new DockingStateTable();
+		private static DockingStateTable dockingStateTable = DockingStateTable.load();
 
 		public class DockingStateTable
 		{
@@ -15,6 +15,37 @@ namespace DockRotate
 				string assembly = System.Reflection.Assembly.GetExecutingAssembly().Location;
 				string directory = System.IO.Path.GetDirectoryName(assembly);
 				return System.IO.Path.Combine(directory, "PluginData", configName + ".cfg");
+			}
+
+			public static DockingStateTable load()
+			{
+				DockingStateTable ret = null;
+				try {
+					log("LOADING " + configFile());
+					ConfigNode cn = ConfigNode.Load(configFile());
+					if (cn == null)
+						throw new Exception("can't load");
+					log("LOADED\n" + cn);
+					cn = cn.GetNode(configName);
+					if (cn == null)
+						throw new Exception("can't find " + configName);
+					log("NODE\n" + cn);
+					ret = DockingStateTable.fromConfigNode(cn);
+					log("GENERATED\n" + ret.toConfigNode());
+				} catch (Exception e) {
+					log("can't load: " + e.Message + "\n" + e.StackTrace);
+					ret = builtin();
+				}
+				return ret;
+			}
+
+			public static DockingStateTable builtin()
+			{
+				DockingStateTable ret = new DockingStateTable();
+				ret.NodeStates.AddRange(allowedNodeStates);
+				ret.JointStates.AddRange(allowedJointStates);
+				log("BUILTIN\n" + ret.toConfigNode());
+				return ret;
 			}
 
 			private List<NodeState> NodeStates = new List<NodeState>();
@@ -43,34 +74,38 @@ namespace DockRotate
 					"Docked (docker)")
 			};
 
-			public DockingStateTable()
-			{
-				NodeStates = new List<NodeState>();
-				NodeStates.AddRange(allowedNodeStates);
-
-				JointStates = new List<JointState>();
-				JointStates.AddRange(allowedJointStates);
-
-				log("CONFIG\n" + configNode());
-				log("FILE " + configFile());
-				ConfigNode cn = ConfigNode.Load(configFile());
-				log("LOADED\n" + cn);
-			}
-
-			public ConfigNode configNode()
+			public ConfigNode toConfigNode()
 			{
 				ConfigNode ret = ConfigNode.CreateConfigFromObject(this);
 				ret.name = configName;
 
 				ConfigNode ns = new ConfigNode(nameof(NodeStates));
 				for (int i = 0; i < NodeStates.Count; i++)
-					ns.AddNode(NodeStates[i].configNode());
+					ns.AddNode(NodeStates[i].toConfigNode());
 				ret.AddNode(ns);
 
 				ConfigNode js = new ConfigNode(nameof(JointStates));
 				for (int i = 0; i < JointStates.Count; i++)
-					js.AddNode(JointStates[i].configNode());
+					js.AddNode(JointStates[i].toConfigNode());
 				ret.AddNode(js);
+
+				return ret;
+			}
+
+			public static DockingStateTable fromConfigNode(ConfigNode cn)
+			{
+				DockingStateTable ret = new DockingStateTable();
+				ConfigNode.CreateObjectFromConfig<DockingStateTable>(cn);
+
+				ConfigNode[] ns = cn.GetNodes(nameof(NodeState));
+				if (ns != null)
+					for (int i = 0; i < ns.Length; i++)
+						ret.NodeStates.Add(NodeState.fromConfigNode(ns[i]));
+
+				ConfigNode[] js = cn.GetNodes(nameof(JointState));
+				if (js != null)
+					for (int i = 0; i < js.Length; i++)
+						ret.JointStates.Add(JointState.fromConfigNode(js[i]));
 
 				return ret;
 			}
@@ -117,7 +152,7 @@ namespace DockRotate
 				return s != null;
 			}
 
-			public ConfigNode configNode()
+			public ConfigNode toConfigNode()
 			{
 				ConfigNode ret = ConfigNode.CreateConfigFromObject(this);
 				ret.name = this.GetType().Name;
@@ -131,11 +166,20 @@ namespace DockRotate
 			[Persistent] public bool hasJoint;
 			[Persistent] public bool isSameVessel;
 
+			public NodeState() { }
+
 			public NodeState(string state, bool hasJoint, bool isSameVessel)
 			{
 				this.state = state;
 				this.hasJoint = hasJoint;
 				this.isSameVessel = isSameVessel;
+			}
+
+			public static NodeState fromConfigNode(ConfigNode cn)
+			{
+				NodeState ret = new NodeState();
+				ConfigNode.CreateObjectFromConfig<NodeState>(cn);
+				return ret;
 			}
 		}
 
@@ -147,6 +191,8 @@ namespace DockRotate
 			[Persistent] public string hostFixTo;
 			[Persistent] public string targetFixTo;
 
+			public JointState() { }
+
 			public JointState(string hoststate, string targetstate, bool isSameVessel,
 				string hostFixTo = "", string targetFixTo = "")
 			{
@@ -155,6 +201,13 @@ namespace DockRotate
 				this.isSameVessel = isSameVessel;
 				this.hostFixTo = hostFixTo;
 				this.targetFixTo = targetFixTo;
+			}
+
+			public static JointState fromConfigNode(ConfigNode cn)
+			{
+				JointState ret = new JointState();
+				ConfigNode.CreateObjectFromConfig<JointState>(cn);
+				return ret;
 			}
 
 			public bool fixable()
