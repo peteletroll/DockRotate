@@ -27,7 +27,8 @@ namespace DockRotate
 				new NodeState("Docked (dockee)", true, false),
 				new NodeState("Docked (dockee)", true, true),
 				new NodeState("Docked (same vessel)", true, true),
-				new NodeState("PreAttached", true, false)
+				new NodeState("PreAttached", true, false),
+				new NodeState("PreAttached", false, false)
 			};
 
 			public static bool allowed(ModuleDockingNode node, bool verbose = false)
