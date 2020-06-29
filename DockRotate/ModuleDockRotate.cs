@@ -43,11 +43,12 @@ namespace DockRotate
 		{
 			log(part.desc(), ": DOCKING STATE CHECK");
 			if (dockingNode) {
-				dockingNode.isBadNode(true);
+				DockingStateChecker checker = DockingStateChecker.load();
+				checker.isBadNode(dockingNode, true);
 				ModuleDockingNode other = dockingNode.getDockedNode(false);
 				if (other) {
 					log(other.part.desc(), ": DOCKING STATE CHECK - OTHER");
-					other.isBadNode(true);
+					checker.isBadNode(other, true);
 				}
 			}
 		}

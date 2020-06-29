@@ -3,187 +3,192 @@ using System.Collections.Generic;
 
 namespace DockRotate
 {
-	public static class DockingStateChecker
+	public class DockingStateChecker
 	{
-		private static DockingStateTable dockingStateTable = DockingStateTable.load();
+		private const string configName = nameof(DockingStateChecker);
 
-		public class DockingStateTable
+		private static string configFile()
 		{
-			private const string configName = nameof(DockingStateChecker);
-
-			private static string configFile() {
-				string assembly = System.Reflection.Assembly.GetExecutingAssembly().Location;
-				string directory = System.IO.Path.GetDirectoryName(assembly);
-				return System.IO.Path.Combine(directory, "PluginData", configName + ".cfg");
-			}
-
-			public static DockingStateTable load()
-			{
-				DockingStateTable ret = null;
-				try {
-					log("LOADING " + configFile());
-					ConfigNode cn = ConfigNode.Load(configFile());
-					if (cn == null)
-						throw new Exception("null ConfigNode");
-					log("LOADED\n" + cn);
-					cn = cn.GetNode(configName);
-					if (cn == null)
-						throw new Exception("can't find " + configName);
-					log("NODE\n" + cn);
-					ret = DockingStateTable.fromConfigNode(cn);
-					log("GENERATED\n" + ret.toConfigNode());
-				} catch (Exception e) {
-					log("can't load: " + e.Message + "\n" + e.StackTrace);
-					ret = builtin();
-					ret.save();
-				}
-				return ret;
-			}
-
-			public bool save()
-			{
-				bool ret = false;
-				try {
-					string file = configFile();
-					string directory = System.IO.Path.GetDirectoryName(file);
-					if (!System.IO.Directory.Exists(directory)) {
-						log("CREATING DIRECTORY " + directory);
-						System.IO.Directory.CreateDirectory(directory);
-					}
-					ConfigNode cn = new ConfigNode("root");
-					cn.AddNode(toConfigNode());
-					log("SAVING " + file);
-					cn.Save(file);
-					ret = true;
-				} catch (Exception e) {
-					log("can't save: " + e.Message + "\n" + e.StackTrace);
-				}
-				return ret;
-			}
-
-			public static DockingStateTable builtin()
-			{
-				DockingStateTable ret = new DockingStateTable();
-				ret.nodeStates.AddRange(allowedNodeStates);
-				ret.jointStates.AddRange(allowedJointStates);
-				log("BUILTIN\n" + ret.toConfigNode());
-				return ret;
-			}
-
-			private List<NodeState> nodeStates = new List<NodeState>();
-			private List<JointState> jointStates = new List<JointState>();
-
-			private static readonly NodeState[] allowedNodeStates = new[] {
-				new NodeState("Ready", false, false),
-				new NodeState("Acquire", false, false),
-				new NodeState("Acquire (dockee)", false, false),
-				new NodeState("Disengage", false, false),
-				new NodeState("Disabled", false, false),
-				new NodeState("Docked (docker)", true, false),
-				new NodeState("Docked (dockee)", true, false),
-				new NodeState("Docked (dockee)", true, true),
-				new NodeState("Docked (same vessel)", true, true),
-				new NodeState("PreAttached", true, false),
-				new NodeState("PreAttached", false, false)
-			};
-
-			private static readonly JointState[] allowedJointStates = new[] {
-				new JointState("PreAttached", "PreAttached", false),
-				new JointState("Docked (docker)", "Docked (dockee)", false),
-				new JointState("Docked (dockee)", "Docked (docker)", false),
-				new JointState("Docked (same vessel)", "Docked (dockee)", true),
-
-				new JointState("Docked (dockee)", "Docked (dockee)", false,
-					"Docked (docker)")
-			};
-
-			public ConfigNode toConfigNode()
-			{
-				ConfigNode ret = ConfigNode.CreateConfigFromObject(this);
-				ret.name = configName;
-
-				for (int i = 0; i < nodeStates.Count; i++)
-					ret.AddNode(nodeStates[i].toConfigNode());
-
-				for (int i = 0; i < jointStates.Count; i++)
-					ret.AddNode(jointStates[i].toConfigNode());
-
-				return ret;
-			}
-
-			public static DockingStateTable fromConfigNode(ConfigNode cn)
-			{
-				DockingStateTable ret = new DockingStateTable();
-				ConfigNode.CreateObjectFromConfig<DockingStateTable>(cn);
-
-				ConfigNode[] ns = cn.GetNodes(nameof(NodeState));
-				if (ns != null)
-					for (int i = 0; i < ns.Length; i++)
-						ret.nodeStates.Add(NodeState.fromConfigNode(ns[i]));
-
-				ConfigNode[] js = cn.GetNodes(nameof(JointState));
-				if (js != null)
-					for (int i = 0; i < js.Length; i++)
-						ret.jointStates.Add(JointState.fromConfigNode(js[i]));
-
-				return ret;
-			}
-
-			public bool exists(string state)
-			{
-				for (int i = 0; i < nodeStates.Count; i++)
-					if (nodeStates[i].state == state)
-						return true;
-				return false;
-			}
-
-			public NodeState find(ModuleDockingNode node)
-			{
-				if (!node)
-					return null;
-				string nodestate = S(node);
-				bool hasJoint = node.getDockingJoint(out bool isSameVessel, false);
-				for (int i = 0; i < nodeStates.Count; i++) {
-					NodeState s = nodeStates[i];
-					if (s.state == nodestate && s.hasJoint == hasJoint && s.isSameVessel == isSameVessel)
-						return s;
-				}
-				return null;
-			}
-
-			public JointState find(ModuleDockingNode host, ModuleDockingNode target, bool isSameVessel)
-			{
-				string hoststate = S(host);
-				string targetstate = S(target);
-				for (int i = 0; i < jointStates.Count; i++) {
-					JointState s = jointStates[i];
-					if (s.hostState == hoststate && s.targetState == targetstate && s.isSameVessel == isSameVessel)
-						return s;
-				}
-				return null;
-			}
+			string assembly = System.Reflection.Assembly.GetExecutingAssembly().Location;
+			string directory = System.IO.Path.GetDirectoryName(assembly);
+			return System.IO.Path.Combine(directory, "PluginData", configName + ".cfg");
 		}
 
-		public abstract class State
+		public static DockingStateChecker load()
 		{
-			public static implicit operator bool(State s)
+			DockingStateChecker ret = null;
+			try {
+				log("LOADING " + configFile());
+				ConfigNode cn = ConfigNode.Load(configFile());
+				if (cn == null)
+					throw new Exception("null ConfigNode");
+				cn = cn.GetNode(configName);
+				if (cn == null)
+					throw new Exception("can't find " + configName);
+				log("LOADED\n" + cn);
+				ret = fromConfigNode(cn);
+				log("GENERATED\n"
+					+ ret.desc() + "\n"
+					+ ret.toConfigNode());
+			} catch (Exception e) {
+				log("can't load: " + e.Message + "\n" + e.StackTrace);
+				ret = builtin();
+				ret.save();
+			}
+			log("LOADED " + ret.desc());
+			return ret;
+		}
+
+		public bool save()
+		{
+			bool ret = false;
+			try {
+				string file = configFile();
+				string directory = System.IO.Path.GetDirectoryName(file);
+				if (!System.IO.Directory.Exists(directory)) {
+					log("CREATING DIRECTORY " + directory);
+					System.IO.Directory.CreateDirectory(directory);
+				}
+				ConfigNode cn = new ConfigNode("root");
+				cn.AddNode(toConfigNode());
+				log("SAVING " + file);
+				cn.Save(file);
+				ret = true;
+			} catch (Exception e) {
+				log("can't save: " + e.Message + "\n" + e.StackTrace);
+			}
+			return ret;
+		}
+
+		public static DockingStateChecker builtin()
+		{
+			DockingStateChecker ret = new DockingStateChecker();
+			ret.nodeStates.AddRange(allowedNodeStates);
+			ret.jointStates.AddRange(allowedJointStates);
+			log("BUILTIN\n" + ret.toConfigNode());
+			return ret;
+		}
+
+		public string desc()
+		{
+			string ret = nameof(DockingStateChecker) + ":";
+			for (int i = 0; i < nodeStates.Count; i++)
+				ret += "\n\t" + nodeStates[i].desc();
+			for (int i = 0; i < jointStates.Count; i++)
+				ret += "\n\t" + jointStates[i].desc();
+			return ret;
+		}
+
+		private List<NodeState> nodeStates = new List<NodeState>();
+		private List<JointState> jointStates = new List<JointState>();
+
+		private static readonly NodeState[] allowedNodeStates = new[] {
+			new NodeState("Ready", false, false),
+			new NodeState("Acquire", false, false),
+			new NodeState("Acquire (dockee)", false, false),
+			new NodeState("Disengage", false, false),
+			new NodeState("Disabled", false, false),
+			new NodeState("Docked (docker)", true, false),
+			new NodeState("Docked (dockee)", true, false),
+			new NodeState("Docked (dockee)", true, true),
+			new NodeState("Docked (same vessel)", true, true),
+			new NodeState("PreAttached", true, false),
+			new NodeState("PreAttached", false, false)
+		};
+
+		private static readonly JointState[] allowedJointStates = new[] {
+			new JointState("PreAttached", "PreAttached", false),
+			new JointState("Docked (docker)", "Docked (dockee)", false),
+			new JointState("Docked (dockee)", "Docked (docker)", false),
+			new JointState("Docked (same vessel)", "Docked (dockee)", true),
+
+			new JointState("Docked (dockee)", "Docked (dockee)", false,
+				"Docked (docker)")
+		};
+
+		public ConfigNode toConfigNode()
+		{
+			ConfigNode ret = ConfigNode.CreateConfigFromObject(this);
+			ret.name = configName;
+
+			for (int i = 0; i < nodeStates.Count; i++)
+				ret.AddNode(nodeStates[i].toConfigNode());
+
+			for (int i = 0; i < jointStates.Count; i++)
+				ret.AddNode(jointStates[i].toConfigNode());
+
+			return ret;
+		}
+
+		public static DockingStateChecker fromConfigNode(ConfigNode cn)
+		{
+			DockingStateChecker ret = ConfigNode.CreateObjectFromConfig<DockingStateChecker>(cn);
+
+			ConfigNode[] ns = cn.GetNodes(nameof(NodeState));
+			if (ns != null)
+				for (int i = 0; i < ns.Length; i++)
+					ret.nodeStates.Add(NodeState.fromConfigNode(ns[i]));
+
+			ConfigNode[] js = cn.GetNodes(nameof(JointState));
+			if (js != null)
+				for (int i = 0; i < js.Length; i++)
+					ret.jointStates.Add(JointState.fromConfigNode(js[i]));
+
+			return ret;
+		}
+
+		public bool exists(string state)
+		{
+			for (int i = 0; i < nodeStates.Count; i++)
+				if (nodeStates[i].state == state)
+					return true;
+			return false;
+		}
+
+		public NodeState find(ModuleDockingNode node)
+		{
+			if (!node)
+				return null;
+			NodeState ret = null;
+			string nodeState = S(node);
+			bool hasJoint = node.getDockingJoint(out bool isSameVessel, false);
+			for (int i = 0; i < nodeStates.Count; i++) {
+				NodeState s = nodeStates[i];
+				if (s.state == nodeState && s.hasJoint == hasJoint && s.isSameVessel == isSameVessel)
+					ret = s;
+			}
+			if (ret)
+				ret.checker = this;
+			return ret;
+		}
+
+		public JointState find(ModuleDockingNode host, ModuleDockingNode target, bool isSameVessel)
+		{
+			JointState ret = null;
+			string hostState = S(host);
+			string targetState = S(target);
+			for (int i = 0; i < jointStates.Count; i++) {
+				JointState s = jointStates[i];
+				if (s.hostState == hostState && s.targetState == targetState && s.isSameVessel == isSameVessel)
+					ret = s;
+			}
+			if (ret)
+				ret.checker = this;
+			return ret;
+		}
+
+		public class NodeState
+		{
+			public DockingStateChecker checker = null;
+
+			[Persistent] public string state = "";
+			[Persistent] public bool hasJoint = false;
+			[Persistent] public bool isSameVessel = false;
+
+			public static implicit operator bool(NodeState s)
 			{
 				return s != null;
 			}
-
-			public ConfigNode toConfigNode()
-			{
-				ConfigNode ret = ConfigNode.CreateConfigFromObject(this);
-				ret.name = this.GetType().Name;
-				return ret;
-			}
-		}
-
-		public class NodeState: State
-		{
-			[Persistent] public string state;
-			[Persistent] public bool hasJoint;
-			[Persistent] public bool isSameVessel;
 
 			public NodeState() { }
 
@@ -194,21 +199,42 @@ namespace DockRotate
 				this.isSameVessel = isSameVessel;
 			}
 
+			public string desc()
+			{
+				return nameof(NodeState)
+					+ ":" + state
+					+ ":" + hasJoint
+					+ ":" + isSameVessel;
+			}
+
 			public static NodeState fromConfigNode(ConfigNode cn)
 			{
-				NodeState ret = new NodeState();
-				ConfigNode.CreateObjectFromConfig<NodeState>(cn);
+				NodeState ret = ConfigNode.CreateObjectFromConfig<NodeState>(cn);
+				return ret;
+			}
+
+			public ConfigNode toConfigNode()
+			{
+				ConfigNode ret = ConfigNode.CreateConfigFromObject(this);
+				ret.name = this.GetType().Name;
 				return ret;
 			}
 		}
 
-		public class JointState: State
+		public class JointState
 		{
-			[Persistent] public string hostState;
-			[Persistent] public string targetState;
-			[Persistent] public bool isSameVessel;
-			[Persistent] public string hostFixTo;
-			[Persistent] public string targetFixTo;
+			public DockingStateChecker checker = null;
+
+			[Persistent] public string hostState = "";
+			[Persistent] public string targetState = "";
+			[Persistent] public bool isSameVessel = false;
+			[Persistent] public string hostFixTo = "";
+			[Persistent] public string targetFixTo = "";
+
+			public static implicit operator bool(JointState s)
+			{
+				return s != null;
+			}
 
 			public JointState() { }
 
@@ -222,10 +248,28 @@ namespace DockRotate
 				this.targetFixTo = targetFixTo;
 			}
 
+			public string desc()
+			{
+				return nameof(JointState)
+					+ ":" + hostState
+					+ ":" + targetState
+					+ ":" + isSameVessel
+					+ ":" + hostFixTo
+					+ ":" + targetFixTo;
+			}
+
 			public static JointState fromConfigNode(ConfigNode cn)
 			{
-				JointState ret = new JointState();
-				ConfigNode.CreateObjectFromConfig<JointState>(cn);
+				JointState ret = ConfigNode.CreateObjectFromConfig<JointState>(cn);
+				return ret;
+			}
+
+			public ConfigNode toConfigNode()
+			{
+				ConfigNode ret = ConfigNode.CreateConfigFromObject(this);
+				ret.name = this.GetType().Name;
+				if (!fixable())
+					ret.RemoveValues("hostFixTo", "targetFixTo");
 				return ret;
 			}
 
@@ -238,28 +282,28 @@ namespace DockRotate
 			{
 				if (!fixable())
 					return null;
-				log("FIXING\n\t" + host.info() + " ->\n\t" + target.info());
+				log("FIXING\n\t" + info(host) + " ->\n\t" + info(target));
 				host.DebugFSMState = target.DebugFSMState = true;
 				if (hostFixTo != "")
-					host.setState(hostFixTo);
+					checker.setState(host, hostFixTo);
 				if (targetFixTo != "")
-					target.setState(targetFixTo);
-				log("AFTER FIX\n\t" + host.info() + " ->\n\t" + target.info());
-				JointState ret = dockingStateTable.find(host, target, isSameVessel);
+					checker.setState(target, targetFixTo);
+				log("AFTER FIX\n\t" + info(host) + " ->\n\t" + info(target));
+				JointState ret = checker.find(host, target, isSameVessel);
 				if (ret.fixable())
 					ret = null;
 				return ret;
 			}
 		};
 
-		public static bool isBadNode(this ModuleDockingNode node, bool verbose)
+		public bool isBadNode(ModuleDockingNode node, bool verbose)
 		{
 			if (!node)
 				return false;
 
 			bool foundError = false;
 			List<string> msg = new List<string>();
-			msg.Add(node.info());
+			msg.Add(info(node));
 
 			PartJoint j = node.getDockingJoint(out bool dsv, verbose);
 
@@ -267,7 +311,7 @@ namespace DockRotate
 				+ (j ? ".hasJoint" : "")
 				+ (dsv ? ".isSameVessel" : ".isTree");
 
-			if (!dockingStateTable.find(node))
+			if (!find(node))
 				msg.Add("unallowed node state " + label);
 
 			// a null vesselInfo may cause NRE later
@@ -290,7 +334,7 @@ namespace DockRotate
 			return foundError;
 		}
 
-		private static void checkDockingJoint(List<string> msg, ModuleDockingNode node, PartJoint joint, bool isSameVessel)
+		private void checkDockingJoint(List<string> msg, ModuleDockingNode node, PartJoint joint, bool isSameVessel)
 		{
 			if (!joint)
 				return;
@@ -321,7 +365,7 @@ namespace DockRotate
 				host = other;
 				target = node;
 			} else {
-				msg.Add("unrelated joint " + joint.info());
+				msg.Add("unrelated joint " + info(joint));
 				return;
 			}
 
@@ -330,12 +374,12 @@ namespace DockRotate
 				target.part.parent == host.part ? target :
 				null;
 			if (treeChild && isSameVessel)
-				msg.Add("should use tree joint " + treeChild.part.attachJoint.info());
+				msg.Add("should use tree joint " + info(treeChild.part.attachJoint));
 
 			string label = QS(host) + ">" + QS(target)
 				+ (isSameVessel ? ".isSameVessel" : ".isTree");
 
-			JointState s = dockingStateTable.find(host, target, isSameVessel);
+			JointState s = find(host, target, isSameVessel);
 			if (s && s.fixable())
 				s = s.fix(host, target);
 
@@ -353,9 +397,9 @@ namespace DockRotate
 			return node.fsm != null ? node.fsm.currentStateName : node.state;
 		}
 
-		private static void setState(this ModuleDockingNode node, string state)
+		private void setState(ModuleDockingNode node, string state)
 		{
-			if (!dockingStateTable.exists(state)) {
+			if (!exists(state)) {
 				log("setState(\"" + state + "\") not allowed");
 				return;
 			}
@@ -366,7 +410,7 @@ namespace DockRotate
 				node.fsm.StartFSM(state);
 		}
 
-		private static string info(this ModuleDockingNode node)
+		private static string info(ModuleDockingNode node)
 		{
 			if (!node)
 				return "MDN:null-node";
@@ -380,11 +424,11 @@ namespace DockRotate
 			if (node.sameVesselDockJoint)
 				ret += ":svdj=" + node.sameVesselDockJoint.GetInstanceID();
 			PartJoint dj = node.getDockingJoint(out bool dsv, false);
-			ret += ":dj=" + dj.info() + (dsv ? ":dsv" : "");
+			ret += ":dj=" + info(dj) + (dsv ? ":dsv" : "");
 			return ret;
 		}
 
-		private static string info(this PartJoint j)
+		private static string info(PartJoint j)
 		{
 			string ret = "PJ" + "[";
 			if (j) {

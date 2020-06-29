@@ -590,13 +590,13 @@ namespace DockRotate
 		public IEnumerator checkDockingStates(int waitFrames, bool verbose)
 		{
 			int thisCounter = ++dockingCheckCounter;
-
 			for (int i = 0; i < waitFrames; i++)
 				yield return new WaitForFixedUpdate();
 
 			if (thisCounter < dockingCheckCounter) {
 				log("skipping analysis, another pending");
 			} else {
+				DockingStateChecker checker = DockingStateChecker.load();
 				log((verbose ? "verbosely " : "")
 					+ "analyzing incoherent states in " + vessel.GetName());
 				List<ModuleDockingNode> dn = vessel.FindPartModulesImplementing<ModuleDockingNode>();
@@ -609,7 +609,7 @@ namespace DockRotate
 					ModuleDockRotate mdr = node.getDockRotate();
 					if (mdr)
 						mdr.showCheckDockingState(false);
-					if (node.isBadNode(verbose)) {
+					if (checker.isBadNode(node, verbose)) {
 						foundError = true;
 						node.part.SetHighlightColor(badStateColor);
 						node.part.SetHighlightType(Part.HighlightType.AlwaysOn);
