@@ -61,7 +61,8 @@ namespace DockRotate
 				new NodeState("Docked (dockee)", true, false),
 				new NodeState("Docked (dockee)", true, true),
 				new NodeState("Docked (same vessel)", true, true),
-				new NodeState("PreAttached", true, false)
+				new NodeState("PreAttached", true, false),
+				new NodeState("PreAttached", false, false)
 			};
 
 			private static readonly JointState[] allowedJointStates = new[] {
