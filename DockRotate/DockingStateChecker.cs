@@ -25,17 +25,13 @@ namespace DockRotate
 				cn = cn.GetNode(configName);
 				if (cn == null)
 					throw new Exception("can't find " + configName);
-				log("LOADED\n" + cn);
 				ret = fromConfigNode(cn);
-				log("GENERATED\n"
-					+ ret.desc() + "\n"
-					+ ret.toConfigNode());
+				log("LOADED\n" + ret.desc() + "\n");
 			} catch (Exception e) {
 				log("can't load: " + e.Message + "\n" + e.StackTrace);
 				ret = builtin();
 				ret.save();
 			}
-			log("LOADED " + ret.desc());
 			return ret;
 		}
 
@@ -65,7 +61,7 @@ namespace DockRotate
 			DockingStateChecker ret = new DockingStateChecker();
 			ret.nodeStates.AddRange(allowedNodeStates);
 			ret.jointStates.AddRange(allowedJointStates);
-			log("BUILTIN\n" + ret.toConfigNode());
+			log("BUILTIN\n" + ret.desc());
 			return ret;
 		}
 
