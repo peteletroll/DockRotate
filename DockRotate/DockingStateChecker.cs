@@ -43,7 +43,7 @@ namespace DockRotate
 			return ret;
 		}
 
-		public bool save()
+		private bool save()
 		{
 			bool ret = false;
 			try {
@@ -64,7 +64,7 @@ namespace DockRotate
 			return ret;
 		}
 
-		public static DockingStateChecker builtin()
+		private static DockingStateChecker builtin()
 		{
 			DockingStateChecker ret = new DockingStateChecker();
 			ret.nodeStates.AddRange(allowedNodeStates);
@@ -73,7 +73,7 @@ namespace DockRotate
 			return ret;
 		}
 
-		public string desc()
+		private string desc()
 		{
 			string ret = nameof(DockingStateChecker) + ":";
 			for (int i = 0; i < nodeStates.Count; i++)
@@ -107,7 +107,7 @@ namespace DockRotate
 				"Docked (docker)")
 		};
 
-		public ConfigNode toConfigNode()
+		private ConfigNode toConfigNode()
 		{
 			ConfigNode ret = ConfigNode.CreateConfigFromObject(this);
 			ret.name = configName;
@@ -121,7 +121,7 @@ namespace DockRotate
 			return ret;
 		}
 
-		public static DockingStateChecker fromConfigNode(ConfigNode cn)
+		private static DockingStateChecker fromConfigNode(ConfigNode cn)
 		{
 			DockingStateChecker ret = ConfigNode.CreateObjectFromConfig<DockingStateChecker>(cn);
 
@@ -138,7 +138,7 @@ namespace DockRotate
 			return ret;
 		}
 
-		public bool exists(string state)
+		private bool exists(string state)
 		{
 			for (int i = 0; i < nodeStates.Count; i++)
 				if (nodeStates[i].state == state)
@@ -146,7 +146,7 @@ namespace DockRotate
 			return false;
 		}
 
-		public NodeState find(ModuleDockingNode node)
+		private NodeState find(ModuleDockingNode node)
 		{
 			if (!node)
 				return null;
@@ -165,7 +165,7 @@ namespace DockRotate
 			return ret;
 		}
 
-		public JointState find(ModuleDockingNode host, ModuleDockingNode target, bool isSameVessel)
+		private JointState find(ModuleDockingNode host, ModuleDockingNode target, bool isSameVessel)
 		{
 			JointState ret = null;
 			string hostState = S(host);
@@ -451,7 +451,7 @@ namespace DockRotate
 			return ret;
 		}
 
-		public static bool log(string msg)
+		private static bool log(string msg)
 		{
 			return Extensions.log("[" + nameof(DockingStateChecker) + "] " + msg);
 		}
