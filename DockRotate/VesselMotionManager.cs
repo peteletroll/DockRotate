@@ -584,16 +584,12 @@ namespace DockRotate
 
 		private int dockingCheckCounter = 0;
 
-		private readonly static Color badStateColor = Color.red;
-		private readonly float badStateTimeout = 3f;
-
 		public IEnumerator checkDockingStates(int waitFrames, bool verbose)
 		{
 			int thisCounter = ++dockingCheckCounter;
 			for (int i = 0; i < waitFrames; i++)
 				yield return new WaitForFixedUpdate();
 
-			bool foundError = false;
 			if (thisCounter < dockingCheckCounter) {
 				log("skipping analysis, another pending");
 			} else {
@@ -604,6 +600,7 @@ namespace DockRotate
 					List<ModuleDockingNode> dn = vessel.FindPartModulesImplementing<ModuleDockingNode>();
 					dn = new List<ModuleDockingNode>(dn);
 					dn.Sort((a, b) => (int) a.part.flightID - (int) b.part.flightID);
+					bool foundError = false;
 					for (int i = 0; i < dn.Count; i++) {
 						ModuleDockingNode node = dn[i];
 						node.part.SetHighlightDefault();
@@ -612,20 +609,19 @@ namespace DockRotate
 							mdr.showCheckDockingState(false);
 						if (checker.isBadNode(node, verbose)) {
 							foundError = true;
-							node.part.SetHighlightColor(badStateColor);
+							node.part.SetHighlightColor(checker.highlightColor);
 							node.part.SetHighlightType(Part.HighlightType.AlwaysOn);
 							if (!verbose)
-								StartCoroutine(unHighlight(node.part, badStateTimeout));
+								StartCoroutine(unHighlight(node.part, checker.highlightTimeout));
 							if (mdr)
 								mdr.showCheckDockingState(true);
 						}
 					}
-				}
 
-				if (foundError)
-					ScreenMessages.PostScreenMessage(
-						Localizer.Format("#DCKROT_bad_states"),
-						badStateTimeout, ScreenMessageStyle.LOWER_CENTER, badStateColor);
+					if (foundError)
+						ScreenMessages.PostScreenMessage(Localizer.Format("#DCKROT_bad_states"),
+							checker.highlightTimeout, ScreenMessageStyle.LOWER_CENTER, checker.highlightColor);
+				}
 			}
 		}
 

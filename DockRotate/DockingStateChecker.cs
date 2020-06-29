@@ -1,11 +1,19 @@
 using System;
 using System.Collections.Generic;
+using UnityEngine;
 
 namespace DockRotate
 {
 	public class DockingStateChecker
 	{
 		private const string configName = nameof(DockingStateChecker);
+
+		[Persistent] public bool enabled = true;
+		[Persistent] public Color highlightColor = Color.red;
+		[Persistent] public float highlightTimeout = 3f;
+
+		private List<NodeState> nodeStates = new List<NodeState>();
+		private List<JointState> jointStates = new List<JointState>();
 
 		private static string configFile()
 		{
@@ -74,9 +82,6 @@ namespace DockRotate
 				ret += "\n\t" + jointStates[i].desc();
 			return ret;
 		}
-
-		private List<NodeState> nodeStates = new List<NodeState>();
-		private List<JointState> jointStates = new List<JointState>();
 
 		private static readonly NodeState[] allowedNodeStates = new[] {
 			new NodeState("Ready", false, false),
@@ -299,6 +304,8 @@ namespace DockRotate
 		public bool isBadNode(ModuleDockingNode node, bool verbose)
 		{
 			if (!node)
+				return false;
+			if (!enabled)
 				return false;
 
 			bool foundError = false;
