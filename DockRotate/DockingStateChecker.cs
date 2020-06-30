@@ -8,7 +8,8 @@ namespace DockRotate
 	{
 		private const string configName = nameof(DockingStateChecker);
 
-		[Persistent] public bool enabled = true;
+		[Persistent] public bool enabledCheck = true;
+		[Persistent] public bool enabledFix = true;
 		[Persistent] public int checkDelay = 5;
 		[Persistent] public Color highlightColor = Color.red;
 		[Persistent] public float highlightTimeout = 3f;
@@ -286,8 +287,15 @@ namespace DockRotate
 
 			public JointState fix(ModuleDockingNode host, ModuleDockingNode target)
 			{
-				if (!fixable())
+				if (checker == null || !fixable())
 					return null;
+				if (!checker.enabledFix) {
+					log("FIXABLE TO "
+						+ (hostFixTo == "" ? S(host) : hostFixTo)
+						+ " -> "
+						+ (targetFixTo == "" ? S(target) : targetFixTo));
+					return this;
+				}
 				log("FIXING\n\t" + info(host) + " ->\n\t" + info(target));
 				host.DebugFSMState = target.DebugFSMState = true;
 				if (hostFixTo != "")
@@ -306,7 +314,7 @@ namespace DockRotate
 		{
 			if (!node)
 				return false;
-			if (!enabled)
+			if (!enabledCheck)
 				return false;
 
 			bool foundError = false;
