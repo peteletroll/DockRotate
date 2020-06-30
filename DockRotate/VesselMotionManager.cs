@@ -355,7 +355,7 @@ namespace DockRotate
 
 			phase("END OFF RAILS");
 
-			scheduleDockingStatesCheck(5, false);
+			scheduleDockingStatesCheck(false);
 		}
 
 		private void RightBeforeStructureChange_JointUpdate(Vessel v)
@@ -434,7 +434,7 @@ namespace DockRotate
 			if (!deadVessel())
 				listeners().map(l => l.RightAfterStructureChange());
 			phase("END AFTER CHANGE");
-			scheduleDockingStatesCheck(5, false);
+			scheduleDockingStatesCheck(false);
 		}
 
 		public void RightAfterSameVesselDock(GameEvents.FromToAction<ModuleDockingNode, ModuleDockingNode> action)
@@ -452,7 +452,7 @@ namespace DockRotate
 			listeners(action.from.part).map(l => l.RightAfterStructureChange());
 			listeners(action.to.part).map(l => l.RightAfterStructureChange());
 			phase("END AFTER SV DOCK");
-			scheduleDockingStatesCheck(5, false);
+			scheduleDockingStatesCheck(false);
 		}
 
 		public void RightAfterSameVesselUndock(GameEvents.FromToAction<ModuleDockingNode, ModuleDockingNode> action)
@@ -470,7 +470,7 @@ namespace DockRotate
 			listeners(action.from.part).map(l => l.RightAfterStructureChange());
 			listeners(action.to.part).map(l => l.RightAfterStructureChange());
 			phase("END AFTER SV UNDOCK");
-			scheduleDockingStatesCheck(5, false);
+			scheduleDockingStatesCheck(false);
 		}
 
 		public void OnCameraChange_Kerbal(Kerbal k)
@@ -577,23 +577,25 @@ namespace DockRotate
 			setEvents(false);
 		}
 
-		public void scheduleDockingStatesCheck(int delay, bool verbose)
+		public void scheduleDockingStatesCheck(bool verbose)
 		{
-			StartCoroutine(checkDockingStates(delay, verbose));
+			StartCoroutine(checkDockingStates(verbose));
 		}
 
 		private int dockingCheckCounter = 0;
 
-		public IEnumerator checkDockingStates(int waitFrames, bool verbose)
+		public IEnumerator checkDockingStates(bool verbose)
 		{
+			DockingStateChecker checker = DockingStateChecker.load();
+			if (checker == null)
+				yield break;
 			int thisCounter = ++dockingCheckCounter;
-			for (int i = 0; i < waitFrames; i++)
+			for (int i = 0; i < checker.checkDelay; i++)
 				yield return new WaitForFixedUpdate();
 
 			if (thisCounter < dockingCheckCounter) {
 				log("skipping analysis, another pending");
 			} else {
-				DockingStateChecker checker = DockingStateChecker.load();
 				if (checker != null) {
 					log((verbose ? "verbosely " : "")
 						+ "analyzing incoherent states in " + vessel.GetName());

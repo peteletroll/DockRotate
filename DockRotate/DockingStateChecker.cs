@@ -9,6 +9,7 @@ namespace DockRotate
 		private const string configName = nameof(DockingStateChecker);
 
 		[Persistent] public bool enabled = true;
+		[Persistent] public int checkDelay = 5;
 		[Persistent] public Color highlightColor = Color.red;
 		[Persistent] public float highlightTimeout = 3f;
 

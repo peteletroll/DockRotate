@@ -278,7 +278,7 @@ namespace DockRotate
 			VesselMotionManager vmm = VesselMotionManager.get(v);
 			if (!vmm)
 				throw new Exception("can't get VesselMotionManager");
-			vmm.scheduleDockingStatesCheck(0, true);
+			vmm.scheduleDockingStatesCheck(true);
 		}
 	}
 }
