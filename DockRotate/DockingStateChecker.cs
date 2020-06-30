@@ -209,9 +209,9 @@ namespace DockRotate
 			public string desc()
 			{
 				return nameof(NodeState)
-					+ ":" + state
-					+ ":" + hasJoint
-					+ ":" + isSameVessel;
+					+ ":state=" + state
+					+ ":hasJoint=" + hasJoint
+					+ ":isSameVessel=" + isSameVessel;
 			}
 
 			public static NodeState fromConfigNode(ConfigNode cn)
@@ -258,11 +258,11 @@ namespace DockRotate
 			public string desc()
 			{
 				return nameof(JointState)
-					+ ":" + hostState
-					+ ":" + targetState
-					+ ":" + isSameVessel
-					+ ":" + hostFixTo
-					+ ":" + targetFixTo;
+					+ ":hostState=" + hostState
+					+ ":targetState=" + targetState
+					+ ":isSameVessel=" + isSameVessel
+					+ ":hostFixTo=" + hostFixTo
+					+ ":targetFixTo=" + targetFixTo;
 			}
 
 			public static JointState fromConfigNode(ConfigNode cn)
