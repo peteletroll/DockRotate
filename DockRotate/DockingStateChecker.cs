@@ -191,6 +191,7 @@ namespace DockRotate
 			[Persistent] public string state = "";
 			[Persistent] public bool hasJoint = false;
 			[Persistent] public bool isSameVessel = false;
+			[Persistent] public string nodeFixTo = "";
 
 			public static implicit operator bool(NodeState s)
 			{
@@ -199,11 +200,13 @@ namespace DockRotate
 
 			public NodeState() { }
 
-			public NodeState(string state, bool hasJoint, bool isSameVessel)
+			public NodeState(string state, bool hasJoint, bool isSameVessel,
+				string nodeFixTo = "")
 			{
 				this.state = state;
 				this.hasJoint = hasJoint;
 				this.isSameVessel = isSameVessel;
+				this.nodeFixTo = nodeFixTo;
 			}
 
 			public string desc()
@@ -211,7 +214,8 @@ namespace DockRotate
 				return nameof(NodeState)
 					+ ":state=" + state
 					+ ":hasJoint=" + hasJoint
-					+ ":isSameVessel=" + isSameVessel;
+					+ ":isSameVessel=" + isSameVessel
+					+ ":nodeFixTo=" + nodeFixTo;
 			}
 
 			public static NodeState fromConfigNode(ConfigNode cn)
@@ -224,6 +228,31 @@ namespace DockRotate
 			{
 				ConfigNode ret = ConfigNode.CreateConfigFromObject(this);
 				ret.name = this.GetType().Name;
+				if (!fixable())
+					ret.RemoveValues(nameof(nodeFixTo));
+				return ret;
+			}
+
+			public bool fixable()
+			{
+				return nodeFixTo != "";
+			}
+
+			public NodeState fix(ModuleDockingNode node)
+			{
+				if (checker == null || !fixable())
+					return null;
+				if (!checker.enabledFix) {
+					log("FIXABLE TO " + nodeFixTo);
+					return this;
+				}
+				log("FIXING\n\t" + info(node));
+				node.DebugFSMState = true;
+				checker.setState(node, nodeFixTo);
+				log("AFTER FIX\n\t" + info(node));
+				NodeState ret = checker.find(node);
+				if (ret.fixable())
+					ret = null;
 				return ret;
 			}
 		}
@@ -276,7 +305,7 @@ namespace DockRotate
 				ConfigNode ret = ConfigNode.CreateConfigFromObject(this);
 				ret.name = this.GetType().Name;
 				if (!fixable())
-					ret.RemoveValues("hostFixTo", "targetFixTo");
+					ret.RemoveValues(nameof(hostFixTo), nameof(targetFixTo));
 				return ret;
 			}
 
