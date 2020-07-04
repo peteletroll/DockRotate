@@ -622,7 +622,7 @@ namespace DockRotate
 
 					if (foundError)
 						ScreenMessages.PostScreenMessage(Localizer.Format("#DCKROT_bad_states"),
-							checker.highlightTimeout, ScreenMessageStyle.LOWER_CENTER, checker.highlightColor);
+							checker.messageTimeout, checker.messageStyle, checker.messageColor);
 				}
 			}
 		}

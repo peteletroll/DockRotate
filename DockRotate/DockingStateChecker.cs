@@ -11,8 +11,11 @@ namespace DockRotate
 		[Persistent] public bool enabledCheck = true;
 		[Persistent] public bool enabledFix = true;
 		[Persistent] public int checkDelay = 5;
+		[Persistent] public Color messageColor = Color.red;
+		[Persistent] public float messageTimeout = 3f;
+		[Persistent] public ScreenMessageStyle messageStyle = ScreenMessageStyle.UPPER_CENTER;
 		[Persistent] public Color highlightColor = Color.red;
-		[Persistent] public float highlightTimeout = 3f;
+		[Persistent] public float highlightTimeout = 5f;
 
 		private List<NodeState> nodeStates = new List<NodeState>();
 		private List<JointState> jointStates = new List<JointState>();
