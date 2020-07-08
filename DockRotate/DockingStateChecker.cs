@@ -116,6 +116,7 @@ namespace DockRotate
 		{
 			ConfigNode ret = ConfigNode.CreateConfigFromObject(this);
 			ret.name = configName;
+			ret.comment = "reloaded at every check, edits effective without restarting KSP";
 
 			for (int i = 0; i < nodeStates.Count; i++)
 				ret.AddNode(nodeStates[i].toConfigNode());
