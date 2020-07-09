@@ -42,8 +42,10 @@ namespace DockRotate
 				log("loaded\n" + ret.desc() + "\n");
 			} catch (Exception e) {
 				log("can't load: " + e.Message + "\n" + e.StackTrace);
+				log("using builtin configuration");
 				ret = builtin();
-				ret.save();
+				if (!System.IO.File.Exists(configFile()))
+					ret.save();
 			}
 			return ret;
 		}
