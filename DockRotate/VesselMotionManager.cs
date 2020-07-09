@@ -586,6 +586,8 @@ namespace DockRotate
 
 		public IEnumerator checkDockingStates(bool verbose)
 		{
+			if (!HighLogic.LoadedSceneIsFlight || vessel != FlightGlobals.ActiveVessel)
+				yield break;
 			DockingStateChecker checker = DockingStateChecker.load();
 			if (checker == null)
 				yield break;
