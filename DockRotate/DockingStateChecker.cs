@@ -234,7 +234,7 @@ namespace DockRotate
 			{
 				ConfigNode ret = ConfigNode.CreateConfigFromObject(this);
 				ret.name = this.GetType().Name;
-				ret.comment = "this undocked state is allowed";
+				ret.comment = "this node state is allowed";
 				if (!fixable())
 					ret.RemoveValues(nameof(nodeFixTo));
 				return ret;
@@ -312,9 +312,9 @@ namespace DockRotate
 				ConfigNode ret = ConfigNode.CreateConfigFromObject(this);
 				ret.name = this.GetType().Name;
 				if (fixable()) {
-					ret.comment = "this docked pair state is fixable";
+					ret.comment = "this connected pair state is fixable";
 				} else {
-					ret.comment = "this docked pair state is allowed";
+					ret.comment = "this connected pair state is allowed";
 					ret.RemoveValues(nameof(hostFixTo), nameof(targetFixTo));
 				}
 				return ret;
