@@ -73,15 +73,21 @@ namespace DockRotate
 		{
 			if (to == from)
 				return v;
-			return to.orgRot.inverse() * (from.orgRot * v);
+			// return to.orgRot.inverse() * (from.orgRot * v);
+			return Part.VesselToPartSpaceDir(
+				Part.PartToVesselSpaceDir(v, from, from.vessel, PartSpaceMode.Pristine),
+				to, to.vessel, PartSpaceMode.Pristine);
 		}
 
 		public static Vector3 STp(this Vector3 v, Part from, Part to)
 		{
 			if (to == from)
 				return v;
-			Vector3 vv = from.orgPos + from.orgRot * v;
-			return to.orgRot.inverse() * (vv - to.orgPos);
+			// Vector3 vv = from.orgPos + from.orgRot * v;
+			// return to.orgRot.inverse() * (vv - to.orgPos);
+			return Part.VesselToPartSpacePos(
+				Part.PartToVesselSpacePos(v, from, from.vessel, PartSpaceMode.Pristine),
+				to, to.vessel, PartSpaceMode.Pristine);
 		}
 	}
 }
