@@ -1,9 +1,4 @@
-using System;
-using System.Collections.Generic;
-using System.Reflection;
-using UnityEngine;
 using KSP.Localization;
-using CompoundParts;
 
 namespace DockRotate
 {
