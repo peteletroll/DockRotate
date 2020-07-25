@@ -365,7 +365,6 @@ namespace DockRotate
 		{
 			public ConfigurableJointManager cjm;
 			public Vector3 localAxis, localNode;
-			public Vector3 jointAxis, jointNode;
 			public Vector3 connectedBodyAxis, connectedBodyNode;
 		}
 		private RotJointInfo[] rji;
@@ -403,9 +402,6 @@ namespace DockRotate
 
 				ji.localAxis = axis.Td(hostPart.T(), j.T());
 				ji.localNode = node.Tp(hostPart.T(), j.T());
-
-				ji.jointAxis = ji.cjm.L2Jd(ji.localAxis);
-				ji.jointNode = ji.cjm.L2Jp(ji.localNode);
 
 				ji.connectedBodyAxis = axis.STd(hostPart, targetPart)
 					.Td(targetPart.T(), targetPart.rb.T());
