@@ -9,7 +9,6 @@ namespace DockRotate
 		private PartJoint _joint;
 
 		public PartJoint joint { get => _joint; }
-		public Vessel vessel { get => mayWork() ? _joint.Host.vessel : null; }
 
 		public Vector3 hostAxis, hostNode;
 		private Vector3 hostUp, targetUp;
@@ -81,9 +80,9 @@ namespace DockRotate
 
 		private bool mayWork()
 		{
-			bool ret = _joint
-				&& _joint.Host && _joint.Host.vessel
-				&& _joint.Target && _joint.Target.vessel;
+			bool ret = joint
+				&& joint.Host && joint.Host.vessel
+				&& joint.Target && joint.Target.vessel;
 			if (!ret)
 				_joint = null;
 			return ret;
@@ -232,7 +231,7 @@ namespace DockRotate
 		{
 			return GameSettings.MODIFIER_KEY.GetKey()
 				&& GameSettings.BRAKES.GetKeyDown()
-				&& vessel == FlightGlobals.ActiveVessel;
+				&& joint && joint.Host && joint.Host.vessel == FlightGlobals.ActiveVessel;
 		}
 
 		public void FixedUpdate()
