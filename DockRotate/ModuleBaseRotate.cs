@@ -57,7 +57,7 @@ namespace DockRotate
 			guiActiveEditor = true
 		)]
 		public string angleInfo;
-		private static string angleInfoNA;
+		private static string angleInfoNA = Localizer.Format("#DCKROT_n_a");
 
 		[UI_Toggle]
 		[KSPField(
@@ -664,8 +664,6 @@ namespace DockRotate
 			setupDoneAt = Time.frameCount;
 
 			enabled = hasJointMotion;
-
-			angleInfoNA = Localizer.Format("#DCKROT_n_a");
 		}
 
 		public void OnVesselGoOnRails()
@@ -845,10 +843,10 @@ namespace DockRotate
 
 		private void setupGroup()
 		{
-			bool collapsed = !(rotationEnabled && hasJointMotion);
+			bool expanded = hasJointMotion && (rotationEnabled || needsAlignment);
 			BasePAWGroup[] l = allGroups(GROUPNAME);
 			for (int i = 0; i < l.Length; i++)
-				l[i].startCollapsed = collapsed;
+				l[i].startCollapsed = !expanded;
 		}
 
 		private BasePAWGroup[] allGroups(string name)
