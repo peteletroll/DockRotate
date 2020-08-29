@@ -10,8 +10,8 @@ namespace DockRotate
 	public abstract class ModuleBaseRotate: PartModule,
 		IJointLockState, IStructureChangeListener, IResourceConsumer
 	{
-		protected const string GROUP = "DockRotate";
-		protected const string GROUPNAME = "#DCKROT_rotation";
+		protected const string GROUPNAME = "DockRotate";
+		protected const string GROUPLABEL = "#DCKROT_rotation";
 		protected const string DEBUGGROUP = "DockRotateDebug";
 #if DEBUG
 		protected const bool DEBUGMODE = true;
@@ -50,8 +50,8 @@ namespace DockRotate
 
 		[KSPField(
 			guiName = "#DCKROT_angle",
-			groupName = GROUP,
-			groupDisplayName = GROUPNAME,
+			groupName = GROUPNAME,
+			groupDisplayName = GROUPLABEL,
 			groupStartCollapsed = true,
 			guiActive = true,
 			guiActiveEditor = true
@@ -61,8 +61,8 @@ namespace DockRotate
 
 		[UI_Toggle]
 		[KSPField(
-			groupName = GROUP,
-			groupDisplayName = GROUPNAME,
+			groupName = GROUPNAME,
+			groupDisplayName = GROUPLABEL,
 			groupStartCollapsed = true,
 			guiName = "#DCKROT_rotation",
 			guiActive = true,
@@ -77,8 +77,8 @@ namespace DockRotate
 			minValue = 0f, maxValue = 360f
 		)]
 		[KSPField(
-			groupName = GROUP,
-			groupDisplayName = GROUPNAME,
+			groupName = GROUPNAME,
+			groupDisplayName = GROUPLABEL,
 			groupStartCollapsed = true,
 			guiActive = true,
 			guiActiveEditor = true,
@@ -94,8 +94,8 @@ namespace DockRotate
 			minValue = 1, maxValue = 8f * 360f
 		)]
 		[KSPField(
-			groupName = GROUP,
-			groupDisplayName = GROUPNAME,
+			groupName = GROUPNAME,
+			groupDisplayName = GROUPLABEL,
 			groupStartCollapsed = true,
 			guiActive = true,
 			guiActiveEditor = true,
@@ -107,8 +107,8 @@ namespace DockRotate
 
 		[UI_Toggle(affectSymCounterparts = UI_Scene.None)]
 		[KSPField(
-			groupName = GROUP,
-			groupDisplayName = GROUPNAME,
+			groupName = GROUPNAME,
+			groupDisplayName = GROUPLABEL,
 			groupStartCollapsed = true,
 			guiActive = true,
 			guiActiveEditor = true,
@@ -120,8 +120,8 @@ namespace DockRotate
 
 		[UI_Toggle]
 		[KSPField(
-			groupName = GROUP,
-			groupDisplayName = GROUPNAME,
+			groupName = GROUPNAME,
+			groupDisplayName = GROUPLABEL,
 			groupStartCollapsed = true,
 			guiActive = true,
 			guiActiveEditor = true,
@@ -254,8 +254,8 @@ namespace DockRotate
 
 		[KSPEvent(
 			guiName = "#DCKROT_rotate_clockwise",
-			groupName = GROUP,
-			groupDisplayName = GROUP,
+			groupName = GROUPNAME,
+			groupDisplayName = GROUPLABEL,
 			groupStartCollapsed = true,
 			guiActive = false,
 			guiActiveEditor = false,
@@ -283,8 +283,8 @@ namespace DockRotate
 
 		[KSPEvent(
 			guiName = "#DCKROT_rotate_counterclockwise",
-			groupName = GROUP,
-			groupDisplayName = GROUP,
+			groupName = GROUPNAME,
+			groupDisplayName = GROUPLABEL,
 			groupStartCollapsed = true,
 			guiActive = false,
 			guiActiveEditor = false,
@@ -308,8 +308,8 @@ namespace DockRotate
 
 		[KSPEvent(
 			guiName = "#DCKROT_rotate_to_snap",
-			groupName = GROUP,
-			groupDisplayName = GROUP,
+			groupName = GROUPNAME,
+			groupDisplayName = GROUPLABEL,
 			groupStartCollapsed = true,
 			guiActive = false,
 			guiActiveEditor = false,
@@ -334,8 +334,8 @@ namespace DockRotate
 		private BaseEvent StopRotationEvent;
 		[KSPEvent(
 			guiName = "#DCKROT_stop_rotation",
-			groupName = GROUP,
-			groupDisplayName = GROUP,
+			groupName = GROUPNAME,
+			groupDisplayName = GROUPLABEL,
 			groupStartCollapsed = true,
 			guiActive = false,
 			guiActiveEditor = false,
@@ -846,7 +846,7 @@ namespace DockRotate
 		private void setupGroup()
 		{
 			bool collapsed = !(rotationEnabled && hasJointMotion);
-			BasePAWGroup[] l = allGroups(GROUP);
+			BasePAWGroup[] l = allGroups(GROUPNAME);
 			for (int i = 0; i < l.Length; i++)
 				l[i].startCollapsed = collapsed;
 		}
