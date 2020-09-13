@@ -449,8 +449,17 @@ namespace DockRotate
 				return;
 			log(vessel.desc(), ": same vessel dock " + action.from.state + " -> " + action.to.state);
 			phase("BEGIN AFTER SV DOCK");
-			listeners(action.from.part).map(l => l.RightAfterStructureChange());
-			listeners(action.to.part).map(l => l.RightAfterStructureChange());
+			if (rotCount != 0) {
+				log(desc(), ": same vessel dock, rotCount = " + rotCount);
+				bool isSameVessel;
+				log(desc(), ": from: " + action.from.getDockingJoint(out isSameVessel, true));
+				log(desc(), ": to: " + action.to.getDockingJoint(out isSameVessel, true));
+				listeners(action.from.part).map(l => l.RightAfterStructureChange());
+				listeners(action.to.part).map(l => l.RightAfterStructureChange());
+			} else {
+				listeners(action.from.part).map(l => l.RightAfterStructureChange());
+				listeners(action.to.part).map(l => l.RightAfterStructureChange());
+			}
 			phase("END AFTER SV DOCK");
 			scheduleDockingStatesCheck(false);
 		}
