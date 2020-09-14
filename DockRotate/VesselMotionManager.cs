@@ -342,12 +342,6 @@ namespace DockRotate
 
 			get(v);
 
-			List<InternalModel> im = vessel.FindPartModulesImplementing<InternalModel>();
-			for (int i = 0; i < im.Count; i++) {
-				log(desc(), ": InternalModel[" + i + "] " + im[i] + " in " + im[i].part.desc());
-				log(desc(), im[i].transform.desc(10));
-			}
-
 			resetRotCount();
 			structureChangeInfo.reset("OffRails");
 			onRails = false;
