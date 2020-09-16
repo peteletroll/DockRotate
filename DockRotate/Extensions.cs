@@ -212,9 +212,10 @@ namespace DockRotate
 					ret.sameParts(ret.Target.attachJoint) ? ret.Target.attachJoint :
 					null;
 				if (tmp) {
-					if (verbose)
-						log(node.part.desc(), ".getDockingJoint(): svj " + ret.desc()
-							+ " overruled by " + tmp.desc());
+					log(node.part.desc(), ".getDockingJoint(): svj " + ret.desc()
+						+ " overruled by " + tmp.desc());
+					ret = tmp;
+					isSameVessel = false;
 				}
 				return ret;
 			}
