@@ -111,7 +111,11 @@ namespace DockRotate
 			new JointState("Docked (same vessel)", "Docked (dockee)", true),
 
 			new JointState("Docked (dockee)", "Docked (dockee)", false,
-				"Docked (docker)")
+				"Docked (docker)", ""),
+			new JointState("Docked (same vessel)", "Docked (dockee)", false,
+				"Docked (docker)", ""),
+			new JointState("Docked (dockee)", "Docked (same vessel)", false,
+				"", "Docked (docker)"),
 		};
 
 		private ConfigNode toConfigNode()
