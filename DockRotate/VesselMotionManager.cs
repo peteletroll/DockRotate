@@ -616,10 +616,7 @@ namespace DockRotate
 							mdr.showCheckDockingState(false);
 						if (checker.isBadNode(node, verbose)) {
 							foundError = true;
-							node.part.SetHighlightColor(checker.highlightColor);
-							node.part.SetHighlightType(Part.HighlightType.AlwaysOn);
-							if (!verbose)
-								StartCoroutine(unHighlight(node.part, checker.highlightTimeout));
+							checker.flash(node.part, checker.highlightColor);
 							if (mdr)
 								mdr.showCheckDockingState(true);
 						}
@@ -630,12 +627,6 @@ namespace DockRotate
 							checker.messageTimeout, checker.messageStyle, checker.messageColor);
 				}
 			}
-		}
-
-		public IEnumerator unHighlight(Part p, float waitSeconds)
-		{
-			yield return new WaitForSeconds(waitSeconds);
-			p.SetHighlightDefault();
 		}
 
 		private string desc()

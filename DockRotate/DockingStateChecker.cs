@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -248,24 +249,6 @@ namespace DockRotate
 			{
 				return nodeFixTo != "";
 			}
-
-			public NodeState fix(ModuleDockingNode node)
-			{
-				if (checker == null || !fixable())
-					return null;
-				if (!checker.enabledFix) {
-					log("FIXABLE TO " + nodeFixTo);
-					return this;
-				}
-				log("FIXING\n\t" + info(node));
-				node.DebugFSMState = true;
-				checker.setState(node, nodeFixTo);
-				log("AFTER FIX\n\t" + info(node));
-				NodeState ret = checker.find(node);
-				if (ret.fixable())
-					ret = null;
-				return ret;
-			}
 		}
 
 		public class JointState
@@ -350,6 +333,10 @@ namespace DockRotate
 				JointState ret = checker.find(host, target, isSameVessel);
 				if (ret.fixable())
 					ret = null;
+				if (ret) {
+					checker.flash(host.part, Color.yellow);
+					checker.flash(target.part, Color.yellow);
+				}
 				return ret;
 			}
 		};
@@ -502,6 +489,24 @@ namespace DockRotate
 			}
 			ret += "]";
 			return ret;
+		}
+
+		public void flash(Part part, Color color)
+		{
+			flash(part, color, highlightTimeout);
+		}
+
+		public void flash(Part part, Color color, float timeOut)
+		{
+			part.SetHighlightColor(color);
+			part.SetHighlightType(Part.HighlightType.AlwaysOn);
+			part.StartCoroutine(unHighlight(part, timeOut));
+		}
+
+		public IEnumerator unHighlight(Part p, float waitSeconds)
+		{
+			yield return new WaitForSeconds(waitSeconds);
+			p.SetHighlightDefault();
 		}
 
 		private static bool log(string msg)
