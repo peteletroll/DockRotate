@@ -604,27 +604,10 @@ namespace DockRotate
 				if (checker != null) {
 					log((verbose ? "verbosely " : "")
 						+ "analyzing incoherent states in " + vessel.GetName());
-					List<ModuleDockingNode> dn = vessel.FindPartModulesImplementing<ModuleDockingNode>();
-					dn = new List<ModuleDockingNode>(dn);
-					dn.Sort((a, b) => (int) a.part.flightID - (int) b.part.flightID);
-					bool foundError = false;
-					for (int i = 0; i < dn.Count; i++) {
-						ModuleDockingNode node = dn[i];
-						node.part.SetHighlightDefault();
-						ModuleDockRotate mdr = node.getDockRotate();
-						if (mdr)
-							mdr.showCheckDockingState(false);
-						if (checker.isBadNode(node, verbose)) {
-							foundError = true;
-							checker.flash(node.part, checker.highlightColor);
-							if (mdr)
-								mdr.showCheckDockingState(true);
-						}
-					}
-
+					bool foundError = checker.checkVessel(vessel, verbose);
 					if (foundError)
 						ScreenMessages.PostScreenMessage(Localizer.Format("#DCKROT_bad_states"),
-							checker.messageTimeout, checker.messageStyle, checker.messageColor);
+							checker.messageTimeout, checker.messageStyle, checker.colorBad);
 				}
 			}
 		}

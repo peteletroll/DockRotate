@@ -12,10 +12,10 @@ namespace DockRotate
 		[Persistent] public bool enabledCheck = true;
 		[Persistent] public bool enabledFix = true;
 		[Persistent] public int checkDelay = 5;
-		[Persistent] public Color messageColor = Color.red;
 		[Persistent] public float messageTimeout = 3f;
 		[Persistent] public ScreenMessageStyle messageStyle = ScreenMessageStyle.UPPER_CENTER;
-		[Persistent] public Color highlightColor = Color.red;
+		[Persistent] public Color colorBad = Color.red;
+		[Persistent] public Color colorFixed = Color.yellow;
 		[Persistent] public float highlightTimeout = 5f;
 
 		private List<NodeState> nodeStates = new List<NodeState>();
@@ -199,6 +199,38 @@ namespace DockRotate
 			return ret;
 		}
 
+		public bool checkVessel(Vessel vessel, bool verbose)
+		{
+			List<ModuleDockingNode> dn = vessel.FindPartModulesImplementing<ModuleDockingNode>();
+			dn = new List<ModuleDockingNode>(dn);
+			dn.Sort((a, b) => (int) a.part.flightID - (int) b.part.flightID);
+			bool foundError = false;
+			for (int i = 0; i < dn.Count; i++) {
+				ModuleDockingNode node = dn[i];
+				if (checkNode(node, verbose))
+					foundError = true;
+			}
+			return foundError;
+		}
+
+		public bool checkNode(ModuleDockingNode node, bool verbose)
+		{
+			if (!node)
+				return false;
+			node.part.SetHighlightDefault();
+			ModuleDockRotate mdr = node.getDockRotate();
+			bool foundError = false;
+			if (mdr)
+				mdr.showCheckDockingState(false);
+			if (isBadNode(node, verbose)) {
+				foundError = true;
+				flash(node.part, colorBad);
+				if (mdr)
+					mdr.showCheckDockingState(true);
+			}
+			return foundError;
+		}
+
 		public class NodeState
 		{
 			public DockingStateChecker checker = null;
@@ -338,8 +370,8 @@ namespace DockRotate
 				if (ret.fixable())
 					ret = null;
 				if (ret) {
-					checker.flash(host.part, Color.yellow);
-					checker.flash(target.part, Color.yellow);
+					checker.flash(host.part, checker.colorFixed);
+					checker.flash(target.part, checker.colorFixed);
 				}
 				return ret;
 			}
@@ -509,7 +541,7 @@ namespace DockRotate
 			part.StartCoroutine(unHighlight(part, timeOut));
 		}
 
-		public IEnumerator unHighlight(Part p, float waitSeconds)
+		private IEnumerator unHighlight(Part p, float waitSeconds)
 		{
 			yield return new WaitForSeconds(waitSeconds);
 			p.SetHighlightDefault();
