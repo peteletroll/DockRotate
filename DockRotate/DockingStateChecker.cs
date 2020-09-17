@@ -204,18 +204,23 @@ namespace DockRotate
 			List<ModuleDockingNode> dn = vessel.FindPartModulesImplementing<ModuleDockingNode>();
 			dn = new List<ModuleDockingNode>(dn);
 			dn.Sort((a, b) => (int) a.part.flightID - (int) b.part.flightID);
+			Result result = new Result();
 			bool foundError = false;
 			for (int i = 0; i < dn.Count; i++) {
 				ModuleDockingNode node = dn[i];
-				if (checkNode(node, verbose))
+				if (checkNode(result, node, verbose))
 					foundError = true;
 			}
 			return foundError;
 		}
 
-		public bool checkNode(ModuleDockingNode node, bool verbose)
+		public bool checkNode(Result result, ModuleDockingNode node, bool verbose)
 		{
+			if (result == null)
+				result = new Result();
 			if (!node)
+				return false;
+			if (!result.addNode(node))
 				return false;
 			if (!enabledCheck)
 				return false;
@@ -242,7 +247,7 @@ namespace DockRotate
 				msg.Add("null vesselInfo");
 
 			if (j)
-				checkDockingJoint(msg, node, j, dsv);
+				checkDockingJoint(result, msg, node, j, dsv);
 
 			bool foundError = false;
 			if (msg.Count > 1) {
@@ -260,6 +265,34 @@ namespace DockRotate
 					mdr.showCheckDockingState(true);
 			}
 			return foundError;
+		}
+
+		public class Result {
+			private HashSet<string> chk = new HashSet<string>();
+
+			public bool addNode(ModuleDockingNode node)
+			{
+				string key = node.part.flightID + "|*";
+				return add(key);
+			}
+
+			public bool addP(ModuleDockingNode node1, ModuleDockingNode node2)
+			{
+				uint id1 = node1.part.flightID;
+				uint id2 = node2.part.flightID;
+				string key = id1 < id2 ? id1 + "|" + id2 : id2 + "|" + id1;
+				return add(key);
+			}
+
+			private bool add(string key) {
+				if (chk.Contains(key)) {
+					// log("REPEATED " + key);
+					return false;
+				}
+				log("CHECKING " + key);
+				chk.Add(key);
+				return true;
+			}
 		}
 
 		public class NodeState
@@ -408,7 +441,7 @@ namespace DockRotate
 			}
 		};
 
-		private void checkDockingJoint(List<string> msg, ModuleDockingNode node, PartJoint joint, bool isSameVessel)
+		private void checkDockingJoint(Result result, List<string> msg, ModuleDockingNode node, PartJoint joint, bool isSameVessel)
 		{
 			if (!joint)
 				return;
@@ -430,6 +463,9 @@ namespace DockRotate
 				msg.Add("no other");
 				return;
 			}
+
+			if (!result.addP(node, other))
+				return;
 
 			ModuleDockingNode host, target;
 			if (node.part == joint.Host && other.part == joint.Target) {

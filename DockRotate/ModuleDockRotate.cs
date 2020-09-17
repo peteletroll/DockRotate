@@ -51,7 +51,7 @@ namespace DockRotate
 			DockingStateChecker checker = DockingStateChecker.load();
 			if (checker == null)
 				return;
-			checker.checkNode(dockingNode, true);
+			checker.checkNode(null, dockingNode, true);
 		}
 
 		public void showCheckDockingState(bool active)
