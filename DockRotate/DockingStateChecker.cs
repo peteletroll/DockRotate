@@ -445,7 +445,9 @@ namespace DockRotate
 
 		private static string S(ModuleDockingNode node)
 		{
-			return node.fsm != null ? node.fsm.currentStateName : node.state;
+			if (node.fsm != null && node.fsm.currentStateName != "")
+				return node.fsm.currentStateName;
+			return node.state;
 		}
 
 		private void setState(ModuleDockingNode node, string state)

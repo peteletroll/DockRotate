@@ -170,6 +170,7 @@ namespace DockRotate
 				other = node.FindOtherNode();
 				if (other) {
 					log(label, ".getDockedNode(): other found " + other.part.desc()
+						+ " with dockedPartUId = " + other.dockedPartUId
 						+ " from id = " + node.dockedPartUId);
 					node.otherNode = other; // this fixes a ModuleDockingNode bug
 				}
@@ -239,6 +240,10 @@ namespace DockRotate
 
 			if (verbose)
 				log(node.part.desc(), ".getDockingJoint(): nothing");
+			if (node && node.dockedPartUId > 0)
+				log(node.part.desc(), ": should reset dockedPartUId = " + node.dockedPartUId);
+			if (node && node.otherNode)
+				log(node.part.desc(), ": should reset otherNode = " + node.otherNode.part.desc());
 			return null;
 		}
 
