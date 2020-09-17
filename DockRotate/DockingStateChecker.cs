@@ -293,10 +293,10 @@ namespace DockRotate
 
 			private bool add(string key) {
 				if (chk.Contains(key)) {
-					log("REPEATED " + key);
+					// log("REPEATED " + key);
 					return false;
 				}
-				log("CHECKING " + key);
+				// log("CHECKING " + key);
 				chk.Add(key);
 				return true;
 			}
@@ -494,7 +494,7 @@ namespace DockRotate
 				if (enabledFix) {
 					s = s.fix(result, host, target);
 				} else {
-					log("FIXABLE " + host.part.flightID + ">" + target.part.flightID);
+					// log("FIXABLE " + host.part.flightID + ">" + target.part.flightID);
 					flash(result, host.part, colorFixable);
 					flash(result, target.part, colorFixable);
 					s = null;
@@ -572,7 +572,7 @@ namespace DockRotate
 
 		private void flash(Part part, Color color)
 		{
-			log("FLASH " + part.flightID + " " + color);
+			// log("FLASH " + part.flightID + " " + color);
 			part.SetHighlightColor(color);
 			part.SetHighlightType(Part.HighlightType.AlwaysOn);
 			part.StartCoroutine(unHighlight(part, highlightTimeout));
