@@ -443,13 +443,6 @@ namespace DockRotate
 				return;
 			}
 
-			ModuleDockingNode treeChild =
-				host.part.parent == target.part ? host :
-				target.part.parent == host.part ? target :
-				null;
-			if (treeChild && isSameVessel)
-				msg.Add("should use tree joint " + info(treeChild.part.attachJoint));
-
 			string label = QS(host) + ">" + QS(target)
 				+ (isSameVessel ? ".isSameVessel" : ".isTree");
 
