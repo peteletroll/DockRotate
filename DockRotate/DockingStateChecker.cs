@@ -448,7 +448,8 @@ namespace DockRotate
 
 			JointState s = find(host, target, isSameVessel);
 			if (s && s.fixable())
-				s = s.fix(host, target);
+				s = enabledFix ? s.fix(host, target) : null;
+
 
 			if (!s)
 				msg.Add("unallowed couple state " + label);
@@ -513,16 +514,11 @@ namespace DockRotate
 			return ret;
 		}
 
-		public void flash(Part part, Color color)
-		{
-			flash(part, color, highlightTimeout);
-		}
-
-		public void flash(Part part, Color color, float timeOut)
+		private void flash(Part part, Color color)
 		{
 			part.SetHighlightColor(color);
 			part.SetHighlightType(Part.HighlightType.AlwaysOn);
-			part.StartCoroutine(unHighlight(part, timeOut));
+			part.StartCoroutine(unHighlight(part, highlightTimeout));
 		}
 
 		private IEnumerator unHighlight(Part p, float waitSeconds)
