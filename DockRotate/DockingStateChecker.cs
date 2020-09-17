@@ -217,13 +217,44 @@ namespace DockRotate
 		{
 			if (!node)
 				return false;
+			if (!enabledCheck)
+				return false;
 			node.part.SetHighlightDefault();
 			ModuleDockRotate mdr = node.getDockRotate();
-			bool foundError = false;
 			if (mdr)
 				mdr.showCheckDockingState(false);
-			if (isBadNode(node, verbose)) {
+
+			List<string> msg = new List<string>();
+			msg.Add(info(node));
+
+			PartJoint j = node.getDockingJoint(out bool dsv, verbose);
+
+			string label = QS(node)
+				+ (j ? ".hasJoint" : "")
+				+ (dsv ? ".isSameVessel" : ".isTree");
+
+			if (!find(node))
+				msg.Add("unallowed node state " + label);
+
+			// a null vesselInfo may cause NRE later
+			if (j && j.Host == node.part && node.vesselInfo == null
+				&& S(node) != "PreAttached" && S(node) != "Docked (same vessel)")
+				msg.Add("null vesselInfo");
+
+			if (j)
+				checkDockingJoint(msg, node, j, dsv);
+
+			bool foundError = false;
+			if (msg.Count > 1) {
 				foundError = true;
+			} else if (verbose) {
+				msg.Add("is ok");
+			}
+
+			if (msg.Count > 1)
+				log(String.Join(",\n\t", msg.ToArray()));
+
+			if (foundError) {
 				flash(node.part, colorBad);
 				if (mdr)
 					mdr.showCheckDockingState(true);
@@ -376,46 +407,6 @@ namespace DockRotate
 				return ret;
 			}
 		};
-
-		public bool isBadNode(ModuleDockingNode node, bool verbose)
-		{
-			if (!node)
-				return false;
-			if (!enabledCheck)
-				return false;
-
-			bool foundError = false;
-			List<string> msg = new List<string>();
-			msg.Add(info(node));
-
-			PartJoint j = node.getDockingJoint(out bool dsv, verbose);
-
-			string label = QS(node)
-				+ (j ? ".hasJoint" : "")
-				+ (dsv ? ".isSameVessel" : ".isTree");
-
-			if (!find(node))
-				msg.Add("unallowed node state " + label);
-
-			// a null vesselInfo may cause NRE later
-			if (j && j.Host == node.part && node.vesselInfo == null
-				&& S(node) != "PreAttached" && S(node) != "Docked (same vessel)")
-				msg.Add("null vesselInfo");
-
-			if (j)
-				checkDockingJoint(msg, node, j, dsv);
-
-			if (msg.Count > 1) {
-				foundError = true;
-			} else if (verbose) {
-				msg.Add("is ok");
-			}
-
-			if (msg.Count > 1)
-				log(String.Join(",\n\t", msg.ToArray()));
-
-			return foundError;
-		}
 
 		private void checkDockingJoint(List<string> msg, ModuleDockingNode node, PartJoint joint, bool isSameVessel)
 		{

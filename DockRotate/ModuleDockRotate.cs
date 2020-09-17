@@ -46,11 +46,11 @@ namespace DockRotate
 				DockingStateChecker checker = DockingStateChecker.load();
 				if (checker == null)
 					return;
-				checker.isBadNode(dockingNode, true);
+				checker.checkNode(dockingNode, true);
 				ModuleDockingNode other = dockingNode.getDockedNode(false);
 				if (other) {
 					log(other.part.desc(), ": DOCKING STATE CHECK - OTHER");
-					checker.isBadNode(other, true);
+					checker.checkNode(other, true);
 				}
 			}
 		}
