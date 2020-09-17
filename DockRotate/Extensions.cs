@@ -172,7 +172,6 @@ namespace DockRotate
 					log(label, ".getDockedNode(): other found " + other.part.desc()
 						+ " with dockedPartUId = " + other.dockedPartUId
 						+ " from id = " + node.dockedPartUId);
-					node.otherNode = other; // this fixes a ModuleDockingNode bug
 				}
 			}
 			if (!other && verbose)
@@ -218,33 +217,31 @@ namespace DockRotate
 					ret = tmp;
 					isSameVessel = false;
 				}
-				return ret;
 			}
 
-			if (node.part.parent == other.part) {
+			if (!ret && node.part.parent == other.part) {
 				ret = node.part.attachJoint;
 				if (verbose)
 					log(node.part.desc(), ".getDockingJoint(): to parent " + ret.desc());
 				return ret;
 			}
 
-			for (int i = 0; i < node.part.children.Count; i++) {
+			for (int i = 0; !ret && i < node.part.children.Count; i++) {
 				Part child = node.part.children[i];
 				if (child == other.part) {
 					ret = child.attachJoint;
 					if (verbose)
 						log(node.part.desc(), ".getDockingJoint(): to child " + ret.desc());
-					return ret;
 				}
 			}
 
-			if (verbose)
+			if (ret && other && !node.otherNode) {
+				log(node.part.desc(), ": setting otherNode = " + other.part.desc());
+				node.otherNode = other; // this fixes a ModuleDockingNode bug
+			}
+			if (!ret && verbose)
 				log(node.part.desc(), ".getDockingJoint(): nothing");
-			if (node && node.dockedPartUId > 0)
-				log(node.part.desc(), ": should reset dockedPartUId = " + node.dockedPartUId);
-			if (node && node.otherNode)
-				log(node.part.desc(), ": should reset otherNode = " + node.otherNode.part.desc());
-			return null;
+			return ret;
 		}
 
 		public static ModuleDockRotate getDockRotate(this ModuleDockingNode node)
