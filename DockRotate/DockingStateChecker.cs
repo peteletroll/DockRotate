@@ -15,6 +15,7 @@ namespace DockRotate
 		[Persistent] public float messageTimeout = 3f;
 		[Persistent] public ScreenMessageStyle messageStyle = ScreenMessageStyle.UPPER_CENTER;
 		[Persistent] public Color colorBad = Color.red;
+		[Persistent] public Color colorFixable = 0.5f * (Color.red + Color.yellow);
 		[Persistent] public Color colorFixed = Color.yellow;
 		[Persistent] public float highlightTimeout = 5f;
 
@@ -201,30 +202,31 @@ namespace DockRotate
 
 		public bool checkVessel(Vessel vessel, bool verbose)
 		{
+			if (!enabledCheck)
+				return false;
 			List<ModuleDockingNode> dn = vessel.FindPartModulesImplementing<ModuleDockingNode>();
 			dn = new List<ModuleDockingNode>(dn);
 			dn.Sort((a, b) => (int) a.part.flightID - (int) b.part.flightID);
 			Result result = new Result();
 			bool foundError = false;
-			for (int i = 0; i < dn.Count; i++) {
-				ModuleDockingNode node = dn[i];
-				if (checkNode(result, node, verbose))
+			for (int i = 0; i < dn.Count; i++)
+				dn[i].part.SetHighlightDefault();
+			for (int i = 0; i < dn.Count; i++)
+				if (checkNode(result, dn[i], verbose))
 					foundError = true;
-			}
 			return foundError;
 		}
 
 		public bool checkNode(Result result, ModuleDockingNode node, bool verbose)
 		{
-			if (result == null)
-				result = new Result();
-			if (!node)
-				return false;
-			if (!result.addNode(node))
-				return false;
 			if (!enabledCheck)
 				return false;
-			node.part.SetHighlightDefault();
+			if (!node)
+				return false;
+			if (result == null)
+				result = new Result();
+			if (!result.addNode(node))
+				return false;
 			ModuleDockRotate mdr = node.getDockRotate();
 			if (mdr)
 				mdr.showCheckDockingState(false);
@@ -233,6 +235,8 @@ namespace DockRotate
 			msg.Add(info(node));
 
 			PartJoint j = node.getDockingJoint(out bool dsv, verbose);
+			if (j)
+				checkDockingJoint(result, msg, node, j, dsv);
 
 			string label = QS(node)
 				+ (j ? ".hasJoint" : "")
@@ -246,9 +250,6 @@ namespace DockRotate
 				&& S(node) != "PreAttached" && S(node) != "Docked (same vessel)")
 				msg.Add("null vesselInfo");
 
-			if (j)
-				checkDockingJoint(result, msg, node, j, dsv);
-
 			bool foundError = false;
 			if (msg.Count > 1) {
 				foundError = true;
@@ -260,7 +261,7 @@ namespace DockRotate
 				log(String.Join(",\n\t", msg.ToArray()));
 
 			if (foundError) {
-				flash(node.part, colorBad);
+				flash(result, node.part, colorBad);
 				if (mdr)
 					mdr.showCheckDockingState(true);
 			}
@@ -270,13 +271,19 @@ namespace DockRotate
 		public class Result {
 			private HashSet<string> chk = new HashSet<string>();
 
+			public bool addFlash(Part part)
+			{
+				string key = part.flightID + "!";
+				return add(key);
+			}
+
 			public bool addNode(ModuleDockingNode node)
 			{
 				string key = node.part.flightID + "|*";
 				return add(key);
 			}
 
-			public bool addP(ModuleDockingNode node1, ModuleDockingNode node2)
+			public bool addPair(ModuleDockingNode node1, ModuleDockingNode node2)
 			{
 				uint id1 = node1.part.flightID;
 				uint id2 = node2.part.flightID;
@@ -286,7 +293,7 @@ namespace DockRotate
 
 			private bool add(string key) {
 				if (chk.Contains(key)) {
-					// log("REPEATED " + key);
+					log("REPEATED " + key);
 					return false;
 				}
 				log("CHECKING " + key);
@@ -412,7 +419,7 @@ namespace DockRotate
 				return hostFixTo != "" || targetFixTo != "";
 			}
 
-			public JointState fix(ModuleDockingNode host, ModuleDockingNode target)
+			public JointState fix(Result result, ModuleDockingNode host, ModuleDockingNode target)
 			{
 				if (checker == null || !fixable())
 					return null;
@@ -434,8 +441,8 @@ namespace DockRotate
 				if (ret.fixable())
 					ret = null;
 				if (ret) {
-					checker.flash(host.part, checker.colorFixed);
-					checker.flash(target.part, checker.colorFixed);
+					checker.flash(result, host.part, checker.colorFixed);
+					checker.flash(result, target.part, checker.colorFixed);
 				}
 				return ret;
 			}
@@ -464,7 +471,7 @@ namespace DockRotate
 				return;
 			}
 
-			if (!result.addP(node, other))
+			if (!result.addPair(node, other))
 				return;
 
 			ModuleDockingNode host, target;
@@ -483,9 +490,16 @@ namespace DockRotate
 				+ (isSameVessel ? ".isSameVessel" : ".isTree");
 
 			JointState s = find(host, target, isSameVessel);
-			if (s && s.fixable())
-				s = enabledFix ? s.fix(host, target) : null;
-
+			if (s && s.fixable()) {
+				if (enabledFix) {
+					s = s.fix(result, host, target);
+				} else {
+					log("FIXABLE " + host.part.flightID + ">" + target.part.flightID);
+					flash(result, host.part, colorFixable);
+					flash(result, target.part, colorFixable);
+					s = null;
+				}
+			}
 
 			if (!s)
 				msg.Add("unallowed couple state " + label);
@@ -550,8 +564,15 @@ namespace DockRotate
 			return ret;
 		}
 
+		private void flash(Result result, Part part, Color color)
+		{
+			if (result.addFlash(part))
+				flash(part, color);
+		}
+
 		private void flash(Part part, Color color)
 		{
+			log("FLASH " + part.flightID + " " + color);
 			part.SetHighlightColor(color);
 			part.SetHighlightType(Part.HighlightType.AlwaysOn);
 			part.StartCoroutine(unHighlight(part, highlightTimeout));
