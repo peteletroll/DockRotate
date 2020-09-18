@@ -158,7 +158,7 @@ namespace DockRotate
 				}
 			}
 
-			return dockingNode.getDockingJoint(out bool isSameVessel, verbose);
+			return dockingNode.getDockingJoint(verbose);
 		}
 
 		private static bool consoleSetupDone = false;

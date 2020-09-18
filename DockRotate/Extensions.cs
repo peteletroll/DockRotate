@@ -179,10 +179,9 @@ namespace DockRotate
 			return other;
 		}
 
-		public static PartJoint getDockingJoint(this ModuleDockingNode node, out bool isSameVessel, bool verbose)
+		public static PartJoint getDockingJoint(this ModuleDockingNode node, bool verbose)
 		{
 			PartJoint ret = null;
-			isSameVessel = false;
 
 			ModuleDockingNode other = node.getDockedNode(verbose);
 			if (!other)
@@ -193,7 +192,6 @@ namespace DockRotate
 				if (verbose)
 					log(node.part.desc(), ".getDockingJoint(): to same vessel " + tmp.desc());
 				ret = tmp;
-				isSameVessel = true;
 			}
 
 			tmp = other.sameVesselDockJoint;
@@ -201,7 +199,6 @@ namespace DockRotate
 				if (verbose)
 					log(node.part.desc(), ".getDockingJoint(): from same vessel " + tmp.desc());
 				ret = tmp;
-				isSameVessel = true;
 			}
 
 			if (ret) {
@@ -216,7 +213,6 @@ namespace DockRotate
 						log(node.part.desc(), ".getDockingJoint(): svj " + ret.desc()
 							+ " overruled by " + tmp.desc());
 					ret = tmp;
-					isSameVessel = false;
 				}
 			}
 

@@ -171,7 +171,9 @@ namespace DockRotate
 				return null;
 			NodeState ret = null;
 			string nodeState = S(node);
-			bool hasJoint = node.getDockingJoint(out bool isSameVessel, false);
+			PartJoint joint = node.getDockingJoint(false);
+			bool hasJoint = joint;
+			bool isSameVessel = joint && joint.isOffTree();
 			for (int i = 0; i < nodeStates.Count; i++) {
 				NodeState s = nodeStates[i];
 				if (s.state == nodeState && s.hasJoint == hasJoint && s.isSameVessel == isSameVessel) {
@@ -246,13 +248,14 @@ namespace DockRotate
 				result.msg("has no ModuleDockRotate");
 			}
 
-			PartJoint j = node.getDockingJoint(out bool dsv, verbose);
+			PartJoint j = node.getDockingJoint(verbose);
 			if (j)
-				checkDockingJoint(result, node, j, dsv);
+				checkDockingJoint(result, node, j);
 
 			string label = QS(node)
-				+ (j ? ".hasJoint" : "")
-				+ (dsv ? ".isSameVessel" : ".isTree");
+				+ (j ?
+					(j.isOffTree() ? " with same vessel joint" : " with joint") :
+					" without joint");
 
 			if (!find(node))
 				result.err("unallowed node state " + label);
@@ -508,12 +511,12 @@ namespace DockRotate
 			}
 		};
 
-		private void checkDockingJoint(Result result, ModuleDockingNode node, PartJoint joint, bool isSameVessel)
+		private void checkDockingJoint(Result result, ModuleDockingNode node, PartJoint joint)
 		{
 			if (!joint)
 				return;
 
-			result.msg("docking joint " + info(joint));
+			result.msg("has docking joint " + info(joint));
 
 			bool valid = true;
 			if (!joint.Host) {
@@ -551,14 +554,14 @@ namespace DockRotate
 				return;
 			}
 
-			JointState s = find(host, target, isSameVessel);
+			JointState s = find(host, target, joint.isOffTree());
 			if (s)
 				s = s.tryFix(result, host, target);
 
 			if (!s) {
 				result.err("unallowed couple state "
 					+ QS(host) + " > " + QS(target)
-					+ " " + (isSameVessel ? "same vessel" : "tree"));
+					+ " " + (joint.isOffTree() ? "same vessel" : "tree"));
 				flash(result, host.part, colorBad);
 				flash(result, target.part, colorBad);
 			}
@@ -594,10 +597,10 @@ namespace DockRotate
 			if (!part)
 				return "null-part";
 			return part.bareName()
-				+ " " + part.flightID;
+				+ "-" + part.flightID;
 		}
 
-		private static string info(ModuleDockingNode node)
+		static string info(ModuleDockingNode node)
 		{
 			if (!node)
 				return "null";
@@ -608,11 +611,11 @@ namespace DockRotate
 		{
 			if (!j)
 				return "null-joint";
-			return j.GetInstanceID()
+			return j.GetInstanceID() + ","
 				+ " " + info(j.Host)
 				+ " " + new string('>', j.joints.Count)
 				+ " " + info(j.Target)
-				+ (j.isOffTree() ? " OT" : "");
+				+ (j.isOffTree() ? ", same vessel" : "");
 		}
 
 		private void flash(Result result, Part part, Color color)
