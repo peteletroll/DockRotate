@@ -217,14 +217,17 @@ namespace DockRotate
 			return foundError;
 		}
 
-		public bool checkNode(Result result, ModuleDockingNode node, bool verbose)
+		public bool checkNode(ModuleDockingNode node, bool verbose)
+		{
+			return checkNode(new Result(), node, verbose);
+		}
+
+		private bool checkNode(Result result, ModuleDockingNode node, bool verbose)
 		{
 			if (!enabledCheck)
 				return false;
 			if (!node)
 				return false;
-			if (result == null)
-				result = new Result();
 			if (!result.addNode(node))
 				return false;
 			ModuleDockRotate mdr = node.getDockRotate();
@@ -414,22 +417,36 @@ namespace DockRotate
 				return ret;
 			}
 
-			public bool fixable()
+			public bool good()
 			{
-				return hostFixTo != "" || targetFixTo != "";
+				return hostFixTo == "" && targetFixTo == "";
 			}
 
-			public JointState fix(Result result, ModuleDockingNode host, ModuleDockingNode target)
+			public bool fixable()
 			{
-				if (checker == null || !fixable())
+				return !good();
+			}
+
+			public JointState tryFix(Result result, ModuleDockingNode host, ModuleDockingNode target)
+			{
+				if (checker == null) {
+					log("*** WARNING *** tryFix() without checker");
 					return null;
+				}
+
+				if (good())
+					return this;
+
 				if (!checker.enabledFix) {
 					log("FIXABLE TO "
 						+ (hostFixTo == "" ? S(host) : hostFixTo)
 						+ " -> "
 						+ (targetFixTo == "" ? S(target) : targetFixTo));
-					return this;
+					checker.flash(result, host.part, checker.colorFixable);
+					checker.flash(result, target.part, checker.colorFixable);
+					return null;
 				}
+
 				log("FIXING\n\t" + info(host) + " ->\n\t" + info(target));
 				host.DebugFSMState = target.DebugFSMState = true;
 				if (hostFixTo != "")
@@ -437,12 +454,23 @@ namespace DockRotate
 				if (targetFixTo != "")
 					checker.setState(target, targetFixTo);
 				log("AFTER FIX\n\t" + info(host) + " ->\n\t" + info(target));
+
 				JointState ret = checker.find(host, target, isSameVessel);
-				if (ret.fixable())
+				Color hl = Color.clear;
+				if (!ret) {
+					log("FIXED TO BAD STATE");
+					hl = checker.colorBad;
+				} else if (ret.fixable()) {
+					log("FIXED TO FIXABLE STATE");
+					hl = checker.colorFixable;
 					ret = null;
-				if (ret) {
-					checker.flash(result, host.part, checker.colorFixed);
-					checker.flash(result, target.part, checker.colorFixed);
+				} else {
+					log("FIXED TO GOOD STATE");
+					hl = checker.colorFixed;
+				}
+				if (hl != Color.clear) {
+					checker.flash(result, host.part, hl);
+					checker.flash(result, target.part, hl);
 				}
 				return ret;
 			}
@@ -490,19 +518,14 @@ namespace DockRotate
 				+ (isSameVessel ? ".isSameVessel" : ".isTree");
 
 			JointState s = find(host, target, isSameVessel);
-			if (s && s.fixable()) {
-				if (enabledFix) {
-					s = s.fix(result, host, target);
-				} else {
-					// log("FIXABLE " + host.part.flightID + ">" + target.part.flightID);
-					flash(result, host.part, colorFixable);
-					flash(result, target.part, colorFixable);
-					s = null;
-				}
-			}
+			if (s)
+				s = s.tryFix(result, host, target);
 
-			if (!s)
+			if (!s) {
 				msg.Add("unallowed couple state " + label);
+				flash(result, host.part, colorBad);
+				flash(result, target.part, colorBad);
+			}
 		}
 
 		private static string QS(ModuleDockingNode node)
