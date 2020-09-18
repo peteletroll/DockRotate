@@ -1,4 +1,5 @@
 using System;
+using System.Text;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -200,79 +201,108 @@ namespace DockRotate
 			return ret;
 		}
 
-		public bool checkVessel(Vessel vessel, bool verbose)
+		public Result checkVessel(Vessel vessel, bool verbose)
 		{
+			Result result = new Result();
 			if (!enabledCheck)
-				return false;
+				return result;
 			List<ModuleDockingNode> dn = vessel.FindPartModulesImplementing<ModuleDockingNode>();
 			dn = new List<ModuleDockingNode>(dn);
 			dn.Sort((a, b) => (int) a.part.flightID - (int) b.part.flightID);
-			Result result = new Result();
-			bool foundError = false;
+			result.msg("Checking Vessel " + vessel.name);
 			for (int i = 0; i < dn.Count; i++)
 				dn[i].part.SetHighlightDefault();
 			for (int i = 0; i < dn.Count; i++)
-				if (checkNode(result, dn[i], verbose))
-					foundError = true;
-			return foundError;
+				checkNode(result, dn[i], verbose);
+			result.logReport();
+			return result;
 		}
 
-		public bool checkNode(ModuleDockingNode node, bool verbose)
+		public Result checkNode(ModuleDockingNode node, bool verbose)
 		{
-			return checkNode(new Result(), node, verbose);
+			Result result = new Result();
+			checkNode(result, node, verbose);
+			result.logReport();
+			return result;
 		}
 
-		private bool checkNode(Result result, ModuleDockingNode node, bool verbose)
+		private void checkNode(Result result, ModuleDockingNode node, bool verbose)
 		{
 			if (!enabledCheck)
-				return false;
+				return;
 			if (!node)
-				return false;
+				return;
 			if (!result.addNode(node))
-				return false;
-			ModuleDockRotate mdr = node.getDockRotate();
-			if (mdr)
-				mdr.showCheckDockingState(false);
+				return;
 
-			List<string> msg = new List<string>();
-			msg.Add(info(node));
+			result.indent(0);
+			result.msg("checking node " + info(node));
+			result.indent(1);
+
+			ModuleDockRotate mdr = node.getDockRotate();
+			if (mdr) {
+				mdr.showCheckDockingState(false);
+			} else {
+				result.msg("has no ModuleDockRotate");
+			}
 
 			PartJoint j = node.getDockingJoint(out bool dsv, verbose);
 			if (j)
-				checkDockingJoint(result, msg, node, j, dsv);
+				checkDockingJoint(result, node, j, dsv);
 
 			string label = QS(node)
 				+ (j ? ".hasJoint" : "")
 				+ (dsv ? ".isSameVessel" : ".isTree");
 
 			if (!find(node))
-				msg.Add("unallowed node state " + label);
+				result.err("unallowed node state " + label);
 
 			// a null vesselInfo may cause NRE later
 			if (j && j.Host == node.part && node.vesselInfo == null
 				&& S(node) != "PreAttached" && S(node) != "Docked (same vessel)")
-				msg.Add("null vesselInfo");
+				result.err("null vesselInfo");
 
-			bool foundError = false;
-			if (msg.Count > 1) {
-				foundError = true;
-			} else if (verbose) {
-				msg.Add("is ok");
-			}
-
-			if (msg.Count > 1)
-				log(String.Join(",\n\t", msg.ToArray()));
-
-			if (foundError) {
-				flash(result, node.part, colorBad);
+			if (result.foundError) {
 				if (mdr)
 					mdr.showCheckDockingState(true);
 			}
-			return foundError;
+			result.indent(0);
 		}
 
 		public class Result {
+			private List<string> msgList = new List<string>();
+			public bool foundError = false;
+			private string indentString = "";
+
+			public void indent(int l)
+			{
+				indentString = new string(' ', 6 * l);
+			}
+
+			public void msg(String s)
+			{
+				msgList.Add(indentString + s);
+			}
+
+			public void err(string e)
+			{
+				foundError = true;
+				msg("*** " + e + " ***");
+			}
+
+			public void logReport()
+			{
+				StringBuilder report = new StringBuilder();
+				report.AppendLine("Check report:");
+				report.AppendLine(new string('#', 80));
+				for (int i = 0; i < msgList.Count; i++)
+					report.AppendLine(msgList[i]);
+				report.Append(new string('#', 80));
+				log(report.ToString());
+			}
+
 			private HashSet<string> chk = new HashSet<string>();
+			private bool noisyAdd = false;
 
 			public bool addFlash(Part part)
 			{
@@ -296,10 +326,12 @@ namespace DockRotate
 
 			private bool add(string key) {
 				if (chk.Contains(key)) {
-					// log("REPEATED " + key);
+					if (noisyAdd)
+						msg("REPEATED " + key);
 					return false;
 				}
-				// log("CHECKING " + key);
+				if (noisyAdd)
+					msg("CHECKING " + key);
 				chk.Add(key);
 				return true;
 			}
@@ -430,42 +462,42 @@ namespace DockRotate
 			public JointState tryFix(Result result, ModuleDockingNode host, ModuleDockingNode target)
 			{
 				if (checker == null) {
-					log("*** WARNING *** tryFix() without checker");
-					return null;
+					result.msg("WARNING: tryFix() without checker");
+					return this;
 				}
 
 				if (good())
 					return this;
 
 				if (!checker.enabledFix) {
-					log("FIXABLE TO "
+					result.err("fixable to \""
 						+ (hostFixTo == "" ? S(host) : hostFixTo)
-						+ " -> "
-						+ (targetFixTo == "" ? S(target) : targetFixTo));
+						+ "\" -> \""
+						+ (targetFixTo == "" ? S(target) : targetFixTo)
+						+ "\"");
 					checker.flash(result, host.part, checker.colorFixable);
 					checker.flash(result, target.part, checker.colorFixable);
-					return null;
+					return this;
 				}
 
-				log("FIXING\n\t" + info(host) + " ->\n\t" + info(target));
+				result.msg("fixing " + info(host) + " -> " + info(target));
 				host.DebugFSMState = target.DebugFSMState = true;
 				if (hostFixTo != "")
-					checker.setState(host, hostFixTo);
+					checker.setState(result, host, hostFixTo);
 				if (targetFixTo != "")
-					checker.setState(target, targetFixTo);
-				log("AFTER FIX\n\t" + info(host) + " ->\n\t" + info(target));
+					checker.setState(result, target, targetFixTo);
+				result.msg("fixed to " + info(host) + " -> " + info(target));
 
 				JointState ret = checker.find(host, target, isSameVessel);
 				Color hl = Color.clear;
 				if (!ret) {
-					log("FIXED TO BAD STATE");
+					result.err("fixed to bad state");
 					hl = checker.colorBad;
 				} else if (ret.fixable()) {
-					log("FIXED TO FIXABLE STATE");
+					result.err("fixed to fixable state");
 					hl = checker.colorFixable;
-					ret = null;
+					ret = this;
 				} else {
-					log("FIXED TO GOOD STATE");
 					hl = checker.colorFixed;
 				}
 				if (hl != Color.clear) {
@@ -476,18 +508,20 @@ namespace DockRotate
 			}
 		};
 
-		private void checkDockingJoint(Result result, List<string> msg, ModuleDockingNode node, PartJoint joint, bool isSameVessel)
+		private void checkDockingJoint(Result result, ModuleDockingNode node, PartJoint joint, bool isSameVessel)
 		{
 			if (!joint)
 				return;
 
+			result.msg("docking joint " + info(joint));
+
 			bool valid = true;
 			if (!joint.Host) {
-				msg.Add("null host");
+				result.err("docking joint has null host");
 				valid = false;
 			}
 			if (!joint.Target) {
-				msg.Add("null target");
+				result.err("docking joint has null target");
 				valid = false;
 			}
 			if (!valid)
@@ -495,12 +529,15 @@ namespace DockRotate
 
 			ModuleDockingNode other = node.getDockedNode(false);
 			if (!other) {
-				msg.Add("no other");
+				result.err("no other node");
 				return;
 			}
+			result.msg("other is " + info(other));
 
-			if (!result.addPair(node, other))
+			if (!result.addPair(node, other)) {
+				result.msg("pair already checked");
 				return;
+			}
 
 			ModuleDockingNode host, target;
 			if (node.part == joint.Host && other.part == joint.Target) {
@@ -510,19 +547,18 @@ namespace DockRotate
 				host = other;
 				target = node;
 			} else {
-				msg.Add("unrelated joint " + info(joint));
+				result.err("docking joint is unrelated");
 				return;
 			}
-
-			string label = QS(host) + ">" + QS(target)
-				+ (isSameVessel ? ".isSameVessel" : ".isTree");
 
 			JointState s = find(host, target, isSameVessel);
 			if (s)
 				s = s.tryFix(result, host, target);
 
 			if (!s) {
-				msg.Add("unallowed couple state " + label);
+				result.err("unallowed couple state "
+					+ QS(host) + " > " + QS(target)
+					+ " " + (isSameVessel ? "same vessel" : "tree"));
 				flash(result, host.part, colorBad);
 				flash(result, target.part, colorBad);
 			}
@@ -540,10 +576,10 @@ namespace DockRotate
 			return node.state;
 		}
 
-		private void setState(ModuleDockingNode node, string state)
+		private void setState(Result result, ModuleDockingNode node, string state)
 		{
 			if (!exists(state)) {
-				log("setState(\"" + state + "\") not allowed");
+				result.err("setState(\"" + state + "\") not allowed");
 				return;
 			}
 			if (!node || node.fsm == null)
@@ -553,38 +589,30 @@ namespace DockRotate
 				node.fsm.StartFSM(state);
 		}
 
+		private static string info(Part part)
+		{
+			if (!part)
+				return "null-part";
+			return part.bareName()
+				+ " " + part.flightID;
+		}
+
 		private static string info(ModuleDockingNode node)
 		{
 			if (!node)
-				return "MDN:null-node";
-			if (!node.part)
-				return "MDN:null-part";
-			string ret = "MDN@" + node.part.flightID
-				+ "_" + node.part.bareName()
-				+ "<" + (node.part.parent ? node.part.parent.flightID : 0)
-				+ ">" + node.dockedPartUId
-				+ ":" + QS(node);
-			if (node.sameVesselDockJoint)
-				ret += ":svdj=" + node.sameVesselDockJoint.GetInstanceID();
-			PartJoint dj = node.getDockingJoint(out bool dsv, false);
-			ret += ":dj=" + info(dj) + (dsv ? ":dsv" : "");
-			return ret;
+				return "null";
+			return info(node.part) + " " + QS(node);
 		}
 
 		private static string info(PartJoint j)
 		{
-			string ret = "PJ" + "[";
-			if (j) {
-				ret += j.GetInstanceID();
-				ret += ":";
-				ret += (j.Host ? j.Host.flightID : 0);
-				ret += new string('>', j.joints.Count);
-				ret += (j.Target ? j.Target.flightID : 0);
-			} else {
-				ret += "0";
-			}
-			ret += "]";
-			return ret;
+			if (!j)
+				return "null-joint";
+			return j.GetInstanceID()
+				+ " " + info(j.Host)
+				+ " " + new string('>', j.joints.Count)
+				+ " " + info(j.Target)
+				+ (j.isOffTree() ? " OT" : "");
 		}
 
 		private void flash(Result result, Part part, Color color)
