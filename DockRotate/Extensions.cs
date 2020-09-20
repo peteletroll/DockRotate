@@ -44,7 +44,6 @@ namespace DockRotate
 
 		/******** Vessel utilities ********/
 
-
 		public static string desc(this Vessel v, bool bare = false)
 		{
 			uint id = (v && v.rootPart) ? v.rootPart.flightID : 0;
