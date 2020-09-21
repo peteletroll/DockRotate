@@ -315,7 +315,6 @@ namespace DockRotate
 		{
 			if (verboseEvents)
 				log(desc(), ".OnVesselCreate(" + v.desc() + ")");
-			get(v);
 		}
 
 		public void OnVesselGoOnRails(Vessel v)
