@@ -367,7 +367,7 @@ namespace DockRotate
 				return s != null;
 			}
 
-			public NodeState() { }
+			public NodeState() { } // needed for load/save
 
 			public NodeState(string state, bool hasJoint, bool isSameVessel,
 				string nodeFixTo = "")
@@ -423,6 +423,8 @@ namespace DockRotate
 			{
 				return s != null;
 			}
+
+			public JointState() { } // needed for load/save
 
 			public JointState(string hoststate, string targetstate, bool isSameVessel,
 				string hostFixTo = "", string targetFixTo = "")
