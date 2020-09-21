@@ -60,6 +60,8 @@ namespace DockRotate
 				return null;
 			if (!v.loaded)
 				log(nameof(VesselMotionManager), ".get(" + v.desc() + ") called on unloaded vessel");
+			if (!v.rootPart)
+				log(nameof(VesselMotionManager), ".get(" + v.desc() + ") called on rootless vessel");
 
 			VesselMotionManager mgr = null;
 			VesselMotionManager[] mgrs = v.GetComponents<VesselMotionManager>();
