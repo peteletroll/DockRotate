@@ -201,18 +201,9 @@ namespace DockRotate
 			}
 
 			if (ret) {
-				if (verbose)
-					log(node.part.desc(), ".getDockingJoint(): svj check " + ret.desc());
-				tmp =
-					ret.sameParts(ret.Host.attachJoint) ? ret.Host.attachJoint :
-					ret.sameParts(ret.Target.attachJoint) ? ret.Target.attachJoint :
-					null;
-				if (tmp) {
-					if (verbose)
-						log(node.part.desc(), ".getDockingJoint(): svj " + ret.desc()
-							+ " overruled by " + tmp.desc());
+				tmp = ret.getTreeEquiv(verbose);
+				if (tmp)
 					ret = tmp;
-				}
 			}
 
 			if (!ret && node.part.parent == other.part) {
@@ -366,6 +357,22 @@ namespace DockRotate
 				: j.Host && j.Host.attachJoint == j ? false
 				: j.Target && j.Target.attachJoint == j ? false
 				: true;
+		}
+
+		public static PartJoint getTreeEquiv(this PartJoint j, bool verbose)
+		{
+			if (!j)
+				return null;
+			PartJoint ret =
+				j.sameParts(j.Host.attachJoint) ? j.Host.attachJoint :
+				j.sameParts(j.Target.attachJoint) ? j.Target.attachJoint :
+				null;
+
+			if (ret && verbose)
+				log(j.desc(), ".getTreeEquiv(): " + j.desc()
+					+ " overruled by " + ret.desc());
+
+			return ret;
 		}
 
 		public static string desc(this PartJoint j, bool bare = false)

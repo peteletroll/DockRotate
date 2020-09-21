@@ -248,6 +248,9 @@ namespace DockRotate
 				result.msg("has no ModuleDockRotate");
 			}
 
+			if (node.sameVesselDockJoint && node.sameVesselDockJoint.getTreeEquiv(false))
+				result.err("redundant same vessel joint");
+
 			PartJoint j = node.getDockingJoint(verbose);
 			if (j)
 				checkDockingJoint(result, node, j);
