@@ -485,13 +485,20 @@ namespace DockRotate
 				if (good())
 					return this;
 
-				if (!checker.enabledFix) {
+				ModuleDockRotate mdr = host.getDockRotate();
+				if (!mdr)
+					mdr = target.getDockRotate();
+				bool rotating = mdr && mdr.isRotating();
+
+				if (!checker.enabledFix || rotating) {
 					result.err("fixable to "
 						+ (hostFixTo == "" ? QS(host) : "\"" + hostFixTo + "\"")
 						+ " -> "
 						+ (targetFixTo == "" ? QS(target) : "\"" + targetFixTo + "\""));
 					checker.flash(result, host.part, checker.colorFixable);
 					checker.flash(result, target.part, checker.colorFixable);
+					if (rotating)
+						result.msg("rotating, not fixed");
 					return this;
 				}
 

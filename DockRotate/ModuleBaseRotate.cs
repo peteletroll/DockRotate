@@ -1094,6 +1094,11 @@ namespace DockRotate
 			jointMotion.rotCur = null;
 		}
 
+		public bool isRotating()
+		{
+			return currentRotation();
+		}
+
 		protected JointMotionObj currentRotation()
 		{
 			return hasJointMotion ? jointMotion.rotCur : null;
