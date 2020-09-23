@@ -213,7 +213,7 @@ namespace DockRotate
 			List<ModuleDockingNode> dn = vessel.FindPartModulesImplementing<ModuleDockingNode>();
 			dn = new List<ModuleDockingNode>(dn);
 			dn.Sort((a, b) => (int) a.part.flightID - (int) b.part.flightID);
-			result.msg("Checking Vessel " + vessel.name);
+			result.msg("checking vessel " + vessel.vesselName);
 			for (int i = 0; i < dn.Count; i++)
 				dn[i].part.SetHighlightDefault();
 			for (int i = 0; i < dn.Count; i++)
@@ -265,7 +265,7 @@ namespace DockRotate
 			}
 
 			if (node.sameVesselDockJoint && node.sameVesselDockJoint.getTreeEquiv(false)) {
-				result.err("redundant same vessel joint");
+				result.err("redundant same vessel joint " + info(node.sameVesselDockJoint));
 				flash(result, node.part, colorBad);
 			}
 
@@ -309,10 +309,8 @@ namespace DockRotate
 				StringBuilder report = new StringBuilder();
 				report.AppendLine("Check report:");
 				report.AppendLine(new string('#', 80));
-				for (int i = 0; i < msgList.Count; i++) {
-					report.Append("# ");
+				for (int i = 0; i < msgList.Count; i++)
 					report.AppendLine(msgList[i]);
-				}
 				report.Append(new string('#', 80));
 				log(report.ToString());
 			}
