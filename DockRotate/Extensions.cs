@@ -227,6 +227,12 @@ namespace DockRotate
 				node.otherNode = other; // this fixes a ModuleDockingNode bug
 				node.dockedPartUId = other.part.flightID;
 			}
+
+			if (!ret && node.dockedPartUId > 0) {
+				log(node.part.desc(), ": zeroing dockedPartUId = " + node.dockedPartUId);
+				node.dockedPartUId = 0;
+			}
+
 			if (!ret && node.dockedPartUId > 0)
 				log(node.part.desc(), ": dockedPartUId = " + node.dockedPartUId + ", but no joint");
 			if (!ret && verbose)
