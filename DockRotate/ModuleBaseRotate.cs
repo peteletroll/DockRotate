@@ -23,7 +23,7 @@ namespace DockRotate
 		public int Revision = -1;
 
 		private static int _revision = -1;
-		private static int getRevision()
+		public int getRevision()
 		{
 			if (_revision < 0) {
 				_revision = 0;

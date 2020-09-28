@@ -14,6 +14,7 @@ namespace DockRotate
 		void RightAfterStructureChange();
 		bool wantsVerboseEvents();
 		Part getPart();
+		int getRevision();
 	}
 
 	public static class StructureChangeMapper
@@ -40,6 +41,8 @@ namespace DockRotate
 	public class VesselMotionManager: MonoBehaviour
 	{
 		private Vessel vessel;
+
+		private int Revision = -1;
 
 		private Part rootPart = null;
 
@@ -267,7 +270,11 @@ namespace DockRotate
 
 			int l = ret.Count;
 			for (int i = 0; i < l; i++) {
-				if (ret[i] != null && ret[i].wantsVerboseEvents()) {
+				if (ret[i] == null)
+					continue;
+				if (ret[i].getRevision() > Revision)
+					Revision = ret[i].getRevision();
+				if (ret[i].wantsVerboseEvents()) {
 					log(desc(), ".listeners() finds " + ret.Count);
 					log(desc(), ": " + ret[i].getPart().desc() + " wants verboseEvents");
 					verboseEvents = true;
