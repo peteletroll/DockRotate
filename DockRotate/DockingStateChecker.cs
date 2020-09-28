@@ -250,19 +250,14 @@ namespace DockRotate
 				result.msg("has no ModuleDockRotate");
 			}
 
-			PartJoint j = node.getDockingJoint(verbose);
-			if (j)
-				checkDockingJoint(result, node, j);
+			PartJoint joint = node.getDockingJoint(verbose);
+			if (joint)
+				checkDockingJoint(result, node, joint);
 
 			string label = QS(node)
-				+ (j ?
-					(j.isOffTree() ? " with same vessel joint" : " with tree joint") :
+				+ (joint ?
+					(joint.isOffTree() ? " with same vessel joint" : " with tree joint") :
 					" without joint");
-
-			if (!find(node)) {
-				result.err("unallowed node state " + label);
-				flash(result, node.part, colorBad);
-			}
 
 			if (node.sameVesselDockJoint && node.sameVesselDockJoint.getTreeEquiv(false)) {
 				result.err("redundant same vessel joint " + info(node.sameVesselDockJoint));
@@ -270,10 +265,20 @@ namespace DockRotate
 			}
 
 			// a null vesselInfo may cause NRE later
-			if (j && j.Host == node.part && node.vesselInfo == null
+			if (joint && joint.Host == node.part && node.vesselInfo == null
 				&& S(node) != "PreAttached" && S(node) != "Docked (same vessel)") {
 				result.err("null vesselInfo");
 				flash(result, node.part, colorBad);
+			}
+
+			if (!joint) {
+				NodeState s = find(node);
+				if (s)
+					s = s.tryFix(result, node);
+				if (!s) {
+					result.err("unallowed node state " + label);
+					flash(result, node.part, colorBad);
+				}
 			}
 
 			if (result.foundError) {
@@ -401,9 +406,52 @@ namespace DockRotate
 				return ret;
 			}
 
+			public bool good()
+			{
+				return nodeFixTo == "";
+			}
+
 			public bool fixable()
 			{
 				return nodeFixTo != "";
+			}
+
+			public NodeState tryFix(Result result, ModuleDockingNode node)
+			{
+				if (checker == null) {
+					result.msg("WARNING: tryFix() without checker");
+					return this;
+				}
+
+				if (good())
+					return this;
+
+				if (!checker.enabledFix) {
+					result.err("fixable to \"" + nodeFixTo + "\"");
+					checker.flash(result, node.part, checker.colorFixable);
+					return this;
+				}
+
+				result.msg("fixing " + info(node));
+				node.DebugFSMState = true;
+				checker.setState(result, node, nodeFixTo);
+				result.msg("fixed to " + info(node));
+
+				NodeState ret = checker.find(node);
+				Color hl = Color.clear;
+				if (!ret) {
+					result.err("fixed to bad state");
+					hl = checker.colorBad;
+				} else if (ret.fixable()) {
+					result.err("fixed to fixable state");
+					hl = checker.colorFixable;
+					ret = this;
+				} else {
+					hl = checker.colorFixed;
+				}
+				if (hl != Color.clear)
+					checker.flash(result, node.part, hl);
+				return ret;
 			}
 		}
 
@@ -526,7 +574,7 @@ namespace DockRotate
 				}
 				return ret;
 			}
-		};
+		}
 
 		private void checkDockingJoint(Result result, ModuleDockingNode node, PartJoint joint)
 		{
