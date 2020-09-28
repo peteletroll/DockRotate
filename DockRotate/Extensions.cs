@@ -225,7 +225,10 @@ namespace DockRotate
 			if (ret && other && !node.otherNode) {
 				log(node.part.desc(), ": setting otherNode = " + other.part.desc());
 				node.otherNode = other; // this fixes a ModuleDockingNode bug
+				node.dockedPartUId = other.part.flightID;
 			}
+			if (!ret && node.dockedPartUId > 0)
+				log(node.part.desc(), ": dockedPartUId = " + node.dockedPartUId + ", but no joint");
 			if (!ret && verbose)
 				log(node.part.desc(), ".getDockingJoint(): nothing");
 			return ret;
