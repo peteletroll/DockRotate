@@ -234,6 +234,11 @@ namespace DockRotate
 				node.dockedPartUId = 0;
 			}
 
+			if (!ret && node.otherNode) {
+				log(node.part.desc(), ": nulling otherNode = " + node.otherNode.part.desc());
+				node.otherNode = null;
+			}
+
 			if (!ret && verbose)
 				log(node.part.desc(), ".getDockingJoint(): nothing");
 
