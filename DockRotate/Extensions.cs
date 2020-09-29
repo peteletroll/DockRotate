@@ -229,14 +229,14 @@ namespace DockRotate
 			}
 
 			if (!ret && node.dockedPartUId > 0) {
+				log(node.part.desc(), ": dockedPartUId = " + node.dockedPartUId + ", but no joint");
 				log(node.part.desc(), ": zeroing dockedPartUId = " + node.dockedPartUId);
 				node.dockedPartUId = 0;
 			}
 
-			if (!ret && node.dockedPartUId > 0)
-				log(node.part.desc(), ": dockedPartUId = " + node.dockedPartUId + ", but no joint");
 			if (!ret && verbose)
 				log(node.part.desc(), ".getDockingJoint(): nothing");
+
 			return ret;
 		}
 
