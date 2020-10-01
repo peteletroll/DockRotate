@@ -8,6 +8,9 @@ namespace DockRotate
 		public string rotatingNodeName = "";
 
 		[KSPField(isPersistant = true)]
+		public bool enableJointMotionProxy = true;
+
+		[KSPField(isPersistant = true)]
 		public uint otherPartFlightID = 0;
 
 		public AttachNode rotatingNode;
@@ -105,7 +108,8 @@ namespace DockRotate
 			if (verbose)
 				log(desc(), ".findMovingJoint(" + rotatingNode.id + "): attachedPart is " + other.desc());
 			other.forcePhysics();
-			JointLockStateProxy.register(other, this);
+			if (enableJointMotionProxy && HighLogic.LoadedSceneIsFlight)
+				JointLockStateProxy.register(other, this);
 
 			if (owner.parent == other) {
 				PartJoint ret = owner.attachJoint;
