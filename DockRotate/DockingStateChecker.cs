@@ -436,7 +436,7 @@ namespace DockRotate
 
 				result.msg("fixing " + info(node));
 				node.DebugFSMState = true;
-				checker.setState(result, node, nodeFixTo);
+				checker.setState(result, node, nodeFixTo, null);
 				result.msg("fixed to " + info(node));
 
 				NodeState ret = checker.find(node);
@@ -553,9 +553,9 @@ namespace DockRotate
 				result.msg("fixing " + info(host) + " -> " + info(target));
 				host.DebugFSMState = target.DebugFSMState = true;
 				if (hostFixTo != "")
-					checker.setState(result, host, hostFixTo);
+					checker.setState(result, host, hostFixTo, target);
 				if (targetFixTo != "")
-					checker.setState(result, target, targetFixTo);
+					checker.setState(result, target, targetFixTo, host);
 				result.msg("fixed to " + info(host) + " -> " + info(target));
 
 				JointState ret = checker.find(host, target, isSameVessel);
@@ -651,7 +651,7 @@ namespace DockRotate
 			return node.state;
 		}
 
-		private void setState(Result result, ModuleDockingNode node, string state)
+		private void setState(Result result, ModuleDockingNode node, string state, ModuleDockingNode other)
 		{
 			if (!exists(state)) {
 				result.err("setState(\"" + state + "\") not allowed");
@@ -659,6 +659,16 @@ namespace DockRotate
 			}
 			if (!node || node.fsm == null)
 				return;
+			if (node.otherNode != other) {
+				result.msg("updating otherNode from " + info(node.otherNode)
+					+ " to " + info(other));
+				node.otherNode = other;
+			}
+			uint otherID = other ? other.part.flightID : 0;
+			if (node.dockedPartUId != otherID) {
+				result.msg("updating dockedPartUId from " + node.dockedPartUId + " to " + otherID);
+				node.dockedPartUId = otherID;
+			}
 			node.DebugFSMState = true;
 			if (node.fsm != null)
 				node.fsm.StartFSM(state);
