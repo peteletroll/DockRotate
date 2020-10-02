@@ -23,9 +23,6 @@ namespace DockRotate
 		public JointMotionObj rotCur {
 			get { return _rotCur; }
 			set {
-				if (!mayWork())
-					return;
-
 				bool sas = (_rotCur && _rotCur.smartAutoStruts)
 					|| (value && value.smartAutoStruts);
 
@@ -76,16 +73,6 @@ namespace DockRotate
 				if (_controller)
 					_controller.putAxis(this);
 			}
-		}
-
-		private bool mayWork()
-		{
-			bool ret = joint
-				&& joint.Host && joint.Host.vessel
-				&& joint.Target && joint.Target.vessel;
-			if (!ret)
-				_joint = null;
-			return ret;
 		}
 
 		public static JointMotion get(PartJoint j)

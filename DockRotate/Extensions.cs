@@ -210,7 +210,6 @@ namespace DockRotate
 				ret = node.part.attachJoint;
 				if (verbose)
 					log(node.part.desc(), ".getDockingJoint(): to parent " + ret.desc());
-				return ret;
 			}
 
 			for (int i = 0; !ret && i < node.part.children.Count; i++) {
@@ -232,6 +231,11 @@ namespace DockRotate
 				log(node.part.desc(), ": dockedPartUId = " + node.dockedPartUId + ", but no joint");
 				log(node.part.desc(), ": zeroing dockedPartUId = " + node.dockedPartUId);
 				node.dockedPartUId = 0;
+			}
+
+			if (ret && !ret.safetyCheck()) {
+				log(node.part.desc(), ": joint safety check failed");
+				ret = null;
 			}
 
 			if (!ret && verbose)
@@ -351,6 +355,19 @@ namespace DockRotate
 		}
 
 		/******** PartJoint utilities ********/
+
+		public static PartJoint safetyCheck(this PartJoint j)
+		{
+			if (!j)
+				return null;
+			if (!j.Host || !j.Target)
+				return null;
+			if (!j.Host.vessel || !j.Target.vessel)
+				return null;
+			if (!j.Host.transform || !j.Target.transform)
+				return null;
+			return j;
+		}
 
 		public static bool sameParts(this PartJoint j1, PartJoint j2)
 		{
