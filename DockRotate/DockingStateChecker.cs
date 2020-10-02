@@ -585,16 +585,8 @@ namespace DockRotate
 
 			result.msg("has docking joint " + info(joint));
 
-			bool valid = true;
-			if (!joint.Host) {
-				result.err("docking joint has null host");
-				valid = false;
-			}
-			if (!joint.Target) {
-				result.err("docking joint has null target");
-				valid = false;
-			}
-			if (!valid) {
+			if (!joint.safetyCheck()) {
+				result.err("joint fails safety check");
 				flash(result, node.part, colorBad);
 				return;
 			}
