@@ -635,6 +635,13 @@ namespace DockRotate
 				fillCrossStruts();
 				setupGuiActive();
 				PartJoint rotatingJoint = findMovingJoint(verboseEvents);
+
+				if (rotatingJoint && !rotatingJoint.safetyCheck()) {
+					log(part.desc(), ": joint safety check failed for "
+						+ rotatingJoint.desc());
+					rotatingJoint = null;
+				}
+
 				if (rotatingJoint) {
 					jointMotion = JointMotion.get(rotatingJoint);
 					hasJointMotion = jointMotion;

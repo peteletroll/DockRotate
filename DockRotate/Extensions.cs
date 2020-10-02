@@ -233,11 +233,6 @@ namespace DockRotate
 				node.dockedPartUId = 0;
 			}
 
-			if (ret && !ret.safetyCheck()) {
-				log(node.part.desc(), ": joint safety check failed");
-				ret = null;
-			}
-
 			if (!ret && verbose)
 				log(node.part.desc(), ".getDockingJoint(): nothing");
 
@@ -356,17 +351,12 @@ namespace DockRotate
 
 		/******** PartJoint utilities ********/
 
-		public static PartJoint safetyCheck(this PartJoint j)
+		public static bool safetyCheck(this PartJoint j)
 		{
-			if (!j)
-				return null;
-			if (!j.Host || !j.Target)
-				return null;
-			if (!j.Host.vessel || !j.Target.vessel)
-				return null;
-			if (!j.Host.transform || !j.Target.transform)
-				return null;
-			return j;
+			return j
+				&& j.Host && j.Target
+				&& j.Host.vessel && j.Target.vessel
+				&& j.Host.transform && j.Target.transform;
 		}
 
 		public static bool sameParts(this PartJoint j1, PartJoint j2)
