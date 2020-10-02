@@ -920,7 +920,7 @@ namespace DockRotate
 			if (MapView.MapIsEnabled || !part.PartActionWindow)
 				return;
 
-			bool updfrm = (Time.frameCount & 3) == 0;
+			bool updfrm = ((Time.frameCount + part.flightID) & 3) == 0;
 			if (updfrm || cr)
 				updateStatus(cr);
 			if (updfrm)
