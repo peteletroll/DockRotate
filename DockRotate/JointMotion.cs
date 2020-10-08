@@ -191,13 +191,27 @@ namespace DockRotate
 			return Mathf.DeltaAngle(0f, orgRot + (_rotCur ? _rotCur.pos : 0f));
 		}
 
+		private float dynamicDeltaAngleRestart = 0f;
+
 		public float dynamicDeltaAngle()
 		// = dynamic - static
 		{
-			Vector3 a = hostAxis;
-			Vector3 vd = targetUp.Td(joint.Target.T(), joint.Host.T());
-			Vector3 vs = targetUp.STd(joint.Target, joint.Host);
-			return a.axisSignedAngle(vs, vd);
+			float ret = float.NaN;
+			if (Time.fixedTime > dynamicDeltaAngleRestart) {
+				try {
+					Vector3 a = hostAxis;
+					Vector3 vd = targetUp.Td(joint.Target.T(), joint.Host.T());
+					Vector3 vs = targetUp.STd(joint.Target, joint.Host);
+					ret = a.axisSignedAngle(vs, vd);
+				} catch (Exception e) {
+					float delayException = 20f;
+					dynamicDeltaAngleRestart = Time.fixedTime + delayException;
+					log(this.desc(), ".dynamicDeltaAngle(): " + e.Message
+						+ ": disabling for " + delayException + " seconds");
+					log(this.desc(), ": safetyCheck() is " + joint.safetyCheck());
+				}
+			}
+			return ret;
 		}
 
 		public float angleToSnap(float snap)

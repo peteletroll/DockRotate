@@ -677,7 +677,7 @@ namespace DockRotate
 		static string info(ModuleDockingNode node)
 		{
 			if (!node)
-				return "null";
+				return "null-node";
 			return info(node.part) + " " + QS(node);
 		}
 
