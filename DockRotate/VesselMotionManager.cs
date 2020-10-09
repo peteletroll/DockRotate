@@ -604,7 +604,9 @@ namespace DockRotate
 			if (checker == null)
 				yield break;
 			int thisCounter = ++dockingCheckCounter;
-			for (int i = 0; i < checker.checkDelay; i++)
+
+			int waitFrame = Time.frameCount + checker.checkDelay;
+			while (Time.frameCount < waitFrame)
 				yield return new WaitForFixedUpdate();
 
 			if (thisCounter < dockingCheckCounter) {
