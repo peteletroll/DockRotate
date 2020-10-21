@@ -402,9 +402,9 @@ namespace DockRotate
 			string d = desc(true);
 			log(d, ": BEGIN DUMP");
 
-			AttachNode[] nodes = part.allAttachNodes();
+			List<AttachNode> nodes = part.allAttachNodes();
 			string nodeHelp = ": available nodes:";
-			for (int i = 0; i < nodes.Length; i++)
+			for (int i = 0; i < nodes.Count; i++)
 				if (nodes[i] != null)
 					nodeHelp += " \"" + nodes[i].id + "\"";
 			log(d, nodeHelp);
@@ -499,18 +499,18 @@ namespace DockRotate
 			return ret;
 		}
 
-		private static List<PartResourceDefinition> GetConsumedResourcesCache = null;
+		private static List<PartResourceDefinition> cached_GetConsumedResources = null;
 
 		public List<PartResourceDefinition> GetConsumedResources()
 		{
 			// log(desc(), ".GetConsumedResource() called");
-			if (GetConsumedResourcesCache == null) {
-				GetConsumedResourcesCache = new List<PartResourceDefinition>();
+			if (cached_GetConsumedResources == null) {
+				cached_GetConsumedResources = new List<PartResourceDefinition>();
 				PartResourceDefinition ec = PartResourceLibrary.Instance.GetDefinition("ElectricCharge");
 				if (ec != null)
-					GetConsumedResourcesCache.Add(ec);
+					cached_GetConsumedResources.Add(ec);
 			}
-			return GetConsumedResourcesCache;
+			return cached_GetConsumedResources;
 		}
 
 		protected bool setupLocalAxisDone;
@@ -545,33 +545,31 @@ namespace DockRotate
 			return storedInfo;
 		}
 
-		private ModuleBaseRotate[] moversToRoot;
+		private List<ModuleBaseRotate> moversToRoot = new List<ModuleBaseRotate>();
 
 		private void fillMoversToRoot()
 		{
-			List<ModuleBaseRotate> rtr = new List<ModuleBaseRotate>();
+			moversToRoot.Clear();
 			for (Part p = part.parent; p; p = p.parent) {
 				List<ModuleBaseRotate> mbr = p.FindModulesImplementing<ModuleBaseRotate>();
-				rtr.AddRange(mbr);
+				moversToRoot.AddRange(mbr);
 			}
-			moversToRoot = rtr.ToArray();
 		}
 
-		private CModuleStrut[] crossStruts;
+		private List<CModuleStrut> crossStruts = new List<CModuleStrut>();
 
 		private void fillCrossStruts()
 		{
+			crossStruts.Clear();
 			List<CModuleStrut> allStruts = vessel.FindPartModulesImplementing<CModuleStrut>();
 			if (allStruts == null)
 				return;
 			PartSet rotParts = PartSet.allPartsFromHere(part);
-			List<CModuleStrut> justCrossStruts = new List<CModuleStrut>();
 			for (int i = 0; i < allStruts.Count; i++) {
 				PartJoint sj = allStruts[i] ? allStruts[i].strutJoint : null;
 				if (sj && sj.Host && sj.Target && rotParts.contains(sj.Host) != rotParts.contains(sj.Target))
-					justCrossStruts.Add(allStruts[i]);
+					crossStruts.Add(allStruts[i]);
 			}
-			crossStruts = justCrossStruts.ToArray();
 		}
 
 		[KSPField(isPersistant = true)]
@@ -851,21 +849,25 @@ namespace DockRotate
 		private void setupGroup()
 		{
 			bool expanded = hasJointMotion && (rotationEnabled || needsAlignment);
-			BasePAWGroup[] l = allGroups(GROUPNAME);
-			for (int i = 0; i < l.Length; i++)
+			List<BasePAWGroup> l = allGroups(GROUPNAME);
+			for (int i = 0; i < l.Count; i++)
 				l[i].startCollapsed = !expanded;
 		}
 
-		private BasePAWGroup[] allGroups(string name)
+		private List<BasePAWGroup> cached_allGroups = null;
+
+		private List<BasePAWGroup> allGroups(string name)
 		{
-			List<BasePAWGroup> l = new List<BasePAWGroup>();
-			for (int i = 0; i < Fields.Count; i++)
-				if (Fields[i] != null && Fields[i].group != null && Fields[i].group.name == name)
-					l.Add(Fields[i].group);
-			for (int i = 0; i < Events.Count; i++)
-				if (Events[i] != null && Events[i].group != null && Events[i].group.name == name)
-					l.Add(Events[i].group);
-			return l.ToArray();
+			if (cached_allGroups == null) {
+				cached_allGroups = new List<BasePAWGroup>();
+				for (int i = 0; i < Fields.Count; i++)
+					if (Fields[i] != null && Fields[i].group != null && Fields[i].group.name == name)
+						cached_allGroups.Add(Fields[i].group);
+				for (int i = 0; i < Events.Count; i++)
+					if (Events[i] != null && Events[i].group != null && Events[i].group.name == name)
+						cached_allGroups.Add(Events[i].group);
+			}
+			return cached_allGroups;
 		}
 
 		public override void OnAwake()

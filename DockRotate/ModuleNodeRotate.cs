@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using KSP.Localization;
 
 namespace DockRotate
@@ -59,8 +60,8 @@ namespace DockRotate
 				log(desc(), ".setupLocalAxis(" + state + "): "
 					+ "no node \"" + rotatingNodeName + "\"");
 
-				AttachNode[] nodes = part.allAttachNodes();
-				for (int i = 0; i < nodes.Length; i++)
+				List<AttachNode> nodes = part.allAttachNodes();
+				for (int i = 0; i < nodes.Count; i++)
 					log(desc(), ": node[" + i + "] = " + nodes[i].desc());
 				return false;
 			}

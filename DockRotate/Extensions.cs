@@ -107,13 +107,13 @@ namespace DockRotate
 			return s > 1 ? part.name.Remove(s) : part.name;
 		}
 
-		public static AttachNode[] allAttachNodes(this Part part)
+		public static List<AttachNode> allAttachNodes(this Part part)
 		{
 			List<AttachNode> ret = new List<AttachNode>();
 			if (part.srfAttachNode != null)
 				ret.Add(part.srfAttachNode);
 			ret.AddRange(part.attachNodes);
-			return ret.ToArray();
+			return ret;
 		}
 
 		/******** Physics Activation utilities ********/
