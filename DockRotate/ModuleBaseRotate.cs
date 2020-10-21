@@ -545,14 +545,15 @@ namespace DockRotate
 			return storedInfo;
 		}
 
-		private List<ModuleBaseRotate> moversToRoot = new List<ModuleBaseRotate>();
+		private ModuleBaseRotate parentBaseRotate = null;
 
-		private void fillMoversToRoot()
+		private void fillParentBaseRotate()
 		{
-			moversToRoot.Clear();
+			parentBaseRotate = null;
 			for (Part p = part.parent; p; p = p.parent) {
-				List<ModuleBaseRotate> mbr = p.FindModulesImplementing<ModuleBaseRotate>();
-				moversToRoot.AddRange(mbr);
+				parentBaseRotate = p.FindModuleImplementing<ModuleBaseRotate>();
+				if (parentBaseRotate)
+					break;
 			}
 		}
 
@@ -629,7 +630,7 @@ namespace DockRotate
 			}
 
 			try {
-				fillMoversToRoot();
+				fillParentBaseRotate();
 				fillCrossStruts();
 				setupGuiActive();
 				PartJoint rotatingJoint = findMovingJoint(verboseEvents);
