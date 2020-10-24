@@ -137,11 +137,15 @@ namespace DockRotate
 
 		public virtual bool enqueueRotation(ModuleBaseRotate source, float angle, float speed, float startSpeed = 0f)
 		{
-			if (!joint)
+			if (!joint) {
+				log(desc(), ".enqueueRotation(): canceled, no joint");
 				return false;
+			}
 
-			if (speed < 0.1f)
+			if (speed < 0.1f) {
+				log(desc(), ".enqueueRotation(): canceled, no speed");
 				return false;
+			}
 
 			string action = "";
 			if (rotCur) {
