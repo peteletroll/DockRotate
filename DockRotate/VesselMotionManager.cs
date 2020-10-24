@@ -83,7 +83,8 @@ namespace DockRotate
 				mgr = v.gameObject.AddComponent<VesselMotionManager>();
 				mgr.vessel = v;
 				mgr.rootPart = v.rootPart;
-				log(nameof(VesselMotionManager), ".get(" + v.desc() + ") created " + mgr.desc());
+				log(nameof(VesselMotionManager), ".get(" + v.desc() + ") created " + mgr.desc()
+					+ " [" + mgr.listeners().Count + "]");
 			}
 
 			return mgr;
@@ -229,7 +230,7 @@ namespace DockRotate
 		{
 			bool ret = v && v == vessel;
 			if (verboseEvents)
-				log(desc(), ".care(" + v.desc() + ") = " + ret);
+				log(desc(), ".care(" + v.desc() + ") = " + ret + " on " + vessel.desc());
 			return ret;
 		}
 
@@ -275,12 +276,13 @@ namespace DockRotate
 				if (ret[i].getRevision() > Revision)
 					Revision = ret[i].getRevision();
 				if (ret[i].wantsVerboseEvents()) {
-					log(desc(), ".listeners() finds " + ret.Count);
 					log(desc(), ": " + ret[i].getPart().desc() + " wants verboseEvents");
 					verboseEvents = true;
 					break;
 				}
 			}
+			if (verboseEvents || verboseEventsPrev)
+				log(desc(), ".listeners() finds " + ret.Count);
 
 			if (verboseEvents != verboseEventsPrev)
 				log(desc(), ".listeners(): verboseEvents changed to " + verboseEvents);
@@ -322,6 +324,8 @@ namespace DockRotate
 		{
 			if (verboseEvents)
 				log(desc(), ".OnVesselCreate(" + v.desc() + ")");
+			VesselMotionManager.get(v);
+			VesselMotionManager.get(vessel);
 		}
 
 		public void OnVesselGoOnRails(Vessel v)
