@@ -968,12 +968,32 @@ namespace DockRotate
 
 		protected bool canStartRotation(bool ignoreDisabled = false)
 		{
-			if (HighLogic.LoadedSceneIsEditor)
-				return rotationEnabled && findHostPartInEditor(verboseEvents);
+			string failMsg = "";
 
-			return (rotationEnabled || ignoreDisabled)
-				&& setupDone && hasJointMotion
-				&& vessel && vessel.CurrentControlLevel == Vessel.ControlLevel.FULL;
+			if (HighLogic.LoadedSceneIsEditor) {
+				if (!rotationEnabled) {
+					failMsg = "rotation disabled";
+				} else if (!findHostPartInEditor(verboseEvents)) {
+					failMsg = "can't find host part";
+				}
+			} else {
+				if (!rotationEnabled && !ignoreDisabled) {
+					failMsg = "rotation disabled";
+				} else if (!setupDone) {
+					failMsg = "not set up";
+				} else if (!hasJointMotion) {
+					failMsg = "no joint motion";
+				} else if (!vessel) {
+					failMsg = "no vessel";
+				} else if (vessel.CurrentControlLevel != Vessel.ControlLevel.FULL) {
+					failMsg = "uncontrolled vessel";
+				}
+			}
+
+			if (verboseEvents && failMsg != "")
+				log(desc(), ".canStartRotation(): " + failMsg);
+
+			return failMsg == "";
 		}
 
 		public float step()
