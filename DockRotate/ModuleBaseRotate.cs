@@ -977,16 +977,16 @@ namespace DockRotate
 					failMsg = "can't find host part";
 				}
 			} else {
-				if (!rotationEnabled && !ignoreDisabled) {
-					failMsg = "rotation disabled";
+				if (!vessel) {
+					failMsg = "no vessel";
 				} else if (!setupDone) {
 					failMsg = "not set up";
 				} else if (!hasJointMotion) {
 					failMsg = "no joint motion";
-				} else if (!vessel) {
-					failMsg = "no vessel";
 				} else if (vessel.CurrentControlLevel != Vessel.ControlLevel.FULL) {
 					failMsg = "uncontrolled vessel";
+				} else if (!rotationEnabled && !ignoreDisabled) {
+					failMsg = "rotation disabled";
 				}
 			}
 
