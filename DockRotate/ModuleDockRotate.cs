@@ -42,17 +42,16 @@ namespace DockRotate
 		public void CheckDockingState()
 		{
 			log(part.desc(), ": DOCKING STATE CHECK");
-			if (dockingNode) {
-				DockingStateChecker checker = DockingStateChecker.load();
-				if (checker == null)
-					return;
-				checker.isBadNode(dockingNode, true);
-				ModuleDockingNode other = dockingNode.getDockedNode(false);
-				if (other) {
-					log(other.part.desc(), ": DOCKING STATE CHECK - OTHER");
-					checker.isBadNode(other, true);
-				}
+
+			if (!dockingNode) {
+				log(part.desc(), ": no dockingNode");
+				return;
 			}
+
+			DockingStateChecker checker = DockingStateChecker.load();
+			if (checker == null)
+				return;
+			checker.checkNode(dockingNode, true);
 		}
 
 		public void showCheckDockingState(bool active)
@@ -159,7 +158,7 @@ namespace DockRotate
 				}
 			}
 
-			return dockingNode.getDockingJoint(out bool isSameVessel, verbose);
+			return dockingNode.getDockingJoint(verbose);
 		}
 
 		private static bool consoleSetupDone = false;

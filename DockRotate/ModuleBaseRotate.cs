@@ -10,8 +10,8 @@ namespace DockRotate
 	public abstract class ModuleBaseRotate: PartModule,
 		IJointLockState, IStructureChangeListener, IResourceConsumer
 	{
-		protected const string GROUP = "DockRotate";
-		protected const string GROUPNAME = "#DCKROT_rotation";
+		protected const string GROUPNAME = "DockRotate";
+		protected const string GROUPLABEL = "#DCKROT_rotation";
 		protected const string DEBUGGROUP = "DockRotateDebug";
 #if DEBUG
 		protected const bool DEBUGMODE = true;
@@ -23,7 +23,7 @@ namespace DockRotate
 		public int Revision = -1;
 
 		private static int _revision = -1;
-		private static int getRevision()
+		public int getRevision()
 		{
 			if (_revision < 0) {
 				_revision = 0;
@@ -50,19 +50,19 @@ namespace DockRotate
 
 		[KSPField(
 			guiName = "#DCKROT_angle",
-			groupName = GROUP,
-			groupDisplayName = GROUPNAME,
+			groupName = GROUPNAME,
+			groupDisplayName = GROUPLABEL,
 			groupStartCollapsed = true,
 			guiActive = true,
 			guiActiveEditor = true
 		)]
 		public string angleInfo;
-		private static string angleInfoNA;
+		private static string angleInfoNA = Localizer.Format("#DCKROT_n_a");
 
 		[UI_Toggle]
 		[KSPField(
-			groupName = GROUP,
-			groupDisplayName = GROUPNAME,
+			groupName = GROUPNAME,
+			groupDisplayName = GROUPLABEL,
 			groupStartCollapsed = true,
 			guiName = "#DCKROT_rotation",
 			guiActive = true,
@@ -77,8 +77,8 @@ namespace DockRotate
 			minValue = 0f, maxValue = 360f
 		)]
 		[KSPField(
-			groupName = GROUP,
-			groupDisplayName = GROUPNAME,
+			groupName = GROUPNAME,
+			groupDisplayName = GROUPLABEL,
 			groupStartCollapsed = true,
 			guiActive = true,
 			guiActiveEditor = true,
@@ -94,8 +94,8 @@ namespace DockRotate
 			minValue = 1, maxValue = 8f * 360f
 		)]
 		[KSPField(
-			groupName = GROUP,
-			groupDisplayName = GROUPNAME,
+			groupName = GROUPNAME,
+			groupDisplayName = GROUPLABEL,
 			groupStartCollapsed = true,
 			guiActive = true,
 			guiActiveEditor = true,
@@ -107,8 +107,8 @@ namespace DockRotate
 
 		[UI_Toggle(affectSymCounterparts = UI_Scene.None)]
 		[KSPField(
-			groupName = GROUP,
-			groupDisplayName = GROUPNAME,
+			groupName = GROUPNAME,
+			groupDisplayName = GROUPLABEL,
 			groupStartCollapsed = true,
 			guiActive = true,
 			guiActiveEditor = true,
@@ -120,8 +120,8 @@ namespace DockRotate
 
 		[UI_Toggle]
 		[KSPField(
-			groupName = GROUP,
-			groupDisplayName = GROUPNAME,
+			groupName = GROUPNAME,
+			groupDisplayName = GROUPLABEL,
 			groupStartCollapsed = true,
 			guiActive = true,
 			guiActiveEditor = true,
@@ -254,8 +254,8 @@ namespace DockRotate
 
 		[KSPEvent(
 			guiName = "#DCKROT_rotate_clockwise",
-			groupName = GROUP,
-			groupDisplayName = GROUP,
+			groupName = GROUPNAME,
+			groupDisplayName = GROUPLABEL,
 			groupStartCollapsed = true,
 			guiActive = false,
 			guiActiveEditor = false,
@@ -283,8 +283,8 @@ namespace DockRotate
 
 		[KSPEvent(
 			guiName = "#DCKROT_rotate_counterclockwise",
-			groupName = GROUP,
-			groupDisplayName = GROUP,
+			groupName = GROUPNAME,
+			groupDisplayName = GROUPLABEL,
 			groupStartCollapsed = true,
 			guiActive = false,
 			guiActiveEditor = false,
@@ -308,8 +308,8 @@ namespace DockRotate
 
 		[KSPEvent(
 			guiName = "#DCKROT_rotate_to_snap",
-			groupName = GROUP,
-			groupDisplayName = GROUP,
+			groupName = GROUPNAME,
+			groupDisplayName = GROUPLABEL,
 			groupStartCollapsed = true,
 			guiActive = false,
 			guiActiveEditor = false,
@@ -334,8 +334,8 @@ namespace DockRotate
 		private BaseEvent StopRotationEvent;
 		[KSPEvent(
 			guiName = "#DCKROT_stop_rotation",
-			groupName = GROUP,
-			groupDisplayName = GROUP,
+			groupName = GROUPNAME,
+			groupDisplayName = GROUPLABEL,
 			groupStartCollapsed = true,
 			guiActive = false,
 			guiActiveEditor = false,
@@ -402,9 +402,9 @@ namespace DockRotate
 			string d = desc(true);
 			log(d, ": BEGIN DUMP");
 
-			AttachNode[] nodes = part.allAttachNodes();
+			List<AttachNode> nodes = part.allAttachNodes();
 			string nodeHelp = ": available nodes:";
-			for (int i = 0; i < nodes.Length; i++)
+			for (int i = 0; i < nodes.Count; i++)
 				if (nodes[i] != null)
 					nodeHelp += " \"" + nodes[i].id + "\"";
 			log(d, nodeHelp);
@@ -454,7 +454,7 @@ namespace DockRotate
 
 		public void doRotateClockwise()
 		{
-			if (!canStartRotation())
+			if (!canStartRotation(true))
 				return;
 			if (!enqueueRotation(step(), speed()))
 				return;
@@ -464,7 +464,7 @@ namespace DockRotate
 
 		public void doRotateCounterclockwise()
 		{
-			if (!canStartRotation())
+			if (!canStartRotation(true))
 				return;
 			if (!enqueueRotation(-step(), speed()))
 				return;
@@ -474,7 +474,7 @@ namespace DockRotate
 
 		public void doRotateToSnap()
 		{
-			if (!canStartRotation(true))
+			if (!canStartRotation(true, true))
 				return;
 			enqueueRotationToSnap(rotationStep, speed());
 		}
@@ -499,18 +499,18 @@ namespace DockRotate
 			return ret;
 		}
 
-		private static List<PartResourceDefinition> GetConsumedResourcesCache = null;
+		private static List<PartResourceDefinition> cached_GetConsumedResources = null;
 
 		public List<PartResourceDefinition> GetConsumedResources()
 		{
 			// log(desc(), ".GetConsumedResource() called");
-			if (GetConsumedResourcesCache == null) {
-				GetConsumedResourcesCache = new List<PartResourceDefinition>();
+			if (cached_GetConsumedResources == null) {
+				cached_GetConsumedResources = new List<PartResourceDefinition>();
 				PartResourceDefinition ec = PartResourceLibrary.Instance.GetDefinition("ElectricCharge");
 				if (ec != null)
-					GetConsumedResourcesCache.Add(ec);
+					cached_GetConsumedResources.Add(ec);
 			}
-			return GetConsumedResourcesCache;
+			return cached_GetConsumedResources;
 		}
 
 		protected bool setupLocalAxisDone;
@@ -545,33 +545,32 @@ namespace DockRotate
 			return storedInfo;
 		}
 
-		private ModuleBaseRotate[] moversToRoot;
+		private ModuleBaseRotate parentBaseRotate = null;
 
-		private void fillMoversToRoot()
+		private void fillParentBaseRotate()
 		{
-			List<ModuleBaseRotate> rtr = new List<ModuleBaseRotate>();
+			parentBaseRotate = null;
 			for (Part p = part.parent; p; p = p.parent) {
-				List<ModuleBaseRotate> mbr = p.FindModulesImplementing<ModuleBaseRotate>();
-				rtr.AddRange(mbr);
+				parentBaseRotate = p.FindModuleImplementing<ModuleBaseRotate>();
+				if (parentBaseRotate)
+					break;
 			}
-			moversToRoot = rtr.ToArray();
 		}
 
-		private CModuleStrut[] crossStruts;
+		private List<CModuleStrut> crossStruts = new List<CModuleStrut>();
 
 		private void fillCrossStruts()
 		{
+			crossStruts.Clear();
 			List<CModuleStrut> allStruts = vessel.FindPartModulesImplementing<CModuleStrut>();
 			if (allStruts == null)
 				return;
 			PartSet rotParts = PartSet.allPartsFromHere(part);
-			List<CModuleStrut> justCrossStruts = new List<CModuleStrut>();
 			for (int i = 0; i < allStruts.Count; i++) {
 				PartJoint sj = allStruts[i] ? allStruts[i].strutJoint : null;
 				if (sj && sj.Host && sj.Target && rotParts.contains(sj.Host) != rotParts.contains(sj.Target))
-					justCrossStruts.Add(allStruts[i]);
+					crossStruts.Add(allStruts[i]);
 			}
-			crossStruts = justCrossStruts.ToArray();
 		}
 
 		[KSPField(isPersistant = true)]
@@ -631,10 +630,17 @@ namespace DockRotate
 			}
 
 			try {
-				fillMoversToRoot();
+				fillParentBaseRotate();
 				fillCrossStruts();
 				setupGuiActive();
 				PartJoint rotatingJoint = findMovingJoint(verboseEvents);
+
+				if (rotatingJoint && !rotatingJoint.safetyCheck()) {
+					log(part.desc(), ": joint safety check failed for "
+						+ rotatingJoint.desc());
+					rotatingJoint = null;
+				}
+
 				if (rotatingJoint) {
 					jointMotion = JointMotion.get(rotatingJoint);
 					hasJointMotion = jointMotion;
@@ -664,8 +670,6 @@ namespace DockRotate
 			setupDoneAt = Time.frameCount;
 
 			enabled = hasJointMotion;
-
-			angleInfoNA = Localizer.Format("#DCKROT_n_a");
 		}
 
 		public void OnVesselGoOnRails()
@@ -810,8 +814,8 @@ namespace DockRotate
 		private void checkGuiActive()
 		{
 			if (guiInfo != null) {
-				bool csr = canStartRotation();
-				bool csra = canStartRotation(true);
+				bool csr = canStartRotation(false);
+				bool csra = canStartRotation(false, true);
 				for (int i = 0; i < guiInfo.Length; i++) {
 					ref GuiInfo ii = ref guiInfo[i];
 					bool flagsCheck = !(hideCommands && ii.flags.IndexOf('C') >= 0)
@@ -845,22 +849,26 @@ namespace DockRotate
 
 		private void setupGroup()
 		{
-			bool collapsed = !(rotationEnabled && hasJointMotion);
-			BasePAWGroup[] l = allGroups(GROUP);
-			for (int i = 0; i < l.Length; i++)
-				l[i].startCollapsed = collapsed;
+			bool expanded = hasJointMotion && (rotationEnabled || needsAlignment);
+			List<BasePAWGroup> l = allGroups(GROUPNAME);
+			for (int i = 0; i < l.Count; i++)
+				l[i].startCollapsed = !expanded;
 		}
 
-		private BasePAWGroup[] allGroups(string name)
+		private List<BasePAWGroup> cached_allGroups = null;
+
+		private List<BasePAWGroup> allGroups(string name)
 		{
-			List<BasePAWGroup> l = new List<BasePAWGroup>();
-			for (int i = 0; i < Fields.Count; i++)
-				if (Fields[i] != null && Fields[i].group != null && Fields[i].group.name == name)
-					l.Add(Fields[i].group);
-			for (int i = 0; i < Events.Count; i++)
-				if (Events[i] != null && Events[i].group != null && Events[i].group.name == name)
-					l.Add(Events[i].group);
-			return l.ToArray();
+			if (cached_allGroups == null) {
+				cached_allGroups = new List<BasePAWGroup>();
+				for (int i = 0; i < Fields.Count; i++)
+					if (Fields[i] != null && Fields[i].group != null && Fields[i].group.name == name)
+						cached_allGroups.Add(Fields[i].group);
+				for (int i = 0; i < Events.Count; i++)
+					if (Events[i] != null && Events[i].group != null && Events[i].group.name == name)
+						cached_allGroups.Add(Events[i].group);
+			}
+			return cached_allGroups;
 		}
 
 		public override void OnAwake()
@@ -922,7 +930,7 @@ namespace DockRotate
 			if (MapView.MapIsEnabled || !part.PartActionWindow)
 				return;
 
-			bool updfrm = (Time.frameCount & 3) == 0;
+			bool updfrm = ((Time.frameCount + part.flightID) & 3) == 0;
 			if (updfrm || cr)
 				updateStatus(cr);
 			if (updfrm)
@@ -958,14 +966,34 @@ namespace DockRotate
 #endif
 		}
 
-		protected bool canStartRotation(bool ignoreDisabled = false)
+		protected bool canStartRotation(bool verbose, bool ignoreDisabled = false)
 		{
-			if (HighLogic.LoadedSceneIsEditor)
-				return rotationEnabled && findHostPartInEditor(verboseEvents);
+			string failMsg = "";
 
-			return (rotationEnabled || ignoreDisabled)
-				&& setupDone && hasJointMotion
-				&& vessel && vessel.CurrentControlLevel == Vessel.ControlLevel.FULL;
+			if (HighLogic.LoadedSceneIsEditor) {
+				if (!rotationEnabled) {
+					failMsg = "rotation disabled";
+				} else if (!findHostPartInEditor(verboseEvents)) {
+					failMsg = "can't find host part";
+				}
+			} else {
+				if (!rotationEnabled && !ignoreDisabled) {
+					failMsg = "rotation disabled";
+				} else if (!setupDone) {
+					failMsg = "not set up";
+				} else if (!hasJointMotion) {
+					failMsg = "no joint motion";
+				} else if (!vessel) {
+					failMsg = "no vessel";
+				} else if (vessel.CurrentControlLevel != Vessel.ControlLevel.FULL) {
+					failMsg = "uncontrolled vessel";
+				}
+			}
+
+			if (verbose && failMsg != "")
+				log(desc(), ".canStartRotation(): " + failMsg);
+
+			return failMsg == "";
 		}
 
 		public float step()
@@ -1094,6 +1122,11 @@ namespace DockRotate
 			cr.abort();
 			log(desc(), ": removing rotation (freeze)");
 			jointMotion.rotCur = null;
+		}
+
+		public bool isRotating()
+		{
+			return currentRotation();
 		}
 
 		protected JointMotionObj currentRotation()

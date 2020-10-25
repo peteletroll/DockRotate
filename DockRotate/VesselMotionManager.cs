@@ -14,6 +14,7 @@ namespace DockRotate
 		void RightAfterStructureChange();
 		bool wantsVerboseEvents();
 		Part getPart();
+		int getRevision();
 	}
 
 	public static class StructureChangeMapper
@@ -41,6 +42,8 @@ namespace DockRotate
 	{
 		private Vessel vessel;
 
+		private int Revision = -1;
+
 		private Part rootPart = null;
 
 		private int rotCount = 0;
@@ -58,6 +61,10 @@ namespace DockRotate
 		{
 			if (!v)
 				return null;
+			if (!v.loaded)
+				log(nameof(VesselMotionManager), ".get(" + v.desc() + ") called on unloaded vessel");
+			if (!v.rootPart)
+				log(nameof(VesselMotionManager), ".get(" + v.desc() + ") called on rootless vessel");
 
 			VesselMotionManager mgr = null;
 			VesselMotionManager[] mgrs = v.GetComponents<VesselMotionManager>();
@@ -76,7 +83,8 @@ namespace DockRotate
 				mgr = v.gameObject.AddComponent<VesselMotionManager>();
 				mgr.vessel = v;
 				mgr.rootPart = v.rootPart;
-				log(nameof(VesselMotionManager), ".get(" + v.desc() + ") created " + mgr.desc());
+				log(nameof(VesselMotionManager), ".get(" + v.desc() + ") created " + mgr.desc()
+					+ " [" + mgr.listeners().Count + "]");
 			}
 
 			return mgr;
@@ -222,7 +230,7 @@ namespace DockRotate
 		{
 			bool ret = v && v == vessel;
 			if (verboseEvents)
-				log(desc(), ".care(" + v.desc() + ") = " + ret);
+				log(desc(), ".care(" + v.desc() + ") = " + ret + " on " + vessel.desc());
 			return ret;
 		}
 
@@ -263,13 +271,18 @@ namespace DockRotate
 
 			int l = ret.Count;
 			for (int i = 0; i < l; i++) {
-				if (ret[i] != null && ret[i].wantsVerboseEvents()) {
-					log(desc(), ".listeners() finds " + ret.Count);
+				if (ret[i] == null)
+					continue;
+				if (ret[i].getRevision() > Revision)
+					Revision = ret[i].getRevision();
+				if (ret[i].wantsVerboseEvents()) {
 					log(desc(), ": " + ret[i].getPart().desc() + " wants verboseEvents");
 					verboseEvents = true;
 					break;
 				}
 			}
+			if (verboseEvents || verboseEventsPrev)
+				log(desc(), ".listeners() finds " + ret.Count);
 
 			if (verboseEvents != verboseEventsPrev)
 				log(desc(), ".listeners(): verboseEvents changed to " + verboseEvents);
@@ -311,7 +324,8 @@ namespace DockRotate
 		{
 			if (verboseEvents)
 				log(desc(), ".OnVesselCreate(" + v.desc() + ")");
-			get(v);
+			VesselMotionManager.get(v);
+			VesselMotionManager.get(vessel);
 		}
 
 		public void OnVesselGoOnRails(Vessel v)
@@ -341,12 +355,6 @@ namespace DockRotate
 			phase("BEGIN OFF RAILS");
 
 			get(v);
-
-			List<InternalModel> im = vessel.FindPartModulesImplementing<InternalModel>();
-			for (int i = 0; i < im.Count; i++) {
-				log(desc(), ": InternalModel[" + i + "] " + im[i] + " in " + im[i].part.desc());
-				log(desc(), im[i].transform.desc(10));
-			}
 
 			resetRotCount();
 			structureChangeInfo.reset("OffRails");
@@ -449,8 +457,16 @@ namespace DockRotate
 				return;
 			log(vessel.desc(), ": same vessel dock " + action.from.state + " -> " + action.to.state);
 			phase("BEGIN AFTER SV DOCK");
-			listeners(action.from.part).map(l => l.RightAfterStructureChange());
-			listeners(action.to.part).map(l => l.RightAfterStructureChange());
+			if (rotCount != 0) {
+				log(desc(), ": same vessel dock, rotCount = " + rotCount);
+				log(desc(), ": from: " + action.from.getDockingJoint(true));
+				log(desc(), ": to: " + action.to.getDockingJoint(true));
+				listeners(action.from.part).map(l => l.RightAfterStructureChange());
+				listeners(action.to.part).map(l => l.RightAfterStructureChange());
+			} else {
+				listeners(action.from.part).map(l => l.RightAfterStructureChange());
+				listeners(action.to.part).map(l => l.RightAfterStructureChange());
+			}
 			phase("END AFTER SV DOCK");
 			scheduleDockingStatesCheck(false);
 		}
@@ -592,7 +608,9 @@ namespace DockRotate
 			if (checker == null)
 				yield break;
 			int thisCounter = ++dockingCheckCounter;
-			for (int i = 0; i < checker.checkDelay; i++)
+
+			int waitFrame = Time.frameCount + checker.checkDelay;
+			while (Time.frameCount < waitFrame)
 				yield return new WaitForFixedUpdate();
 
 			if (thisCounter < dockingCheckCounter) {
@@ -601,38 +619,12 @@ namespace DockRotate
 				if (checker != null) {
 					log((verbose ? "verbosely " : "")
 						+ "analyzing incoherent states in " + vessel.GetName());
-					List<ModuleDockingNode> dn = vessel.FindPartModulesImplementing<ModuleDockingNode>();
-					dn = new List<ModuleDockingNode>(dn);
-					dn.Sort((a, b) => (int) a.part.flightID - (int) b.part.flightID);
-					bool foundError = false;
-					for (int i = 0; i < dn.Count; i++) {
-						ModuleDockingNode node = dn[i];
-						node.part.SetHighlightDefault();
-						ModuleDockRotate mdr = node.getDockRotate();
-						if (mdr)
-							mdr.showCheckDockingState(false);
-						if (checker.isBadNode(node, verbose)) {
-							foundError = true;
-							node.part.SetHighlightColor(checker.highlightColor);
-							node.part.SetHighlightType(Part.HighlightType.AlwaysOn);
-							if (!verbose)
-								StartCoroutine(unHighlight(node.part, checker.highlightTimeout));
-							if (mdr)
-								mdr.showCheckDockingState(true);
-						}
-					}
-
-					if (foundError)
+					DockingStateChecker.Result result = checker.checkVessel(vessel, verbose);
+					if (result.foundError)
 						ScreenMessages.PostScreenMessage(Localizer.Format("#DCKROT_bad_states"),
-							checker.messageTimeout, checker.messageStyle, checker.messageColor);
+							checker.messageTimeout, checker.messageStyle, checker.colorBad);
 				}
 			}
-		}
-
-		public IEnumerator unHighlight(Part p, float waitSeconds)
-		{
-			yield return new WaitForSeconds(waitSeconds);
-			p.SetHighlightDefault();
 		}
 
 		private string desc()

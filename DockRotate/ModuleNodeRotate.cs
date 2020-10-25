@@ -1,9 +1,5 @@
-using System;
 using System.Collections.Generic;
-using System.Reflection;
-using UnityEngine;
 using KSP.Localization;
-using CompoundParts;
 
 namespace DockRotate
 {
@@ -11,6 +7,9 @@ namespace DockRotate
 	{
 		[KSPField(isPersistant = true)]
 		public string rotatingNodeName = "";
+
+		[KSPField(isPersistant = true)]
+		public bool enableJointMotionProxy = true;
 
 		[KSPField(isPersistant = true)]
 		public uint otherPartFlightID = 0;
@@ -61,8 +60,8 @@ namespace DockRotate
 				log(desc(), ".setupLocalAxis(" + state + "): "
 					+ "no node \"" + rotatingNodeName + "\"");
 
-				AttachNode[] nodes = part.allAttachNodes();
-				for (int i = 0; i < nodes.Length; i++)
+				List<AttachNode> nodes = part.allAttachNodes();
+				for (int i = 0; i < nodes.Count; i++)
 					log(desc(), ": node[" + i + "] = " + nodes[i].desc());
 				return false;
 			}
@@ -110,7 +109,8 @@ namespace DockRotate
 			if (verbose)
 				log(desc(), ".findMovingJoint(" + rotatingNode.id + "): attachedPart is " + other.desc());
 			other.forcePhysics();
-			JointLockStateProxy.register(other, this);
+			if (enableJointMotionProxy && HighLogic.LoadedSceneIsFlight)
+				JointLockStateProxy.register(other, this);
 
 			if (owner.parent == other) {
 				PartJoint ret = owner.attachJoint;

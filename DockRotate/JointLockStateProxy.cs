@@ -6,7 +6,7 @@ namespace DockRotate
 	{
 		public bool verboseEvents = true;
 
-		private List<IJointLockState> tgt;
+		private List<IJointLockState> tgt = null;
 
 		public static void register(Part p, IJointLockState jls)
 		{

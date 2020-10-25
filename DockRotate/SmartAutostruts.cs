@@ -66,14 +66,13 @@ namespace DockRotate
 
 		/******** Vessel Autostruts cache ********/
 
-		private static PartJoint[] cached_allAutostrutJoints = null;
+		private static List<PartJoint> cached_allAutostrutJoints = new List<PartJoint>();
 		private static Vessel cached_allAutostrutJoints_vessel = null;
 		private static int cached_allAutostrutJoints_frame = 0;
 
-		private static PartJoint[] getAllAutostrutJoints(Vessel vessel, bool verbose)
+		private static List<PartJoint> getAllAutostrutJoints(Vessel vessel, bool verbose)
 		{
-			if (cached_allAutostrutJoints != null
-				&& cached_allAutostrutJoints_vessel == vessel
+			if (cached_allAutostrutJoints_vessel == vessel
 				&& cached_allAutostrutJoints_frame == Time.frameCount)
 				return cached_allAutostrutJoints;
 
@@ -90,7 +89,7 @@ namespace DockRotate
 				jointsToKeep.add(allStruts[i].strutJoint);
 
 			PartJoint[] allJoints = getAllJoints();
-			List<PartJoint> allAutostrutJoints = new List<PartJoint>();
+			cached_allAutostrutJoints.Clear();
 			for (int ii = 0; ii < allJoints.Length; ii++) {
 				PartJoint j = allJoints[ii];
 				if (!j)
@@ -107,12 +106,11 @@ namespace DockRotate
 				if (jointsToKeep.contains(j))
 					continue;
 
-				allAutostrutJoints.Add(j);
+				cached_allAutostrutJoints.Add(j);
 				if (verbose)
-					log("Autostrut [" + allAutostrutJoints.Count + "] " + j.desc());
+					log("Autostrut [" + cached_allAutostrutJoints.Count + "] " + j.desc());
 			}
 
-			cached_allAutostrutJoints = allAutostrutJoints.ToArray();
 			cached_allAutostrutJoints_vessel = vessel;
 			cached_allAutostrutJoints_frame = Time.frameCount;
 			return cached_allAutostrutJoints;
@@ -124,10 +122,10 @@ namespace DockRotate
 		{
 			PartSet rotParts = PartSet.allPartsFromHere(part);
 
-			PartJoint[] allAutostrutJoints = getAllAutostrutJoints(part.vessel, verbose);
+			List<PartJoint> allAutostrutJoints = getAllAutostrutJoints(part.vessel, verbose);
 
 			int count = 0;
-			for (int ii = 0; ii < allAutostrutJoints.Length; ii++) {
+			for (int ii = 0; ii < allAutostrutJoints.Count; ii++) {
 				PartJoint j = allAutostrutJoints[ii];
 				if (!j || !j.Host || !j.Target)
 					continue;

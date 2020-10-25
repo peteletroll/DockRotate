@@ -44,7 +44,6 @@ namespace DockRotate
 
 		/******** Vessel utilities ********/
 
-
 		public static string desc(this Vessel v, bool bare = false)
 		{
 			uint id = (v && v.rootPart) ? v.rootPart.flightID : 0;
@@ -108,13 +107,13 @@ namespace DockRotate
 			return s > 1 ? part.name.Remove(s) : part.name;
 		}
 
-		public static AttachNode[] allAttachNodes(this Part part)
+		public static List<AttachNode> allAttachNodes(this Part part)
 		{
 			List<AttachNode> ret = new List<AttachNode>();
 			if (part.srfAttachNode != null)
 				ret.Add(part.srfAttachNode);
 			ret.AddRange(part.attachNodes);
-			return ret.ToArray();
+			return ret;
 		}
 
 		/******** Physics Activation utilities ********/
@@ -170,8 +169,8 @@ namespace DockRotate
 				other = node.FindOtherNode();
 				if (other) {
 					log(label, ".getDockedNode(): other found " + other.part.desc()
+						+ " with dockedPartUId = " + other.dockedPartUId
 						+ " from id = " + node.dockedPartUId);
-					node.otherNode = other; // this fixes a ModuleDockingNode bug
 				}
 			}
 			if (!other && verbose)
@@ -179,50 +178,65 @@ namespace DockRotate
 			return other;
 		}
 
-		public static PartJoint getDockingJoint(this ModuleDockingNode node, out bool isSameVessel, bool verbose)
+		public static PartJoint getDockingJoint(this ModuleDockingNode node, bool verbose)
 		{
-			isSameVessel = false;
+			PartJoint ret = null;
 
 			ModuleDockingNode other = node.getDockedNode(verbose);
 			if (!other)
 				return null;
 
-			PartJoint ret = node.sameVesselDockJoint;
-			if (ret && ret.Target == other.part) {
+			PartJoint tmp = node.sameVesselDockJoint;
+			if (tmp && tmp.Target == other.part) {
 				if (verbose)
-					log(node.part.desc(), ".getDockingJoint(): to same vessel " + ret.desc());
-				isSameVessel = true;
-				return ret;
+					log(node.part.desc(), ".getDockingJoint(): to same vessel " + tmp.desc());
+				ret = tmp;
 			}
 
-			ret = other.sameVesselDockJoint;
-			if (ret && ret.Target == node.part) {
+			tmp = other.sameVesselDockJoint;
+			if (!ret && tmp && tmp.Target == node.part) {
 				if (verbose)
-					log(node.part.desc(), ".getDockingJoint(): from same vessel " + ret.desc());
-				isSameVessel = true;
-				return ret;
+					log(node.part.desc(), ".getDockingJoint(): from same vessel " + tmp.desc());
+				ret = tmp;
 			}
 
-			if (node.part.parent == other.part) {
+			if (ret) {
+				tmp = ret.getTreeEquiv(verbose);
+				if (tmp)
+					ret = tmp;
+			}
+
+			if (!ret && node.part.parent == other.part) {
 				ret = node.part.attachJoint;
 				if (verbose)
 					log(node.part.desc(), ".getDockingJoint(): to parent " + ret.desc());
-				return ret;
 			}
 
-			for (int i = 0; i < node.part.children.Count; i++) {
+			for (int i = 0; !ret && i < node.part.children.Count; i++) {
 				Part child = node.part.children[i];
 				if (child == other.part) {
 					ret = child.attachJoint;
 					if (verbose)
 						log(node.part.desc(), ".getDockingJoint(): to child " + ret.desc());
-					return ret;
 				}
 			}
 
-			if (verbose)
+			if (ret && other && !node.otherNode) {
+				log(node.part.desc(), ": setting otherNode = " + other.part.desc());
+				node.otherNode = other; // this fixes a ModuleDockingNode bug
+				node.dockedPartUId = other.part.flightID;
+			}
+
+			if (!ret && node.dockedPartUId > 0) {
+				log(node.part.desc(), ": dockedPartUId = " + node.dockedPartUId + ", but no joint");
+				log(node.part.desc(), ": zeroing dockedPartUId = " + node.dockedPartUId);
+				node.dockedPartUId = 0;
+			}
+
+			if (!ret && verbose)
 				log(node.part.desc(), ".getDockingJoint(): nothing");
-			return null;
+
+			return ret;
 		}
 
 		public static ModuleDockRotate getDockRotate(this ModuleDockingNode node)
@@ -337,15 +351,44 @@ namespace DockRotate
 
 		/******** PartJoint utilities ********/
 
+		public static bool safetyCheck(this PartJoint j)
+		{
+			return j
+				&& j.Host && j.Target
+				&& j.Host.vessel && j.Target.vessel
+				&& j.Host.transform && j.Target.transform;
+		}
+
+		public static bool sameParts(this PartJoint j1, PartJoint j2)
+		{
+			if (!j1 || !j2)
+				return false;
+			return j1.Host == j2.Host && j1.Target == j2.Target
+				|| j1.Host == j2.Target && j1.Target == j2.Host;
+		}
+
 		public static bool isOffTree(this PartJoint j)
 		{
-			if (!j || !j.Host || !j.Target)
-				return true;
-			if (j == j.Host.attachJoint)
-				return false;
-			if (j.Host.parent == j.Target)
-				log(j.desc(), ".isOffTree(): *** WARNING *** true at parent test");
-			return true;
+			return !j ? true
+				: j.Host && j.Host.attachJoint == j ? false
+				: j.Target && j.Target.attachJoint == j ? false
+				: true;
+		}
+
+		public static PartJoint getTreeEquiv(this PartJoint j, bool verbose)
+		{
+			if (!j)
+				return null;
+			PartJoint ret =
+				j.sameParts(j.Host.attachJoint) ? j.Host.attachJoint :
+				j.sameParts(j.Target.attachJoint) ? j.Target.attachJoint :
+				null;
+
+			if (ret && verbose)
+				log(j.desc(), ".getTreeEquiv(): " + j.desc()
+					+ " overruled by " + ret.desc());
+
+			return ret;
 		}
 
 		public static string desc(this PartJoint j, bool bare = false)
@@ -354,8 +397,9 @@ namespace DockRotate
 				return "null";
 			string host = j.Host.desc(true) + (j.Child == j.Host ? "" : "/" + j.Child.desc(true));
 			string target = j.Target.desc(true) + (j.Parent == j.Target ? "" : "/" + j.Parent.desc(true));
+			string ot = j.isOffTree() ? ":OT" : "";
 			int n = j.joints.Count;
-			return (bare ? "" : "PJ:" + j.GetInstanceID() + ":") + host + new string('>', n) + target;
+			return (bare ? "" : "PJ:" + j.GetInstanceID() + ":") + host + new string('>', n) + target + ot;
 		}
 
 		public static void dump(this PartJoint j)

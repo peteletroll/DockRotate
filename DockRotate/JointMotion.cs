@@ -9,7 +9,6 @@ namespace DockRotate
 		private PartJoint _joint;
 
 		public PartJoint joint { get => _joint; }
-		public Vessel vessel { get => mayWork() ? _joint.Host.vessel : null; }
 
 		public Vector3 hostAxis, hostNode;
 		private Vector3 hostUp, targetUp;
@@ -24,9 +23,6 @@ namespace DockRotate
 		public JointMotionObj rotCur {
 			get { return _rotCur; }
 			set {
-				if (!mayWork())
-					return;
-
 				bool sas = (_rotCur && _rotCur.smartAutoStruts)
 					|| (value && value.smartAutoStruts);
 
@@ -77,16 +73,6 @@ namespace DockRotate
 				if (_controller)
 					_controller.putAxis(this);
 			}
-		}
-
-		private bool mayWork()
-		{
-			bool ret = _joint
-				&& _joint.Host && _joint.Host.vessel
-				&& _joint.Target && _joint.Target.vessel;
-			if (!ret)
-				_joint = null;
-			return ret;
 		}
 
 		public static JointMotion get(PartJoint j)
@@ -151,11 +137,15 @@ namespace DockRotate
 
 		public virtual bool enqueueRotation(ModuleBaseRotate source, float angle, float speed, float startSpeed = 0f)
 		{
-			if (!joint)
+			if (!joint) {
+				log(desc(), ".enqueueRotation(): canceled, no joint");
 				return false;
+			}
 
-			if (speed < 0.1f)
+			if (speed < 0.1f) {
+				log(desc(), ".enqueueRotation(): canceled, no speed");
 				return false;
+			}
 
 			string action = "";
 			if (rotCur) {
@@ -205,13 +195,27 @@ namespace DockRotate
 			return Mathf.DeltaAngle(0f, orgRot + (_rotCur ? _rotCur.pos : 0f));
 		}
 
+		private float dynamicDeltaAngleRestart = 0f;
+
 		public float dynamicDeltaAngle()
 		// = dynamic - static
 		{
-			Vector3 a = hostAxis;
-			Vector3 vd = targetUp.Td(joint.Target.T(), joint.Host.T());
-			Vector3 vs = targetUp.STd(joint.Target, joint.Host);
-			return a.axisSignedAngle(vs, vd);
+			float ret = float.NaN;
+			if (Time.fixedTime > dynamicDeltaAngleRestart) {
+				try {
+					Vector3 a = hostAxis;
+					Vector3 vd = targetUp.Td(joint.Target.T(), joint.Host.T());
+					Vector3 vs = targetUp.STd(joint.Target, joint.Host);
+					ret = a.axisSignedAngle(vs, vd);
+				} catch (Exception e) {
+					float delayException = 20f;
+					dynamicDeltaAngleRestart = Time.fixedTime + delayException;
+					log(this.desc(), ".dynamicDeltaAngle(): " + e.Message
+						+ ": disabling for " + delayException + " seconds");
+					log(this.desc(), ": safetyCheck() is " + joint.safetyCheck());
+				}
+			}
+			return ret;
 		}
 
 		public float angleToSnap(float snap)
@@ -232,7 +236,7 @@ namespace DockRotate
 		{
 			return GameSettings.MODIFIER_KEY.GetKey()
 				&& GameSettings.BRAKES.GetKeyDown()
-				&& vessel == FlightGlobals.ActiveVessel;
+				&& joint && joint.Host && joint.Host.vessel == FlightGlobals.ActiveVessel;
 		}
 
 		public void FixedUpdate()
@@ -365,7 +369,6 @@ namespace DockRotate
 		{
 			public ConfigurableJointManager cjm;
 			public Vector3 localAxis, localNode;
-			public Vector3 jointAxis, jointNode;
 			public Vector3 connectedBodyAxis, connectedBodyNode;
 		}
 		private RotJointInfo[] rji;
@@ -403,9 +406,6 @@ namespace DockRotate
 
 				ji.localAxis = axis.Td(hostPart.T(), j.T());
 				ji.localNode = node.Tp(hostPart.T(), j.T());
-
-				ji.jointAxis = ji.cjm.L2Jd(ji.localAxis);
-				ji.jointNode = ji.cjm.L2Jp(ji.localNode);
 
 				ji.connectedBodyAxis = axis.STd(hostPart, targetPart)
 					.Td(targetPart.T(), targetPart.rb.T());
