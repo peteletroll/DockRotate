@@ -474,7 +474,7 @@ namespace DockRotate
 
 		public void doRotateToSnap()
 		{
-			if (!canStartRotation(true))
+			if (!canStartRotation(true, true))
 				return;
 			enqueueRotationToSnap(rotationStep, speed());
 		}
