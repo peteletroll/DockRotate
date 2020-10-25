@@ -454,7 +454,7 @@ namespace DockRotate
 
 		public void doRotateClockwise()
 		{
-			if (!canStartRotation())
+			if (!canStartRotation(true))
 				return;
 			if (!enqueueRotation(step(), speed()))
 				return;
@@ -464,7 +464,7 @@ namespace DockRotate
 
 		public void doRotateCounterclockwise()
 		{
-			if (!canStartRotation())
+			if (!canStartRotation(true))
 				return;
 			if (!enqueueRotation(-step(), speed()))
 				return;
@@ -814,8 +814,8 @@ namespace DockRotate
 		private void checkGuiActive()
 		{
 			if (guiInfo != null) {
-				bool csr = canStartRotation();
-				bool csra = canStartRotation(true);
+				bool csr = canStartRotation(false);
+				bool csra = canStartRotation(false, true);
 				for (int i = 0; i < guiInfo.Length; i++) {
 					ref GuiInfo ii = ref guiInfo[i];
 					bool flagsCheck = !(hideCommands && ii.flags.IndexOf('C') >= 0)
@@ -966,7 +966,7 @@ namespace DockRotate
 #endif
 		}
 
-		protected bool canStartRotation(bool ignoreDisabled = false)
+		protected bool canStartRotation(bool verbose, bool ignoreDisabled = false)
 		{
 			string failMsg = "";
 
@@ -977,20 +977,20 @@ namespace DockRotate
 					failMsg = "can't find host part";
 				}
 			} else {
-				if (!vessel) {
-					failMsg = "no vessel";
+				if (!rotationEnabled && !ignoreDisabled) {
+					failMsg = "rotation disabled";
 				} else if (!setupDone) {
 					failMsg = "not set up";
 				} else if (!hasJointMotion) {
 					failMsg = "no joint motion";
+				} else if (!vessel) {
+					failMsg = "no vessel";
 				} else if (vessel.CurrentControlLevel != Vessel.ControlLevel.FULL) {
 					failMsg = "uncontrolled vessel";
-				} else if (!rotationEnabled && !ignoreDisabled) {
-					failMsg = "rotation disabled";
 				}
 			}
 
-			if (verboseEvents && failMsg != "")
+			if (verbose && failMsg != "")
 				log(desc(), ".canStartRotation(): " + failMsg);
 
 			return failMsg == "";
