@@ -618,6 +618,7 @@ namespace DockRotate
 			angleIsMoving = false;
 			needsAlignment = false;
 			enabled = false;
+			stagingEnabled = false;
 
 			if (!part || !vessel || !setupLocalAxisDone) {
 				log("" + GetType(), ": *** WARNING *** doSetup() called at a bad time");
