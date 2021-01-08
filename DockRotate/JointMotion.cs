@@ -195,6 +195,21 @@ namespace DockRotate
 			return Mathf.DeltaAngle(0f, orgRot + (_rotCur ? _rotCur.pos : 0f));
 		}
 
+		public float rotationTarget()
+		{
+			if (!_rotCur)
+				return orgRot;
+
+			float tgt = _rotCur.tgt;
+			if (SmoothMotion.isContinuous(ref tgt))
+				return tgt > 0 ? float.PositiveInfinity : float.NegativeInfinity;
+
+			tgt = Mathf.DeltaAngle(0f, orgRot + tgt);
+			if (Mathf.Abs(tgt) < 1e-4f)
+				tgt = 0f;
+			return tgt;
+		}
+
 		private float dynamicDeltaAngleRestart = 0f;
 
 		public float dynamicDeltaAngle()

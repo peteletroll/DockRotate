@@ -946,8 +946,9 @@ namespace DockRotate
 		private void updateStatus(JointMotionObj cr)
 		{
 			if (cr) {
-				angleInfo = String.Format("{0:+0.00;-0.00;0.00}\u00b0 ({1:+0.00;-0.00;0.00}\u00b0/s){2}",
-					anglePosition, cr.vel, (jointMotion.controller == this ? " CTL" : ""));
+				angleInfo = String.Format("{0:+0.00;-0.00;0.00}\u00b0 > {1:+0.00;-0.00;0.00}\u00b0 ({2:+0.00;-0.00;0.00}\u00b0/s){3}",
+					anglePosition, jointMotion.rotationTarget(),
+					cr.vel, (jointMotion.controller == this ? " CTL" : ""));
 			} else {
 				if (float.IsNaN(anglePosition)) {
 					angleInfo = angleInfoNA;
