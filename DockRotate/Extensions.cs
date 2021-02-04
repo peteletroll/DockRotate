@@ -263,8 +263,10 @@ namespace DockRotate
 			if (node.nodeTypes != null && node.nodeTypes.Count > 0)
 				return;
 			log(node.part.desc(), ".fillNodeTypes(): fill with \"" + node.nodeType + "\"");
-			if (node.nodeTypes == null)
+			if (node.nodeTypes == null) {
+				log(node.part.desc(), ".fillNodeTypes(): creating HashSet");
 				node.nodeTypes = new HashSet<string>();
+			}
 			string[] types = node.nodeType.Split(',');
 			for (int i = 0; i < types.Length; i++) {
 				string type = types[i].Trim();
