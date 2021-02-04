@@ -27,6 +27,21 @@ namespace DockRotate
 			return dockingNode;
 		}
 
+		private BaseEvent SwitchToReadyEvent = null;
+		[KSPEvent(
+			guiName = "#DCKROT_switch_to_ready",
+			guiActive = false,
+			guiActiveEditor = false,
+			requireFullControl = true
+		)]
+		public void SwitchToReady()
+		{
+			if (dockingNode && dockingNode.fsm != null && dockingNode.state == "Disengage") {
+				dockingNode.DebugFSMState = true;
+				dockingNode.fsm.StartFSM("Ready");
+			}
+		}
+
 		[KSPEvent(
 			guiActive = true,
 			// put right label and group according to DEBUG
@@ -170,6 +185,8 @@ namespace DockRotate
 #endif
 			base.doSetup();
 
+			SwitchToReadyEvent = Events[nameof(SwitchToReady)];
+
 			if (!consoleSetupDone) {
 				consoleSetupDone = true;
 				DebugScreenConsole.AddConsoleCommand("dr", consoleCommand, "DockRotate commands");
@@ -202,6 +219,13 @@ namespace DockRotate
 					enqueueFrozenRotation(jointMotion.angleToSnap(snap), 5f);
 				}
 			}
+		}
+
+		protected override void updateStatus(JointMotionObj cr)
+		{
+			base.updateStatus(cr);
+			if (SwitchToReadyEvent != null)
+				SwitchToReadyEvent.guiActive = dockingNode && dockingNode.state == "Disengage";
 		}
 
 		private float autoSnapStep()

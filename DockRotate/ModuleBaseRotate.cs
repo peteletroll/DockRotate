@@ -943,7 +943,7 @@ namespace DockRotate
 			setEvents(false);
 		}
 
-		private void updateStatus(JointMotionObj cr)
+		protected virtual void updateStatus(JointMotionObj cr)
 		{
 			if (cr) {
 				angleInfo = String.Format(
