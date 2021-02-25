@@ -324,8 +324,9 @@ namespace DockRotate
 		{
 			if (verboseEvents)
 				log(desc(), ".OnVesselCreate(" + v.desc() + ")");
-			VesselMotionManager.get(v);
-			VesselMotionManager.get(vessel);
+			VesselMotionManager vmm = VesselMotionManager.get(v);
+			if (!onRails)
+				vmm.OnVesselGoOffRails(v);
 		}
 
 		public void OnVesselGoOnRails(Vessel v)
