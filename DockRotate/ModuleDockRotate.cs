@@ -178,12 +178,19 @@ namespace DockRotate
 
 		private static bool consoleSetupDone = false;
 
-		protected override void doSetup()
+		[KSPField(
+			guiActive = false,
+			guiActiveEditor = false,
+			isPersistant = true
+		)]
+		private bool isDocked = false;
+
+		protected override void doSetup(bool onLaunch)
 		{
 #if !DEBUG
 			showCheckDockingState(false);
 #endif
-			base.doSetup();
+			base.doSetup(onLaunch);
 
 			SwitchToReadyEvent = Events[nameof(SwitchToReady)];
 
@@ -201,6 +208,13 @@ namespace DockRotate
 			}
 #endif
 
+			if (onLaunch) {
+				isDocked = hasJointMotion;
+			} else if (isDocked != hasJointMotion) {
+				isDocked = hasJointMotion;
+				log(desc(), ": new docked state " + isDocked);
+			}
+
 			if (hasJointMotion && jointMotion.joint.Host == part && !frozenFlag) {
 				float snap = autoSnapStep();
 				if (verboseEvents)
@@ -213,7 +227,7 @@ namespace DockRotate
 					if (otherSnap > 0f && (snap.isZero() || otherSnap < snap))
 						snap = otherSnap;
 				}
-				if (!snap.isZero()) {
+				if (!snap.isZero() && !onLaunch) {
 					if (verboseEvents)
 						log(jointMotion.desc(), ": autosnap at " + snap);
 					enqueueFrozenRotation(jointMotion.angleToSnap(snap), 5f);

@@ -608,7 +608,7 @@ namespace DockRotate
 			get => setupDoneAt != 0;
 		}
 
-		protected virtual void doSetup()
+		protected virtual void doSetup(bool onLaunch)
 		{
 			jointMotion = null;
 			hasJointMotion = false;
@@ -631,6 +631,9 @@ namespace DockRotate
 			}
 
 			try {
+				if (onLaunch)
+					log(part.desc(), ".doSetup(): at launch");
+
 				fillParentBaseRotate();
 				fillCrossStruts();
 				setupGuiActive();
@@ -688,7 +691,8 @@ namespace DockRotate
 			setupDoneAt = 0;
 			// start speed always 0 when going off rails
 			frozenStartSpeed = 0f;
-			doSetup();
+			doSetup(justLaunched);
+			justLaunched = false;
 		}
 
 		public void RightAfterEditorChange_ShipModified(ShipConstruct ship)
@@ -733,7 +737,7 @@ namespace DockRotate
 		{
 			if (verboseEvents)
 				log(desc(), ".RightAfterStructureChange()");
-			doSetup();
+			doSetup(false);
 		}
 
 		private bool eventState = false;
@@ -878,11 +882,15 @@ namespace DockRotate
 			setupDoneAt = 0;
 		}
 
+		private bool justLaunched = false;
+
 		public override void OnStart(StartState state)
 		{
 #if !DEBUG
 			verboseEvents = false;
 #endif
+			justLaunched = state == StartState.PreLaunch;
+
 			verboseEventsPrev = verboseEvents;
 			if (verboseEvents)
 				log(desc(), ".OnStart(" + state + ")");

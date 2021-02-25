@@ -27,9 +27,9 @@ namespace DockRotate
 			storedInfo = Localizer.Format("#DCKROT_node_info", rotatingNodeName);
 		}
 
-		protected override void doSetup()
+		protected override void doSetup(bool onLaunch)
 		{
-			base.doSetup();
+			base.doSetup(onLaunch);
 			// TODO: change groupDisplayName to "NodeRotate <node name>"
 		}
 
