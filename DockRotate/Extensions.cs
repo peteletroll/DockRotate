@@ -33,15 +33,6 @@ namespace DockRotate
 			return true;
 		}
 
-		/******** Camera utilities ********/
-
-		public static string desc(this Camera c)
-		{
-			if (!c)
-				return "null";
-			return c.name + "(" + c.cameraType + ") @ " + c.gameObject;
-		}
-
 		/******** Vessel utilities ********/
 
 		public static string desc(this Vessel v, bool bare = false)

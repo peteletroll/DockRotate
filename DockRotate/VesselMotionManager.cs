@@ -50,7 +50,6 @@ namespace DockRotate
 		public bool onRails = false;
 
 		private bool verboseEvents = false;
-		private bool verboseCamera = false;
 
 		public bool verbose()
 		{
@@ -144,9 +143,6 @@ namespace DockRotate
 				GameEvents.onVesselGoOnRails.Add(OnVesselGoOnRails);
 				GameEvents.onVesselGoOffRails.Add(OnVesselGoOffRails);
 
-				GameEvents.OnCameraChange.Add(OnCameraChange_CameraMode);
-				GameEvents.OnIVACameraKerbalChange.Add(OnCameraChange_Kerbal);
-
 				GameEvents.onActiveJointNeedUpdate.Add(RightBeforeStructureChange_JointUpdate);
 
 				GameEvents.onPartCouple.Add(RightBeforeStructureChange_Action);
@@ -168,9 +164,6 @@ namespace DockRotate
 
 				GameEvents.onVesselGoOnRails.Remove(OnVesselGoOnRails);
 				GameEvents.onVesselGoOffRails.Remove(OnVesselGoOffRails);
-
-				GameEvents.OnCameraChange.Remove(OnCameraChange_CameraMode);
-				GameEvents.OnIVACameraKerbalChange.Add(OnCameraChange_Kerbal);
 
 				GameEvents.onActiveJointNeedUpdate.Remove(RightBeforeStructureChange_JointUpdate);
 
@@ -492,88 +485,6 @@ namespace DockRotate
 			listeners(action.to.part).map(l => l.RightAfterStructureChange());
 			phase("END AFTER SV UNDOCK");
 			scheduleDockingStatesCheck(false);
-		}
-
-		public void OnCameraChange_Kerbal(Kerbal k)
-		{
-			OnCameraChange();
-		}
-
-		public void OnCameraChange_CameraMode(CameraManager.CameraMode mode)
-		{
-			OnCameraChange();
-		}
-
-		public void OnCameraChange()
-		{
-			if (!verboseCamera)
-				return;
-
-			if (!HighLogic.LoadedSceneIsFlight || vessel != FlightGlobals.ActiveVessel)
-				return;
-
-			Camera camera = CameraManager.GetCurrentCamera();
-			CameraManager manager = CameraManager.Instance;
-			if (!camera || !manager)
-				return;
-
-			CameraManager.CameraMode mode = manager.currentCameraMode;
-			if (mode != CameraManager.CameraMode.IVA && mode != CameraManager.CameraMode.Internal)
-				return;
-
-			phase("BEGIN CAMERA CHANGE " + mode, verboseCamera);
-			log(desc(), ".OnCameraChange(" + mode + ")");
-
-			/*
-			Camera[] cameras = Camera.allCameras;
-			for (int i = 0; i < cameras.Length; i++) {
-				log("camera[" + i + "] = " + cameras[i].desc());
-				log(cameras[i].transform.desc(10));
-			}
-			*/
-
-			if (verboseCamera)
-				reparentInternalModel();
-
-			phase("END CAMERA CHANGE " +  mode, verboseCamera);
-		}
-
-		private void reparentInternalModel()
-		{
-			if (!CameraManager.Instance)
-				return;
-			CameraManager.CameraMode mode = CameraManager.Instance.currentCameraMode;
-			if (mode != CameraManager.CameraMode.IVA && mode != CameraManager.CameraMode.Internal)
-				return;
-
-			InternalModel im = null;
-
-			Camera[] c = Camera.allCameras;
-			int nc = c.Length;
-			for (int ic = 0; !im && ic < nc; ic++)
-				for (Transform t = c[ic].transform; !im && t; t = t.parent)
-					im = t.gameObject.GetComponent<InternalModel>();
-
-			if (!im || !im.part)
-				return;
-			log(desc(), ".reparentInternalModel(): found in " + im.part.desc());
-
-			for (int ic = 0; ic < nc; ic++) {
-				for (Transform t = c[ic].transform; t && t.parent; t = t.parent) {
-					Part pp = t.parent.gameObject.GetComponent<Part>();
-					if (pp && pp != im.part) {
-						phase("BEFORE REPARENTING", true);
-						log(c[ic].transform.desc(10));
-
-						t.SetParent(im.part.transform, true);
-						phase("AFTER REPARENTING", true);
-						log(c[ic].transform.desc(10));
-
-						phase("REPARENTED", true);
-						break;
-					}
-				}
-			}
 		}
 
 		public void Awake()
