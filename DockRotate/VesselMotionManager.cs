@@ -325,8 +325,12 @@ namespace DockRotate
 			if (verboseEvents)
 				log(desc(), ".OnVesselCreate(" + v.desc() + ")");
 			VesselMotionManager vmm = VesselMotionManager.get(v);
-			if (!onRails)
-				vmm.OnVesselGoOffRails(v);
+			if (onRails) {
+				log(desc(), " doesn't trigger " + vessel.desc() + "." + nameof(OnVesselGoOffRails) + "()");
+			} else {
+				log(desc(), " triggers " + vessel.desc() + "." + nameof(OnVesselGoOffRails) + "()");
+				OnVesselGoOffRails(vessel);
+			}
 		}
 
 		public void OnVesselGoOnRails(Vessel v)
@@ -636,7 +640,7 @@ namespace DockRotate
 		private void phase(string msg, bool force = false)
 		{
 			if (verboseEvents || force)
-				log(new string('-', 10) + " " + msg + " " + new string('-', 60 - msg.Length));
+				log(desc() + ": --- " + msg + " " + new string('-', 60 - msg.Length));
 		}
 
 		protected static bool log(string msg1, string msg2 = "")
