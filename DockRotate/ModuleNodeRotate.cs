@@ -68,7 +68,7 @@ namespace DockRotate
 
 			partNodePos = rotatingNode.position;
 			partNodeAxis = rotatingNode.orientation;
-			if (verboseEvents)
+			if (verboseSetup)
 				log(desc(), ".setupLocalAxis(" + state + ") done: "
 					+ partNodeAxis + "@" + partNodePos);
 			return true;

@@ -93,7 +93,7 @@ namespace DockRotate
 				return null;
 			if (verbose)
 				log(desc(), ".findMovingNodeInEditor(): referenceNode = " + dockingNode.referenceNode.desc());
-			AttachNode otherNode = dockingNode.referenceNode.getConnectedNode(verboseEvents);
+			AttachNode otherNode = dockingNode.referenceNode.getConnectedNode(verboseSetup);
 			if (verbose)
 				log(desc(), ".findMovingNodeInEditor(): otherNode = " + otherNode.desc());
 			if (otherNode == null)
@@ -138,7 +138,7 @@ namespace DockRotate
 
 			partNodePos = Vector3.zero.Tp(dockingNode.T(), part.T());
 			partNodeAxis = Vector3.forward.Td(dockingNode.T(), part.T());
-			if (verboseEvents)
+			if (verboseSetup)
 				log(desc(), ".setupLocalAxis(" + state + ") done: "
 					+ partNodeAxis + "@" + partNodePos);
 			return true;
@@ -217,18 +217,18 @@ namespace DockRotate
 
 			if (hasJointMotion && jointMotion.joint.Host == part && !frozenFlag) {
 				float snap = autoSnapStep();
-				if (verboseEvents)
+				if (verboseSetup)
 					log(desc(), ".autoSnapStep() = " + snap);
 				ModuleDockRotate other = jointMotion.joint.Target.FindModuleImplementing<ModuleDockRotate>();
 				if (other) {
 					float otherSnap = other.autoSnapStep();
-					if (verboseEvents)
+					if (verboseSetup)
 						log(other.desc(), ".autoSnapStep() = " + otherSnap);
 					if (otherSnap > 0f && (snap.isZero() || otherSnap < snap))
 						snap = otherSnap;
 				}
 				if (!snap.isZero() && !onLaunch) {
-					if (verboseEvents)
+					if (verboseSetup)
 						log(jointMotion.desc(), ": autosnap at " + snap);
 					enqueueFrozenRotation(jointMotion.angleToSnap(snap), 5f);
 				}
@@ -256,7 +256,7 @@ namespace DockRotate
 				step = rotationStep;
 				source = "rotationStep";
 			}
-			if (verboseEvents)
+			if (verboseSetup)
 				log(desc(), ".autoSnapStep() = " + step + " from " + source);
 			if (step >= 360f)
 				step = 0f;

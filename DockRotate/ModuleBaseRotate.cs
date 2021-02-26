@@ -188,7 +188,23 @@ namespace DockRotate
 			groupStartCollapsed = true
 		)]
 		public string nodeStatus = "";
+#endif
 
+#if DEBUG
+		[UI_Toggle]
+		[KSPField(
+			guiName = "Verbose Setup",
+			guiActive = true,
+			guiActiveEditor = true,
+			isPersistant = true,
+			groupName = DEBUGGROUP,
+			groupDisplayName = DEBUGGROUP,
+			groupStartCollapsed = true
+		)]
+#endif
+		public bool verboseSetup = false;
+
+#if DEBUG
 		[UI_Toggle]
 		[KSPField(
 			guiName = "Verbose Events",
@@ -637,7 +653,7 @@ namespace DockRotate
 				fillParentBaseRotate();
 				fillCrossStruts();
 				setupGuiActive();
-				PartJoint rotatingJoint = findMovingJoint(verboseEvents);
+				PartJoint rotatingJoint = findMovingJoint(verboseSetup);
 
 				if (rotatingJoint && !rotatingJoint.safetyCheck()) {
 					log(part.desc(), ": joint safety check failed for "
@@ -758,12 +774,12 @@ namespace DockRotate
 		private void setEvents(bool cmd)
 		{
 			if (cmd == eventState) {
-				if (verboseEvents)
+				if (verboseSetup || verboseEvents)
 					log(desc(), ".setEvents(" + cmd + ") repeated");
 				return;
 			}
 
-			if (verboseEvents)
+			if (verboseSetup || verboseEvents)
 				log(desc(), ".setEvents(" + cmd + ")");
 
 			if (cmd) {
@@ -906,12 +922,12 @@ namespace DockRotate
 		public override void OnStart(StartState state)
 		{
 #if !DEBUG
-			verboseEvents = false;
+			verboseSetup = verboseEvents = false;
 #endif
 			justLaunched = state == StartState.PreLaunch;
 
 			verboseEventsPrev = verboseEvents;
-			if (verboseEvents)
+			if (verboseSetup || verboseEvents)
 				log(desc(), ".OnStart(" + state + ")");
 
 			base.OnStart(state);
@@ -1003,7 +1019,7 @@ namespace DockRotate
 			if (HighLogic.LoadedSceneIsEditor) {
 				if (!rotationEnabled) {
 					failMsg = "rotation disabled";
-				} else if (!findHostPartInEditor(verboseEvents)) {
+				} else if (!findHostPartInEditor(verbose)) {
 					failMsg = "can't find host part";
 				}
 			} else {
