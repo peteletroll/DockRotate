@@ -147,9 +147,6 @@ namespace DockRotate
 				GameEvents.onPartUndock.Add(RightBeforeStructureChange_Part);
 				GameEvents.onPartUndockComplete.Add(RightAfterStructureChange_Part);
 
-				GameEvents.onSameVesselDock.Add(RightAfterSameVesselDock);
-				GameEvents.onSameVesselUndock.Add(RightAfterSameVesselUndock);
-
 			} else {
 
 				GameEvents.onActiveJointNeedUpdate.Remove(RightBeforeStructureChange_JointUpdate);
@@ -163,9 +160,6 @@ namespace DockRotate
 				GameEvents.onDockingComplete.Remove(RightAfterStructureChange_Action);
 				GameEvents.onPartUndock.Remove(RightBeforeStructureChange_Part);
 				GameEvents.onPartUndockComplete.Remove(RightAfterStructureChange_Part);
-
-				GameEvents.onSameVesselDock.Remove(RightAfterSameVesselDock);
-				GameEvents.onSameVesselUndock.Remove(RightAfterSameVesselUndock);
 
 			}
 
@@ -379,50 +373,6 @@ namespace DockRotate
 			scheduleDockingStatesCheck(false);
 		}
 
-		public void RightAfterSameVesselDock(GameEvents.FromToAction<ModuleDockingNode, ModuleDockingNode> action)
-		{
-			if (verboseEvents)
-				log(desc(), ".RightAfterSameVesselDock("
-					+ action.from.part.desc() + "@" + action.from.vessel.desc()
-					+ ", " + action.to.part.desc() + "@" + action.to.vessel.desc() + ")");
-			if (deadVessel())
-				return;
-			if (!care(action, false))
-				return;
-			log(vessel.desc(), ": same vessel dock " + action.from.state + " -> " + action.to.state);
-			phase("BEGIN AFTER SV DOCK");
-			if (rotCount != 0) {
-				log(desc(), ": same vessel dock, rotCount = " + rotCount);
-				log(desc(), ": from: " + action.from.getDockingJoint(true));
-				log(desc(), ": to: " + action.to.getDockingJoint(true));
-				listeners(action.from.part).map(l => l.RightAfterStructureChange());
-				listeners(action.to.part).map(l => l.RightAfterStructureChange());
-			} else {
-				listeners(action.from.part).map(l => l.RightAfterStructureChange());
-				listeners(action.to.part).map(l => l.RightAfterStructureChange());
-			}
-			phase("END AFTER SV DOCK");
-			scheduleDockingStatesCheck(false);
-		}
-
-		public void RightAfterSameVesselUndock(GameEvents.FromToAction<ModuleDockingNode, ModuleDockingNode> action)
-		{
-			if (verboseEvents)
-				log(desc(), ".RightAfterSameVesselUndock("
-					+ action.from.vessel.desc() + ", " + action.to.vessel.desc()
-					+ ")");
-			if (deadVessel())
-				return;
-			if (!care(action, false))
-				return;
-			log(vessel.desc(), ": same vessel undock " + action.from.state + " -> " + action.to.state);
-			phase("BEGIN AFTER SV UNDOCK");
-			listeners(action.from.part).map(l => l.RightAfterStructureChange());
-			listeners(action.to.part).map(l => l.RightAfterStructureChange());
-			phase("END AFTER SV UNDOCK");
-			scheduleDockingStatesCheck(false);
-		}
-
 		public void Awake()
 		{
 			if (!vessel) {
@@ -468,14 +418,12 @@ namespace DockRotate
 			if (thisCounter < dockingCheckCounter) {
 				log("skipping analysis, another pending");
 			} else {
-				if (checker != null) {
-					log((verbose ? "verbosely " : "")
-						+ "analyzing incoherent states in " + vessel.GetName());
-					DockingStateChecker.Result result = checker.checkVessel(vessel, verbose);
-					if (result.foundError)
-						ScreenMessages.PostScreenMessage(Localizer.Format("#DCKROT_bad_states"),
-							checker.messageTimeout, checker.messageStyle, checker.colorBad);
-				}
+				log((verbose ? "verbosely " : "")
+					+ "analyzing incoherent states in " + vessel.GetName());
+				DockingStateChecker.Result result = checker.checkVessel(vessel, verbose);
+				if (result.foundError)
+					ScreenMessages.PostScreenMessage(Localizer.Format("#DCKROT_bad_states"),
+						checker.messageTimeout, checker.messageStyle, checker.colorBad);
 			}
 		}
 

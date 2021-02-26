@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
 using UnityEngine;
@@ -692,29 +693,62 @@ namespace DockRotate
 			enabled = hasJointMotion;
 		}
 
+		protected void doSetupDelayed(bool onLaunch)
+		{
+			StartCoroutine(_dsd(onLaunch));
+		}
+
+		public IEnumerator _dsd(bool onLaunch)
+		{
+			yield return new WaitForFixedUpdate();
+			doSetup(onLaunch);
+		}
+
+		private bool care(Vessel v)
+		{
+			return v == vessel;
+		}
+
+		private bool care(Part p)
+		{
+			return p == part;
+		}
+
+		private bool care(GameEvents.FromToAction<Part, Part> action)
+		{
+			return care(action.from) || care(action.to);
+		}
+
+		private bool care(GameEvents.FromToAction<ModuleDockingNode, ModuleDockingNode> action)
+		{
+			return care(action.from.part) || care(action.to.part);
+		}
+
+		protected void scheduleDockingStatesCheck(bool verbose)
+		{
+			VesselMotionManager vmm = VesselMotionManager.get(vessel);
+			if (vmm)
+				vmm.scheduleDockingStatesCheck(verbose);
+		}
+
 		public void OnVesselGoOnRails(Vessel v)
 		{
-			bool care = v == vessel;
-			evlog("OnVesselGoOnRails", care);
-			if (!care) return;
-
+			bool c = care(v);
+			evlog(nameof(OnVesselGoOnRails), c);
+			if (!c) return;
+			freezeCurrentRotation("go on rails", false);
+			setupDoneAt = 0;
 			VesselMotionManager vmm = VesselMotionManager.get(vessel);
 			if (vmm)
 				vmm.resetRotCount();
 
-			freezeCurrentRotation("go on rails", false);
-			setupDoneAt = 0;
 		}
 
 		public void OnVesselGoOffRails(Vessel v)
 		{
-			bool care = v == vessel;
-			evlog("OnVesselGoOffRails", care);
-			if (!care) return;
-
-			VesselMotionManager vmm = VesselMotionManager.get(vessel);
-			if (vmm)
-				vmm.scheduleDockingStatesCheck(false);
+			bool c = care(v);
+			evlog(nameof(OnVesselGoOffRails), c);
+			if (!c) return;
 
 			// start speed always 0 when going off rails
 			frozenStartSpeed = 0f;
@@ -722,6 +756,26 @@ namespace DockRotate
 			setupDoneAt = 0;
 			doSetup(justLaunched);
 			justLaunched = false;
+
+			scheduleDockingStatesCheck(false);
+		}
+
+		public void RightAfterSameVesselDock(GameEvents.FromToAction<ModuleDockingNode, ModuleDockingNode> action)
+		{
+			bool c = care(action);
+			evlog(nameof(RightAfterSameVesselDock), c);
+			if (!c) return;
+			RightAfterStructureChangeDelayed();
+			scheduleDockingStatesCheck(false);
+		}
+
+		public void RightAfterSameVesselUndock(GameEvents.FromToAction<ModuleDockingNode, ModuleDockingNode> action)
+		{
+			bool c = care(action);
+			evlog(nameof(RightAfterSameVesselUndock), c);
+			if (!c) return;
+			RightAfterStructureChangeDelayed();
+			scheduleDockingStatesCheck(false);
 		}
 
 		public void RightAfterEditorChange_ShipModified(ShipConstruct ship)
@@ -769,6 +823,13 @@ namespace DockRotate
 			doSetup(false);
 		}
 
+		public void RightAfterStructureChangeDelayed()
+		{
+			if (verboseEvents)
+				log(desc(), ".RightAfterStructureChangeDelayed()");
+			doSetupDelayed(false);
+		}
+
 		private bool eventState = false;
 
 		private void setEvents(bool cmd)
@@ -788,12 +849,18 @@ namespace DockRotate
 
 				GameEvents.onVesselGoOnRails.Add(OnVesselGoOnRails);
 				GameEvents.onVesselGoOffRails.Add(OnVesselGoOffRails);
+
+				GameEvents.onSameVesselDock.Add(RightAfterSameVesselDock);
+				GameEvents.onSameVesselUndock.Add(RightAfterSameVesselUndock);
 			} else {
 				GameEvents.onEditorShipModified.Remove(RightAfterEditorChange_ShipModified);
 				GameEvents.onEditorPartEvent.Remove(RightAfterEditorChange_Event);
 
 				GameEvents.onVesselGoOnRails.Remove(OnVesselGoOnRails);
 				GameEvents.onVesselGoOffRails.Remove(OnVesselGoOffRails);
+
+				GameEvents.onSameVesselDock.Remove(RightAfterSameVesselDock);
+				GameEvents.onSameVesselUndock.Remove(RightAfterSameVesselUndock);
 			}
 
 			eventState = cmd;
