@@ -8,8 +8,6 @@ namespace DockRotate
 {
 	public interface IStructureChangeListener
 	{
-		void OnVesselGoOnRails();
-		void OnVesselGoOffRails();
 		void RightBeforeStructureChange();
 		void RightAfterStructureChange();
 		bool wantsVerboseEvents();
@@ -47,7 +45,6 @@ namespace DockRotate
 		private Part rootPart = null;
 
 		private int rotCount = 0;
-		public bool onRails = false;
 
 		private bool verboseEvents = false;
 
@@ -138,11 +135,6 @@ namespace DockRotate
 
 			if (cmd) {
 
-				GameEvents.onVesselCreate.Add(OnVesselCreate);
-
-				GameEvents.onVesselGoOnRails.Add(OnVesselGoOnRails);
-				GameEvents.onVesselGoOffRails.Add(OnVesselGoOffRails);
-
 				GameEvents.onActiveJointNeedUpdate.Add(RightBeforeStructureChange_JointUpdate);
 
 				GameEvents.onPartCouple.Add(RightBeforeStructureChange_Action);
@@ -159,11 +151,6 @@ namespace DockRotate
 				GameEvents.onSameVesselUndock.Add(RightAfterSameVesselUndock);
 
 			} else {
-
-				GameEvents.onVesselCreate.Remove(OnVesselCreate);
-
-				GameEvents.onVesselGoOnRails.Remove(OnVesselGoOnRails);
-				GameEvents.onVesselGoOffRails.Remove(OnVesselGoOffRails);
 
 				GameEvents.onActiveJointNeedUpdate.Remove(RightBeforeStructureChange_JointUpdate);
 
@@ -311,57 +298,6 @@ namespace DockRotate
 			log(desc(), ".deadVessel(): " + deadMsg);
 			Destroy(this);
 			return true;
-		}
-
-		public void OnVesselCreate(Vessel v)
-		{
-			if (verboseEvents)
-				log(desc(), ".OnVesselCreate(" + v.desc() + ")");
-			VesselMotionManager vmm = VesselMotionManager.get(v);
-			if (onRails) {
-				log(desc(), " doesn't trigger " + vessel.desc() + "." + nameof(OnVesselGoOffRails) + "()");
-			} else {
-				log(desc(), " triggers " + vessel.desc() + "." + nameof(OnVesselGoOffRails) + "()");
-				OnVesselGoOffRails(vessel);
-			}
-		}
-
-		public void OnVesselGoOnRails(Vessel v)
-		{
-			if (verboseEvents)
-				log(desc(), ".OnVesselGoOnRails(" + v.desc() + ")");
-			if (deadVessel())
-				return;
-			if (!care(v))
-				return;
-			phase("BEGIN ON RAILS");
-			structureChangeInfo.reset("OnRails");
-			listeners().map(l => l.OnVesselGoOnRails());
-			phase("END ON RAILS");
-			onRails = true;
-		}
-
-		public void OnVesselGoOffRails(Vessel v)
-		{
-			if (verboseEvents)
-				log(desc(), ".OnVesselGoOffRails(" + v.desc() + ")");
-			if (deadVessel())
-				return;
-			if (!care(v))
-				return;
-
-			phase("BEGIN OFF RAILS");
-
-			get(v);
-
-			resetRotCount();
-			structureChangeInfo.reset("OffRails");
-			onRails = false;
-			listeners().map(l => l.OnVesselGoOffRails());
-
-			phase("END OFF RAILS");
-
-			scheduleDockingStatesCheck(false);
 		}
 
 		private void RightBeforeStructureChange_JointUpdate(Vessel v)

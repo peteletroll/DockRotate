@@ -676,21 +676,38 @@ namespace DockRotate
 			enabled = hasJointMotion;
 		}
 
-		public void OnVesselGoOnRails()
+		public void OnVesselGoOnRails(Vessel v)
 		{
+			bool care = v == vessel;
 			if (verboseEvents)
-				log(desc(), ".OnVesselGoOnRails()");
+				log(desc(), ".OnVesselGoOnRails(" + v.desc() + ") " + care);
+			if (!care)
+				return;
+
+			VesselMotionManager vmm = VesselMotionManager.get(vessel);
+			if (vmm)
+				vmm.resetRotCount();
+
 			freezeCurrentRotation("go on rails", false);
 			setupDoneAt = 0;
 		}
 
-		public void OnVesselGoOffRails()
+		public void OnVesselGoOffRails(Vessel v)
 		{
+			bool care = v == vessel;
 			if (verboseEvents)
-				log(desc(), ".OnVesselGoOffRails()");
-			setupDoneAt = 0;
+				log(desc(), ".OnVesselGoOffRails(" + v.desc() + ") " + care);
+			if (!care)
+				return;
+
+			VesselMotionManager vmm = VesselMotionManager.get(vessel);
+			if (vmm)
+				vmm.scheduleDockingStatesCheck(false);
+
 			// start speed always 0 when going off rails
 			frozenStartSpeed = 0f;
+
+			setupDoneAt = 0;
 			doSetup(justLaunched);
 			justLaunched = false;
 		}
@@ -756,9 +773,15 @@ namespace DockRotate
 			if (cmd) {
 				GameEvents.onEditorShipModified.Add(RightAfterEditorChange_ShipModified);
 				GameEvents.onEditorPartEvent.Add(RightAfterEditorChange_Event);
+
+				GameEvents.onVesselGoOnRails.Add(OnVesselGoOnRails);
+				GameEvents.onVesselGoOffRails.Add(OnVesselGoOffRails);
 			} else {
 				GameEvents.onEditorShipModified.Remove(RightAfterEditorChange_ShipModified);
 				GameEvents.onEditorPartEvent.Remove(RightAfterEditorChange_Event);
+
+				GameEvents.onVesselGoOnRails.Remove(OnVesselGoOnRails);
+				GameEvents.onVesselGoOffRails.Remove(OnVesselGoOffRails);
 			}
 
 			eventState = cmd;
@@ -903,8 +926,8 @@ namespace DockRotate
 
 			setupGuiActive();
 
+			setEvents(true);
 			if (state == StartState.Editor) {
-				setEvents(true);
 				RightAfterEditorChange("START");
 				return;
 			}
