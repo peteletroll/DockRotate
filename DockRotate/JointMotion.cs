@@ -186,8 +186,10 @@ namespace DockRotate
 			Vector3 a = hostAxis;
 			Vector3 v1 = hostUp;
 			Vector3 v2 = targetUp.STd(joint.Target, joint.Host);
+			float orgRotPrev = orgRot;
 			orgRot = a.axisSignedAngle(v1, v2);
-			log(desc(), ".updateOrgRot(): " + orgRot + "\u00b0");
+			if (!Mathf.Approximately(orgRot, orgRotPrev))
+				log(desc(), ".updateOrgRot(): " + orgRot + "\u00b0");
 		}
 
 		public float rotationAngle()
