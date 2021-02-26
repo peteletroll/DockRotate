@@ -724,6 +724,11 @@ namespace DockRotate
 			return care(action.from.part) || care(action.to.part);
 		}
 
+		private bool care(uint id1, uint id2)
+		{
+			return vessel && (vessel.persistentId == id1 || vessel.persistentId == id2);
+		}
+
 		protected void scheduleDockingStatesCheck(bool verbose)
 		{
 			VesselMotionManager vmm = VesselMotionManager.get(vessel);
@@ -758,6 +763,38 @@ namespace DockRotate
 			justLaunched = false;
 
 			scheduleDockingStatesCheck(false);
+		}
+
+		public void RightBeforeStructureChange_Ids(uint id1, uint id2)
+		{
+			bool c = care(id1, id2);
+			evlog(nameof(RightBeforeStructureChange_Ids), c);
+			if (!c) return;
+			RightBeforeStructureChange();
+		}
+
+		public void RightBeforeStructureChange_Part(Part p)
+		{
+			bool c = care(p);
+			evlog(nameof(RightBeforeStructureChange_Part), c);
+			if (!c) return;
+			RightBeforeStructureChange();
+		}
+
+		public void RightAfterStructureChange_Action(GameEvents.FromToAction<Part, Part> action)
+		{
+			bool c = care(action);
+			evlog(nameof(RightAfterStructureChange_Action), c);
+			if (!c) return;
+			RightAfterStructureChange();
+		}
+
+		public void RightAfterStructureChange_Part(Part p)
+		{
+			bool c = care(p);
+			evlog(nameof(RightAfterStructureChange_Part), c);
+			if (!c) return;
+			RightAfterStructureChange();
 		}
 
 		public void RightAfterSameVesselDock(GameEvents.FromToAction<ModuleDockingNode, ModuleDockingNode> action)
@@ -850,6 +887,11 @@ namespace DockRotate
 				GameEvents.onVesselGoOnRails.Add(OnVesselGoOnRails);
 				GameEvents.onVesselGoOffRails.Add(OnVesselGoOffRails);
 
+				GameEvents.onVesselDocking.Add(RightBeforeStructureChange_Ids);
+				GameEvents.onDockingComplete.Add(RightAfterStructureChange_Action);
+				GameEvents.onPartUndock.Add(RightBeforeStructureChange_Part);
+				GameEvents.onPartUndockComplete.Add(RightAfterStructureChange_Part);
+
 				GameEvents.onSameVesselDock.Add(RightAfterSameVesselDock);
 				GameEvents.onSameVesselUndock.Add(RightAfterSameVesselUndock);
 			} else {
@@ -858,6 +900,11 @@ namespace DockRotate
 
 				GameEvents.onVesselGoOnRails.Remove(OnVesselGoOnRails);
 				GameEvents.onVesselGoOffRails.Remove(OnVesselGoOffRails);
+
+				GameEvents.onVesselDocking.Remove(RightBeforeStructureChange_Ids);
+				GameEvents.onDockingComplete.Remove(RightAfterStructureChange_Action);
+				GameEvents.onPartUndock.Remove(RightBeforeStructureChange_Part);
+				GameEvents.onPartUndockComplete.Remove(RightAfterStructureChange_Part);
 
 				GameEvents.onSameVesselDock.Remove(RightAfterSameVesselDock);
 				GameEvents.onSameVesselUndock.Remove(RightAfterSameVesselUndock);
