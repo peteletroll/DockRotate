@@ -42,7 +42,10 @@ namespace DockRotate
 				if (cn == null)
 					throw new Exception("can't find " + configName);
 				ret = fromConfigNode(cn);
-				log("loaded\n" + ret.desc() + "\n");
+				if (ret.enabledCheck)
+					log("loaded\n" + ret.desc() + "\n");
+				else
+					log("loaded, check disabled");
 			} catch (Exception e) {
 				log("can't load: " + e.Message + "\n" + e.StackTrace);
 				log("using builtin configuration");

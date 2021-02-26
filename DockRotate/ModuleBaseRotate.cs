@@ -679,10 +679,8 @@ namespace DockRotate
 		public void OnVesselGoOnRails(Vessel v)
 		{
 			bool care = v == vessel;
-			if (verboseEvents)
-				log(desc(), ".OnVesselGoOnRails(" + v.desc() + ") " + care);
-			if (!care)
-				return;
+			evlog("OnVesselGoOnRails", care);
+			if (!care) return;
 
 			VesselMotionManager vmm = VesselMotionManager.get(vessel);
 			if (vmm)
@@ -695,10 +693,8 @@ namespace DockRotate
 		public void OnVesselGoOffRails(Vessel v)
 		{
 			bool care = v == vessel;
-			if (verboseEvents)
-				log(desc(), ".OnVesselGoOffRails(" + v.desc() + ") " + care);
-			if (!care)
-				return;
+			evlog("OnVesselGoOffRails", care);
+			if (!care) return;
 
 			VesselMotionManager vmm = VesselMotionManager.get(vessel);
 			if (vmm)
@@ -1233,6 +1229,12 @@ namespace DockRotate
 		}
 
 		public abstract string descPrefix();
+
+		protected void evlog(string name, bool care)
+		{
+			if (verboseEvents)
+				log(desc(), ": EVENT " + name + ", " + (care ? "care" : "don't care"));
+		}
 
 		protected static bool log(string msg1, string msg2 = "")
 		{
