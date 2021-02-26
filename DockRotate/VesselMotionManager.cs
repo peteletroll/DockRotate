@@ -137,19 +137,9 @@ namespace DockRotate
 
 				GameEvents.onActiveJointNeedUpdate.Add(RightBeforeStructureChange_JointUpdate);
 
-				GameEvents.onPartCouple.Add(RightBeforeStructureChange_Action);
-				GameEvents.onPartCoupleComplete.Add(RightAfterStructureChange_Action);
-				GameEvents.onPartDeCouple.Add(RightBeforeStructureChange_Part);
-				GameEvents.onPartDeCoupleComplete.Add(RightAfterStructureChange_Part);
-
 			} else {
 
 				GameEvents.onActiveJointNeedUpdate.Remove(RightBeforeStructureChange_JointUpdate);
-
-				GameEvents.onPartCouple.Remove(RightBeforeStructureChange_Action);
-				GameEvents.onPartCoupleComplete.Remove(RightAfterStructureChange_Action);
-				GameEvents.onPartDeCouple.Remove(RightBeforeStructureChange_Part);
-				GameEvents.onPartDeCoupleComplete.Remove(RightAfterStructureChange_Part);
 
 			}
 
