@@ -1249,7 +1249,7 @@ namespace DockRotate
 		protected void evlog(string name, bool care)
 		{
 			if (verboseEvents)
-				log(desc(), ": EVENT " + name + ", " + (care ? "care" : "don't care"));
+				log(desc(), ": *** EVENT *** " + name + ", " + (care ? "care" : "don't care"));
 		}
 
 		protected static bool log(string msg1, string msg2 = "")
