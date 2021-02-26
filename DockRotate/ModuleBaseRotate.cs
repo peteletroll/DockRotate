@@ -746,7 +746,6 @@ namespace DockRotate
 			VesselMotionManager vmm = VesselMotionManager.get(vessel);
 			if (vmm)
 				vmm.resetRotCount();
-
 		}
 
 		public void OnVesselGoOffRails(Vessel v)
