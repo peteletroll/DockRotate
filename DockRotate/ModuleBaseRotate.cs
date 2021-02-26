@@ -711,7 +711,7 @@ namespace DockRotate
 
 		private bool care(Part p)
 		{
-			return p == part;
+			return p && p.vessel == vessel;
 		}
 
 		private bool care(GameEvents.FromToAction<Part, Part> action)
