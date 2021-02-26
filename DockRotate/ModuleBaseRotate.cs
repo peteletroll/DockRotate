@@ -781,6 +781,14 @@ namespace DockRotate
 			RightBeforeStructureChange();
 		}
 
+		private void RightBeforeStructureChange_JointUpdate(Vessel v)
+		{
+			bool c = care(v);
+			evlog(nameof(RightBeforeStructureChange_JointUpdate), c);
+			if (!c) return;
+			RightBeforeStructureChange();
+		}
+
 		public void RightBeforeStructureChange_Part(Part p)
 		{
 			bool c = care(p);
@@ -889,6 +897,8 @@ namespace DockRotate
 				log(desc(), ".setEvents(" + cmd + ")");
 
 			if (cmd) {
+				GameEvents.onActiveJointNeedUpdate.Add(RightBeforeStructureChange_JointUpdate);
+
 				GameEvents.onEditorShipModified.Add(RightAfterEditorChange_ShipModified);
 				GameEvents.onEditorPartEvent.Add(RightAfterEditorChange_Event);
 
@@ -908,6 +918,8 @@ namespace DockRotate
 				GameEvents.onSameVesselDock.Add(RightAfterSameVesselDock);
 				GameEvents.onSameVesselUndock.Add(RightAfterSameVesselUndock);
 			} else {
+				GameEvents.onActiveJointNeedUpdate.Remove(RightBeforeStructureChange_JointUpdate);
+
 				GameEvents.onEditorShipModified.Remove(RightAfterEditorChange_ShipModified);
 				GameEvents.onEditorPartEvent.Remove(RightAfterEditorChange_Event);
 

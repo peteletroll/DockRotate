@@ -135,11 +135,7 @@ namespace DockRotate
 
 			if (cmd) {
 
-				GameEvents.onActiveJointNeedUpdate.Add(RightBeforeStructureChange_JointUpdate);
-
 			} else {
-
-				GameEvents.onActiveJointNeedUpdate.Remove(RightBeforeStructureChange_JointUpdate);
 
 			}
 
