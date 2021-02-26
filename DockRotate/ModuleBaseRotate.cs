@@ -721,7 +721,8 @@ namespace DockRotate
 
 		private bool care(GameEvents.FromToAction<ModuleDockingNode, ModuleDockingNode> action)
 		{
-			return care(action.from.part) || care(action.to.part);
+			// special case for same vessel dock/undock
+			return action.from.part == part || action.to.part == part;
 		}
 
 		private bool care(uint id1, uint id2)
