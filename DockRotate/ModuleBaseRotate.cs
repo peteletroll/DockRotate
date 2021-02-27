@@ -881,12 +881,12 @@ namespace DockRotate
 		private void setEvents(bool cmd)
 		{
 			if (cmd == eventState) {
-				if (verboseSetup || verboseEvents)
+				if (verboseSetup)
 					log(desc(), ".setEvents(" + cmd + ") repeated");
 				return;
 			}
 
-			if (verboseSetup || verboseEvents)
+			if (verboseSetup)
 				log(desc(), ".setEvents(" + cmd + ")");
 
 			if (cmd) {
@@ -1063,7 +1063,7 @@ namespace DockRotate
 #endif
 			justLaunched = state == StartState.PreLaunch;
 
-			if (verboseSetup || verboseEvents)
+			if (verboseEvents)
 				log(desc(), ".OnStart(" + state + ")");
 
 			base.OnStart(state);

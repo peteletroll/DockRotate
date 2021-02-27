@@ -15,8 +15,8 @@ namespace DockRotate
 
 		private float orgRot = 0f;
 
-		public bool verboseEvents {
-			get => _controller && _controller.verboseEvents;
+		public bool verboseSetup {
+			get => _controller && _controller.verboseSetup;
 		}
 
 		private JointMotionObj _rotCur;
@@ -55,7 +55,7 @@ namespace DockRotate
 					return;
 				}
 				if (value != _controller) {
-					if (verboseEvents) {
+					if (verboseSetup) {
 						if (_controller) {
 							log(desc(), ": change controller "
 								+ _controller.part.desc() + " -> " + value.part.desc());
@@ -127,7 +127,7 @@ namespace DockRotate
 			} else {
 				log(desc(), ".setAxis(): part " + part.desc() + " not in " + joint.desc());
 			}
-			if (!_controller || verboseEvents)
+			if (!_controller || verboseSetup)
 				log(desc(), ".setAxis(): " + axis.desc() + "@" + node.desc() + "), " + state);
 			hostAxis = axis.STd(part, joint.Host);
 			hostNode = node.STp(part, joint.Host);

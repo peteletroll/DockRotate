@@ -87,6 +87,11 @@ namespace DockRotate
 
 		public void Start()
 		{
+			if (!vessel) {
+				vessel = gameObject.GetComponent<Vessel>();
+				if (vessel)
+					log(desc(), ".Start(): found vessel");
+			}
 			enabled = false;
 		}
 
@@ -102,7 +107,7 @@ namespace DockRotate
 
 		private int dockingCheckCounter = 0;
 
-		public IEnumerator checkDockingStates(bool verbose)
+		private IEnumerator checkDockingStates(bool verbose)
 		{
 			if (!HighLogic.LoadedSceneIsFlight || vessel != FlightGlobals.ActiveVessel)
 				yield break;
@@ -138,7 +143,7 @@ namespace DockRotate
 				log(desc() + ": --- " + msg + " " + new string('-', 60 - msg.Length));
 		}
 
-		protected static bool log(string msg1, string msg2 = "")
+		private static bool log(string msg1, string msg2 = "")
 		{
 			return Extensions.log(msg1, msg2);
 		}
