@@ -30,9 +30,16 @@ namespace DockRotate
 			return System.IO.Path.Combine(directory, "PluginData", configName + ".cfg");
 		}
 
+
+		private static DockingStateChecker lastLoaded = null;
+		private static int lastLoadedAt = 0;
+
 		public static DockingStateChecker load()
 		{
-			DockingStateChecker ret = null;
+			if (lastLoaded != null && lastLoadedAt == Time.frameCount)
+				return lastLoaded;
+
+			lastLoaded = null;
 			try {
 				log("loading " + configFile());
 				ConfigNode cn = ConfigNode.Load(configFile());
@@ -41,19 +48,20 @@ namespace DockRotate
 				cn = cn.GetNode(configName);
 				if (cn == null)
 					throw new Exception("can't find " + configName);
-				ret = fromConfigNode(cn);
-				if (ret.enabledCheck)
-					log("loaded\n" + ret.desc() + "\n");
+				lastLoaded = fromConfigNode(cn);
+				lastLoadedAt = Time.frameCount;
+				if (lastLoaded.enabledCheck)
+					log("loaded\n" + lastLoaded.desc() + "\n");
 				else
 					log("loaded, check disabled");
 			} catch (Exception e) {
 				log("can't load: " + e.Message + "\n" + e.StackTrace);
 				log("using builtin configuration");
-				ret = builtin();
+				lastLoaded = builtin();
 				if (!System.IO.File.Exists(configFile()))
-					ret.save();
+					lastLoaded.save();
 			}
-			return ret;
+			return lastLoaded;
 		}
 
 		private bool save()
