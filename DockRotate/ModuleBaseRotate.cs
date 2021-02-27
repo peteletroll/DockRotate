@@ -733,7 +733,7 @@ namespace DockRotate
 		public void OnVesselGoOnRails(Vessel v)
 		{
 			bool c = care(v);
-			evlog(nameof(OnVesselGoOnRails), c);
+			evlog(nameof(OnVesselGoOnRails), v, c);
 			if (!c) return;
 			freezeCurrentRotation("go on rails", false);
 			setupDoneAt = 0;
@@ -745,7 +745,7 @@ namespace DockRotate
 		public void OnVesselGoOffRails(Vessel v)
 		{
 			bool c = care(v);
-			evlog(nameof(OnVesselGoOffRails), c);
+			evlog(nameof(OnVesselGoOffRails), v, c);
 			if (!c) return;
 
 			// start speed always 0 when going off rails
@@ -761,7 +761,7 @@ namespace DockRotate
 		public void RightBeforeStructureChange_Action(GameEvents.FromToAction<Part, Part> action)
 		{
 			bool c = care(action);
-			evlog(nameof(RightBeforeStructureChange_Action), c);
+			evlog(nameof(RightBeforeStructureChange_Action), action, c);
 			if (!c) return;
 			RightBeforeStructureChange();
 		}
@@ -769,7 +769,7 @@ namespace DockRotate
 		public void RightBeforeStructureChange_Ids(uint id1, uint id2)
 		{
 			bool c = care(id1, id2);
-			evlog(nameof(RightBeforeStructureChange_Ids), c);
+			evlog(nameof(RightBeforeStructureChange_Ids), id1, id2, c);
 			if (!c) return;
 			RightBeforeStructureChange();
 		}
@@ -777,7 +777,7 @@ namespace DockRotate
 		private void RightBeforeStructureChange_JointUpdate(Vessel v)
 		{
 			bool c = care(v);
-			evlog(nameof(RightBeforeStructureChange_JointUpdate), c);
+			evlog(nameof(RightBeforeStructureChange_JointUpdate), v, c);
 			if (!c) return;
 			RightBeforeStructureChange();
 		}
@@ -785,7 +785,7 @@ namespace DockRotate
 		public void RightBeforeStructureChange_Part(Part p)
 		{
 			bool c = care(p);
-			evlog(nameof(RightBeforeStructureChange_Part), c);
+			evlog(nameof(RightBeforeStructureChange_Part), p, c);
 			if (!c) return;
 			RightBeforeStructureChange();
 		}
@@ -793,7 +793,7 @@ namespace DockRotate
 		public void RightAfterStructureChange_Action(GameEvents.FromToAction<Part, Part> action)
 		{
 			bool c = care(action);
-			evlog(nameof(RightAfterStructureChange_Action), c);
+			evlog(nameof(RightAfterStructureChange_Action), action, c);
 			if (!c) return;
 			RightAfterStructureChange();
 		}
@@ -801,7 +801,7 @@ namespace DockRotate
 		public void RightAfterStructureChange_Part(Part p)
 		{
 			bool c = care(p);
-			evlog(nameof(RightAfterStructureChange_Part), c);
+			evlog(nameof(RightAfterStructureChange_Part), p, c);
 			if (!c) return;
 			RightAfterStructureChange();
 		}
@@ -809,7 +809,7 @@ namespace DockRotate
 		public void RightAfterSameVesselDock(GameEvents.FromToAction<ModuleDockingNode, ModuleDockingNode> action)
 		{
 			bool c = care(action);
-			evlog(nameof(RightAfterSameVesselDock), c);
+			evlog(nameof(RightAfterSameVesselDock), action, c);
 			if (!c) return;
 			RightAfterStructureChangeDelayed();
 			scheduleDockingStatesCheck(false);
@@ -818,7 +818,7 @@ namespace DockRotate
 		public void RightAfterSameVesselUndock(GameEvents.FromToAction<ModuleDockingNode, ModuleDockingNode> action)
 		{
 			bool c = care(action);
-			evlog(nameof(RightAfterSameVesselUndock), c);
+			evlog(nameof(RightAfterSameVesselUndock), action, c);
 			if (!c) return;
 			RightAfterStructureChangeDelayed();
 			scheduleDockingStatesCheck(false);
@@ -1370,6 +1370,31 @@ namespace DockRotate
 		}
 
 		public abstract string descPrefix();
+
+		protected void evlog(string name, Vessel v, bool care)
+		{
+			evlog(name + "(" + v.desc() + ")", care);
+		}
+
+		protected void evlog(string name, Part p, bool care)
+		{
+			evlog(name + "(" + p.desc() + ")", care);
+		}
+
+		protected void evlog(string name, GameEvents.FromToAction<Part, Part> action, bool care)
+		{
+			evlog(name + "(" + action.from.desc() + ", " + action.to.desc() + ")", care);
+		}
+
+		protected void evlog(string name, GameEvents.FromToAction<ModuleDockingNode, ModuleDockingNode> action, bool care)
+		{
+			evlog(name + "(" + action.from.part.desc() + ", " + action.to.part.desc() + ")", care);
+		}
+
+		protected void evlog(string name, uint id1, uint id2, bool care)
+		{
+			evlog(name + "(" + id1 + ", " + id2 + ")", care);
+		}
 
 		protected void evlog(string name, bool care)
 		{
