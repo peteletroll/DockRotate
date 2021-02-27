@@ -112,7 +112,7 @@ namespace DockRotate
 			if (!HighLogic.LoadedSceneIsFlight || vessel != FlightGlobals.ActiveVessel)
 				yield break;
 			DockingStateChecker checker = DockingStateChecker.load();
-			if (checker == null)
+			if (checker == null || !checker.enabledCheck)
 				yield break;
 			int thisCounter = ++dockingCheckCounter;
 
