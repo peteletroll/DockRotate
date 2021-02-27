@@ -405,7 +405,7 @@ namespace DockRotate
 		{
 			hostPart.vessel.KJRNextCycleAllAutoStrut();
 			if (smartAutoStruts) {
-				hostPart.releaseCrossAutoStruts(VesselMotionManager.get(hostPart.vessel).verbose());
+				hostPart.releaseCrossAutoStruts(true);
 			} else {
 				List<Part> parts = hostPart.vessel.parts;
 				for (int i = 0; i < parts.Count; i++)

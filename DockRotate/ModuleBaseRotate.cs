@@ -9,7 +9,7 @@ using CompoundParts;
 namespace DockRotate
 {
 	public abstract class ModuleBaseRotate: PartModule,
-		IJointLockState, IStructureChangeListener, IResourceConsumer
+		IJointLockState, IResourceConsumer
 	{
 		protected const string GROUPNAME = "DockRotate";
 		protected const string GROUPLABEL = "#DCKROT_rotation";
@@ -218,8 +218,6 @@ namespace DockRotate
 		)]
 #endif
 		public bool verboseEvents = false;
-		public bool verboseEventsPrev = false;
-		public bool wantsVerboseEvents() { return verboseEvents; }
 
 		[KSPAction(
 			guiName = "#DCKROT_enable_rotation",
@@ -1070,7 +1068,6 @@ namespace DockRotate
 #endif
 			justLaunched = state == StartState.PreLaunch;
 
-			verboseEventsPrev = verboseEvents;
 			if (verboseSetup || verboseEvents)
 				log(desc(), ".OnStart(" + state + ")");
 
@@ -1100,11 +1097,6 @@ namespace DockRotate
 		public override void OnUpdate()
 		{
 			base.OnUpdate();
-
-			if (verboseEvents != verboseEventsPrev) {
-				VesselMotionManager.get(vessel).listeners();
-				verboseEventsPrev = verboseEvents;
-			}
 
 			JointMotionObj cr = currentRotation();
 
