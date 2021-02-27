@@ -800,8 +800,10 @@ namespace DockRotate
 
 		public void RightAfterStructureChange_Part(Part p)
 		{
-			bool c = care(p);
+			bool c = !setupDone || care(p);
 			evlog(nameof(RightAfterStructureChange_Part), p, c);
+			if (!c)
+				log(desc(), ": setupDoneAt=" + setupDoneAt);
 			if (!c) return;
 			RightAfterStructureChange();
 		}
@@ -858,6 +860,7 @@ namespace DockRotate
 		public void RightBeforeStructureChange()
 		{
 			freezeCurrentRotation("structure change", true);
+			setupDoneAt = 0;
 		}
 
 		public void RightAfterStructureChange()
