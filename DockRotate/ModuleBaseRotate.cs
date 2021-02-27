@@ -691,12 +691,7 @@ namespace DockRotate
 			enabled = hasJointMotion;
 		}
 
-		protected void doSetupDelayed(bool onLaunch)
-		{
-			StartCoroutine(_dsd(onLaunch));
-		}
-
-		public IEnumerator _dsd(bool onLaunch)
+		public IEnumerator doSetupDelayed(bool onLaunch)
 		{
 			yield return new WaitForFixedUpdate();
 			doSetup(onLaunch);
@@ -878,7 +873,7 @@ namespace DockRotate
 		{
 			if (verboseEvents)
 				log(desc(), ".RightAfterStructureChangeDelayed()");
-			doSetupDelayed(false);
+			StartCoroutine(doSetupDelayed(false));
 		}
 
 		private bool eventState = false;
