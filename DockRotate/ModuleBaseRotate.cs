@@ -857,22 +857,16 @@ namespace DockRotate
 
 		public void RightBeforeStructureChange()
 		{
-			if (verboseEvents)
-				log(desc(), ".RightBeforeStructureChange()");
 			freezeCurrentRotation("structure change", true);
 		}
 
 		public void RightAfterStructureChange()
 		{
-			if (verboseEvents)
-				log(desc(), ".RightAfterStructureChange()");
 			doSetup(false);
 		}
 
 		public void RightAfterStructureChangeDelayed()
 		{
-			if (verboseEvents)
-				log(desc(), ".RightAfterStructureChangeDelayed()");
 			StartCoroutine(doSetupDelayed(false));
 		}
 
