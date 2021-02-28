@@ -625,6 +625,11 @@ namespace DockRotate
 
 		protected virtual void doSetup(bool onLaunch)
 		{
+			if (hasJointMotion && jointMotion.rotCur) {
+				log(desc(), ": skipping, is rotating");
+				return;
+			}
+
 			jointMotion = null;
 			hasJointMotion = false;
 			nodeRole = "None";
