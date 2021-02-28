@@ -666,6 +666,7 @@ namespace DockRotate
 					if (!jointMotion.hasController())
 						jointMotion.controller = this;
 					jointMotion.updateOrgRot();
+					anglePosition = rotationAngle();
 				}
 			} catch (Exception e) {
 				string sep = new string('-', 80);

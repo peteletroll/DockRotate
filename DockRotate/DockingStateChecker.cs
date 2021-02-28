@@ -104,7 +104,7 @@ namespace DockRotate
 			return ret;
 		}
 
-		private static readonly NodeState[] allowedNodeStates = new[] {
+		private static readonly NodeState[] allowedNodeStates = {
 			new NodeState("Ready", false, false),
 			new NodeState("Acquire", false, false),
 			new NodeState("Acquire (dockee)", false, false),
@@ -118,7 +118,7 @@ namespace DockRotate
 			new NodeState("PreAttached", false, false)
 		};
 
-		private static readonly JointState[] allowedJointStates = new[] {
+		private static readonly JointState[] allowedJointStates = {
 			new JointState("PreAttached", "PreAttached", false),
 			new JointState("Docked (docker)", "Docked (dockee)", false),
 			new JointState("Docked (dockee)", "Docked (docker)", false),
