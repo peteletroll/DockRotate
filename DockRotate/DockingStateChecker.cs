@@ -12,6 +12,7 @@ namespace DockRotate
 
 		[Persistent] public bool enabledCheck = true;
 		[Persistent] public bool enabledFix = true;
+		[Persistent] public bool enabledRedundantSameVesselUndock = false;
 		[Persistent] public int checkDelay = 5;
 		[Persistent] public float messageTimeout = 3f;
 		[Persistent] public ScreenMessageStyle messageStyle = ScreenMessageStyle.UPPER_CENTER;
@@ -275,6 +276,12 @@ namespace DockRotate
 			if (node.sameVesselDockJoint && node.sameVesselDockJoint.getTreeEquiv(false)) {
 				result.err("redundant same vessel joint " + info(node.sameVesselDockJoint));
 				flash(result, node.part, colorBad);
+				if (enabledRedundantSameVesselUndock) {
+					result.msg("trying to undock " + info(node.sameVesselDockJoint));
+					node.UndockSameVessel();
+				} else {
+					result.msg("enable " + nameof(enabledRedundantSameVesselUndock) + " to fix");
+				}
 			}
 
 			// a null vesselInfo may cause NRE later
