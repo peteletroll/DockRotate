@@ -141,15 +141,15 @@ trap "rm -rf $tmp" EXIT
 dir="$tmp/GameData/$name"
 mkdir -p $dir || exit 1
 
-mmdll=`ls "$ksphome"/GameData/ModuleManager.*.dll`
-nmmdll=`echo $mmdll | wc -w`
+mmglob="ModuleManager.*.dll"
+nmmdll=`find "$ksphome/GameData/" -name "$mmglob" -printf . -exec cp {} "$tmp" \; | wc -c`
 if [ "$nmmdll" -ne 1 ]
 then
-	echo "ABORTING: there should be only one ModuleManager.*.dll:" 1>&2
-	echo $mmdll 1>&2
+	echo "ABORTING: there should be one ModuleManager.*.dll, there are $nmmdll:" 1>&2
+	find "$ksphome/GameData/" -name "$mmglob" 1>&2
 	exit 1
 fi
-cp $mmdll $dir/.. || exit 1
+cp "$tmp"/$mmglob $dir/.. || exit 1
 
 cp -r $dll README.md LICENSE.md Resources/* $dir || exit 1
 
