@@ -268,6 +268,18 @@ namespace DockRotate
 			}
 		}
 
+		/******** DockedVesselInfo utilities ********/
+
+		public static string desc(this DockedVesselInfo info)
+		{
+			if (info == null)
+				return "null";
+			return "DVI["
+				+ info.vesselType
+				+ ":" + info.rootPartUId
+				+ ":\"" + info.name + "\"]";
+		}
+
 		/******** AttachNode utilities ********/
 
 		public static AttachNode getConnectedNode(this AttachNode node, bool verbose)

@@ -277,6 +277,8 @@ namespace DockRotate
 				log(d, ": dockedPartUId: " + dockingNode.dockedPartUId);
 				log(d, ": dockingNode state: \"" + dockingNode.state + "\"");
 				log(d, ": sameVesselDockingJoint: " + dockingNode.sameVesselDockJoint.desc());
+				log(d, ": stock rotation: " + dockingNode.IsRotating + " " + dockingNode.targetAngle);
+				log(d, ": vesselInfo = " + dockingNode.vesselInfo.desc());
 			} else {
 				log(d, ": no dockingNode");
 			}
