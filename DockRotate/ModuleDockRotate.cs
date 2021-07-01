@@ -27,6 +27,24 @@ namespace DockRotate
 			return dockingNode;
 		}
 
+		private ConfigNode getDockingNodeConfig()
+		{
+			if (part.partInfo == null || part.partInfo.partConfig == null)
+				return null;
+			return (part.partInfo != null && part.partInfo.partConfig != null) ?
+				part.partInfo.partConfig.GetNode("MODULE", "name", nameof(ModuleDockingNode)) :
+				null;
+		}
+
+		public bool canRotateDefault()
+		{
+			bool ret = false;
+			ConfigNode n = getDockingNodeConfig();
+			if (n != null)
+				n.TryGetValue("canRotate", ref ret);
+			return ret;
+		}
+
 		private BaseEvent SwitchToReadyEvent = null;
 		[KSPEvent(
 			guiName = "#DCKROT_switch_to_ready",
@@ -279,6 +297,7 @@ namespace DockRotate
 				log(d, ": sameVesselDockingJoint: " + dockingNode.sameVesselDockJoint.desc());
 				log(d, ": stock rotation: " + dockingNode.IsRotating + " " + dockingNode.targetAngle);
 				log(d, ": vesselInfo = " + dockingNode.vesselInfo.desc());
+				log(d, ": canRotateDefault() = " + canRotateDefault());
 			} else {
 				log(d, ": no dockingNode");
 			}
