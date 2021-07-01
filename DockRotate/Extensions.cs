@@ -274,10 +274,10 @@ namespace DockRotate
 		{
 			if (info == null)
 				return "null";
-			return "DVI["
+			return "DVI:"
 				+ info.vesselType
 				+ ":" + info.rootPartUId
-				+ ":\"" + info.name + "\"]";
+				+ ":\"" + info.name + "\"";
 		}
 
 		/******** AttachNode utilities ********/

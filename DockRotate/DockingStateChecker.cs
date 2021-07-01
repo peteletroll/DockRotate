@@ -288,7 +288,21 @@ namespace DockRotate
 			if (joint && joint.Host == node.part && node.vesselInfo == null
 				&& S(node) != "PreAttached" && S(node) != "Docked (same vessel)") {
 				result.err("null vesselInfo");
-				flash(result, node.part, colorBad);
+				if (node.otherNode)
+					result.msg("other vesselInfo is " + node.otherNode.vesselInfo.desc());
+				if (enabledFix) {
+					DockedVesselInfo info = node.vesselInfo = new DockedVesselInfo();
+					if (node.vessel) {
+						info.vesselType = node.vessel.vesselType;
+						info.name = node.vessel.vesselName;
+						if (node.vessel.rootPart)
+							info.rootPartUId = node.vessel.rootPart.flightID;
+					}
+					result.msg("fixed vesselInfo to " + node.vesselInfo.desc());
+					flash(result, node.part, colorFixed);
+				} else {
+					flash(result, node.part, colorFixable);
+				}
 			}
 
 			if (!joint) {
