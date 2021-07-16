@@ -219,6 +219,24 @@ namespace DockRotate
 #endif
 		public bool verboseEvents = false;
 
+#if DEBUG
+		[KSPAxisField(
+			guiName = "AxisField",
+			guiActive = true,
+			guiActiveEditor = true,
+			isPersistant = true,
+			guiFormat = "F3",
+			axisMode = KSPAxisMode.Absolute,
+			minValue = -1f,
+			maxValue = 1f,
+			incrementalSpeed = 0.1f,
+			groupName = DEBUGGROUP,
+			groupDisplayName = DEBUGGROUP,
+			groupStartCollapsed = true
+		)]
+		public float axisField = 0f;
+#endif
+
 		[KSPAction(
 			guiName = "#DCKROT_enable_rotation",
 			requireFullControl = true
