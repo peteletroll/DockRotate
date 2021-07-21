@@ -150,6 +150,7 @@ then
 	exit 1
 fi
 cp "$tmp"/$mmglob $dir/.. || exit 1
+cp ModuleManagerLicense.md $dir/.. || exit 1
 
 cp -r $dll README.md LICENSE.md Resources/* $dir || exit 1
 
