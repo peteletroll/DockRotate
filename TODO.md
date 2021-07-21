@@ -1,8 +1,3 @@
-* refactor RotationAnimation as MonoBehaviour
+* add axis control
 
-* handle multiple docking alignment better
-
-* fix the moving IVA camera bug
-
-* experiment with IJointLockState.IsJointUnlocked()
-  (found KSP bug)
+* fix the moving IVA camera bug (tried once, couldn't fix)
