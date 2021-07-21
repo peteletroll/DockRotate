@@ -253,6 +253,23 @@ namespace DockRotate
 			}
 		}
 
+		private static bool usingStockRotation(ModuleDockingNode node)
+		{
+			if (!node)
+				return false;
+			return node.IsRotating || !node.targetAngle.isZero();
+		}
+
+		protected override bool canStartRotation(bool verbose, bool ignoreDisabled = false)
+		{
+			if (usingStockRotation(dockingNode) || usingStockRotation(dockingNode.otherNode)) {
+				if (verbose)
+					log(desc(), ".canStartRotation(): disabled, using stock rotation");
+				return false;
+			}
+			return base.canStartRotation(verbose, ignoreDisabled);
+		}
+
 		protected override void updateStatus(JointMotionObj cr)
 		{
 			base.updateStatus(cr);

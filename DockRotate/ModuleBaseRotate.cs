@@ -1164,7 +1164,7 @@ namespace DockRotate
 #endif
 		}
 
-		protected bool canStartRotation(bool verbose, bool ignoreDisabled = false)
+		protected virtual bool canStartRotation(bool verbose, bool ignoreDisabled = false)
 		{
 			string failMsg = "";
 
