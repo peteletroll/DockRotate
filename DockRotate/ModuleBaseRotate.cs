@@ -641,6 +641,27 @@ namespace DockRotate
 			get => setupDoneAt != 0;
 		}
 
+		public void onFieldChange(string name, Callback<BaseField, object> fun)
+		{
+			BaseField fld = Fields[name];
+			if (fld == null) {
+				log(desc(), ".onFieldChange(\"" + name + "\") can't find field");
+				return;
+			}
+
+			if (fld.uiControlEditor != null)
+				fld.uiControlEditor.onFieldChanged = fun;
+			if (fld.uiControlFlight != null)
+				fld.uiControlFlight.onFieldChanged = fun;
+		}
+
+		public void testCallback(BaseField fld, object oldValue)
+		{
+			string name = fld != null ? fld.name : "<null>";
+			object newValue = fld.GetValue(this);
+			log(desc(), ": CHANGED " + name + ": " + oldValue + " -> " + newValue);
+		}
+
 		protected virtual void doSetup(bool onLaunch)
 		{
 			if (hasJointMotion && jointMotion.rotCur) {
@@ -691,6 +712,10 @@ namespace DockRotate
 					jointMotion.updateOrgRot();
 					anglePosition = rotationAngle();
 				}
+
+				onFieldChange(nameof(rotationEnabled), testCallback);
+				onFieldChange(nameof(rotationStep), testCallback);
+				onFieldChange(nameof(rotationSpeed), testCallback);
 			} catch (Exception e) {
 				string sep = new string('-', 80);
 				log(sep);
