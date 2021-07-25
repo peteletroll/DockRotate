@@ -92,12 +92,37 @@ namespace DockRotate
 				if (vessel)
 					log(desc(), ".Start(): found vessel");
 			}
+			setEvents(true);
 			enabled = false;
 		}
 
 		public void OnDestroy()
 		{
+			setEvents(false);
 			log(desc(), ".OnDestroy()");
+		}
+
+		private bool eventState = false;
+
+		private void setEvents(bool cmd)
+		{
+			if (cmd == eventState)
+				return;
+
+			if (cmd) {
+				GameEvents.onActiveJointNeedUpdate.Add(onActiveJointNeedUpdate);
+			} else {
+				GameEvents.onActiveJointNeedUpdate.Remove(onActiveJointNeedUpdate);
+			}
+
+			eventState = cmd;
+		}
+
+		private void onActiveJointNeedUpdate(Vessel v)
+		{
+			if (v != vessel)
+				return;
+			log(desc(), ".onActiveJointNeedUpdate(" + v.desc() + ")");
 		}
 
 		public void scheduleDockingStatesCheck(bool verbose)
