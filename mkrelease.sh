@@ -32,6 +32,14 @@ then
 	exit 1
 fi
 
+fileversion=`sed -n 's/.*\<AssemblyFileVersion\>.*"\([^"]\+\)".*/\1/p' "$name/Properties/AssemblyInfo.cs"`
+if [ "$fileversion" != "$version" ]
+then
+	echo "ABORTING: version inoherency: $version != $fileversion" 1>&2
+	exit 1
+fi
+
+
 dll="$name/bin/Release/$name.dll"
 debugdll="$name/bin/Debug/$name.dll"
 
