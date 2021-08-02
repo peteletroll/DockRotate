@@ -35,7 +35,7 @@ fi
 fileversion=`sed -n 's/.*\<AssemblyFileVersion\>.*"\([^"]\+\)".*/\1/p' "$name/Properties/AssemblyInfo.cs"`
 if [ "$fileversion" != "$version" ]
 then
-	echo "ABORTING: version inoherency: $version != $fileversion" 1>&2
+	echo "ABORTING: version incoherency: $version != $fileversion" 1>&2
 	exit 1
 fi
 
