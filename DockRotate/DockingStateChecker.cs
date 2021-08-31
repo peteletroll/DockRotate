@@ -284,6 +284,28 @@ namespace DockRotate
 				}
 			}
 
+			checkVesselInfo(result, node, joint, verbose);
+
+			if (!joint) {
+				NodeState s = find(node);
+				if (s)
+					s = s.tryFix(result, node);
+				if (!s) {
+					result.err("unallowed node state " + label);
+					flash(result, node.part, colorBad);
+				}
+			}
+
+			if (result.foundError) {
+				if (mdr)
+					mdr.showCheckDockingState(true);
+			}
+
+			result.indent(0);
+		}
+
+		private void checkVesselInfo(Result result, ModuleDockingNode node, PartJoint joint, bool verbose)
+		{
 			// a null vesselInfo may cause NRE later
 			if (joint && joint.Host == node.part && node.vesselInfo == null
 				&& S(node) != "PreAttached" && S(node) != "Docked (same vessel)") {
@@ -304,22 +326,6 @@ namespace DockRotate
 					flash(result, node.part, colorFixable);
 				}
 			}
-
-			if (!joint) {
-				NodeState s = find(node);
-				if (s)
-					s = s.tryFix(result, node);
-				if (!s) {
-					result.err("unallowed node state " + label);
-					flash(result, node.part, colorBad);
-				}
-			}
-
-			if (result.foundError) {
-				if (mdr)
-					mdr.showCheckDockingState(true);
-			}
-			result.indent(0);
 		}
 
 		public class Result {
