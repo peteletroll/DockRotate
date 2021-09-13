@@ -76,14 +76,39 @@ namespace DockRotate
 				&& cached_allAutostrutJoints_frame == Time.frameCount)
 				return cached_allAutostrutJoints;
 
-			cached_allAutostrutJoints.Clear();
+			PartJointSet jointsToKeep = new PartJointSet();
 
-			List<Part> parts = vessel.parts;
-			int l = parts != null ? parts.Count : 0;
-			for (int i = 0; i < l; i++) {
-				List<PartJoint> partAutoStrutList = parts[i].autoStruts();
-				if (partAutoStrutList != null)
-					cached_allAutostrutJoints.AddRange(partAutoStrutList);
+			// keep same vessel docking joints
+			List<ModuleDockingNode> allDockingNodes = vessel.FindPartModulesImplementing<ModuleDockingNode>();
+			for (int i = 0; i < allDockingNodes.Count; i++)
+				jointsToKeep.add(allDockingNodes[i].sameVesselDockJoint);
+
+			// keep strut joints
+			List<CModuleStrut> allStruts = vessel.FindPartModulesImplementing<CModuleStrut>();
+			for (int i = 0; i < allStruts.Count; i++)
+				jointsToKeep.add(allStruts[i].strutJoint);
+
+			PartJoint[] allJoints = getAllJoints();
+			cached_allAutostrutJoints.Clear();
+			for (int ii = 0; ii < allJoints.Length; ii++) {
+				PartJoint j = allJoints[ii];
+				if (!j)
+					continue;
+
+				if (!j.Host || j.Host.vessel != vessel)
+					continue;
+				if (!j.Target || j.Target.vessel != vessel)
+					continue;
+
+				if (j == j.Host.attachJoint || j == j.Target.attachJoint)
+					continue;
+
+				if (jointsToKeep.contains(j))
+					continue;
+
+				cached_allAutostrutJoints.Add(j);
+				if (verbose)
+					log("Autostrut [" + cached_allAutostrutJoints.Count + "] " + j.desc());
 			}
 
 			cached_allAutostrutJoints_vessel = vessel;
@@ -94,34 +119,6 @@ namespace DockRotate
 		/******** public interface ********/
 
 		public static void releaseCrossAutoStruts(this Part part, bool verbose)
-		{
-			if (!part.vessel || part.vessel.parts == null)
-				return;
-			PartSet rotParts = PartSet.allPartsFromHere(part);
-			List<Part> parts = part.vessel.parts;
-			int count = 0;
-			for (int i = 0; i < parts.Count; i++) {
-				if (parts[i].physicalSignificance != Part.PhysicalSignificance.FULL)
-					continue;
-				List<PartJoint> autoStruts = parts[i].autoStruts();
-				if (autoStruts == null)
-					continue;
-				for (int ii = autoStruts.Count - 1; ii >= 0; ii--) {
-					PartJoint j = autoStruts[ii];
-					if (!j || !j.Host || !j.Target)
-						continue;
-					if (rotParts.contains(j.Host) != rotParts.contains(j.Target)
-						|| j.Host == part || j.Target == part) {
-						if (verbose)
-							log(part.desc() + ": releasing [" + ++count + "] " + j.desc());
-						j.DestroyJoint();
-						autoStruts.RemoveAt(ii);
-					}
-				}
-			}
-		}
-
-		public static void releaseCrossAutoStruts_old(this Part part, bool verbose)
 		{
 			PartSet rotParts = PartSet.allPartsFromHere(part);
 

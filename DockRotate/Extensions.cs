@@ -107,29 +107,6 @@ namespace DockRotate
 			return ret;
 		}
 
-		private static string autoStrutsField = "autoStrutJoints";
-		private static FieldInfo autoStrutsInfo = null;
-		public static List<PartJoint> autoStruts(this Part part, bool verbose = false)
-		{
-			if (verbose)
-				log(part.desc() + ".autoStruts(): begin");
-			if (autoStrutsInfo == null)
-				autoStrutsInfo = typeof(Part).GetField(autoStrutsField, BindingFlags.NonPublic | BindingFlags.Instance);
-			if (autoStrutsInfo == null) {
-				log(part.desc() + ".autoStruts(): can't access Part." + autoStrutsField);
-				return null;
-			}
-			if (verbose)
-				log(part.desc() + ".autoStruts(): got FieldInfo " + autoStrutsInfo);
-			List<PartJoint> ret = autoStrutsInfo.GetValue(part) as List<PartJoint>;
-			if (verbose)
-				log(part.desc() + ".autoStruts(): got autoStrutJoints = "
-					+ (ret == null ? "null" : "[" + ret.Count + "]"));
-			if (ret != null && ret.Count <= 0)
-				ret = null;
-			return ret;
-		}
-
 		/******** Physics Activation utilities ********/
 
 		public static bool hasPhysics(this Part part)
