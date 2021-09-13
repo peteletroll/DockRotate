@@ -449,6 +449,12 @@ namespace DockRotate
 			else
 				log(d, ": no jointMotion");
 
+			List<PartJoint> autoStruts = part.autoStruts();
+			if (autoStruts != null) {
+				for (int i = 0; i < autoStruts.Count; i++)
+					log(d, ": autostrut " + autoStruts[i].desc());
+			}
+
 			log(d, ": END DUMP");
 		}
 
