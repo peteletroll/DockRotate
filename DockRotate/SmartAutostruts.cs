@@ -81,7 +81,7 @@ namespace DockRotate
 			List<Part> parts = vessel.parts;
 			int l = parts != null ? parts.Count : 0;
 			for (int i = 0; i < l; i++) {
-				List<PartJoint> partAutoStrutList = parts[i].autoStruts(true);
+				List<PartJoint> partAutoStrutList = parts[i].autoStruts();
 				if (partAutoStrutList != null)
 					cached_allAutostrutJoints.AddRange(partAutoStrutList);
 			}
@@ -94,6 +94,34 @@ namespace DockRotate
 		/******** public interface ********/
 
 		public static void releaseCrossAutoStruts(this Part part, bool verbose)
+		{
+			if (!part.vessel || part.vessel.parts == null)
+				return;
+			PartSet rotParts = PartSet.allPartsFromHere(part);
+			List<Part> parts = part.vessel.parts;
+			int count = 0;
+			for (int i = 0; i < parts.Count; i++) {
+				if (parts[i].physicalSignificance != Part.PhysicalSignificance.FULL)
+					continue;
+				List<PartJoint> autoStruts = parts[i].autoStruts();
+				if (autoStruts == null)
+					continue;
+				for (int ii = autoStruts.Count - 1; ii >= 0; ii--) {
+					PartJoint j = autoStruts[ii];
+					if (!j || !j.Host || !j.Target)
+						continue;
+					if (rotParts.contains(j.Host) != rotParts.contains(j.Target)
+						|| j.Host == part || j.Target == part) {
+						if (verbose)
+							log(part.desc() + ": releasing [" + ++count + "] " + j.desc());
+						j.DestroyJoint();
+						autoStruts.RemoveAt(ii);
+					}
+				}
+			}
+		}
+
+		public static void releaseCrossAutoStruts_old(this Part part, bool verbose)
 		{
 			PartSet rotParts = PartSet.allPartsFromHere(part);
 
