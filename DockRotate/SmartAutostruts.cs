@@ -76,39 +76,14 @@ namespace DockRotate
 				&& cached_allAutostrutJoints_frame == Time.frameCount)
 				return cached_allAutostrutJoints;
 
-			PartJointSet jointsToKeep = new PartJointSet();
-
-			// keep same vessel docking joints
-			List<ModuleDockingNode> allDockingNodes = vessel.FindPartModulesImplementing<ModuleDockingNode>();
-			for (int i = 0; i < allDockingNodes.Count; i++)
-				jointsToKeep.add(allDockingNodes[i].sameVesselDockJoint);
-
-			// keep strut joints
-			List<CModuleStrut> allStruts = vessel.FindPartModulesImplementing<CModuleStrut>();
-			for (int i = 0; i < allStruts.Count; i++)
-				jointsToKeep.add(allStruts[i].strutJoint);
-
-			PartJoint[] allJoints = getAllJoints();
 			cached_allAutostrutJoints.Clear();
-			for (int ii = 0; ii < allJoints.Length; ii++) {
-				PartJoint j = allJoints[ii];
-				if (!j)
-					continue;
 
-				if (!j.Host || j.Host.vessel != vessel)
-					continue;
-				if (!j.Target || j.Target.vessel != vessel)
-					continue;
-
-				if (j == j.Host.attachJoint || j == j.Target.attachJoint)
-					continue;
-
-				if (jointsToKeep.contains(j))
-					continue;
-
-				cached_allAutostrutJoints.Add(j);
-				if (verbose)
-					log("Autostrut [" + cached_allAutostrutJoints.Count + "] " + j.desc());
+			List<Part> parts = vessel.parts;
+			int l = parts != null ? parts.Count : 0;
+			for (int i = 0; i < l; i++) {
+				List<PartJoint> partAutoStrutList = parts[i].autoStruts(true);
+				if (partAutoStrutList != null)
+					cached_allAutostrutJoints.AddRange(partAutoStrutList);
 			}
 
 			cached_allAutostrutJoints_vessel = vessel;
