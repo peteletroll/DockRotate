@@ -60,7 +60,7 @@ namespace DockRotate
 				log(desc(), ".setupLocalAxis(" + state + "): "
 					+ "no node \"" + rotatingNodeName + "\"");
 
-				List<AttachNode> nodes = part.allAttachNodes();
+				List<AttachNode> nodes = part.namedAttachNodes();
 				for (int i = 0; i < nodes.Count; i++)
 					log(desc(), ": node[" + i + "] = " + nodes[i].desc());
 				return false;

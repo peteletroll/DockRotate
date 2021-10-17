@@ -98,6 +98,16 @@ namespace DockRotate
 			}
 		}
 
+		[KSPEvent(
+			guiActive = true,
+			groupName = DEBUGGROUP,
+			groupDisplayName = DEBUGGROUP
+		)]
+		public void CheckWeldability()
+		{
+			JointWelder.get(jointMotion ? jointMotion.joint : null);
+		}
+
 		protected override void fillInfo()
 		{
 			storedModuleDisplayName = Localizer.Format("#DCKROT_port_displayname");

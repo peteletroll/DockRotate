@@ -42,6 +42,7 @@
     <Compile Include="ModuleNodeRotate.cs" />
     <Compile Include="ModuleDockRotate.cs" />
     <Compile Include="DockingStateChecker.cs" />
+    <Compile Include="JointWelder.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="Assembly-CSharp">

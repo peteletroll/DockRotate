@@ -98,12 +98,15 @@ namespace DockRotate
 			return s > 1 ? part.name.Remove(s) : part.name;
 		}
 
-		public static List<AttachNode> allAttachNodes(this Part part)
+		public static List<AttachNode> namedAttachNodes(this Part part, bool includeSrfAttach = true)
 		{
 			List<AttachNode> ret = new List<AttachNode>();
-			if (part.srfAttachNode != null)
+			part.attachNodes.ForEach(n => {
+				if (n != null && n.id != "")
+					ret.Add(n);
+			});
+			if (includeSrfAttach && part.srfAttachNode != null && part.srfAttachNode.id != "")
 				ret.Add(part.srfAttachNode);
-			ret.AddRange(part.attachNodes);
 			return ret;
 		}
 

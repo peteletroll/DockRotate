@@ -435,7 +435,7 @@ namespace DockRotate
 			string d = desc(true);
 			log(d, ": BEGIN DUMP");
 
-			List<AttachNode> nodes = part.allAttachNodes();
+			List<AttachNode> nodes = part.namedAttachNodes();
 			string nodeHelp = ": available nodes:";
 			for (int i = 0; i < nodes.Count; i++)
 				if (nodes[i] != null)
