@@ -6,7 +6,6 @@ namespace DockRotate
 {
 	public class JointWelder
 	{
-		private PartJoint joint;
 		private ModuleDockRotate parentDR, childDR;
 		private Part parentPart, childPart;
 		private Part newParentPart, newChildPart;
@@ -21,18 +20,17 @@ namespace DockRotate
 
 		private JointWelder(PartJoint joint, bool verbose)
 		{
-			this.joint = joint;
 			string sep = new string('-', 60);
 			if (verbose)
 				log(sep);
-			this.valid = setup(verbose);
+			this.valid = setup(joint, verbose);
 			if (verbose)
 				log("WELDABLE " + this.valid);
 			if (verbose)
 				log(sep);
 		}
 
-		private bool setup(bool verbose = false)
+		private bool setup(PartJoint joint, bool verbose = false)
 		{
 			if (!joint) {
 				if (verbose)
@@ -139,6 +137,7 @@ namespace DockRotate
 		public IEnumerator doWeld()
 		{
 			log("WELDING!");
+			PartJoint joint = childPart.attachJoint;
 			ConfigurableJointManager[] cjm = new ConfigurableJointManager[joint.joints.Count];
 			for (int i = 0; i < cjm.Length; i++)
 				cjm[i].setup(joint.joints[i]);
@@ -157,6 +156,12 @@ namespace DockRotate
 					yield return new WaitForFixedUpdate();
 			}
 
+			childDR.forceUnlocked = parentDR.forceUnlocked = true;
+			childPart.vessel.KJRNextCycleAllAutoStrut();
+			childPart.releaseCrossAutoStruts(true);
+			parentPart.releaseCrossAutoStruts(true);
+			VesselMotionManager.get(childPart.vessel).changeCount(1);
+
 			Vector3 ofs = -newParentOffset.STd(newChildPart, childPart);
 			while (t < T) {
 				t += Time.fixedDeltaTime;
@@ -170,6 +175,10 @@ namespace DockRotate
 			}
 			for (int i = 0; i < cjm.Length; i++)
 				cjm[i].setPosition(Vector3.zero);
+
+			childDR.forceUnlocked = parentDR.forceUnlocked = false;
+			VesselMotionManager.get(childPart.vessel).changeCount(-1);
+
 			log("WELDED!");
 		}
 
