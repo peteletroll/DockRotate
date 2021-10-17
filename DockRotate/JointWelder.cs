@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace DockRotate
@@ -6,23 +7,29 @@ namespace DockRotate
 	public class JointWelder
 	{
 		private PartJoint joint;
+		private ModuleDockRotate parentDR, childDR;
+		private Part parentPart, childPart;
 		private Part newParentPart, newChildPart;
+		private Vector3 newParentOffset;
 		private bool valid = false;
 
-		public static JointWelder get(PartJoint joint)
+		public static JointWelder get(PartJoint joint, bool verbose)
 		{
-			JointWelder ret = new JointWelder(joint);
+			JointWelder ret = new JointWelder(joint, verbose);
 			return ret.valid ? ret : null;
 		}
 
-		private JointWelder(PartJoint joint)
+		private JointWelder(PartJoint joint, bool verbose)
 		{
 			this.joint = joint;
 			string sep = new string('-', 60);
-			log(sep);
-			this.valid = setup(true);
-			log("WELDABLE " + this.valid);
-			log(sep);
+			if (verbose)
+				log(sep);
+			this.valid = setup(verbose);
+			if (verbose)
+				log("WELDABLE " + this.valid);
+			if (verbose)
+				log(sep);
 		}
 
 		private bool setup(bool verbose = false)
@@ -38,39 +45,51 @@ namespace DockRotate
 				return false;
 			}
 
-			if (!weldable(joint.Host, verbose) || !weldable(joint.Target, verbose))
+			childPart = joint.Host;
+			childDR = childPart.FindModuleImplementing<ModuleDockRotate>();
+			parentPart = joint.Target;
+			parentDR = parentPart.FindModuleImplementing<ModuleDockRotate>();
+
+			if (!weldable(childPart, verbose) || !weldable(parentPart, verbose))
 				return false;
 
-			newChildPart = joint.Host.children[0];
-			newParentPart = joint.Target.parent;
+			newChildPart = childPart.children[0];
+			newParentPart = parentPart.parent;
 
-			for (Part p = newChildPart; p && p != newParentPart.parent; p = p.parent)
-				dumpNodes(p);
+			if (verbose)
+				for (Part p = newChildPart; p && p != newParentPart.parent; p = p.parent)
+					dumpNodes(p);
 
-			AttachNode childNode = joint.Host.FindAttachNodeByPart(newChildPart);
-			AttachNode parentNode = joint.Target.FindAttachNodeByPart(newParentPart);
-			log("CNODE " + childNode.position.ToString("F2")+ " " + childNode.desc());
-			log("PNODE " + parentNode.position.ToString("F2") + " " + parentNode.desc());
+			AttachNode childNode = childPart.FindAttachNodeByPart(newChildPart);
+			AttachNode parentNode = parentPart.FindAttachNodeByPart(newParentPart);
+			if (verbose) {
+				log("CNODE " + childNode.position.ToString("F2") + " " + childNode.desc());
+				log("PNODE " + parentNode.position.ToString("F2") + " " + parentNode.desc());
+			}
+
 			if (childNode == null || parentNode == null) {
 				if (verbose)
 					log("setup(): missing node");
 				return false;
 			}
 
-			Vector3 childOffset = parentNode.position.STp(parentNode.owner, newChildPart)
+			newParentOffset = parentNode.position.STp(parentNode.owner, newChildPart)
 				- childNode.position.STp(childNode.owner, newChildPart);
-			log("DIFF " + childOffset.magnitude.ToString("F2") + " " + childOffset.ToString("F2"));
+			if (verbose)
+				log("DIFF " + newParentOffset.magnitude.ToString("F2") + " " + newParentOffset.ToString("F2"));
 
-			ModuleDockingNode mdn = joint.Host.FindModuleImplementing<ModuleDockingNode>();
+			ModuleDockingNode mdn = childPart.FindModuleImplementing<ModuleDockingNode>();
 			if (!mdn) {
 				if (verbose)
 					log("setup(): no ModuleDockingNode");
 				return false;
 			}
-			Vector3 childAxis = Vector3.forward.Td(mdn.T(), joint.Target.T()).STd(joint.Target, newChildPart);
-			log("AXIS " + childAxis.magnitude.ToString("F2") + " " + childAxis.ToString("F2"));
-			childOffset = Vector3.Project(childOffset, childAxis);
-			log("OFFS " + childOffset.magnitude.ToString("F2") + " " + childOffset.ToString("F2"));
+			Vector3 newChildAxis = Vector3.forward.Td(mdn.T(), mdn.part.T()).STd(mdn.part, newChildPart);
+			if (verbose)
+				log("AXIS " + newChildAxis.magnitude.ToString("F2") + " " + newChildAxis.ToString("F2"));
+			newParentOffset = Vector3.Project(newParentOffset, newChildAxis);
+			if (verbose)
+				log("OFFS " + newParentOffset.magnitude.ToString("F2") + " " + newParentOffset.ToString("F2"));
 
 			return true;
 		}
@@ -117,9 +136,46 @@ namespace DockRotate
 			log(desc);
 		}
 
+		public IEnumerator doWeld()
+		{
+			log("WELDING!");
+			ConfigurableJointManager[] cjm = new ConfigurableJointManager[joint.joints.Count];
+			for (int i = 0; i < cjm.Length; i++)
+				cjm[i].setup(joint.joints[i]);
+			float T = 4f;
+			float t = 0f;
+
+			if (newChildPart.forcePhysics()) {
+				log("forcePhysics " + newChildPart);
+				for (int i = 0; i < 10; i++)
+					yield return new WaitForFixedUpdate();
+			}
+
+			if (newParentPart.forcePhysics()) {
+				log("forcePhysics " + newParentPart);
+				for (int i = 0; i < 10; i++)
+					yield return new WaitForFixedUpdate();
+			}
+
+			Vector3 ofs = -newParentOffset.STd(newChildPart, childPart);
+			while (t < T) {
+				t += Time.fixedDeltaTime;
+				float p = 0.5f - 0.5f * Mathf.Cos(2f * Mathf.PI * t / T);
+				log("t = " + t + ", p = " + p);
+				for (int i = 0; i < cjm.Length; i++) {
+					Vector3 pos = p * ofs.Td(childPart.T(), joint.joints[i].T());
+					cjm[i].setPosition(pos);
+				}
+				yield return new WaitForFixedUpdate();
+			}
+			for (int i = 0; i < cjm.Length; i++)
+				cjm[i].setPosition(Vector3.zero);
+			log("WELDED!");
+		}
+
 		protected static bool log(string msg1, string msg2 = "")
 		{
-			return Extensions.log(msg1, msg2);
+			return Extensions.log("Welder: " + msg1, msg2);
 		}
 	}
 }

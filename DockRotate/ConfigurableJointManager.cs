@@ -51,6 +51,11 @@ namespace DockRotate
 				Extensions.log("JointManager: tgtRot0 = " + tgtRot0.desc());
 		}
 
+		public void setPosition(Vector3 position)
+		{
+			joint.targetPosition = tgtPos0 + L2Jd(position);
+		}
+
 		public void setRotation(float angle, Vector3 axis, Vector3 node)
 		// axis and node are in local space
 		{

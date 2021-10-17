@@ -524,9 +524,11 @@ namespace DockRotate
 			return GameSettings.MODIFIER_KEY.GetKey();
 		}
 
+		public bool forceUnlocked = false;
+
 		public bool IsJointUnlocked()
 		{
-			bool ret = currentRotation();
+			bool ret = forceUnlocked || currentRotation();
 			if (verboseEvents || ret)
 				log(desc(), ".IsJointUnlocked() is " + ret);
 			return ret;

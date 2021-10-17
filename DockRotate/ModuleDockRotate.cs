@@ -45,6 +45,22 @@ namespace DockRotate
 			return ret;
 		}
 
+		private JointWelder welder;
+
+		private BaseEvent WeldEvent = null;
+		[KSPEvent(
+			guiName = "#DCKROT_weld",
+			guiActive = false,
+			guiActiveEditor = false
+		)]
+		public void Weld()
+		{
+			if (welder == null)
+				return;
+			log("WELD!");
+			StartCoroutine(welder.doWeld());
+		}
+
 		private BaseEvent SwitchToReadyEvent = null;
 		[KSPEvent(
 			guiName = "#DCKROT_switch_to_ready",
@@ -105,7 +121,7 @@ namespace DockRotate
 		)]
 		public void CheckWeldability()
 		{
-			JointWelder.get(jointMotion ? jointMotion.joint : null);
+			JointWelder.get(jointMotion ? jointMotion.joint : null, true);
 		}
 
 		protected override void fillInfo()
@@ -220,6 +236,7 @@ namespace DockRotate
 #endif
 			base.doSetup(onLaunch);
 
+			WeldEvent = Events[nameof(Weld)];
 			SwitchToReadyEvent = Events[nameof(SwitchToReady)];
 
 			if (!consoleSetupDone) {
@@ -242,6 +259,9 @@ namespace DockRotate
 				isDocked = hasJointMotion;
 				log(desc(), ": new docked state " + isDocked);
 			}
+
+			welder = hasJointMotion ? JointWelder.get(jointMotion.joint, false) : null;
+			WeldEvent.guiActive = welder != null;
 
 			if (hasJointMotion && jointMotion.joint.Host == part && !frozenFlag) {
 				float snap = autoSnapStep();
