@@ -59,10 +59,15 @@ namespace DockRotate
 					dumpNodes(p);
 
 			AttachNode childNode = childPart.FindAttachNodeByPart(newChildPart);
+			if (childNode == null)
+				childNode = childPart.srfAttachNode;
 			AttachNode parentNode = parentPart.FindAttachNodeByPart(newParentPart);
+			if (parentNode == null)
+				parentNode = parentPart.srfAttachNode;
+
 			if (verbose) {
-				log("CNODE " + childNode.position.ToString("F2") + " " + childNode.desc());
-				log("PNODE " + parentNode.position.ToString("F2") + " " + parentNode.desc());
+				log("CNODE " + childNode.desc());
+				log("PNODE " + parentNode.desc());
 			}
 
 			if (childNode == null || parentNode == null) {
@@ -134,27 +139,23 @@ namespace DockRotate
 			log(desc);
 		}
 
+		private void dumpJoints()
+		{
+			int i = 0;
+			for (Part p = newChildPart; p && p != newParentPart.parent; p = p.parent)
+				log("ATTACH[" + ++i + "] " + p.physicalSignificance + " " + p.PhysicsSignificance + " " + p.attachJoint.desc());
+		}
+
 		public IEnumerator doWeld()
 		{
 			log("WELDING!");
+
+			dumpJoints();
+
 			PartJoint joint = childPart.attachJoint;
 			ConfigurableJointManager[] cjm = new ConfigurableJointManager[joint.joints.Count];
 			for (int i = 0; i < cjm.Length; i++)
 				cjm[i].setup(joint.joints[i]);
-			float T = 4f;
-			float t = 0f;
-
-			if (newChildPart.forcePhysics()) {
-				log("forcePhysics " + newChildPart);
-				for (int i = 0; i < 10; i++)
-					yield return new WaitForFixedUpdate();
-			}
-
-			if (newParentPart.forcePhysics()) {
-				log("forcePhysics " + newParentPart);
-				for (int i = 0; i < 10; i++)
-					yield return new WaitForFixedUpdate();
-			}
 
 			childDR.forceUnlocked = parentDR.forceUnlocked = true;
 			childPart.vessel.KJRNextCycleAllAutoStrut();
@@ -163,10 +164,12 @@ namespace DockRotate
 			VesselMotionManager.get(childPart.vessel).changeCount(1);
 
 			Vector3 ofs = -newParentOffset.STd(newChildPart, childPart);
+			float T = 8f;
+			float t = 0f;
 			while (t < T) {
 				t += Time.fixedDeltaTime;
 				float p = 0.5f - 0.5f * Mathf.Cos(2f * Mathf.PI * t / T);
-				log("t = " + t + ", p = " + p);
+				// log("t = " + t + ", p = " + p);
 				for (int i = 0; i < cjm.Length; i++) {
 					Vector3 pos = p * ofs.Td(childPart.T(), joint.joints[i].T());
 					cjm[i].setPosition(pos);

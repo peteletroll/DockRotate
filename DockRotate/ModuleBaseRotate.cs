@@ -673,6 +673,7 @@ namespace DockRotate
 
 			jointMotion = null;
 			hasJointMotion = false;
+			forceUnlocked = false;
 			nodeRole = "None";
 			anglePosition = rotationAngle();
 			angleVelocity = 0f;

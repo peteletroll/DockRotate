@@ -57,7 +57,6 @@ namespace DockRotate
 		{
 			if (welder == null)
 				return;
-			log("WELD!");
 			StartCoroutine(welder.doWeld());
 		}
 
