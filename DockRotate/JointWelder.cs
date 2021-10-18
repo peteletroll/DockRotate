@@ -166,9 +166,10 @@ namespace DockRotate
 			Vector3 ofs = -newParentOffset.STd(newChildPart, childPart);
 			float T = 8f;
 			float t = 0f;
+
 			while (t < T) {
 				t += Time.fixedDeltaTime;
-				float p = 0.5f - 0.5f * Mathf.Cos(2f * Mathf.PI * t / T);
+				float p = 0.5f - 0.5f * Mathf.Cos(Mathf.PI * t / T);
 				// log("t = " + t + ", p = " + p);
 				for (int i = 0; i < cjm.Length; i++) {
 					Vector3 pos = p * ofs.Td(childPart.T(), joint.joints[i].T());
@@ -176,13 +177,33 @@ namespace DockRotate
 				}
 				yield return new WaitForFixedUpdate();
 			}
-			for (int i = 0; i < cjm.Length; i++)
-				cjm[i].setPosition(Vector3.zero);
+
+			for (int i = 0; i < cjm.Length; i++) {
+				Vector3 pos = ofs.Td(childPart.T(), joint.joints[i].T());
+				cjm[i].setPosition(pos);
+			}
+
+			staticize();
 
 			childDR.forceUnlocked = parentDR.forceUnlocked = false;
 			VesselMotionManager.get(childPart.vessel).changeCount(-1);
 
 			log("WELDED!");
+		}
+
+		private void staticize()
+		{
+			Vector3 offset = newParentOffset.STd(newChildPart, newChildPart.vessel.rootPart);
+			_propagate(newChildPart, offset);
+		}
+
+		private static void _propagate(Part part, Vector3 offset)
+		{
+			if (!part)
+				return;
+			part.orgPos += offset;
+			for (int i = 0; i < part.children.Count; i++)
+				_propagate(part.children[i], offset);
 		}
 
 		protected static bool log(string msg1, string msg2 = "")
