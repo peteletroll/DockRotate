@@ -51,6 +51,8 @@ namespace DockRotate
 		[KSPEvent(
 			guiName = "#DCKROT_weld",
 			guiActive = false,
+			guiActiveUnfocused = true,
+			externalToEVAOnly = true,
 			guiActiveEditor = false
 		)]
 		public void Weld()
@@ -260,7 +262,7 @@ namespace DockRotate
 			}
 
 			welder = hasJointMotion ? JointWelder.get(jointMotion.joint, false) : null;
-			WeldEvent.guiActive = welder != null;
+			WeldEvent.guiActiveUnfocused = welder != null;
 
 			if (hasJointMotion && jointMotion.joint.Host == part && !frozenFlag) {
 				float snap = autoSnapStep();
