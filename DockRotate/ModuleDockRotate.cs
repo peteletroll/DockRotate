@@ -54,6 +54,7 @@ namespace DockRotate
 			guiActive = false,
 			guiActiveUnfocused = true,
 			externalToEVAOnly = true,
+			unfocusedRange = 5f,
 			guiActiveEditor = false
 		)]
 		public void Weld()
@@ -65,8 +66,11 @@ namespace DockRotate
 				return;
 
 			bool canWeld = false;
+			KerbalEVA EVAmodule = null;
 			for (int i = 0; i < EVAvessel.parts.Count; i++) {
 				Part EVApart = EVAvessel.parts[i];
+				if (!EVAmodule)
+					EVAmodule = EVApart.FindModuleImplementing<KerbalEVA>();
 				List<ProtoCrewMember> EVAprotos = EVApart.protoModuleCrew;
 				for (int j = 0; j < EVAprotos.Count; j++) {
 					ProtoCrewMember EVAproto = EVAprotos[j];
@@ -79,8 +83,7 @@ namespace DockRotate
 				ScreenMessages.PostScreenMessage(Localizer.Format("#DCKROT_engineer_needed"), 5f, ScreenMessageStyle.UPPER_CENTER);
 				return;
 			}
-
-			StartCoroutine(welder.doWeld());
+			StartCoroutine(welder.doWeld(EVAmodule));
 		}
 
 		private BaseEvent SwitchToReadyEvent = null;

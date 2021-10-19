@@ -148,12 +148,18 @@ namespace DockRotate
 				log("ATTACH[" + ++i + "] " + p.physicalSignificance + " " + p.PhysicsSignificance + " " + p.attachJoint.desc());
 		}
 
-		public IEnumerator doWeld()
+		public IEnumerator doWeld(KerbalEVA EVA)
 		{
 			log("WELDING!");
 
 			dumpNodes();
 			dumpJoints();
+
+			if (EVA) {
+				EVA.DebugFSMState = true;
+				EVA.Weld(childPart);
+				yield return new WaitForSeconds(2f);
+			}
 
 			PartJoint joint = childPart.attachJoint;
 			ConfigurableJointManager[] cjm = new ConfigurableJointManager[joint.joints.Count];
@@ -193,13 +199,15 @@ namespace DockRotate
 
 			childDR.forceUnlocked = parentDR.forceUnlocked = false;
 
-			destroy(childPart);
-			destroy(parentPart);
-
 			VesselMotionManager.get(newChildPart.vessel).changeCount(-1);
 
 			dumpNodes();
 			dumpJoints();
+
+			if (EVA)
+				yield return new WaitForSeconds(2f);
+			destroy(childPart);
+			destroy(parentPart);
 
 			log("WELDED!");
 		}
