@@ -277,8 +277,9 @@ namespace DockRotate
 		{
 			if (!part)
 				return;
-			part.explosionPotential = 0f;
-			part.explode();
+			// part.explosionPotential = 0f;
+			// part.explode();
+			part.Die();
 		}
 
 		protected static bool log(string msg1, string msg2 = "")
