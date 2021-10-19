@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 using KSP.Localization;
 using KSP.UI.Screens.DebugToolbar;
@@ -59,6 +60,26 @@ namespace DockRotate
 		{
 			if (welder == null)
 				return;
+			Vessel EVAvessel = FlightGlobals.ActiveVessel;
+			if (!EVAvessel.isEVA)
+				return;
+
+			bool canWeld = false;
+			for (int i = 0; i < EVAvessel.parts.Count; i++) {
+				Part EVApart = EVAvessel.parts[i];
+				List<ProtoCrewMember> EVAprotos = EVApart.protoModuleCrew;
+				for (int j = 0; j < EVAprotos.Count; j++) {
+					ProtoCrewMember EVAproto = EVAprotos[j];
+					if (EVAproto.HasEffect<Experience.Effects.DrillSkill>())
+						canWeld = true;
+				}
+			}
+
+			if (!canWeld) {
+				ScreenMessages.PostScreenMessage(Localizer.Format("#DCKROT_engineer_needed"), 5f, ScreenMessageStyle.UPPER_CENTER);
+				return;
+			}
+
 			StartCoroutine(welder.doWeld());
 		}
 
