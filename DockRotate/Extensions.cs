@@ -354,7 +354,7 @@ namespace DockRotate
 				return "null";
 			return (bare ? "" : "AN:") + n.id + ":" + n.size
 				+ ":" + n.owner.desc(true)
-				+ ":" + (n.attachedPart ? n.attachedPart.desc(true) : "I" + n.attachedPartId);
+				+ ">" + (n.attachedPart ? n.attachedPart.desc(true) : "I" + n.attachedPartId);
 		}
 
 		/******** PartJoint utilities ********/

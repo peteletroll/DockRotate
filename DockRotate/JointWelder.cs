@@ -133,7 +133,7 @@ namespace DockRotate
 
 			for (int i = 0; i < nodes.Count; i++) {
 				AttachNode n = nodes[i];
-				desc += "\n\t[" + i + "] "+ n.id + " -> " + n.attachedPart.desc();
+				desc += "\n\t[" + i + "] \"" + n.id + "\" -> " + n.attachedPart.desc();
 				AttachNode c = n.getConnectedNode(false);
 				if (c != null)
 					desc += ", " + c.desc();
@@ -233,10 +233,10 @@ namespace DockRotate
 				AttachNode n = nodes[i];
 				if (n == null)
 					continue;
-				Part r = n.attachedPart == childPart ? newChildPart :
-					n.attachedPart == parentPart ? newParentPart :
+				Part r = (n.attachedPart == childPart) ? newParentPart :
+					(n.attachedPart == parentPart) ? newChildPart :
 					null;
-				if (r == null)
+				if (r == null || r == n.owner)
 					continue;
 				string oldDesc = n.desc();
 				n.attachedPart = r;
