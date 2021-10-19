@@ -54,10 +54,6 @@ namespace DockRotate
 			newChildPart = childPart.children[0];
 			newParentPart = parentPart.parent;
 
-			if (verbose)
-				for (Part p = newChildPart; p && p != newParentPart.parent; p = p.parent)
-					dumpNodes(p);
-
 			AttachNode childNode = childPart.FindAttachNodeByPart(newChildPart);
 			if (childNode == null)
 				childNode = childPart.srfAttachNode;
@@ -123,6 +119,12 @@ namespace DockRotate
 			return true;
 		}
 
+		private void dumpNodes()
+		{
+			for (Part p = newChildPart; p && p != newParentPart.parent; p = p.parent)
+				dumpNodes(p);
+		}
+
 		private void dumpNodes(Part p)
 		{
 			List<AttachNode> nodes = p.namedAttachNodes();
@@ -150,6 +152,7 @@ namespace DockRotate
 		{
 			log("WELDING!");
 
+			dumpNodes();
 			dumpJoints();
 
 			PartJoint joint = childPart.attachJoint;
@@ -164,7 +167,7 @@ namespace DockRotate
 			VesselMotionManager.get(childPart.vessel).changeCount(1);
 
 			Vector3 ofs = -newParentOffset.STd(newChildPart, childPart);
-			float T = 8f;
+			float T = 4f;
 			float t = 0f;
 
 			while (t < T) {
@@ -183,18 +186,82 @@ namespace DockRotate
 				cjm[i].setPosition(pos);
 			}
 
-			staticize();
+			staticizeOrgInfo();
+			staticizeTree();
+			staticizeNodes();
+			staticizeJoints();
 
 			childDR.forceUnlocked = parentDR.forceUnlocked = false;
-			VesselMotionManager.get(childPart.vessel).changeCount(-1);
+
+			destroy(childPart);
+			destroy(parentPart);
+
+			VesselMotionManager.get(newChildPart.vessel).changeCount(-1);
+
+			dumpNodes();
+			dumpJoints();
 
 			log("WELDED!");
 		}
 
-		private void staticize()
+		private void staticizeOrgInfo()
 		{
 			Vector3 offset = newParentOffset.STd(newChildPart, newChildPart.vessel.rootPart);
 			_propagate(newChildPart, offset);
+		}
+
+		private void staticizeTree()
+		{
+			log("staticizeTree()");
+			newChildPart.parent = newParentPart;
+			List<Part> npc = newParentPart.children;
+			npc.Clear();
+			npc.Add(parentPart);
+			npc.AddRange(childPart.children);
+			childPart.children.Clear();
+		}
+
+		private void staticizeNodes()
+		{
+			log("staticizeNodes()");
+			List<AttachNode> nodes = new List<AttachNode>();
+			nodes.AddRange(newChildPart.attachNodes);
+			nodes.Add(newChildPart.srfAttachNode);
+			nodes.AddRange(newParentPart.attachNodes);
+			nodes.Add(newParentPart.srfAttachNode);
+			for (int i = 0; i < nodes.Count; i++) {
+				AttachNode n = nodes[i];
+				if (n == null)
+					continue;
+				Part r = n.attachedPart == childPart ? newChildPart :
+					n.attachedPart == parentPart ? newParentPart :
+					null;
+				if (r == null)
+					continue;
+				string oldDesc = n.desc();
+				n.attachedPart = r;
+				n.attachedPartId = r.flightID;
+				log("RENODE " + oldDesc + " -> " + n.desc());
+			}
+		}
+
+		private void staticizeJoints()
+		{
+			log("staticizeJoints()");
+			List<Part> q = new List<Part>();
+			q.Add(newChildPart);
+			for (int i = 0; i < q.Count; i++) {
+				Part p = q[i];
+				if (!p)
+					continue;
+				string ajd = p.attachJoint.desc();
+				if (p.attachJoint.Target == childPart) {
+					p.CreateAttachJoint(AttachModes.STACK);
+					log("REATTACH " + ajd + " -> " + p.attachJoint.desc());
+				}
+				if (p.physicalSignificance != Part.PhysicalSignificance.FULL)
+					q.AddRange(p.children);
+			}
 		}
 
 		private static void _propagate(Part part, Vector3 offset)
@@ -204,6 +271,14 @@ namespace DockRotate
 			part.orgPos += offset;
 			for (int i = 0; i < part.children.Count; i++)
 				_propagate(part.children[i], offset);
+		}
+
+		private void destroy(Part part)
+		{
+			if (!part)
+				return;
+			part.explosionPotential = 0f;
+			part.explode();
 		}
 
 		protected static bool log(string msg1, string msg2 = "")
