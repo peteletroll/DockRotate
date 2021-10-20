@@ -221,11 +221,13 @@ namespace DockRotate
 		private void staticizeTree()
 		{
 			log("staticizeTree()");
+
 			newChildPart.parent = newParentPart;
-			List<Part> npc = newParentPart.children;
-			npc.Clear();
-			npc.Add(parentPart);
-			npc.AddRange(childPart.children);
+
+			newParentPart.children.Clear();
+			newParentPart.children.Add(parentPart);
+			newParentPart.children.AddRange(childPart.children);
+
 			childPart.children.Clear();
 		}
 
