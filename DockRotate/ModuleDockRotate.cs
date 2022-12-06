@@ -149,6 +149,19 @@ namespace DockRotate
 			JointWelder.get(jointMotion ? jointMotion.joint : null, true);
 		}
 
+		[KSPEvent(
+			guiActive = true,
+			groupName = DEBUGGROUP,
+			groupDisplayName = DEBUGGROUP
+		)]
+		public void WeldCouple()
+		{
+			JointWelder welder = JointWelder.get(jointMotion ? jointMotion.joint : null, true);
+			if (welder != null)
+				StartCoroutine(welder.doWeld(null));
+
+		}
+
 		protected override void fillInfo()
 		{
 			storedModuleDisplayName = Localizer.Format("#DCKROT_port_displayname");

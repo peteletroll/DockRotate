@@ -127,14 +127,14 @@ namespace DockRotate
 
 		private void dumpNodes(Part p)
 		{
-			List<AttachNode> nodes = p.namedAttachNodes();
+			List<AttachNode> nodes = p.allAttachNodes();
 
 			string desc = p.desc() + " nodes:";
 
 			for (int i = 0; i < nodes.Count; i++) {
 				AttachNode n = nodes[i];
 				desc += "\n\t[" + i + "] \"" + n.id + "\" -> " + n.attachedPart.desc();
-				AttachNode c = n.getConnectedNode(false);
+				AttachNode c = n.FindOpposingNode();
 				if (c != null)
 					desc += ", " + c.desc();
 			}
@@ -215,7 +215,7 @@ namespace DockRotate
 		private void staticizeOrgInfo()
 		{
 			Vector3 offset = newParentOffset.STd(newChildPart, newChildPart.vessel.rootPart);
-			_propagate(newChildPart, offset);
+			propagateOffset(newChildPart, offset);
 		}
 
 		private void staticizeTree()
@@ -274,27 +274,24 @@ namespace DockRotate
 			}
 		}
 
-		private static void _propagate(Part part, Vector3 offset)
+		private static void propagateOffset(Part part, Vector3 offset)
 		{
 			if (!part)
 				return;
 			part.orgPos += offset;
 			for (int i = 0; i < part.children.Count; i++)
-				_propagate(part.children[i], offset);
+				propagateOffset(part.children[i], offset);
 		}
 
 		private void destroy(Part part)
 		{
-			if (!part)
-				return;
-			// part.explosionPotential = 0f;
-			// part.explode();
-			part.Die();
+			if (part)
+				part.Die();
 		}
 
 		protected static bool log(string msg1, string msg2 = "")
 		{
-			return Extensions.log("Welder: " + msg1, msg2);
+			return Extensions.log(nameof(JointWelder) + ": " + msg1, msg2);
 		}
 	}
 }
