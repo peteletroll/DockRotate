@@ -1168,20 +1168,22 @@ namespace DockRotate
 
 		protected virtual void updateStatus(JointMotionObj cr)
 		{
+			string OT = hasJointMotion && jointMotion.joint.isOffTree() ? " OT" : "";
 			if (cr) {
 				angleInfo = String.Format(
-					"{0:+0.00;-0.00;0.00}\u00b0 > {1:+0.00;-0.00;0.00}\u00b0 ({2:+0.00;-0.00;0.00}\u00b0/s){3}",
+					"{0:+0.00;-0.00;0.00}\u00b0 > {1:+0.00;-0.00;0.00}\u00b0 ({2:+0.00;-0.00;0.00}\u00b0/s){3}{4}",
 					anglePosition, jointMotion.rotationTarget(),
-					cr.vel, (jointMotion.controller == this ? " CTL" : ""));
+					cr.vel, (jointMotion.controller == this ? " CTL" : ""), OT);
 			} else {
 				if (float.IsNaN(anglePosition)) {
 					angleInfo = angleInfoNA;
 				} else {
 					angleInfo = String.Format(
-						"{0:+0.00;-0.00;0.00}\u00b0 ({1:+0.0000;-0.0000;0.0000}\u00b0\u0394)",
-						anglePosition, dynamicDeltaAngle());
+						"{0:+0.00;-0.00;0.00}\u00b0 ({1:+0.0000;-0.0000;0.0000}\u00b0\u0394{2})",
+						anglePosition, dynamicDeltaAngle(), OT);
 				}
 			}
+
 #if DEBUG
 			int nJoints = hasJointMotion ? jointMotion.joint.joints.Count : 0;
 			nodeStatus = part.flightID + ":" + nodeRole + "[" + nJoints + "]";
