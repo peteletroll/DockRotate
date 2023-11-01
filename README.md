@@ -26,6 +26,10 @@ Forum page: https://forum.kerbalspaceprogram.com/index.php?/topic/170484-dockrot
 
 ( ** ) DockRotate can be compatible with **Kerbal Joint Reinforcement**. KJR configuration may need an update: see https://forum.kerbalspaceprogram.com/index.php?/topic/170484-dockrotate&do=findComment&comment=3305721 and https://forum.kerbalspaceprogram.com/index.php?/topic/170484-14-dockrotate&do=findComment&comment=3424519
 
+# Welding
+
+Engineers in EVA can weld docking port pairs.
+
 # NodeRotate
 
 This module can be used to turn any connection node of any physically significant part into a rotating joint.
