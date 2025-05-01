@@ -152,6 +152,9 @@ namespace DockRotate
 		{
 			log("WELDING!");
 
+            parentDR.disableWeld();
+            childDR.disableWeld();
+
 			dumpNodes();
 			dumpJoints();
 
